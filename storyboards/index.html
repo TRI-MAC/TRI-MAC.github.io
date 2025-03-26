@@ -1,38 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PDF Library</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background-color: #f5f5f5;
+    :root {
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --primary: #4a90e2;
+      --hover: #357ab8;
+      --text: #333;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
     }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 3rem 1rem;
+      line-height: 1.6;
+    }
+
     h1 {
       text-align: center;
-      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: var(--primary);
     }
+
     ul {
-      max-width: 600px;
-      margin: auto;
-      padding: 0;
-      list-style-type: none;
+      max-width: 700px;
+      margin: 0 auto;
+      list-style: none;
     }
+
     li {
-      background: white;
-      margin: 0.5rem 0;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: var(--card);
+      margin-bottom: 1rem;
+      padding: 1.2rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
     }
+
+    li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
     a {
       text-decoration: none;
-      color: #007acc;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      width: 100%;
     }
+
     a:hover {
-      text-decoration: underline;
+      color: var(--hover);
+    }
+
+    .icon {
+      margin-right: 0.8rem;
+      font-size: 1.4rem;
     }
   </style>
 </head>
@@ -40,15 +82,13 @@
 
   <h1>📄 PDF Library</h1>
   <ul>
-    <li><a href="https://tri-mac.github.io/storyboards/batteryEffects.pdf", target="_blank">batteryEffects.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/costSavingsCalc.pdf", target="_blank">costSavingsCalc.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/gridMap.pdf", target="_blank">gridMap.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/informationHub.pdf", target="_blank">informationHub.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/payoffEstimator.pdf", target="_blank">payoffEstimator.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/potentialSchedules.pdf", target="_blank">potentialSchedules.pdf</a></li>
-    <li><a href="https://tri-mac.github.io/storyboards/realTimeStatus", target="_blank">realTimeStatus.pdf</a></li>
-
-
+    <li><a href="https://tri-mac.github.io/storyboards/batteryEffects.pdf" target="_blank"><span class="icon">📘</span>batteryEffects.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/costSavingsCalc.pdf" target="_blank"><span class="icon">📘</span>costSavingsCalc.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/gridMap.pdf" target="_blank"><span class="icon">📘</span>gridMap.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/informationHub.pdf" target="_blank"><span class="icon">📘</span>informationHub.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/payoffEstimator.pdf" target="_blank"><span class="icon">📘</span>payoffEstimator.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/potentialSchedules.pdf" target="_blank"><span class="icon">📘</span>potentialSchedules.pdf</a></li>
+    <li><a href="https://tri-mac.github.io/storyboards/realTimeStatus.pdf" target="_blank"><span class="icon">📘</span>realTimeStatus.pdf</a></li>
   </ul>
 
 </body>
