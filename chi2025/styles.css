@@ -127,8 +127,7 @@ body {
 }
 
 .buttons {
-    width: 155px;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
     gap: 22px;
@@ -487,6 +486,13 @@ body {
     clip-path: polygon(0 0, 0 100%, 100% 50%);
 }
 
+@media screen and (max-width: 767px) {
+    .buttons {
+        width: 155px;
+        flex-direction: column;
+    }
+}
+
 /* Tablet Layout (768px and up) */
 @media screen and (min-width: 768px) {
     .contents {
@@ -566,6 +572,7 @@ body {
         width: 272px;
         max-height: 150px;
     }
+
 }
 
 /* Desktop Layout (1024px and up) */
@@ -716,7 +723,8 @@ body {
     }
 
     .banner {
-        max-width: 960px;
+        width: 100%;
+        max-width: 100px;
     }
 
     .carousel-content {
@@ -734,4 +742,5 @@ body {
     .logo {
         width: 960px;
     }
+    
 }
