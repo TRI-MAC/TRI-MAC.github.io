@@ -557,7 +557,7 @@ body {
 
     .logo {
         content: url('assets/banner_desktop2.svg');
-        width: 600px;
+        width: 100%;
     }
 
     .text-group {
@@ -690,7 +690,7 @@ body {
     }
 
     .logo {
-        width: 840px;
+        width: 100%;
     }
 
     .text-group {
@@ -724,7 +724,7 @@ body {
 
     .banner {
         width: 100%;
-        max-width: 100px;
+        max-width: 1000px;
     }
 
     .carousel-content {
@@ -740,7 +740,7 @@ body {
     }
 
     .logo {
-        width: 960px;
+        width: 100%;
     }
     
 }
