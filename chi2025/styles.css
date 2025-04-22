@@ -494,7 +494,8 @@ body {
     }
 
     .banner {
-        max-width: 480px;
+        width: 600px;
+        max-width: 800px;
     }
 
     .blurb-section {
@@ -574,7 +575,8 @@ body {
     }
 
     .banner {
-        max-width: 800px;
+        width: 800px;
+        max-width: 1000px;
     }
 
     .blurb-section {
