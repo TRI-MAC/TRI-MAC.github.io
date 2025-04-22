@@ -494,7 +494,7 @@ body {
     }
 
     .banner {
-        width: 600px;
+        width: 100%;
         max-width: 800px;
     }
 
@@ -575,7 +575,7 @@ body {
     }
 
     .banner {
-        width: 800px;
+        width: 100%;
         max-width: 1000px;
     }
 
