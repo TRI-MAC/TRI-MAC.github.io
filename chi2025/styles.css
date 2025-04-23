@@ -126,6 +126,10 @@ body {
     margin-top: 5px;
 }
 
+.small-description {
+    margin-top: 2%;
+}
+
 .buttons {
     flex-direction: row;
     justify-content: flex-start;
