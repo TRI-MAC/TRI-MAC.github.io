@@ -50,33 +50,36 @@
     </div>
   </header>
 
-  <!-- ───── Hero / Featured Post ───── -->
+  <!-- ───── Hero / Featured Post + Art Agent ───── -->
   <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-meta">
-        <span class="tag">cybernetics</span>
-        <span class="tag">work in progress</span>
-        <span class="date">2026.03.28</span>
+    <div class="hero-grid">
+      <div class="hero-inner">
+        <div class="hero-meta">
+          <span class="tag">cybernetics</span>
+          <span class="tag">work in progress</span>
+          <span class="date">2026.03.28</span>
+        </div>
+        <h1 class="hero-title">The Feedback Loops We Don't See</h1>
+        <p class="hero-excerpt">
+          Every organization is a control system — most just don't know what they're regulating.
+          A deep look at hidden feedback mechanisms that shape team dynamics and product decisions.
+        </p>
+        <a href="post.html" class="hero-cta">
+          Read <span class="arrow">→</span>
+        </a>
       </div>
-      <h1 class="hero-title">The Feedback Loops We Don't See</h1>
-      <p class="hero-excerpt">
-        Every organization is a control system — most just don't know what they're regulating.
-        A deep look at hidden feedback mechanisms that shape team dynamics and product decisions.
-      </p>
-      <a href="post.html" class="hero-cta">
-        Read <span class="arrow">→</span>
-      </a>
-      <div class="hero-circuit-decoration" aria-hidden="true">
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--color-primary)" stroke-width="0.5" stroke-dasharray="4 6" class="spin-slow"/>
-          <circle cx="60" cy="60" r="35" fill="none" stroke="var(--color-primary)" stroke-width="0.5" stroke-dasharray="2 4" class="spin-slow-reverse"/>
-          <circle cx="60" cy="60" r="3" fill="var(--color-primary)" opacity="0.3"/>
-          <circle cx="60" cy="10" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
-          <circle cx="110" cy="60" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
-          <circle cx="60" cy="110" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
-          <circle cx="10" cy="60" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
-        </svg>
-      </div>
+      <aside class="artagent-callout">
+        <div class="artagent-header">
+          <span class="artagent-label">Art Agent</span>
+          <span class="artagent-date" id="artagent-date">Today</span>
+        </div>
+        <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="Art Agent" loading="lazy"></iframe>
+        <div class="artagent-nav">
+          <button class="artagent-btn" id="artagent-prev" title="Previous day">&lt;</button>
+          <button class="artagent-btn" id="artagent-next" title="Next day">&gt;</button>
+          <button class="artagent-btn" id="artagent-today" title="Today">&gt;&gt;</button>
+        </div>
+      </aside>
     </div>
   </section>
 
@@ -202,6 +205,93 @@
       </svg>
     </div>
   </footer>
+
+  <script>
+    (function() {
+      const base = 'https://tri-mac.github.io/artagent/';
+      const frame = document.getElementById('artagent-frame');
+      const dateEl = document.getElementById('artagent-date');
+      const prevBtn = document.getElementById('artagent-prev');
+      const nextBtn = document.getElementById('artagent-next');
+      const todayBtn = document.getElementById('artagent-today');
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      let current = new Date(today);
+
+      function fmt(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        return { y, m, day, file: 'index_'+y+'_'+m+'_'+day+'.html', label: y+'.'+m+'.'+day };
+      }
+
+      function isToday(d) {
+        return d.getTime() === today.getTime();
+      }
+
+      function fileUrl(d) {
+        if (isToday(d)) return base;
+        return base + fmt(d).file;
+      }
+
+      function checkExists(d) {
+        if (isToday(d)) return Promise.resolve(true);
+        return fetch(fileUrl(d), { method: 'HEAD' })
+          .then(function(r) { return r.ok; })
+          .catch(function() { return false; });
+      }
+
+      function updateDisplay() {
+        dateEl.textContent = isToday(current) ? 'Today' : fmt(current).label;
+        todayBtn.classList.toggle('artagent-btn-disabled', isToday(current));
+        todayBtn.disabled = isToday(current);
+
+        var prev = new Date(current);
+        prev.setDate(prev.getDate() - 1);
+        checkExists(prev).then(function(ok) {
+          prevBtn.classList.toggle('artagent-btn-disabled', !ok);
+          prevBtn.disabled = !ok;
+        });
+
+        var next = new Date(current);
+        next.setDate(next.getDate() + 1);
+        if (next > today) {
+          nextBtn.classList.add('artagent-btn-disabled');
+          nextBtn.disabled = true;
+        } else {
+          checkExists(next).then(function(ok) {
+            nextBtn.classList.toggle('artagent-btn-disabled', !ok);
+            nextBtn.disabled = !ok;
+          });
+        }
+      }
+
+      function navigate(d) {
+        current = d;
+        frame.src = fileUrl(d);
+        updateDisplay();
+      }
+
+      prevBtn.addEventListener('click', function() {
+        var d = new Date(current);
+        d.setDate(d.getDate() - 1);
+        navigate(d);
+      });
+
+      nextBtn.addEventListener('click', function() {
+        var d = new Date(current);
+        d.setDate(d.getDate() + 1);
+        navigate(d);
+      });
+
+      todayBtn.addEventListener('click', function() {
+        navigate(new Date(today));
+      });
+
+      updateDisplay();
+    })();
+  </script>
 
 </body>
 </html>
