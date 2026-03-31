@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requisite Variety — TRI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ───── Circuit SVG Background ───── -->
+  <svg class="circuit-bg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dot-grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.8" fill="var(--color-circuit)"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dot-grid)"/>
+    <!-- Horizontal trace -->
+    <line class="trace trace-h1" x1="0" y1="160" x2="100%" y2="160"/>
+    <line class="trace trace-h2" x1="0" y1="480" x2="100%" y2="480"/>
+    <!-- Vertical trace -->
+    <line class="trace trace-v1" x1="25%" y1="0" x2="25%" y2="100%"/>
+    <line class="trace trace-v2" x1="75%" y1="0" x2="75%" y2="100%"/>
+    <!-- Node dots at intersections -->
+    <circle class="node-dot" cx="25%" cy="160" r="3"/>
+    <circle class="node-dot" cx="75%" cy="160" r="3"/>
+    <circle class="node-dot" cx="25%" cy="480" r="3"/>
+    <circle class="node-dot" cx="75%" cy="480" r="3"/>
+  </svg>
+
+  <!-- ───── Header ───── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo-link">
+        <img src="tri_mark.png" alt="TRI" class="logo-img">
+        <span class="logo-text">
+          <span class="logo-tri">Requisite Variety</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link active">Blog</a>
+        <a href="benchmarks.html" class="nav-link">Benchmarks</a>
+        <a href="#" class="nav-link">Archive</a>
+        <a href="#" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ───── Hero / Featured Post ───── -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-meta">
+        <span class="tag">cybernetics</span>
+        <span class="tag">work in progress</span>
+        <span class="date">2026.03.28</span>
+      </div>
+      <h1 class="hero-title">The Feedback Loops We Don't See</h1>
+      <p class="hero-excerpt">
+        Every organization is a control system — most just don't know what they're regulating.
+        A deep look at hidden feedback mechanisms that shape team dynamics and product decisions.
+      </p>
+      <a href="post.html" class="hero-cta">
+        Read <span class="arrow">→</span>
+      </a>
+      <div class="hero-circuit-decoration" aria-hidden="true">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--color-primary)" stroke-width="0.5" stroke-dasharray="4 6" class="spin-slow"/>
+          <circle cx="60" cy="60" r="35" fill="none" stroke="var(--color-primary)" stroke-width="0.5" stroke-dasharray="2 4" class="spin-slow-reverse"/>
+          <circle cx="60" cy="60" r="3" fill="var(--color-primary)" opacity="0.3"/>
+          <circle cx="60" cy="10" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
+          <circle cx="110" cy="60" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
+          <circle cx="60" cy="110" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
+          <circle cx="10" cy="60" r="2.5" fill="var(--color-primary)" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Post Grid ───── -->
+  <main class="post-grid-section">
+    <div class="section-header">
+      <h2 class="section-title">Latest Posts</h2>
+      <div class="section-line" aria-hidden="true"></div>
+    </div>
+
+    <div class="post-grid">
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">cybernetics</span>
+          <span class="date">2026.03.22</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Ashby’s Law and the Art of Software Architecture</a></h3>
+        <p class="card-excerpt">
+          Why your system needs at least as much variety in its responses as the disturbances it faces.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">6 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">conference paper</span>
+          <span class="date">2026.03.15</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Viable System Model for Platform Teams</a></h3>
+        <p class="card-excerpt">
+          Stafford Beer's recursive model applied to modern engineering organizations — and why it still works.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">8 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">cybernetics</span>
+          <span class="date">2026.03.08</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Emergence in Microservice Meshes</a></h3>
+        <p class="card-excerpt">
+          How simple local rules create surprisingly coherent global behavior in distributed systems.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">5 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">work in progress</span>
+          <span class="date">2026.02.28</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Second-Order Observation in LLM Evaluation</a></h3>
+        <p class="card-excerpt">
+          When you evaluate an AI system, you're also revealing the limits of your own distinctions.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">7 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">cybernetics</span>
+          <span class="date">2026.02.20</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Homeostasis in CI/CD Pipelines</a></h3>
+        <p class="card-excerpt">
+          The pipeline that heals itself: applying autopoietic principles to deployment infrastructure.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">6 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+      <article class="post-card">
+        <div class="card-meta">
+          <span class="tag">conference paper</span>
+          <span class="date">2026.02.12</span>
+        </div>
+        <h3 class="card-title"><a href="post.html">Requisite Variety in Hiring Panels</a></h3>
+        <p class="card-excerpt">
+          Homogeneous panels can only select for what they already know. Diversity isn't just ethical — it's cybernetically necessary.
+        </p>
+        <div class="card-footer">
+          <span class="read-time">4 min read</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- ───── Footer ───── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="tri_mark.png" alt="TRI" style="width:24px;height:24px;">
+        <span>requisite variety</span>
+        <span class="footer-dot">·</span>
+        <span>2026</span>
+      </div>
+      <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">RSS</a>
+      </div>
+    </div>
+    <div class="footer-circuit" aria-hidden="true">
+      <svg width="100%" height="2">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="8 4"/>
+      </svg>
+    </div>
+  </footer>
+
+</body>
+</html>

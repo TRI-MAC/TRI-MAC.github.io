@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmarks — Requisite Variety</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .bench-hero {
+      position: relative;
+      z-index: 1;
+      padding: 72px 24px 40px;
+    }
+    .bench-hero-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+    .bench-hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .bench-hero p {
+      font-size: 1.05rem;
+      color: var(--color-text-muted);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+    .bench-section {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .bench-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 24px;
+    }
+    .bench-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .bench-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .bench-card .bench-desc {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 20px;
+    }
+    .chart-area {
+      width: 100%;
+      height: 260px;
+    }
+    /* Bar chart styles */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+      padding-top: 10px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar {
+      width: 100%;
+      max-width: 48px;
+      border-radius: 4px 4px 0 0;
+      transition: opacity 0.2s;
+      position: relative;
+    }
+    .bar:hover { opacity: 0.85; }
+    .bar-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .bar-value {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--color-text);
+      text-align: center;
+      font-weight: 600;
+    }
+    /* Line chart via SVG */
+    .line-chart-svg {
+      width: 100%;
+      height: 220px;
+    }
+    /* Radar / spider chart */
+    .radar-svg {
+      width: 100%;
+      height: 260px;
+    }
+    /* Legend */
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+    /* Separator */
+    .bench-sep {
+      max-width: var(--max-width);
+      margin: 0 auto 40px;
+      padding: 0 24px;
+      height: 1px;
+      background: var(--color-border);
+    }
+    .bench-note {
+      position: relative;
+      z-index: 1;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    @media (max-width: 768px) {
+      .bench-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ───── Circuit SVG Background ───── -->
+  <svg class="circuit-bg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dot-grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.8" fill="var(--color-circuit)"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dot-grid)"/>
+    <line class="trace trace-v1" x1="15%" y1="0" x2="15%" y2="100%"/>
+    <line class="trace trace-v2" x1="85%" y1="0" x2="85%" y2="100%"/>
+  </svg>
+
+  <!-- ───── Header ───── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo-link">
+        <img src="tri_mark.png" alt="TRI" class="logo-img">
+        <span class="logo-text">
+          <span class="logo-tri">Requisite Variety</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link">Blog</a>
+        <a href="benchmarks.html" class="nav-link active">Benchmarks</a>
+        <a href="#" class="nav-link">Archive</a>
+        <a href="#" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ───── Hero ───── -->
+  <section class="bench-hero">
+    <div class="bench-hero-inner">
+      <h1>LLM &amp; Generative AI Benchmarks</h1>
+      <p>Benchmarks relevant to Human-Centered AI (HCAI) — tracking model performance on tasks that matter for safe, transparent, and human-aligned systems.</p>
+    </div>
+  </section>
+
+  <div class="bench-sep"></div>
+
+  <!-- ───── Benchmark Charts ───── -->
+  <section class="bench-section">
+    <div class="bench-grid">
+
+      <!-- Chart 1: HCAI Safety Score -->
+      <div class="bench-card">
+        <h3>HCAI Safety Alignment Score</h3>
+        <p class="bench-desc">Measures refusal accuracy, harm avoidance, and value-alignment across 1,200 adversarial prompts.</p>
+        <div class="chart-area">
+          <div class="bar-chart">
+            <div class="bar-group">
+              <div class="bar-value">94.2</div>
+              <div class="bar" style="height:94.2%;background:#EB0A1E;"></div>
+              <div class="bar-label">GPT-5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">91.8</div>
+              <div class="bar" style="height:91.8%;background:#1a1a1a;"></div>
+              <div class="bar-label">Claude 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">89.5</div>
+              <div class="bar" style="height:89.5%;background:#999;"></div>
+              <div class="bar-label">Gemini 2.5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">86.1</div>
+              <div class="bar" style="height:86.1%;background:#ccc;"></div>
+              <div class="bar-label">Llama 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">82.4</div>
+              <div class="bar" style="height:82.4%;background:#e8e8e8;border:1px solid #ccc;"></div>
+              <div class="bar-label">Mistral L</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item">Score out of 100 · Higher is better</span>
+        </div>
+      </div>
+
+      <!-- Chart 2: Explainability -->
+      <div class="bench-card">
+        <h3>Explanation Faithfulness (ExplainBench v2)</h3>
+        <p class="bench-desc">How well a model's stated reasoning matches its actual decision process, measured via causal intervention.</p>
+        <div class="chart-area">
+          <svg class="line-chart-svg" viewBox="0 0 440 200" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid -->
+            <line x1="40" y1="10" x2="40" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="170" x2="420" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="130" x2="420" y2="130" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="90" x2="420" y2="90" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="50" x2="420" y2="50" stroke="#f0f0f0" stroke-width="0.5"/>
+            <!-- Y-axis labels -->
+            <text x="35" y="174" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0%</text>
+            <text x="35" y="134" font-size="9" fill="#888" text-anchor="end" font-family="monospace">25%</text>
+            <text x="35" y="94" font-size="9" fill="#888" text-anchor="end" font-family="monospace">50%</text>
+            <text x="35" y="54" font-size="9" fill="#888" text-anchor="end" font-family="monospace">75%</text>
+            <text x="35" y="14" font-size="9" fill="#888" text-anchor="end" font-family="monospace">100%</text>
+            <!-- X-axis labels (quarters) -->
+            <text x="80" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Q1'25</text>
+            <text x="160" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Q2'25</text>
+            <text x="240" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Q3'25</text>
+            <text x="320" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Q4'25</text>
+            <text x="400" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Q1'26</text>
+            <!-- Line A (GPT family) - red -->
+            <polyline points="80,140 160,118 240,95 320,72 400,48" fill="none" stroke="#EB0A1E" stroke-width="2"/>
+            <circle cx="80" cy="140" r="3" fill="#EB0A1E"/>
+            <circle cx="160" cy="118" r="3" fill="#EB0A1E"/>
+            <circle cx="240" cy="95" r="3" fill="#EB0A1E"/>
+            <circle cx="320" cy="72" r="3" fill="#EB0A1E"/>
+            <circle cx="400" cy="48" r="3" fill="#EB0A1E"/>
+            <!-- Line B (Claude family) - black -->
+            <polyline points="80,150 160,130 240,105 320,78 400,55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="80" cy="150" r="3" fill="#1a1a1a"/>
+            <circle cx="160" cy="130" r="3" fill="#1a1a1a"/>
+            <circle cx="240" cy="105" r="3" fill="#1a1a1a"/>
+            <circle cx="320" cy="78" r="3" fill="#1a1a1a"/>
+            <circle cx="400" cy="55" r="3" fill="#1a1a1a"/>
+            <!-- Line C (Open-source) - gray -->
+            <polyline points="80,158 160,148 240,132 320,112 400,88" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="4 2"/>
+            <circle cx="80" cy="158" r="3" fill="#999"/>
+            <circle cx="160" cy="148" r="3" fill="#999"/>
+            <circle cx="240" cy="132" r="3" fill="#999"/>
+            <circle cx="320" cy="112" r="3" fill="#999"/>
+            <circle cx="400" cy="88" r="3" fill="#999"/>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#EB0A1E;"></span> GPT family</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#1a1a1a;"></span> Claude family</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#999;"></span> Open-source best</span>
+        </div>
+      </div>
+
+      <!-- Chart 3: Human Preference -->
+      <div class="bench-card">
+        <h3>Human Preference (HCAI Arena)</h3>
+        <p class="bench-desc">ELO ratings from 15,000+ blind pairwise comparisons on HCAI-relevant tasks: explanation, uncertainty disclosure, collaborative editing.</p>
+        <div class="chart-area">
+          <div class="bar-chart">
+            <div class="bar-group">
+              <div class="bar-value">1285</div>
+              <div class="bar" style="height:92%;background:#EB0A1E;"></div>
+              <div class="bar-label">Claude 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">1271</div>
+              <div class="bar" style="height:89%;background:#1a1a1a;"></div>
+              <div class="bar-label">GPT-5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">1248</div>
+              <div class="bar" style="height:84%;background:#999;"></div>
+              <div class="bar-label">Gemini 2.5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">1195</div>
+              <div class="bar" style="height:72%;background:#ccc;"></div>
+              <div class="bar-label">Llama 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">1162</div>
+              <div class="bar" style="height:65%;background:#e8e8e8;border:1px solid #ccc;"></div>
+              <div class="bar-label">Mistral L</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item">ELO rating · Higher is better</span>
+        </div>
+      </div>
+
+      <!-- Chart 4: Calibration / Uncertainty -->
+      <div class="bench-card">
+        <h3>Uncertainty Calibration (CalibBench)</h3>
+        <p class="bench-desc">Expected Calibration Error (ECE) — how well models' stated confidence matches actual accuracy. Lower is better.</p>
+        <div class="chart-area">
+          <svg class="line-chart-svg" viewBox="0 0 440 200" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid -->
+            <line x1="40" y1="10" x2="40" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="170" x2="420" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="130" x2="420" y2="130" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="90" x2="420" y2="90" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="50" x2="420" y2="50" stroke="#f0f0f0" stroke-width="0.5"/>
+            <!-- Y-axis (ECE) -->
+            <text x="35" y="174" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0.00</text>
+            <text x="35" y="134" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0.05</text>
+            <text x="35" y="94" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0.10</text>
+            <text x="35" y="54" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0.15</text>
+            <text x="35" y="14" font-size="9" fill="#888" text-anchor="end" font-family="monospace">0.20</text>
+            <!-- X-axis -->
+            <text x="100" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">2024</text>
+            <text x="200" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Early 2025</text>
+            <text x="300" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Late 2025</text>
+            <text x="400" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">2026</text>
+            <!-- Lower is better — lines go downward -->
+            <!-- GPT family -->
+            <polyline points="100,40 200,62 300,95 400,130" fill="none" stroke="#EB0A1E" stroke-width="2"/>
+            <circle cx="100" cy="40" r="3" fill="#EB0A1E"/>
+            <circle cx="200" cy="62" r="3" fill="#EB0A1E"/>
+            <circle cx="300" cy="95" r="3" fill="#EB0A1E"/>
+            <circle cx="400" cy="130" r="3" fill="#EB0A1E"/>
+            <!-- Claude family -->
+            <polyline points="100,35 200,55 300,88 400,140" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="100" cy="35" r="3" fill="#1a1a1a"/>
+            <circle cx="200" cy="55" r="3" fill="#1a1a1a"/>
+            <circle cx="300" cy="88" r="3" fill="#1a1a1a"/>
+            <circle cx="400" cy="140" r="3" fill="#1a1a1a"/>
+            <!-- Open-source -->
+            <polyline points="100,30 200,48 300,72 400,105" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="4 2"/>
+            <circle cx="100" cy="30" r="3" fill="#999"/>
+            <circle cx="200" cy="48" r="3" fill="#999"/>
+            <circle cx="300" cy="72" r="3" fill="#999"/>
+            <circle cx="400" cy="105" r="3" fill="#999"/>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#EB0A1E;"></span> GPT family</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#1a1a1a;"></span> Claude family</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#999;"></span> Open-source best</span>
+          <span class="legend-item">Lower ECE = better calibrated</span>
+        </div>
+      </div>
+
+      <!-- Chart 5: Controllability -->
+      <div class="bench-card">
+        <h3>Controllability &amp; Steerability</h3>
+        <p class="bench-desc">Instruction-following accuracy across persona, tone, format, length, and constraint-satisfaction tasks (800 test cases).</p>
+        <div class="chart-area">
+          <div class="bar-chart">
+            <div class="bar-group">
+              <div class="bar-value">91.3</div>
+              <div class="bar" style="height:91.3%;background:#EB0A1E;"></div>
+              <div class="bar-label">GPT-5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">90.7</div>
+              <div class="bar" style="height:90.7%;background:#1a1a1a;"></div>
+              <div class="bar-label">Claude 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">87.2</div>
+              <div class="bar" style="height:87.2%;background:#999;"></div>
+              <div class="bar-label">Gemini 2.5</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">78.9</div>
+              <div class="bar" style="height:78.9%;background:#ccc;"></div>
+              <div class="bar-label">Llama 4</div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-value">75.4</div>
+              <div class="bar" style="height:75.4%;background:#e8e8e8;border:1px solid #ccc;"></div>
+              <div class="bar-label">Mistral L</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item">% accurate · Higher is better</span>
+        </div>
+      </div>
+
+      <!-- Chart 6: Collaborative Task Completion -->
+      <div class="bench-card">
+        <h3>Human-AI Collaborative Task Completion</h3>
+        <p class="bench-desc">Task success rate when humans and AI collaborate on complex multi-step research and analysis tasks (HCAI-Collab benchmark).</p>
+        <div class="chart-area">
+          <svg class="line-chart-svg" viewBox="0 0 440 200" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid -->
+            <line x1="40" y1="10" x2="40" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="170" x2="420" y2="170" stroke="#e0e0e0" stroke-width="0.5"/>
+            <line x1="40" y1="130" x2="420" y2="130" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="90" x2="420" y2="90" stroke="#f0f0f0" stroke-width="0.5"/>
+            <line x1="40" y1="50" x2="420" y2="50" stroke="#f0f0f0" stroke-width="0.5"/>
+            <!-- Y labels -->
+            <text x="35" y="174" font-size="9" fill="#888" text-anchor="end" font-family="monospace">40%</text>
+            <text x="35" y="134" font-size="9" fill="#888" text-anchor="end" font-family="monospace">55%</text>
+            <text x="35" y="94" font-size="9" fill="#888" text-anchor="end" font-family="monospace">70%</text>
+            <text x="35" y="54" font-size="9" fill="#888" text-anchor="end" font-family="monospace">85%</text>
+            <text x="35" y="14" font-size="9" fill="#888" text-anchor="end" font-family="monospace">100%</text>
+            <!-- X labels -->
+            <text x="100" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">Human only</text>
+            <text x="200" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">AI only</text>
+            <text x="300" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">H+AI (basic)</text>
+            <text x="400" y="188" font-size="8" fill="#888" text-anchor="middle" font-family="monospace">H+AI (HCAI)</text>
+            <!-- Bars as rect pairs -->
+            <!-- Human only -->
+            <rect x="82" y="92" width="36" height="78" fill="#ccc" rx="3"/>
+            <text x="100" y="86" font-size="9" fill="#1a1a1a" text-anchor="middle" font-family="monospace" font-weight="600">68%</text>
+            <!-- AI only -->
+            <rect x="182" y="72" width="36" height="98" fill="#999" rx="3"/>
+            <text x="200" y="66" font-size="9" fill="#1a1a1a" text-anchor="middle" font-family="monospace" font-weight="600">73%</text>
+            <!-- H+AI basic -->
+            <rect x="282" y="48" width="36" height="122" fill="#1a1a1a" rx="3"/>
+            <text x="300" y="42" font-size="9" fill="#1a1a1a" text-anchor="middle" font-family="monospace" font-weight="600">84%</text>
+            <!-- H+AI HCAI -->
+            <rect x="382" y="22" width="36" height="148" fill="#EB0A1E" rx="3"/>
+            <text x="400" y="16" font-size="9" fill="#EB0A1E" text-anchor="middle" font-family="monospace" font-weight="600">93%</text>
+          </svg>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item">HCAI-designed collaboration protocols significantly outperform ad-hoc pairing</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <p class="bench-note">
+    * All benchmarks are illustrative examples for the Requisite Variety research notebook. Scores are synthetic and do not represent actual model evaluations. Last updated: March 2026.
+  </p>
+
+  <!-- ───── Footer ───── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="tri_mark.png" alt="TRI" style="width:24px;height:24px;">
+        <span>requisite variety</span>
+        <span class="footer-dot">·</span>
+        <span>2026</span>
+      </div>
+      <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">RSS</a>
+      </div>
+    </div>
+    <div class="footer-circuit" aria-hidden="true">
+      <svg width="100%" height="2">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="8 4"/>
+      </svg>
+    </div>
+  </footer>
+
+</body>
+</html>
