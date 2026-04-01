@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-03-31</title>
+<style>
+  :root{
+    --bg0:#120d08;
+    --bg1:#231811;
+    --stone:#4a3627;
+    --stone2:#6a513a;
+    --ochre:#b56b24;
+    --ochre2:#d08a38;
+    --umber:#7e4a1f;
+    --chalk:#d8c0a4;
+    --char:#1a140f;
+    --coal:#0e0b08;
+    --rust:#8d3e14;
+    --redearth:#9e4a21;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#050403;
+    overflow:hidden;
+    font-family: Georgia, serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(214,145,61,.10), transparent 45%),
+      radial-gradient(80% 55% at 50% 105%, rgba(26,16,10,.65), transparent 60%),
+      linear-gradient(180deg, #2c1e15 0%, #1f140e 26%, #150f0a 60%, #0c0907 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,220,170,.05),
+      0 20px 80px rgba(0,0,0,.55),
+      inset 0 0 120px rgba(0,0,0,.45);
+  }
+
+  .layer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  #bgCanvas, #markCanvas, #dustCanvas{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #stoneTexture{
+    mix-blend-mode:overlay;
+    opacity:.55;
+    filter:contrast(120%) saturate(80%);
+  }
+
+  #veils{
+    background:
+      radial-gradient(80% 50% at 50% 18%, rgba(200,133,62,.10), transparent 60%),
+      radial-gradient(60% 35% at 22% 30%, rgba(0,0,0,.18), transparent 70%),
+      radial-gradient(65% 40% at 75% 65%, rgba(225,184,126,.07), transparent 70%),
+      linear-gradient(180deg, rgba(255,220,170,.03), transparent 20%, transparent 80%, rgba(0,0,0,.25));
+    animation: breathe 24s ease-in-out infinite alternate;
+  }
+
+  #artWrap{
+    position:absolute;
+    left:14%;
+    top:20%;
+    width:72%;
+    height:44%;
+    transform:rotate(-3deg);
+    filter: drop-shadow(0 18px 28px rgba(0,0,0,.32));
+  }
+
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.95;
+    border-radius:44% 41% 39% 46% / 30% 34% 42% 38%;
+    clip-path:ellipse(47% 39% at 50% 50%);
+    filter:
+      sepia(.95)
+      saturate(.95)
+      hue-rotate(-8deg)
+      contrast(1.02)
+      brightness(.88)
+      blur(.12px);
+    mix-blend-mode:normal;
+    animation: imageShift 38s ease-in-out infinite alternate;
+  }
+
+  #artPatina{
+    position:absolute;
+    inset:-2%;
+    border-radius:46% 40% 42% 45% / 32% 36% 40% 39%;
+    clip-path:ellipse(48% 40% at 50% 50%);
+    background:
+      radial-gradient(60% 50% at 35% 30%, rgba(230,194,134,.18), transparent 45%),
+      radial-gradient(65% 50% at 62% 62%, rgba(72,42,18,.28), transparent 50%),
+      repeating-linear-gradient(101deg,
+        rgba(255,223,181,.05) 0 2px,
+        rgba(0,0,0,0) 2px 8px);
+    mix-blend-mode:soft-light;
+    opacity:.8;
+    animation: patina 31s ease-in-out infinite alternate;
+  }
+
+  #sootMask{
+    position:absolute;
+    inset:-1%;
+    clip-path:ellipse(49% 41% at 50% 50%);
+    background:
+      radial-gradient(85% 75% at 50% 50%, transparent 52%, rgba(17,11,8,.46) 77%, rgba(8,6,5,.72) 100%),
+      radial-gradient(35% 22% at 34% 36%, rgba(0,0,0,.18), transparent 70%),
+      radial-gradient(28% 18% at 66% 66%, rgba(0,0,0,.12), transparent 70%);
+    mix-blend-mode:multiply;
+    animation: soot 42s ease-in-out infinite alternate;
+  }
+
+  svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    overflow:visible;
+  }
+
+  #glyphs{
+    opacity:.88;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.2));
+  }
+
+  .charcoal{
+    fill:none;
+    stroke:#17110d;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:.88;
+  }
+  .ochre{
+    fill:none;
+    stroke:#ba6e25;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:.72;
+  }
+  .chalk{
+    fill:none;
+    stroke:#ccb08f;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:.30;
+  }
+  .smear{
+    fill:#9d561f;
+    opacity:.10;
+    filter:url(#blur6);
+  }
+
+  .animalA{ animation: animalPulseA 19s ease-in-out infinite; transform-origin:center; }
+  .animalB{ animation: animalPulseB 23s ease-in-out infinite; transform-origin:center; }
+  .animalC{ animation: animalPulseC 27s ease-in-out infinite; transform-origin:center; }
+
+  #hands{
+    mix-blend-mode:screen;
+    opacity:.44;
+    animation: handFlicker 14s ease-in-out infinite alternate;
+  }
+
+  #cracks{
+    opacity:.40;
+    mix-blend-mode:multiply;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    font-size:16px;
+    letter-spacing:.08em;
+    color:rgba(226,207,178,.45);
+    text-shadow:0 1px 0 rgba(0,0,0,.35);
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:9px;
+    bottom:217px;
+    opacity:.53;
+    filter: sepia(.9) saturate(.8) brightness(.72) contrast(.95);
+    transform: rotate(-8deg);
+    z-index:6;
+  }
+
+  #ledge{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:205px;
+    height:30px;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.18)),
+      linear-gradient(90deg, rgba(27,19,13,.0), rgba(27,19,13,.72) 7%, rgba(74,53,38,.3) 10%, rgba(27,19,13,.66) 18%, rgba(27,19,13,.0) 30%, rgba(27,19,13,.0) 100%);
+    opacity:.55;
+    z-index:7;
+    pointer-events:none;
+  }
+
+  #vignette{
+    background:
+      radial-gradient(130% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.18) 75%, rgba(0,0,0,.46) 100%),
+      radial-gradient(50% 18% at 50% 0%, rgba(255,229,184,.06), transparent 80%);
+  }
+
+  @keyframes breathe{
+    from{transform:scale(1) translateY(0px)}
+    to{transform:scale(1.03) translateY(-10px)}
+  }
+  @keyframes imageShift{
+    0%{transform:scale(1.03) translate(-1%, 0%) rotate(-1.3deg)}
+    50%{transform:scale(1.07) translate(1.2%, -1.5%) rotate(.4deg)}
+    100%{transform:scale(1.04) translate(.2%, 1%) rotate(1.5deg)}
+  }
+  @keyframes patina{
+    from{transform:translate(-1.5%, 0%) scale(1); opacity:.73}
+    to{transform:translate(1.5%, -1%) scale(1.03); opacity:.86}
+  }
+  @keyframes soot{
+    from{transform:scale(1) rotate(0deg)}
+    to{transform:scale(1.025) rotate(1deg)}
+  }
+  @keyframes animalPulseA{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-5px) scale(1.012)}
+  }
+  @keyframes animalPulseB{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(6px) scale(.992)}
+  }
+  @keyframes animalPulseC{
+    0%,100%{transform:translateX(0) scale(1)}
+    50%{transform:translateX(-4px) scale(1.01)}
+  }
+  @keyframes handFlicker{
+    0%{opacity:.36}
+    20%{opacity:.42}
+    55%{opacity:.48}
+    100%{opacity:.40}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="bgCanvas" class="layer"></canvas>
+
+    <div id="artWrap">
+      <img id="art-image" src="img/art.cfdc754f.png" alt="">
+      <div id="artPatina"></div>
+      <div id="sootMask"></div>
+    </div>
+
+    <svg id="glyphs" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs>
+        <filter id="blur6"><feGaussianBlur stdDeviation="6"/></filter>
+        <filter id="roughen">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="31" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+        </filter>
+      </defs>
+
+      <g id="smears">
+        <ellipse class="smear" cx="248" cy="545" rx="220" ry="85" transform="rotate(-18 248 545)"/>
+        <ellipse class="smear" cx="792" cy="525" rx="190" ry="72" transform="rotate(14 792 525)"/>
+        <ellipse class="smear" cx="524" cy="1170" rx="280" ry="130" transform="rotate(-9 524 1170)"/>
+      </g>
+
+      <g id="hands" filter="url(#roughen)">
+        <path d="M123 463
+                 c-10 -22 -8 -51 6 -73
+                 c21 -31 34 4 39 27
+                 c4 -36 26 -62 42 -31
+                 c8 17 8 35 10 55
+                 c4 -43 23 -80 42 -56
+                 c10 13 10 38 10 67
+                 c8 -42 28 -67 43 -45
+                 c8 12 7 31 3 57
+                 c16 -16 35 -6 34 19
+                 c-1 35 -19 58 -48 80
+                 c-34 25 -76 32 -111 15
+                 c-34 -17 -57 -62 -70 -115z"
+              fill="rgba(204,151,88,.44)"/>
+        <path d="M928 382
+                 c13 -25 14 -54 2 -77
+                 c-17 -34 -34 -3 -42 18
+                 c1 -34 -16 -63 -34 -39
+                 c-10 14 -13 36 -17 58
+                 c-2 -44 -17 -78 -36 -58
+                 c-11 11 -13 35 -15 63
+                 c-5 -40 -21 -69 -37 -51
+                 c-10 12 -11 30 -10 54
+                 c-14 -18 -35 -13 -39 11
+                 c-5 33 8 59 31 86
+                 c26 31 65 47 104 39
+                 c39 -8 71 -45 93 -104z"
+              fill="rgba(196,137,76,.34)"/>
+        <path d="M814 1286
+                 c-13 -27 -13 -62 -1 -90
+                 c15 -33 33 -4 41 18
+                 c0 -39 18 -73 36 -49
+                 c10 13 14 39 16 64
+                 c4 -44 20 -80 40 -57
+                 c11 13 13 39 12 70
+                 c7 -41 24 -71 41 -50
+                 c10 12 11 33 9 59
+                 c15 -14 35 -8 37 18
+                 c3 35 -10 63 -36 93
+                 c-28 31 -68 46 -109 37
+                 c-36 -8 -64 -45 -86 -113z"
+              fill="rgba(180,121,61,.23)"/>
+      </g>
+
+      <g id="animals">
+        <g class="animalA">
+          <path class="charcoal" stroke-width="13"
+            d="M162 1335
+               C214 1294, 319 1273, 404 1299
+               C472 1319, 513 1344, 557 1405
+               C605 1472, 625 1491, 695 1496
+               C748 1500, 794 1517, 831 1558
+               C787 1562, 742 1559, 702 1545
+               C664 1531, 633 1527, 599 1536
+               C565 1545, 533 1547, 502 1540
+               C467 1533, 426 1534, 395 1548
+               C360 1564, 321 1567, 278 1560
+               C231 1552, 190 1528, 156 1489
+               C124 1452, 108 1402, 118 1361
+               C122 1343, 135 1333, 162 1335 Z"/>
+          <path class="ochre" stroke-width="7"
+            d="M193 1378 C261 1350, 342 1345, 415 1365
+               C480 1383, 525 1421, 574 1464
+               M281 1545 C270 1602, 264 1646, 254 1704
+               M412 1541 C405 1604, 403 1651, 397 1712
+               M618 1529 C632 1591, 639 1637, 650 1705
+               M745 1534 C763 1594, 777 1648, 793 1712
+               M568 1408 C634 1372, 700 1359, 761 1365
+               C817 1370, 870 1398, 920 1454"/>
+          <path class="chalk" stroke-width="3.5"
+            d="M220 1400 C305 1387, 405 1394, 490 1428"/>
+        </g>
+
+        <g class="animalB">
+          <path class="charcoal" stroke-width="11"
+            d="M198 738
+               C252 700, 333 688, 404 708
+               C475 728, 554 781, 631 804
+               C682 819, 735 818, 785 800
+               C827 785, 863 770, 900 767
+               C861 817, 819 848, 768 871
+               C713 896, 661 900, 606 893
+               C548 886, 510 890, 466 915
+               C419 941, 357 953, 301 948
+               C240 943, 188 913, 154 863
+               C119 813, 119 778, 138 758
+               C154 742, 172 739, 198 738 Z"/>
+          <path class="ochre" stroke-width="6"
+            d="M233 780 C319 770, 389 775, 462 796
+               C543 819, 622 856, 699 853
+               M309 940 C306 995, 299 1047, 289 1100
+               M438 915 C438 967, 438 1021, 437 1086
+               M672 891 C681 946, 693 1008, 710 1071
+               M805 820 C860 798, 923 802, 968 821
+               M778 812 C822 764, 870 738, 926 729"/>
+        </g>
+
+        <g class="animalC">
+          <path class="charcoal" stroke-width="10"
+            d="M616 274
+               C663 245, 723 234, 785 245
+               C851 256, 905 292, 944 349
+               C978 399, 986 445, 972 487
+               C949 557, 872 613, 793 613
+               C744 613, 707 602, 662 584
+               C620 567, 582 566, 540 581
+               C504 595, 472 596, 436 588
+               C451 543, 479 505, 520 483
+               C565 459, 598 431, 620 390
+               C640 354, 644 316, 616 274 Z"/>
+          <path class="ochre" stroke-width="5.5"
+            d="M679 292 C736 286, 794 301, 840 336
+               C895 378, 918 436, 905 497
+               M584 560 C635 532, 669 516, 714 516
+               C754 515, 792 526, 838 557
+               M676 585 C670 630, 666 676, 666 727
+               M804 606 C809 656, 820 706, 835 759"/>
+          <circle cx="836" cy="387" r="11" fill="#18110c" opacity=".85"/>
+        </g>
+      </g>
+
+      <g id="cracks" stroke="#130f0b" stroke-width="3" fill="none">
+        <path d="M34 161 C95 196, 109 254, 101 309 C95 350, 72 389, 53 441" />
+        <path d="M996 140 C954 179, 942 221, 944 267 C947 318, 968 368, 998 421" />
+        <path d="M86 1180 C160 1164, 229 1162, 294 1185 C350 1206, 391 1243, 432 1281" />
+        <path d="M656 1800 C719 1748, 759 1688, 778 1618 C787 1586, 800 1556, 826 1528" />
+        <path d="M218 1780 C281 1750, 334 1724, 401 1728 C460 1731, 515 1758, 573 1793" />
+      </g>
+    </svg>
+
+    <canvas id="markCanvas" class="layer"></canvas>
+    <div id="stoneTexture" class="layer"></div>
+    <div id="veils" class="layer"></div>
+    <canvas id="dustCanvas" class="layer"></canvas>
+    <div id="vignette" class="layer"></div>
+
+    <img id="guinea-pig" src="img/guineapig.png" alt="">
+    <div id="ledge"></div>
+    <div id="date">2026-03-31</div>
+  </div>
+
+<script>
+(() => {
+  const DATE_STR = "2026-03-31";
+  let seed = 0;
+  for (let i = 0; i < DATE_STR.length; i++) seed = ((seed * 131) + DATE_STR.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+  function lerp(a,b,t){return a+(b-a)*t}
+
+  const frame = document.getElementById('frame');
+  const bgCanvas = document.getElementById('bgCanvas');
+  const markCanvas = document.getElementById('markCanvas');
+  const dustCanvas = document.getElementById('dustCanvas');
+  const stoneTexture = document.getElementById('stoneTexture');
+
+  const bgCtx = bgCanvas.getContext('2d');
+  const mkCtx = markCanvas.getContext('2d');
+  const duCtx = dustCanvas.getContext('2d');
+
+  let W=1080, H=1920, DPR=1;
+
+  function resize() {
+    const rect = frame.getBoundingClientRect();
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.round(rect.width);
+    H = Math.round(rect.height);
+    [bgCanvas, markCanvas, dustCanvas].forEach(c => {
+      c.width = Math.round(W * DPR);
+      c.height = Math.round(H * DPR);
+      c.style.width = W + 'px';
+      c.style.height = H + 'px';
+    });
+    [bgCtx, mkCtx, duCtx].forEach(ctx => ctx.setTransform(DPR,0,0,DPR,0,0));
+    generateStoneTexture();
+    buildMarks();
+  }
+
+  function noise2(x, y) {
+    const n = Math.sin(x * 127.1 + y * 311.7 + 19.19) * 43758.5453123;
+    return n - Math.floor(n);
+  }
+
+  function fbm(x, y) {
+    let v = 0, a = 0.5, f = 1.0;
+    for (let i=0;i<4;i++){
+      v += a * noise2(x * f, y * f);
+      f *= 2.07;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  function generateStoneTexture() {
+    const c = document.createElement('canvas');
+    c.width = 360;
+    c.height = 640;
+    const x = c.getContext('2d');
+    const img = x.createImageData(c.width, c.height);
+
+    for (let j=0;j<c.height;j++){
+      for (let i=0;i<c.width;i++){
+        const u = i / c.width, v = j / c.height;
+        let n = fbm(u*5.5 + 1.3, v*7.5 + 2.1);
+        let p = fbm(u*18.0 + 4.2, v*24.0 + 9.4);
+        let q = fbm(u*1.7 + 8.1, v*2.4 + 3.9);
+        let tone = Math.floor(48 + n*70 + p*18 - q*12);
+
+        const idx = (j*c.width + i) * 4;
+        img.data[idx] = tone + 18;
+        img.data[idx+1] = tone + 8;
+        img.data[idx+2] = tone - 2;
+        img.data[idx+3] = 255;
+      }
+    }
+    x.putImageData(img,0,0);
+
+    x.globalCompositeOperation = 'multiply';
+    for(let k=0;k<220;k++){
+      x.strokeStyle = `rgba(40,28,19,${0.02 + rnd()*0.05})`;
+      x.lineWidth = 0.4 + rnd()*2.6;
+      x.beginPath();
+      const sx = rnd()*c.width, sy = rnd()*c.height;
+      x.moveTo(sx, sy);
+      for(let m=0;m<5;m++){
+        x.lineTo(sx + (rnd()-0.5)*80, sy + m*20 + (rnd()-0.5)*30);
+      }
+      x.stroke();
+    }
+
+    x.globalCompositeOperation = 'screen';
+    for(let k=0;k<140;k++){
+      x.fillStyle = `rgba(214,169,110,${0.015+rnd()*0.03})`;
+      x.beginPath();
+      x.arc(rnd()*c.width, rnd()*c.height, 3+rnd()*18, 0, Math.PI*2);
+      x.fill();
+    }
+
+    stoneTexture.style.backgroundImage = `url(${c.toDataURL()})`;
+    stoneTexture.style.backgroundSize = 'cover';
+    stoneTexture.style.opacity = '0.58';
+  }
+
+  const gestureLines = [];
+  function buildMarks(){
+    gestureLines.length = 0;
+    const clusters = 14;
+    for(let c=0;c<clusters;c++){
+      const cx = rnd()*W;
+      const cy = rnd()*H;
+      const arms = 3 + Math.floor(rnd()*6);
+      for(let a=0;a<arms;a++){
+        const pts = [];
+        const len = 3 + Math.floor(rnd()*7);
+        let x = cx + (rnd()-0.5)*120;
+        let y = cy + (rnd()-0.5)*120;
+        for(let i=0;i<len;i++){
+          x += (rnd()-0.5)*70;
+          y += (rnd()-0.5)*70;
+          pts.push({x,y});
+        }
+        gestureLines.push({
+          pts,
+          w: 1 + rnd()*4,
+          alpha: 0.05 + rnd()*0.1,
+          color: rnd() > 0.7 ? `rgba(197,123,54,` : `rgba(17,12,8,`
+        });
+      }
+    }
+  }
+
+  const dust = Array.from({length: 70}, () => ({
+    x: rnd()*1080,
+    y: rnd()*1920,
+    r: 0.4 + rnd()*1.8,
+    a: 0.03 + rnd()*0.07,
+    t: rnd()*Math.PI*2,
+    s: 0.2 + rnd()*0.8
+  }));
+
+  let start = performance.now();
+
+  function render(now){
+    const t = (now - start) * 0.001;
+
+    bgCtx.clearRect(0,0,W,H);
+    const grad = bgCtx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, 'rgba(64,43,30,0.12)');
+    grad.addColorStop(0.45, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.18)');
+    bgCtx.fillStyle = grad;
+    bgCtx.fillRect(0,0,W,H);
+
+    for(let i=0;i<9;i++){
+      const yy = H*(0.08 + i*0.11) + Math.sin(t*0.12 + i*1.1)*8;
+      bgCtx.fillStyle = `rgba(231,175,102,${0.012 + i*0.003})`;
+      bgCtx.fillRect(0, yy, W, 2 + i*0.2);
+    }
+
+    mkCtx.clearRect(0,0,W,H);
+    for(const g of gestureLines){
+      mkCtx.strokeStyle = g.color + (g.alpha + Math.sin(t*0.15 + g.pts[0].x*0.001)*0.015).toFixed(3) + ')';
+      mkCtx.lineWidth = g.w;
+      mkCtx.lineCap = 'round';
+      mkCtx.lineJoin = 'round';
+      mkCtx.beginPath();
+      g.pts.forEach((p,i)=>{
+        const ox = Math.sin(t*0.08 + p.y*0.01 + i)*1.8;
+        const oy = Math.cos(t*0.07 + p.x*0.01 + i)*1.6;
+        if(i===0) mkCtx.moveTo(p.x+ox, p.y+oy);
+        else mkCtx.lineTo(p.x+ox, p.y+oy);
+      });
+      mkCtx.stroke();
+    }
+
+    for(let i=0;i<26;i++){
+      const x = (i*41.17 + 70 + Math.sin(t*0.11+i)*30) % (W+120) - 60;
+      const y = H*(0.08 + (i*0.07)%0.84);
+      const w = 30 + (i%5)*14;
+      const h = 8 + (i%3)*5;
+      mkCtx.fillStyle = `rgba(161,89,35,${0.04 + 0.02*Math.sin(t*0.2+i)})`;
+      mkCtx.beginPath();
+      mkCtx.ellipse(x, y, w, h, -0.4 + (i%4)*0.2, 0, Math.PI*2);
+      mkCtx.fill();
+    }
+
+    duCtx.clearRect(0,0,W,H);
+    for(const d of dust){
+      const x = d.x/1080*W + Math.sin(t*0.23*d.s + d.t)*4;
+      const y = d.y/1920*H + Math.cos(t*0.17*d.s + d.t)*6;
+      duCtx.fillStyle = `rgba(223,188,132,${d.a * (0.7 + 0.3*Math.sin(t*0.5 + d.t))})`;
+      duCtx.beginPath();
+      duCtx.arc(x, y, d.r, 0, Math.PI*2);
+      duCtx.fill();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, {passive:true});
+  requestAnimationFrame(render);
+
+  // subtle procedural ambience without user gesture requirement
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ac = new AudioCtx();
+    const master = ac.createGain();
+    master.gain.value = 0.00001;
+    master.connect(ac.destination);
+
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 520;
+    lp.Q.value = 0.3;
+    lp.connect(master);
+
+    const noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i=0;i<data.length;i++) data[i] = (rnd()*2-1) * 0.7;
+
+    const noise = ac.createBufferSource();
+    noise.buffer = noiseBuffer;
+    noise.loop = true;
+
+    const ng = ac.createGain();
+    ng.gain.value = 0.0016;
+    noise.connect(ng).connect(lp);
+
+    const osc = ac.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 47.5;
+
+    const og = ac.createGain();
+    og.gain.value = 0.0012;
+    osc.connect(og).connect(lp);
+
+    const lfo = ac.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.031;
+    const lfoGain = ac.createGain();
+    lfoGain.gain.value = 28;
+    lfo.connect(lfoGain).connect(lp.frequency);
+
+    noise.start();
+    osc.start();
+    lfo.start();
+
+    if (ac.state === 'suspended') {
+      const resume = () => { ac.resume(); window.removeEventListener('load', resume); };
+      window.addEventListener('load', resume);
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
