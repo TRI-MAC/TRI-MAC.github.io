@@ -7,28 +7,26 @@
 <meta http-equiv="Expires" content="0">
 
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
-<title>2026-04-01</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-02</title>
 <style>
   :root{
-    --bg:#efe2c6;
-    --cream:#f4ead6;
-    --sand:#d8b98b;
-    --mustard:#c89b2d;
-    --rust:#b65a32;
-    --teal:#4d8a87;
-    --deepteal:#245a5a;
-    --olive:#7d7b4d;
-    --charcoal:#44362d;
-    --ink:#2f241d;
+    --bg:#09111f;
+    --gold:#f8c65a;
+    --amber:#ff9f43;
+    --cream:#f8efd6;
+    --red:#ff5a36;
+    --teal:#6ee7ff;
+    --deep:#07101b;
+    --steel:#6f89b5;
   }
   *{box-sizing:border-box}
   html,body{
     margin:0;
     height:100%;
-    background:#d9ceb5;
+    background:#02060d;
     overflow:hidden;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:system-ui, sans-serif;
   }
   body{
     display:grid;
@@ -37,339 +35,73 @@
   #frame{
     position:relative;
     width:min(100vw,56.25vh);
-    height:min(177.7778vw,100vh);
+    height:min(177.7777778vw,100vh);
     aspect-ratio:9/16;
     overflow:hidden;
     background:
-      radial-gradient(1200px 900px at 20% 15%, rgba(255,255,255,.45), transparent 50%),
-      radial-gradient(700px 600px at 80% 85%, rgba(77,138,135,.18), transparent 60%),
-      linear-gradient(180deg, #f2e7d1 0%, #ead9b8 48%, #d9c093 100%);
-    box-shadow:0 20px 60px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.25);
+      radial-gradient(120% 80% at 50% 10%, #17355f 0%, #0c1830 35%, #050914 72%, #02050b 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 20px 60px rgba(0,0,0,.45);
   }
 
-  #paperGrain,
-  #overlaySvg,
-  #haloCanvas{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-  }
-
-  #paperGrain{
-    opacity:.14;
-    mix-blend-mode:multiply;
-  }
-
-  .sun{
-    position:absolute;
-    left:50%;
-    top:12%;
-    width:43%;
-    aspect-ratio:1/1;
-    border-radius:50%;
-    transform:translateX(-50%);
-    background:
-      radial-gradient(circle at 35% 35%, rgba(255,244,211,.95), rgba(255,219,138,.78) 42%, rgba(200,155,45,.8) 70%, rgba(182,90,50,.72) 100%);
-    box-shadow:
-      0 0 0 18px rgba(200,155,45,.08),
-      0 0 0 48px rgba(200,155,45,.05),
-      0 0 80px rgba(200,155,45,.15);
-    animation:sunPulse 28s ease-in-out infinite;
-    filter:saturate(1.06);
-  }
-
-  .sun:before,
-  .sun:after{
-    content:"";
-    position:absolute;
-    inset:-10%;
-    border-radius:50%;
-    border:10px solid rgba(255,245,220,.18);
-    transform:scale(1.04);
-    animation:ringDrift 32s ease-in-out infinite;
-  }
-  .sun:after{
-    inset:-23%;
-    border-width:4px;
-    border-color:rgba(77,138,135,.18);
-    animation-duration:44s;
-    animation-direction:reverse;
-  }
-
-  .rayField{
-    position:absolute;
-    inset:0;
-    opacity:.38;
-    transform-origin:50% 26%;
-    animation:slowSpin 90s linear infinite;
-  }
-  .ray{
-    position:absolute;
-    left:50%;
-    top:26%;
-    width:2.1%;
-    height:28%;
-    transform-origin:50% 0%;
-    border-radius:999px;
-    background:linear-gradient(180deg, rgba(200,155,45,.8), rgba(200,155,45,.05));
-    filter:blur(.4px);
-  }
-
-  .arch{
-    position:absolute;
-    left:50%;
-    top:16%;
-    width:78%;
-    height:49%;
-    transform:translateX(-50%);
-    border-radius:55% 55% 10% 10% / 42% 42% 8% 8%;
-    background:linear-gradient(180deg, rgba(77,138,135,.18), rgba(77,138,135,.04));
-    box-shadow:
-      inset 0 0 0 16px rgba(36,90,90,.14),
-      inset 0 0 0 42px rgba(244,234,214,.38),
-      inset 0 0 0 66px rgba(184,117,61,.10);
-    opacity:.72;
-    animation:archBreath 26s ease-in-out infinite;
-  }
-
-  #artWrap{
-    position:absolute;
-    left:50%;
-    top:27%;
-    width:62%;
-    height:40%;
-    transform:translateX(-50%) rotate(-2.5deg);
-    z-index:4;
-    filter:drop-shadow(0 18px 30px rgba(68,54,45,.22));
-  }
-
-  #artWrap::before{
-    content:"";
-    position:absolute;
-    inset:-4.4%;
-    background:var(--cream);
-    border-radius:48% 44% 42% 46% / 34% 41% 36% 40%;
-    transform:rotate(3deg);
-    box-shadow:
-      0 0 0 2px rgba(68,54,45,.05),
-      0 10px 26px rgba(68,54,45,.12);
-  }
-
-  #artWrap::after{
-    content:"";
-    position:absolute;
-    inset:-8% -3% auto -3%;
-    height:20%;
-    background:radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.42), rgba(255,255,255,0) 70%);
-    transform:rotate(-4deg);
-    opacity:.65;
-    pointer-events:none;
-  }
-
-  #art-image{
+  #background-video{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
     object-fit:cover;
-    opacity:.97;
-    border-radius:46% 42% 40% 44% / 33% 40% 35% 39%;
-    clip-path:ellipse(46% 42% at 50% 50%);
-    transform:translateY(0) scale(1.03);
-    filter:saturate(1.05) contrast(1.02) sepia(.06);
-    animation:imageFloat 24s ease-in-out infinite;
-    z-index:2;
+    opacity:.84;
+    filter:saturate(1.25) contrast(1.08) hue-rotate(-8deg) brightness(.92);
+    transform:scale(1.08);
+    animation:videoDrift 40s ease-in-out infinite alternate;
   }
 
-  .imageBand,
-  .imageBand2{
+  .overlay{
     position:absolute;
-    z-index:5;
+    inset:0;
     pointer-events:none;
-    border-radius:999px;
-    mix-blend-mode:multiply;
-  }
-  .imageBand{
-    left:-10%;
-    top:41%;
-    width:120%;
-    height:7%;
-    background:linear-gradient(90deg, rgba(77,138,135,.0), rgba(77,138,135,.26) 18%, rgba(244,234,214,.2) 48%, rgba(182,90,50,.22) 82%, rgba(182,90,50,0));
-    transform:rotate(-10deg);
-    animation:bandSlide 18s ease-in-out infinite;
-    opacity:.8;
-  }
-  .imageBand2{
-    left:6%;
-    top:18%;
-    width:88%;
-    height:4%;
-    background:linear-gradient(90deg, rgba(200,155,45,.0), rgba(200,155,45,.26) 20%, rgba(255,255,255,.25) 48%, rgba(200,155,45,.0));
-    transform:rotate(18deg);
-    animation:bandSlide2 23s ease-in-out infinite;
-    opacity:.65;
   }
 
-  .pedestal{
-    position:absolute;
-    left:50%;
-    bottom:20%;
-    width:76%;
-    height:8%;
-    transform:translateX(-50%);
+  .skyGlow{
     background:
-      linear-gradient(180deg, rgba(68,54,45,.18), rgba(68,54,45,.05)),
-      linear-gradient(90deg, rgba(216,185,139,.95), rgba(244,234,214,.9), rgba(216,185,139,.95));
-    border-radius:24px;
-    box-shadow:0 16px 26px rgba(68,54,45,.16), inset 0 1px 0 rgba(255,255,255,.45);
-    z-index:3;
+      radial-gradient(70% 35% at 50% 0%, rgba(110,231,255,.18), transparent 70%),
+      radial-gradient(55% 26% at 50% 14%, rgba(248,198,90,.18), transparent 70%),
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.12) 50%, rgba(0,0,0,.35));
+    mix-blend-mode:screen;
   }
 
-  .groundArc{
-    position:absolute;
-    left:50%;
-    bottom:10%;
-    width:130%;
-    height:22%;
-    transform:translateX(-50%);
-    border-radius:50%;
+  .vignette{
     background:
-      radial-gradient(ellipse at 50% 30%, rgba(77,138,135,.10), rgba(77,138,135,0) 58%),
-      radial-gradient(ellipse at 50% 10%, rgba(68,54,45,.14), rgba(68,54,45,0) 66%);
-    z-index:1;
-    animation:groundShift 30s ease-in-out infinite;
+      radial-gradient(120% 75% at 50% 20%, transparent 45%, rgba(0,0,0,.1) 66%, rgba(0,0,0,.45) 100%),
+      linear-gradient(180deg, rgba(8,12,22,.05), rgba(8,12,22,.0) 25%, rgba(8,12,22,.16) 75%, rgba(8,12,22,.35));
   }
 
-  .blob{
-    position:absolute;
-    border-radius:50% 50% 44% 56% / 60% 42% 58% 40%;
-    opacity:.92;
-    z-index:2;
-    filter:drop-shadow(0 12px 18px rgba(68,54,45,.1));
-  }
-  .blob.a{
-    left:-6%;
-    bottom:16%;
-    width:36%;
-    height:19%;
-    background:var(--teal);
-    animation:blobMorphA 22s ease-in-out infinite;
-  }
-  .blob.b{
-    right:-5%;
-    bottom:13%;
-    width:34%;
-    height:17%;
-    background:var(--rust);
-    border-radius:56% 44% 52% 48% / 42% 58% 40% 60%;
-    animation:blobMorphB 26s ease-in-out infinite;
-  }
-  .blob.c{
-    left:21%;
-    bottom:9%;
-    width:25%;
-    height:11%;
-    background:var(--mustard);
-    opacity:.82;
-    animation:blobMorphC 18s ease-in-out infinite;
+  .scan{
+    opacity:.08;
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.5) 0 1px, transparent 1px 4px);
+    mix-blend-mode:overlay;
   }
 
-  .column{
+  #hud{
     position:absolute;
-    bottom:0;
-    width:12%;
-    border-radius:60px 60px 0 0;
-    z-index:2;
-    opacity:.88;
+    inset:0;
+    opacity:.85;
   }
-  .column.left{
-    left:8%;
-    height:46%;
-    background:linear-gradient(180deg, rgba(77,138,135,.16), rgba(77,138,135,.55));
-  }
-  .column.mid{
-    left:28%;
-    height:32%;
-    background:linear-gradient(180deg, rgba(200,155,45,.18), rgba(200,155,45,.56));
-  }
-  .column.right{
-    right:11%;
-    height:41%;
-    background:linear-gradient(180deg, rgba(182,90,50,.15), rgba(182,90,50,.52));
-  }
-
-  .mobile{
+  #canvas{
     position:absolute;
-    top:16%;
-    right:10%;
-    width:22%;
-    height:22%;
-    z-index:5;
-    opacity:.92;
-    animation:mobileSway 17s ease-in-out infinite;
-    transform-origin:12% 0%;
-  }
-  .mobile .wire{
-    position:absolute;
-    left:10%;
-    top:0;
-    width:2px;
-    height:30%;
-    background:rgba(68,54,45,.45);
-  }
-  .mobile .arm1,
-  .mobile .arm2,
-  .mobile .arm3{
-    position:absolute;
-    height:2px;
-    background:rgba(68,54,45,.45);
-    transform-origin:left center;
-    border-radius:999px;
-  }
-  .mobile .arm1{left:10%; top:30%; width:58%; transform:rotate(8deg)}
-  .mobile .arm2{left:38%; top:49%; width:44%; transform:rotate(-10deg)}
-  .mobile .arm3{left:8%; top:65%; width:48%; transform:rotate(6deg)}
-  .mobile .disc,
-  .mobile .oval,
-  .mobile .dot{
-    position:absolute;
-    border-radius:50%;
-  }
-  .mobile .disc{left:56%; top:19%; width:19%; height:19%; background:var(--mustard)}
-  .mobile .oval{left:75%; top:41%; width:18%; height:13%; background:var(--teal); border-radius:50% / 40%}
-  .mobile .dot{left:49%; top:58%; width:14%; height:14%; background:var(--rust)}
-
-  .stairs{
-    position:absolute;
-    left:50%;
-    bottom:0;
-    width:82%;
-    height:19%;
-    transform:translateX(-50%);
-    z-index:1;
-    opacity:.44;
-  }
-  .step{
-    position:absolute;
-    bottom:0;
-    left:50%;
-    transform:translateX(-50%);
-    height:16%;
-    border-radius:18px 18px 0 0;
-    background:rgba(255,255,255,.18);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25);
+    inset:0;
+    width:100%;
+    height:100%;
   }
 
   .date{
     position:absolute;
     right:18px;
     bottom:14px;
-    z-index:20;
-    font-size:14px;
+    font-size:12px;
     letter-spacing:.18em;
-    color:rgba(47,36,29,.46);
+    color:rgba(248,239,214,.55);
+    z-index:20;
     user-select:none;
   }
 
@@ -377,241 +109,429 @@
     position:absolute;
     width:18px;
     height:auto;
-    left:15px;
-    bottom:356px;
-    opacity:.58;
-    z-index:6;
-    transform:rotate(-7deg);
-    filter:sepia(.2) saturate(.75) hue-rotate(-12deg) brightness(.88);
+    left:28px;
+    bottom:286px;
+    opacity:.56;
+    filter:brightness(.72) saturate(.9);
+    z-index:8;
+    transform:rotate(-8deg);
   }
 
-  @keyframes sunPulse{
+  .sunburst{
+    position:absolute;
+    left:50%;
+    top:27%;
+    width:880px;
+    height:880px;
+    transform:translate(-50%,-50%) rotate(0deg);
+    opacity:.42;
+    mix-blend-mode:screen;
+    animation:burstTurn 90s linear infinite;
+  }
+
+  .sunburst::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:
+      repeating-conic-gradient(
+        from 0deg,
+        rgba(248,198,90,.52) 0 3deg,
+        rgba(255,159,67,.08) 3deg 9deg,
+        transparent 9deg 18deg
+      );
+    mask: radial-gradient(circle at center, transparent 0 17%, rgba(0,0,0,1) 20% 55%, transparent 62%);
+    -webkit-mask: radial-gradient(circle at center, transparent 0 17%, rgba(0,0,0,1) 20% 55%, transparent 62%);
+    filter: blur(1px);
+  }
+
+  .launchAura{
+    position:absolute;
+    left:50%;
+    bottom:20%;
+    width:60%;
+    height:30%;
+    transform:translateX(-50%);
+    background:
+      radial-gradient(ellipse at 50% 80%, rgba(255,90,54,.35), transparent 45%),
+      radial-gradient(ellipse at 50% 88%, rgba(248,198,90,.25), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.16), transparent 70%);
+    filter:blur(18px);
+    opacity:.95;
+    animation:breath 7s ease-in-out infinite;
+  }
+
+  .orbital-rings{
+    position:absolute;
+    inset:0;
+    opacity:.52;
+    mix-blend-mode:screen;
+    animation:driftRotate 60s ease-in-out infinite alternate;
+  }
+
+  .moonCut{
+    position:absolute;
+    right:7.5%;
+    top:9%;
+    width:26%;
+    aspect-ratio:1;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 38% 34%, rgba(255,255,255,.95), rgba(227,232,242,.82) 38%, rgba(154,170,197,.65) 68%, rgba(91,107,133,.35) 100%);
+    box-shadow:
+      0 0 40px rgba(173,203,255,.2),
+      inset -18px -12px 30px rgba(55,73,100,.35),
+      inset 8px 6px 16px rgba(255,255,255,.55);
+    opacity:.92;
+  }
+
+  .moonCut::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 34%, rgba(90,108,138,.22) 0 7%, transparent 8%),
+      radial-gradient(circle at 58% 44%, rgba(90,108,138,.2) 0 10%, transparent 11%),
+      radial-gradient(circle at 42% 68%, rgba(90,108,138,.16) 0 8%, transparent 9%),
+      radial-gradient(circle at 70% 30%, rgba(90,108,138,.12) 0 5%, transparent 6%);
+    mix-blend-mode:multiply;
+  }
+
+  .decoFrame{
+    position:absolute;
+    inset:20px;
+    border:1px solid rgba(248,198,90,.22);
+    clip-path:polygon(0 4%, 4% 0, 96% 0, 100% 4%, 100% 96%, 96% 100%, 4% 100%, 0 96%);
+    opacity:.6;
+  }
+  .decoFrame::before,
+  .decoFrame::after{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border:1px solid rgba(248,239,214,.12);
+    clip-path:polygon(0 5%, 5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%);
+  }
+
+  @keyframes videoDrift{
+    from{transform:scale(1.08) translateY(-1.5%)}
+    to{transform:scale(1.13) translateY(1.5%)}
+  }
+  @keyframes burstTurn{
+    from{transform:translate(-50%,-50%) rotate(0deg)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+  }
+  @keyframes breath{
     0%,100%{transform:translateX(-50%) scale(1)}
-    50%{transform:translateX(-50%) scale(1.04)}
+    50%{transform:translateX(-50%) scale(1.06)}
   }
-  @keyframes ringDrift{
-    0%,100%{transform:scale(1.02) rotate(0deg)}
-    50%{transform:scale(1.08) rotate(10deg)}
-  }
-  @keyframes slowSpin{
-    from{transform:rotate(0deg)}
-    to{transform:rotate(360deg)}
-  }
-  @keyframes archBreath{
-    0%,100%{transform:translateX(-50%) scale(1)}
-    50%{transform:translateX(-50%) scale(1.02,1.015)}
-  }
-  @keyframes imageFloat{
-    0%,100%{transform:translateY(0px) scale(1.03)}
-    50%{transform:translateY(-10px) scale(1.045)}
-  }
-  @keyframes bandSlide{
-    0%,100%{transform:rotate(-10deg) translateX(-2%)}
-    50%{transform:rotate(-7deg) translateX(2%)}
-  }
-  @keyframes bandSlide2{
-    0%,100%{transform:rotate(18deg) translateX(1%)}
-    50%{transform:rotate(14deg) translateX(-2%)}
-  }
-  @keyframes groundShift{
-    0%,100%{transform:translateX(-50%) scaleX(1)}
-    50%{transform:translateX(-50%) scaleX(1.04)}
-  }
-  @keyframes blobMorphA{
-    0%,100%{transform:translateY(0) scale(1); border-radius:50% 50% 44% 56% / 60% 42% 58% 40%}
-    50%{transform:translateY(-8px) scale(1.03); border-radius:58% 42% 48% 52% / 46% 56% 44% 54%}
-  }
-  @keyframes blobMorphB{
-    0%,100%{transform:translateY(0) scale(1); border-radius:56% 44% 52% 48% / 42% 58% 40% 60%}
-    50%{transform:translateY(6px) scale(1.025); border-radius:48% 52% 44% 56% / 58% 42% 60% 40%}
-  }
-  @keyframes blobMorphC{
-    0%,100%{transform:translateY(0) scale(1)}
-    50%{transform:translateY(-5px) scale(1.04)}
-  }
-  @keyframes mobileSway{
-    0%,100%{transform:rotate(-2deg)}
-    50%{transform:rotate(2.5deg)}
+  @keyframes driftRotate{
+    from{transform:rotate(-3deg) scale(1)}
+    to{transform:rotate(3deg) scale(1.03)}
   }
 </style>
 </head>
 <body>
   <div id="frame">
-    <canvas id="paperGrain"></canvas>
-    <canvas id="haloCanvas"></canvas>
+    <video id="background-video" src="video/background.85f9b815.mp4" autoplay loop muted playsinline></video>
 
-    <div class="sun"></div>
+    <div class="sunburst"></div>
+    <div class="launchAura"></div>
+    <div class="moonCut"></div>
 
-    <div class="rayField" id="rayField"></div>
-
-    <div class="arch"></div>
-
-    <div id="artWrap">
-      <img id="art-image" src="img/art.045b14d9.png" alt="">
-      <div class="imageBand"></div>
-      <div class="imageBand2"></div>
-    </div>
-
-    <div class="mobile" aria-hidden="true">
-      <div class="wire"></div>
-      <div class="arm1"></div>
-      <div class="arm2"></div>
-      <div class="arm3"></div>
-      <div class="disc"></div>
-      <div class="oval"></div>
-      <div class="dot"></div>
-    </div>
-
-    <div class="column left"></div>
-    <div class="column mid"></div>
-    <div class="column right"></div>
-
-    <div class="pedestal"></div>
-    <div class="blob a"></div>
-    <div class="blob b"></div>
-    <div class="blob c"></div>
-    <div class="groundArc"></div>
-
-    <div class="stairs" id="stairs"></div>
-
-    <svg id="overlaySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <svg id="hud" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
       <defs>
-        <linearGradient id="tealFade" x1="0" x2="1">
-          <stop offset="0%" stop-color="rgba(77,138,135,0)" />
-          <stop offset="50%" stop-color="#4d8a87" stop-opacity=".18" />
-          <stop offset="100%" stop-color="rgba(77,138,135,0)" />
+        <linearGradient id="goldLine" x1="0" x2="1">
+          <stop offset="0%" stop-color="rgba(248,198,90,0)" />
+          <stop offset="20%" stop-color="#f8c65a" />
+          <stop offset="80%" stop-color="#f8efd6" />
+          <stop offset="100%" stop-color="rgba(248,239,214,0)" />
         </linearGradient>
-        <linearGradient id="rustFade" x1="0" x2="1">
-          <stop offset="0%" stop-color="rgba(182,90,50,0)" />
-          <stop offset="50%" stop-color="#b65a32" stop-opacity=".16" />
-          <stop offset="100%" stop-color="rgba(182,90,50,0)" />
+        <linearGradient id="redGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff5a36"/>
+          <stop offset="45%" stop-color="#f8c65a"/>
+          <stop offset="100%" stop-color="#fff4d0"/>
         </linearGradient>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="grainy">
+          <feTurbulence baseFrequency="0.95" numOctaves="2" seed="20260402" type="fractalNoise"/>
+          <feColorMatrix type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncA type="table" tableValues="0 0 .06 .09"/>
+          </feComponentTransfer>
+        </filter>
       </defs>
+
+      <g opacity=".38">
+        <path d="M160,280 L540,70 L920,280" fill="none" stroke="url(#goldLine)" stroke-width="4"/>
+        <path d="M220,360 L540,180 L860,360" fill="none" stroke="url(#goldLine)" stroke-width="2"/>
+        <path d="M120,420 L540,190 L960,420" fill="none" stroke="rgba(248,198,90,.18)" stroke-width="2"/>
+      </g>
+
+      <g class="orbital-rings">
+        <ellipse cx="530" cy="820" rx="330" ry="112" fill="none" stroke="rgba(110,231,255,.38)" stroke-width="3"/>
+        <ellipse cx="542" cy="838" rx="422" ry="148" fill="none" stroke="rgba(248,198,90,.28)" stroke-width="2" stroke-dasharray="7 10"/>
+        <ellipse cx="534" cy="820" rx="250" ry="84" fill="none" stroke="rgba(248,239,214,.26)" stroke-width="2"/>
+      </g>
+
+      <g opacity=".78" filter="url(#softGlow)">
+        <path d="M540 610
+                 C566 720, 590 845, 590 955
+                 L590 1260
+                 C590 1324, 618 1398, 646 1460
+                 L434 1460
+                 C462 1398, 490 1324, 490 1260
+                 L490 955
+                 C490 845, 514 720, 540 610Z"
+              fill="url(#redGold)"/>
+        <path d="M540 650
+                 C560 742, 574 848, 574 960
+                 L574 1248
+                 C574 1290, 590 1356, 604 1396
+                 L476 1396
+                 C490 1356, 506 1290, 506 1248
+                 L506 960
+                 C506 848, 520 742, 540 650Z"
+              fill="rgba(11,23,39,.76)"/>
+        <path d="M485 1410 L595 1410 L650 1505 L430 1505Z" fill="rgba(248,239,214,.75)"/>
+        <path d="M468 735 L502 808 L472 838 L430 776Z" fill="rgba(248,198,90,.72)"/>
+        <path d="M612 735 L650 776 L608 838 L578 808Z" fill="rgba(248,198,90,.72)"/>
+        <circle cx="540" cy="866" r="20" fill="rgba(110,231,255,.85)"/>
+        <circle cx="540" cy="866" r="9" fill="rgba(255,255,255,.9)"/>
+      </g>
+
       <g opacity=".7">
-        <path d="M120 1240 C300 1160, 460 1180, 620 1300 S950 1450, 1040 1360" fill="none" stroke="url(#tealFade)" stroke-width="42" stroke-linecap="round"/>
-        <path d="M40 1480 C230 1380, 430 1420, 640 1560 S930 1690, 1040 1600" fill="none" stroke="url(#rustFade)" stroke-width="54" stroke-linecap="round"/>
+        <path d="M520 1490 C490 1570, 458 1630, 430 1725
+                 C486 1690, 516 1678, 540 1668
+                 C564 1678, 594 1690, 650 1725
+                 C622 1630, 590 1570, 560 1490Z"
+              fill="rgba(255,160,80,.5)" filter="url(#softGlow)"/>
+        <path d="M532 1490 C515 1575, 505 1650, 494 1760
+                 C520 1710, 530 1690, 540 1678
+                 C550 1690, 560 1710, 586 1760
+                 C575 1650, 565 1575, 548 1490Z"
+              fill="rgba(255,245,220,.82)" filter="url(#softGlow)"/>
       </g>
-      <g opacity=".22">
-        <ellipse cx="540" cy="340" rx="300" ry="160" fill="none" stroke="#245a5a" stroke-width="10"/>
-        <ellipse cx="540" cy="340" rx="370" ry="210" fill="none" stroke="#c89b2d" stroke-width="5"/>
+
+      <g opacity=".28">
+        <rect x="0" y="1500" width="1080" height="420" fill="url(#redGold)" />
       </g>
+
+      <g opacity=".45">
+        <path d="M0 1645
+                 C120 1612, 208 1636, 314 1600
+                 C432 1560, 520 1622, 632 1588
+                 C760 1550, 878 1600, 1080 1546
+                 L1080 1920 L0 1920Z"
+              fill="#5c4a3d"/>
+        <path d="M0 1705
+                 C110 1660, 230 1718, 354 1685
+                 C470 1655, 600 1728, 720 1682
+                 C844 1636, 934 1686, 1080 1655
+                 L1080 1920 L0 1920Z"
+              fill="#7a6553"/>
+        <path d="M0 1768
+                 C164 1732, 272 1768, 408 1738
+                 C570 1702, 690 1788, 842 1746
+                 C938 1720, 998 1736, 1080 1720
+                 L1080 1920 L0 1920Z"
+              fill="#a28568"/>
+      </g>
+
+      <g opacity=".38" stroke-linecap="round">
+        <line x1="150" y1="1320" x2="250" y2="1260" stroke="rgba(248,198,90,.35)" stroke-width="3"/>
+        <line x1="830" y1="1220" x2="940" y2="1178" stroke="rgba(248,198,90,.32)" stroke-width="3"/>
+        <line x1="210" y1="910" x2="314" y2="862" stroke="rgba(110,231,255,.28)" stroke-width="2"/>
+        <line x1="770" y1="980" x2="882" y2="934" stroke="rgba(110,231,255,.22)" stroke-width="2"/>
+      </g>
+
+      <rect width="1080" height="1920" filter="url(#grainy)" opacity=".28"></rect>
     </svg>
 
-    <img id="guinea-pig" src="img/guineapig.045b14d9.png" alt="">
+    <canvas id="canvas" width="1080" height="1920"></canvas>
 
-    <div class="date">2026-04-01</div>
+    <div class="overlay skyGlow"></div>
+    <div class="overlay vignette"></div>
+    <div class="overlay scan"></div>
+    <div class="decoFrame"></div>
+
+    <img id="guinea-pig" src="img/guineapig.85f9b815.png" alt="" />
+    <div class="date">2026-04-02</div>
   </div>
 
 <script>
 (() => {
-  const seedStr = "2026-04-01";
-  function xmur3(str){for(var i=0,h=1779033703^str.length;i<str.length;i++)h=Math.imul(h^str.charCodeAt(i),3432918353),h=h<<13|h>>>19;return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}}
-  function sfc32(a,b,c,d){return function(){a|=0;b|=0;c|=0;d|=0;var t=(a+b|0)+d|0;d=d+1|0;a=b^b>>>9;b=c+(c<<3)|0;c=c<<21|c>>>11;c=c+t|0;return (t>>>0)/4294967296}}
-  const seed = xmur3(seedStr);
-  const rand = sfc32(seed(), seed(), seed(), seed());
-
-  const rayField = document.getElementById('rayField');
-  const rayCount = 18;
-  for(let i=0;i<rayCount;i++){
-    const r = document.createElement('div');
-    r.className = 'ray';
-    const angle = (360/rayCount)*i + (rand()*8-4);
-    const h = 21 + rand()*12;
-    const w = 1.4 + rand()*2.4;
-    r.style.height = h + '%';
-    r.style.width = w + '%';
-    r.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-    r.style.opacity = 0.18 + rand()*0.36;
-    rayField.appendChild(r);
+  const dateSeed = "2026-04-02";
+  let seed = 0;
+  for (let i = 0; i < dateSeed.length; i++) seed = (seed * 131 + dateSeed.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
   }
 
-  const stairs = document.getElementById('stairs');
-  for(let i=0;i<6;i++){
-    const s = document.createElement('div');
-    s.className = 'step';
-    s.style.width = (18 + i*11) + '%';
-    s.style.bottom = (i*12) + '%';
-    s.style.opacity = (0.13 + i*0.04).toFixed(2);
-    stairs.appendChild(s);
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width, h = canvas.height;
+  const stars = [];
+  const arcs = [];
+  const ringNodes = [];
+
+  for (let i = 0; i < 160; i++) {
+    stars.push({
+      x: rand() * w,
+      y: rand() * (h * 0.62),
+      r: rand() * 2.1 + 0.4,
+      a: rand() * Math.PI * 2,
+      s: rand() * 0.012 + 0.003,
+      hue: rand() < 0.22 ? 42 : (rand() < 0.5 ? 190 : 0)
+    });
   }
 
-  const grain = document.getElementById('paperGrain');
-  const gctx = grain.getContext('2d');
-  function resizeGrain(){
-    const r = grain.getBoundingClientRect();
-    grain.width = Math.max(1, Math.floor(r.width/2));
-    grain.height = Math.max(1, Math.floor(r.height/2));
-    const img = gctx.createImageData(grain.width, grain.height);
-    for(let i=0;i<img.data.length;i+=4){
-      const v = 210 + Math.floor(rand()*45);
-      img.data[i] = v;
-      img.data[i+1] = v-6;
-      img.data[i+2] = v-16;
-      img.data[i+3] = 28 + Math.floor(rand()*24);
+  for (let i = 0; i < 12; i++) {
+    arcs.push({
+      cx: 540 + (rand() - 0.5) * 160,
+      cy: 860 + (rand() - 0.5) * 90,
+      rx: 170 + i * 34 + rand() * 18,
+      ry: 58 + i * 12 + rand() * 10,
+      rot: (rand() - 0.5) * 0.22,
+      span: 1.2 + rand() * 1.3,
+      phase: rand() * Math.PI * 2,
+      alpha: 0.05 + rand() * 0.06,
+      color: rand() < 0.5 ? '248,198,90' : '110,231,255'
+    });
+  }
+
+  for (let i = 0; i < 18; i++) {
+    ringNodes.push({
+      t: rand() * Math.PI * 2,
+      speed: 0.0012 + rand() * 0.0015,
+      rx: 250 + rand() * 180,
+      ry: 80 + rand() * 70,
+      size: 2 + rand() * 5,
+      color: rand() < 0.6 ? '248,239,214' : '110,231,255'
+    });
+  }
+
+  function drawMoonDust(time){
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    const grad = ctx.createLinearGradient(0, 1500, 0, h);
+    grad.addColorStop(0, 'rgba(255,160,90,0)');
+    grad.addColorStop(.3, 'rgba(245,186,109,0.06)');
+    grad.addColorStop(1, 'rgba(255,236,210,0.12)');
+    ctx.fillStyle = grad;
+
+    for(let y = 1500; y < h; y += 24){
+      const wave = Math.sin(y * 0.01 + time * 0.0003) * 18;
+      ctx.beginPath();
+      ctx.moveTo(0, y + wave);
+      for(let x = 0; x <= w; x += 90){
+        const yy = y + Math.sin(x * 0.01 + y * 0.009 + time * 0.00025) * 12;
+        ctx.lineTo(x, yy);
+      }
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.globalAlpha = 0.03;
+      ctx.fill();
     }
-    gctx.putImageData(img,0,0);
+    ctx.restore();
   }
-  resizeGrain();
 
-  const halo = document.getElementById('haloCanvas');
-  const hctx = halo.getContext('2d');
-  let w=0,h=0,t=0;
-  function resizeHalo(){
-    const r = halo.getBoundingClientRect();
-    w = halo.width = Math.floor(r.width);
-    h = halo.height = Math.floor(r.height);
+  function drawStars(time){
+    for(const s of stars){
+      const pulse = 0.55 + 0.45 * Math.sin(time * s.s + s.a);
+      ctx.beginPath();
+      ctx.fillStyle = s.hue === 42
+        ? `rgba(248,198,90,${0.18 + pulse * 0.5})`
+        : s.hue === 190
+        ? `rgba(110,231,255,${0.12 + pulse * 0.42})`
+        : `rgba(255,245,230,${0.2 + pulse * 0.55})`;
+      ctx.arc(s.x, s.y, s.r * (0.7 + pulse * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
-  resizeHalo();
-  addEventListener('resize', ()=>{resizeGrain(); resizeHalo();});
 
-  const palette = [
-    [200,155,45,0.10],
-    [77,138,135,0.09],
-    [182,90,50,0.08],
-    [244,234,214,0.10]
-  ];
-  const halos = Array.from({length:7}, (_,i)=>({
-    x: w*(0.2 + rand()*0.6),
-    y: h*(0.15 + rand()*0.7),
-    r: 80 + rand()*220,
-    dx: (rand()-.5)*0.06,
-    dy: (rand()-.5)*0.06,
-    c: palette[i%palette.length]
-  }));
-
-  function draw(ts){
-    t = ts*0.001;
-    hctx.clearRect(0,0,w,h);
-    for(const p of halos){
-      p.x += p.dx;
-      p.y += p.dy;
-      if(p.x < -100) p.x = w+100;
-      if(p.x > w+100) p.x = -100;
-      if(p.y < -100) p.y = h+100;
-      if(p.y > h+100) p.y = -100;
-      const pulse = 1 + Math.sin(t*0.25 + p.r)*0.06;
-      const rad = p.r*pulse;
-      const grad = hctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);
-      grad.addColorStop(0, `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${p.c[3]})`);
-      grad.addColorStop(0.65, `rgba(${p.c[0]},${p.c[1]},${p.c[2]},${p.c[3]*0.35})`);
-      grad.addColorStop(1, `rgba(${p.c[0]},${p.c[1]},${p.c[2]},0)`);
-      hctx.fillStyle = grad;
-      hctx.beginPath();
-      hctx.arc(p.x,p.y,rad,0,Math.PI*2);
-      hctx.fill();
+  function drawOrbits(time){
+    ctx.save();
+    ctx.translate(540, 830);
+    for(const a of arcs){
+      ctx.save();
+      ctx.rotate(a.rot + Math.sin(time * 0.00008 + a.phase) * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(
+        a.cx - 540,
+        a.cy - 830,
+        a.rx,
+        a.ry,
+        0,
+        -a.span + Math.sin(time * 0.0002 + a.phase) * 0.1,
+        a.span + Math.sin(time * 0.00022 + a.phase) * 0.1
+      );
+      ctx.strokeStyle = `rgba(${a.color},${a.alpha})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
     }
 
-    hctx.globalAlpha = 0.16;
-    for(let i=0;i<10;i++){
-      const yy = h*(0.08 + i*0.085) + Math.sin(t*0.18 + i)*4;
-      hctx.fillStyle = i%2 ? 'rgba(255,255,255,.07)' : 'rgba(68,54,45,.04)';
-      hctx.fillRect(0, yy, w, 2);
+    for(const n of ringNodes){
+      n.t += n.speed;
+      const x = Math.cos(n.t) * n.rx;
+      const y = Math.sin(n.t) * n.ry;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${n.color},0.75)`;
+      ctx.arc(x, y, n.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${n.color},0.1)`;
+      ctx.arc(x, y, n.size * 3.2, 0, Math.PI * 2);
+      ctx.fill();
     }
-    hctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  function drawRays(time){
+    ctx.save();
+    ctx.translate(540, 510);
+    const count = 22;
+    for(let i=0;i<count;i++){
+      const ang = (-Math.PI/2) + (i/count) * Math.PI * 2;
+      const len = 220 + (i % 3) * 80 + Math.sin(time * 0.00015 + i) * 18;
+      const inner = 80;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(ang-0.03)*inner, Math.sin(ang-0.03)*inner);
+      ctx.lineTo(Math.cos(ang)*len, Math.sin(ang)*len);
+      ctx.lineTo(Math.cos(ang+0.03)*inner, Math.sin(ang+0.03)*inner);
+      ctx.closePath();
+      ctx.fillStyle = i % 2
+        ? 'rgba(248,198,90,0.08)'
+        : 'rgba(255,90,54,0.06)';
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function draw(){
+    const time = performance.now();
+    ctx.clearRect(0,0,w,h);
+    drawStars(time);
+    drawRays(time);
+    drawOrbits(time);
+    drawMoonDust(time);
 
     requestAnimationFrame(draw);
   }
-  requestAnimationFrame(draw);
+  draw();
 })();
 </script>
 </body>
