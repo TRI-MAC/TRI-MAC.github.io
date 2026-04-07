@@ -234,7 +234,7 @@
           var titleEl = doc.querySelector('h1') || doc.querySelector('title');
           var title = titleEl ? titleEl.textContent.trim() : 'Untitled';
 
-          var imgEl = doc.querySelector('article img, .post-content img, main img, img');
+          var imgEl = doc.querySelector('.post-hero-image img, .post-body img, article img');
           var image = null;
           if (imgEl) {
             image = imgEl.getAttribute('src');
