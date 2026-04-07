@@ -96,6 +96,18 @@
   margin-top: 1.5em;
 }
 
+.post-hero-image {
+  margin-bottom: 2em;
+}
+
+.post-hero-image img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
 .post-body h2 {
   font-size: 1.4rem;
   font-weight: 700;

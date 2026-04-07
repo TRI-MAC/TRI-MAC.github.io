@@ -50,24 +50,21 @@
     </div>
   </header>
 
-  <!-- ───── Hero / Featured Post + Art Agent ───── -->
-  <section class="hero">
-    <div class="hero-grid">
-      <div class="hero-inner">
-        <div class="hero-meta">
-          <span class="tag">cybernetics</span>
-          <span class="tag">work in progress</span>
-          <span class="date">2026.03.28</span>
+  <!-- ───── Content Grid ───── -->
+  <main class="content-grid-section">
+    <div class="content-grid">
+
+      <!-- Row 1, Cols 1-2: Featured (latest) Post -->
+      <a class="featured-post" id="featured-post" href="#">
+        <div class="featured-text">
+          <h2 class="featured-title">Welcome to Requisite Variety</h2>
+          <p class="featured-excerpt">New posts will appear here.</p>
+          <span class="featured-cta">Read <span class="arrow">&rarr;</span></span>
         </div>
-        <h1 class="hero-title">The Feedback Loops We Don't See</h1>
-        <p class="hero-excerpt">
-          Every organization is a control system — most just don't know what they're regulating.
-          A deep look at hidden feedback mechanisms that shape team dynamics and product decisions.
-        </p>
-        <a href="post.html" class="hero-cta">
-          Read <span class="arrow">→</span>
-        </a>
-      </div>
+        <div class="featured-art" id="featured-art"></div>
+      </a>
+
+      <!-- Row 1, Col 3: Art Agent (unchanged) -->
       <aside class="artagent-callout">
         <div class="artagent-header">
           <span class="artagent-label">Art Agent</span>
@@ -80,107 +77,27 @@
           <button class="artagent-btn" id="artagent-today" title="Today">&gt;&gt;</button>
         </div>
       </aside>
-    </div>
-  </section>
 
-  <!-- ───── Post Grid ───── -->
-  <main class="post-grid-section">
-    <div class="section-header">
-      <h2 class="section-title">Latest Posts</h2>
-      <div class="section-line" aria-hidden="true"></div>
-    </div>
+      <!-- Row 2, Col 1: AI Post -->
+      <a class="callout-card" id="ai-post-callout" href="#">
+        <div class="callout-placeholder"><p>AI-generated posts will appear here.</p></div>
+      </a>
 
-    <div class="post-grid">
+      <!-- Row 2, Cols 2-3: Recent HCAI Papers -->
+      <div class="papers-section">
+        <span class="papers-label">Recent HCAI Papers</span>
+        <div class="papers-inner">
+          <a class="callout-card callout-card--in-section" id="paper-callout-1" href="#"></a>
+          <a class="callout-card callout-card--in-section" id="paper-callout-2" href="#"></a>
+        </div>
+      </div>
 
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">cybernetics</span>
-          <span class="date">2026.03.22</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Ashby’s Law and the Art of Software Architecture</a></h3>
-        <p class="card-excerpt">
-          Why your system needs at least as much variety in its responses as the disturbances it faces.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">6 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
-
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">conference paper</span>
-          <span class="date">2026.03.15</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Viable System Model for Platform Teams</a></h3>
-        <p class="card-excerpt">
-          Stafford Beer's recursive model applied to modern engineering organizations — and why it still works.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">8 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
-
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">cybernetics</span>
-          <span class="date">2026.03.08</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Emergence in Microservice Meshes</a></h3>
-        <p class="card-excerpt">
-          How simple local rules create surprisingly coherent global behavior in distributed systems.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">5 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
-
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">work in progress</span>
-          <span class="date">2026.02.28</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Second-Order Observation in LLM Evaluation</a></h3>
-        <p class="card-excerpt">
-          When you evaluate an AI system, you're also revealing the limits of your own distinctions.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">7 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
-
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">cybernetics</span>
-          <span class="date">2026.02.20</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Homeostasis in CI/CD Pipelines</a></h3>
-        <p class="card-excerpt">
-          The pipeline that heals itself: applying autopoietic principles to deployment infrastructure.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">6 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
-
-      <article class="post-card">
-        <div class="card-meta">
-          <span class="tag">conference paper</span>
-          <span class="date">2026.02.12</span>
-        </div>
-        <h3 class="card-title"><a href="post.html">Requisite Variety in Hiring Panels</a></h3>
-        <p class="card-excerpt">
-          Homogeneous panels can only select for what they already know. Diversity isn't just ethical — it's cybernetically necessary.
-        </p>
-        <div class="card-footer">
-          <span class="read-time">4 min read</span>
-          <span class="arrow-link">→</span>
-        </div>
-      </article>
+      <!-- Row 3: 2nd, 3rd, 4th most recent posts -->
+      <a class="callout-card" id="post-callout-2" href="#">
+        <div class="callout-placeholder"><p>Archival posts will appear here.</p></div>
+      </a>
+      <a class="callout-card" id="post-callout-3" href="#" style="display:none;"></a>
+      <a class="callout-card" id="post-callout-4" href="#" style="display:none;"></a>
 
     </div>
   </main>
@@ -191,7 +108,7 @@
       <div class="footer-brand">
         <img src="tri_mark.png" alt="TRI" style="width:24px;height:24px;">
         <span>requisite variety</span>
-        <span class="footer-dot">·</span>
+        <span class="footer-dot">&middot;</span>
         <span>2026</span>
       </div>
       <div class="footer-links">
@@ -206,24 +123,25 @@
     </div>
   </footer>
 
+  <!-- ───── Art Agent Navigation ───── -->
   <script>
     (function() {
-      const base = 'https://tri-mac.github.io/artagent/';
-      const frame = document.getElementById('artagent-frame');
-      const dateEl = document.getElementById('artagent-date');
-      const prevBtn = document.getElementById('artagent-prev');
-      const nextBtn = document.getElementById('artagent-next');
-      const todayBtn = document.getElementById('artagent-today');
+      var base = 'https://tri-mac.github.io/artagent/';
+      var frame = document.getElementById('artagent-frame');
+      var dateEl = document.getElementById('artagent-date');
+      var prevBtn = document.getElementById('artagent-prev');
+      var nextBtn = document.getElementById('artagent-next');
+      var todayBtn = document.getElementById('artagent-today');
 
-      const today = new Date();
+      var today = new Date();
       today.setHours(0,0,0,0);
-      let current = new Date(today);
+      var current = new Date(today);
 
       function fmt(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth()+1).padStart(2,'0');
-        const day = String(d.getDate()).padStart(2,'0');
-        return { y, m, day, file: 'index_'+y+'_'+m+'_'+day+'.html', label: y+'.'+m+'.'+day };
+        var y = d.getFullYear();
+        var m = String(d.getMonth()+1).padStart(2,'0');
+        var day = String(d.getDate()).padStart(2,'0');
+        return { y: y, m: m, day: day, file: 'index_'+y+'_'+m+'_'+day+'.html', label: y+'.'+m+'.'+day };
       }
 
       function isToday(d) {
@@ -290,6 +208,144 @@
       });
 
       updateDisplay();
+    })();
+  </script>
+
+  <!-- ───── Dynamic Content Loader ───── -->
+  <script>
+    (async function() {
+
+      /* ── Helpers ── */
+
+      function escapeHtml(str) {
+        var d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      // Fetch an HTML page and extract title, first image, and first paragraph
+      async function parsePostHTML(basePath) {
+        try {
+          var res = await fetch(basePath + '/index.html');
+          if (!res.ok) return null;
+          var html = await res.text();
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+
+          var titleEl = doc.querySelector('h1') || doc.querySelector('title');
+          var title = titleEl ? titleEl.textContent.trim() : 'Untitled';
+
+          var imgEl = doc.querySelector('article img, .post-content img, main img, img');
+          var image = null;
+          if (imgEl) {
+            image = imgEl.getAttribute('src');
+            if (image && !image.startsWith('http')) {
+              image = basePath + '/' + image;
+            }
+          }
+
+          var paragraphs = doc.querySelectorAll('article p, .post-content p, main p, p');
+          var excerpt = '';
+          for (var i = 0; i < paragraphs.length; i++) {
+            var text = paragraphs[i].textContent.trim();
+            if (text.length > 30) { excerpt = text; break; }
+          }
+          if (excerpt.length > 200) excerpt = excerpt.substring(0, 197) + '\u2026';
+
+          return { title: title, image: image, excerpt: excerpt };
+        } catch(e) {
+          return null;
+        }
+      }
+
+      // Build callout inner HTML: headline, then art with overlay text
+      function buildCalloutInner(title, imgSrc, excerpt) {
+        return '<h3 class="callout-headline">' + escapeHtml(title) + '</h3>'
+          + '<div class="callout-art-wrapper">'
+          + (imgSrc
+              ? '<img class="callout-art" src="' + escapeHtml(imgSrc) + '" alt="">'
+              : '<div class="callout-art-placeholder"></div>')
+          + '<p class="callout-overlay-text">' + escapeHtml(excerpt) + '</p>'
+          + '</div>';
+      }
+
+      /* ── Fetch manifests ── */
+
+      var results = await Promise.all([
+        fetch('posts/index.json').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+        fetch('ai-posts/index.json').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; }),
+        fetch('papers/index.json').then(function(r) { return r.ok ? r.json() : []; }).catch(function() { return []; })
+      ]);
+
+      var posts   = results[0].sort(function(a, b) { return new Date(b.added) - new Date(a.added); });
+      var aiPosts = results[1].sort(function(a, b) { return new Date(b.added) - new Date(a.added); });
+      var papers  = results[2].sort(function(a, b) { return new Date(b.added) - new Date(a.added); });
+
+      /* ── Row 1: Featured Post (latest from posts/) ── */
+
+      var featuredEl = document.getElementById('featured-post');
+      if (posts.length > 0) {
+        var latest = posts[0];
+        var parsed = await parsePostHTML('posts/' + latest.slug);
+        if (parsed) {
+          featuredEl.href = 'posts/' + latest.slug + '/index.html';
+          var artHtml = '';
+          if (parsed.image) {
+            artHtml = '<div class="featured-art"><img src="' + escapeHtml(parsed.image) + '" alt=""></div>';
+          }
+          featuredEl.innerHTML =
+            '<div class="featured-text">'
+            + '<h2 class="featured-title">' + escapeHtml(parsed.title) + '</h2>'
+            + '<p class="featured-excerpt">' + escapeHtml(parsed.excerpt) + '</p>'
+            + '<span class="featured-cta">Read <span class="arrow">\u2192</span></span>'
+            + '</div>'
+            + artHtml;
+        }
+      }
+
+      /* ── Row 2 Col 1: AI Post (latest from ai-posts/) ── */
+
+      var aiPostEl = document.getElementById('ai-post-callout');
+      if (aiPosts.length > 0) {
+        var aiLatest = aiPosts[0];
+        var aiParsed = await parsePostHTML('ai-posts/' + aiLatest.slug);
+        if (aiParsed) {
+          aiPostEl.href = 'ai-posts/' + aiLatest.slug + '/index.html';
+          aiPostEl.innerHTML = buildCalloutInner(aiParsed.title, aiParsed.image, aiParsed.excerpt);
+        }
+      }
+
+      /* ── Row 2 Cols 2-3: Papers (two most recent) ── */
+
+      var recentPapers = papers.slice(0, 2);
+      for (var pi = 0; pi < recentPapers.length; pi++) {
+        var paper = recentPapers[pi];
+        var pEl = document.getElementById('paper-callout-' + (pi + 1));
+        if (pEl) {
+          var paperImg = 'papers/' + paper.slug + '/' + (paper.image || 'image.png');
+          var paperExcerpt = paper.abstract || '';
+          if (paperExcerpt.length > 150) paperExcerpt = paperExcerpt.substring(0, 147) + '\u2026';
+          pEl.href = 'papers/' + paper.slug + '/index.html';
+          pEl.innerHTML = buildCalloutInner(paper.title, paperImg, paperExcerpt);
+        }
+      }
+
+      /* ── Row 3: Older posts (2nd, 3rd, 4th most recent) ── */
+
+      var olderPosts = posts.slice(1, 4);
+      if (olderPosts.length > 0) {
+        for (var oi = 0; oi < 3; oi++) {
+          var cellEl = document.getElementById('post-callout-' + (oi + 2));
+          if (oi < olderPosts.length) {
+            var olderParsed = await parsePostHTML('posts/' + olderPosts[oi].slug);
+            if (olderParsed) {
+              cellEl.href = 'posts/' + olderPosts[oi].slug + '/index.html';
+              cellEl.innerHTML = buildCalloutInner(olderParsed.title, olderParsed.image, olderParsed.excerpt);
+              cellEl.style.display = '';
+            }
+          }
+        }
+      }
+
     })();
   </script>
 
