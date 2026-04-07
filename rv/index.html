@@ -67,10 +67,10 @@
       <!-- Row 1, Col 3: Art Agent (unchanged) -->
       <aside class="artagent-callout">
         <div class="artagent-header">
-          <span class="artagent-label">Art Agent</span>
+          <span class="artagent-label">AI Art Agent</span>
           <span class="artagent-date" id="artagent-date">Today</span>
         </div>
-        <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="Art Agent" loading="lazy" allow="autoplay 'none'" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="AI Art Agent" loading="lazy" allow="autoplay 'none'" sandbox="allow-scripts allow-same-origin"></iframe>
         <div class="artagent-nav">
           <button class="artagent-btn" id="artagent-prev" title="Previous day">&lt;</button>
           <button class="artagent-btn" id="artagent-next" title="Next day">&gt;</button>
@@ -310,7 +310,7 @@
         var aiParsed = await parsePostHTML('ai-posts/' + aiLatest.slug);
         if (aiParsed) {
           aiPostEl.href = 'ai-posts/' + aiLatest.slug + '/index.html';
-          aiPostEl.innerHTML = buildCalloutInner(aiParsed.title, aiParsed.image, aiParsed.excerpt);
+          aiPostEl.innerHTML = '<span class="ai-label">AI Reporter</span>' + buildCalloutInner(aiParsed.title, aiParsed.image, aiParsed.excerpt);
         }
       }
 
