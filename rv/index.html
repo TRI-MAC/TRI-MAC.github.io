@@ -324,8 +324,7 @@
       var papersPerPage = 2;
 
       function renderPapersPage() {
-        var start = papersPage * papersPerPage;
-        var pagePapers = papers.slice(start, start + papersPerPage);
+        var pagePapers = papers.slice(papersPage, papersPage + papersPerPage);
         for (var pi = 0; pi < papersPerPage; pi++) {
           var pEl = document.getElementById('paper-callout-' + (pi + 1));
           if (!pEl) continue;
@@ -346,17 +345,17 @@
         var nextBtn = document.getElementById('papers-next');
         prevBtn.disabled = papersPage === 0;
         prevBtn.classList.toggle('artagent-btn-disabled', papersPage === 0);
-        var maxPage = Math.ceil(papers.length / papersPerPage) - 1;
-        nextBtn.disabled = papersPage >= maxPage;
-        nextBtn.classList.toggle('artagent-btn-disabled', papersPage >= maxPage);
+        var maxStart = papers.length - papersPerPage;
+        nextBtn.disabled = papersPage >= maxStart;
+        nextBtn.classList.toggle('artagent-btn-disabled', papersPage >= maxStart);
       }
 
       document.getElementById('papers-prev').addEventListener('click', function() {
         if (papersPage > 0) { papersPage--; renderPapersPage(); }
       });
       document.getElementById('papers-next').addEventListener('click', function() {
-        var maxPage = Math.ceil(papers.length / papersPerPage) - 1;
-        if (papersPage < maxPage) { papersPage++; renderPapersPage(); }
+        var maxStart = papers.length - papersPerPage;
+        if (papersPage < maxStart) { papersPage++; renderPapersPage(); }
       });
 
       renderPapersPage();
