@@ -766,7 +766,7 @@ a {
 }
 
 .featured-art {
-  flex: 0 0 240px;
+  flex: 0 0 300px;
   border-radius: 8px;
   overflow: hidden;
 }
