@@ -263,6 +263,7 @@ a {
   color: var(--color-primary);
   display: block;
   margin-bottom: 8px;
+  pointer-events: none;
 }
 
 .artagent-iframe {
