@@ -70,7 +70,9 @@
           <span class="artagent-label">AI Art Agent</span>
           <span class="artagent-date" id="artagent-date">Today</span>
         </div>
-        <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="AI Art Agent" loading="lazy" allow="autoplay 'none'" sandbox="allow-scripts allow-same-origin"></iframe>
+        <a href="https://tri-mac.github.io/artagent/" id="artagent-link" target="_blank" rel="noopener" style="display:block;">
+          <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="AI Art Agent" loading="lazy" allow="autoplay 'none'" sandbox="allow-scripts allow-same-origin" style="pointer-events:none;"></iframe>
+        </a>
         <div class="artagent-nav">
           <button class="artagent-btn" id="artagent-prev" title="Previous day">&lt;</button>
           <button class="artagent-btn" id="artagent-next" title="Next day">&gt;</button>
@@ -132,6 +134,7 @@
     (function() {
       var base = 'https://tri-mac.github.io/artagent/';
       var frame = document.getElementById('artagent-frame');
+      var linkEl = document.getElementById('artagent-link');
       var dateEl = document.getElementById('artagent-date');
       var prevBtn = document.getElementById('artagent-prev');
       var nextBtn = document.getElementById('artagent-next');
@@ -192,6 +195,7 @@
       function navigate(d) {
         current = d;
         frame.src = fileUrl(d);
+        linkEl.href = fileUrl(d);
         updateDisplay();
       }
 
