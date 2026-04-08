@@ -868,6 +868,8 @@ a {
 
 .callout-card--in-section {
   border: 1px solid var(--color-border);
+  height: 320px;
+  overflow: hidden;
 }
 
 /* ── Responsive: Content Grid ── */
