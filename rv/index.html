@@ -90,6 +90,10 @@
           <a class="callout-card callout-card--in-section" id="paper-callout-1" href="#"></a>
           <a class="callout-card callout-card--in-section" id="paper-callout-2" href="#"></a>
         </div>
+        <div class="papers-nav">
+          <button class="artagent-btn" id="papers-prev" title="Previous papers">&lt;</button>
+          <button class="artagent-btn" id="papers-next" title="Next papers">&gt;</button>
+        </div>
       </div>
 
       <!-- Row 3: 2nd, 3rd, 4th most recent posts -->
@@ -314,20 +318,48 @@
         }
       }
 
-      /* ── Row 2 Cols 2-3: Papers (two most recent) ── */
+      /* ── Row 2 Cols 2-3: Papers (paginated, 2 at a time) ── */
 
-      var recentPapers = papers.slice(0, 2);
-      for (var pi = 0; pi < recentPapers.length; pi++) {
-        var paper = recentPapers[pi];
-        var pEl = document.getElementById('paper-callout-' + (pi + 1));
-        if (pEl) {
-          var paperImg = 'papers/' + paper.slug + '/' + (paper.image || 'image.png');
-          var paperExcerpt = paper.abstract || '';
-          if (paperExcerpt.length > 150) paperExcerpt = paperExcerpt.substring(0, 147) + '\u2026';
-          pEl.href = 'papers/' + paper.slug + '/index.html';
-          pEl.innerHTML = buildCalloutInner(paper.title, paperImg, paperExcerpt);
+      var papersPage = 0;
+      var papersPerPage = 2;
+
+      function renderPapersPage() {
+        var start = papersPage * papersPerPage;
+        var pagePapers = papers.slice(start, start + papersPerPage);
+        for (var pi = 0; pi < papersPerPage; pi++) {
+          var pEl = document.getElementById('paper-callout-' + (pi + 1));
+          if (!pEl) continue;
+          if (pi < pagePapers.length) {
+            var paper = pagePapers[pi];
+            var paperImg = 'papers/' + paper.slug + '/' + (paper.image || 'image.png');
+            var paperExcerpt = paper.abstract || '';
+            if (paperExcerpt.length > 150) paperExcerpt = paperExcerpt.substring(0, 147) + '\u2026';
+            pEl.href = 'papers/' + paper.slug + '/index.html';
+            pEl.innerHTML = buildCalloutInner(paper.title, paperImg, paperExcerpt);
+            pEl.style.display = '';
+          } else {
+            pEl.innerHTML = '';
+            pEl.style.display = 'none';
+          }
         }
+        var prevBtn = document.getElementById('papers-prev');
+        var nextBtn = document.getElementById('papers-next');
+        prevBtn.disabled = papersPage === 0;
+        prevBtn.classList.toggle('artagent-btn-disabled', papersPage === 0);
+        var maxPage = Math.ceil(papers.length / papersPerPage) - 1;
+        nextBtn.disabled = papersPage >= maxPage;
+        nextBtn.classList.toggle('artagent-btn-disabled', papersPage >= maxPage);
       }
+
+      document.getElementById('papers-prev').addEventListener('click', function() {
+        if (papersPage > 0) { papersPage--; renderPapersPage(); }
+      });
+      document.getElementById('papers-next').addEventListener('click', function() {
+        var maxPage = Math.ceil(papers.length / papersPerPage) - 1;
+        if (papersPage < maxPage) { papersPage++; renderPapersPage(); }
+      });
+
+      renderPapersPage();
 
       /* ── Row 3: Older posts (2nd, 3rd, 4th most recent) ── */
 
