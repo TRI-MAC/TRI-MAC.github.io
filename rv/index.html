@@ -81,9 +81,20 @@
       </aside>
 
       <!-- Row 2, Col 1: AI Post -->
-      <a class="callout-card" id="ai-post-callout" href="#">
-        <div class="callout-placeholder"><p>AI-generated posts will appear here.</p></div>
-      </a>
+      <div class="ai-post-section">
+        <div class="ai-post-header">
+          <span class="ai-label">AI Reporter</span>
+          <span class="ai-post-date" id="ai-post-date"></span>
+        </div>
+        <a class="callout-card callout-card--ai" id="ai-post-callout" href="#">
+          <div class="callout-placeholder"><p>AI-generated posts will appear here.</p></div>
+        </a>
+        <div class="ai-post-nav">
+          <button class="artagent-btn" id="ai-post-prev" title="Previous post">&lt;</button>
+          <button class="artagent-btn" id="ai-post-next" title="Next post">&gt;</button>
+          <button class="artagent-btn" id="ai-post-latest" title="Latest">&gt;&gt;</button>
+        </div>
+      </div>
 
       <!-- Row 2, Cols 2-3: Recent HCAI Papers -->
       <div class="papers-section">
@@ -310,17 +321,44 @@
         }
       }
 
-      /* ── Row 2 Col 1: AI Post (latest from ai-posts/) ── */
+      /* ── Row 2 Col 1: AI Post (paginated with nav) ── */
 
       var aiPostEl = document.getElementById('ai-post-callout');
-      if (aiPosts.length > 0) {
-        var aiLatest = aiPosts[0];
-        var aiParsed = await parsePostHTML('ai-posts/' + aiLatest.slug);
+      var aiDateEl = document.getElementById('ai-post-date');
+      var aiPostIdx = 0;
+
+      async function renderAiPost() {
+        if (aiPosts.length === 0) return;
+        var ai = aiPosts[aiPostIdx];
+        var aiParsed = await parsePostHTML('ai-posts/' + ai.slug);
         if (aiParsed) {
-          aiPostEl.href = 'ai-posts/' + aiLatest.slug + '/index.html';
-          aiPostEl.innerHTML = '<span class="ai-label">AI Reporter</span>' + buildCalloutInner(aiParsed.title, aiParsed.image, aiParsed.excerpt);
+          aiPostEl.href = 'ai-posts/' + ai.slug + '/index.html';
+          aiPostEl.innerHTML = buildCalloutInner(aiParsed.title, aiParsed.image, aiParsed.excerpt);
         }
+        aiDateEl.textContent = ai.added ? ai.added.substring(0, 10) : '';
+
+        var prevBtn = document.getElementById('ai-post-prev');
+        var nextBtn = document.getElementById('ai-post-next');
+        var latestBtn = document.getElementById('ai-post-latest');
+        prevBtn.disabled = aiPostIdx >= aiPosts.length - 1;
+        prevBtn.classList.toggle('artagent-btn-disabled', prevBtn.disabled);
+        nextBtn.disabled = aiPostIdx <= 0;
+        nextBtn.classList.toggle('artagent-btn-disabled', nextBtn.disabled);
+        latestBtn.disabled = aiPostIdx === 0;
+        latestBtn.classList.toggle('artagent-btn-disabled', latestBtn.disabled);
       }
+
+      document.getElementById('ai-post-prev').addEventListener('click', function() {
+        if (aiPostIdx < aiPosts.length - 1) { aiPostIdx++; renderAiPost(); }
+      });
+      document.getElementById('ai-post-next').addEventListener('click', function() {
+        if (aiPostIdx > 0) { aiPostIdx--; renderAiPost(); }
+      });
+      document.getElementById('ai-post-latest').addEventListener('click', function() {
+        if (aiPostIdx !== 0) { aiPostIdx = 0; renderAiPost(); }
+      });
+
+      await renderAiPost();
 
       /* ── Row 2 Cols 2-3: Papers (paginated, 2 at a time) ── */
 

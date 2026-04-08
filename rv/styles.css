@@ -261,9 +261,42 @@ a {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-primary);
-  display: block;
-  margin-bottom: 8px;
   pointer-events: none;
+}
+
+.ai-post-section {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--color-surface);
+}
+
+.ai-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ai-post-date {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.callout-card--ai {
+  border: none;
+  padding: 0;
+  flex: 1;
+}
+
+.ai-post-nav {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  justify-content: flex-end;
 }
 
 .artagent-iframe {
