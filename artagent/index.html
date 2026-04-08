@@ -7,235 +7,280 @@
 <meta http-equiv="Expires" content="0">
 
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Generative Art</title>
 <style>
   :root{
-    --bg:#070312;
-    --pink:#ff4fd8;
-    --magenta:#ff2ea6;
-    --purple:#8f4dff;
-    --violet:#4d4dff;
-    --cyan:#4ff6ff;
-    --teal:#36d6ff;
-    --sun1:#ff5a87;
-    --sun2:#ff8a4c;
-    --sun3:#ffd55d;
-    --grid:#3de8ff;
-    --gold:#ffd77d;
-    --white:#f4eaff;
-    --ink:#12081d;
+    --bg:#0d0b12;
+    --ink:#f5efe6;
+    --orange:#ff7a00;
+    --amber:#ffb000;
+    --red:#ff4a1f;
+    --court:#d98a2b;
+    --wood1:#7a3d12;
+    --wood2:#a85a1b;
+    --blue:#1247d6;
+    --cream:#f7f0df;
+    --shadow:#07060a;
   }
-
   *{box-sizing:border-box}
   html,body{
     margin:0;
+    width:100%;
     height:100%;
-    background:
-      radial-gradient(circle at 50% 20%, #32104f 0%, #14051f 36%, #05020b 70%, #000 100%);
     overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 50%, #21111a 0%, #0a0910 55%, #000 100%);
     font-family: Arial, Helvetica, sans-serif;
   }
-
   body{
     display:grid;
     place-items:center;
   }
-
   #frame{
     position:relative;
     width:min(100vw, calc(100vh * 9 / 16));
+    height:min(100vh, calc(100vw * 16 / 9));
     aspect-ratio:9/16;
     overflow:hidden;
     background:
-      linear-gradient(180deg, #25113e 0%, #311756 16%, #652a82 32%, #d74d8d 50%, #ff8758 63%, #34134a 78%, #070312 100%);
+      linear-gradient(180deg, #130d10 0%, #22110a 35%, #120b0d 100%);
     box-shadow:
       0 0 0 1px rgba(255,255,255,.05),
-      0 0 60px rgba(255,60,180,.18),
-      0 0 140px rgba(76,210,255,.08),
-      inset 0 0 120px rgba(255,255,255,.05);
+      0 0 60px rgba(0,0,0,.65),
+      inset 0 0 120px rgba(0,0,0,.35);
   }
 
   #background-video{
     position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
+    inset:6% 7% 10% 7%;
+    width:86%;
+    height:84%;
     object-fit:cover;
     opacity:.82;
-    filter:saturate(1.5) contrast(1.05) hue-rotate(-8deg) brightness(.98);
-    mix-blend-mode:screen;
-    transform:scale(1.12);
-    animation: driftVideo 38s ease-in-out infinite alternate;
+    filter:saturate(1.25) contrast(1.15) brightness(.98) hue-rotate(-10deg);
+    clip-path:polygon(6% 0,94% 0,100% 8%,100% 92%,94% 100%,6% 100%,0 92%,0 8%);
+    z-index:2;
   }
 
-  @keyframes driftVideo{
-    0%{transform:scale(1.12) translate3d(0,0,0)}
-    100%{transform:scale(1.18) translate3d(1.8%, -1.2%, 0)}
-  }
-
-  .layer{
-    position:absolute; inset:0;
-    pointer-events:none;
-  }
-
-  #skyGlow{
+  .layer{position:absolute; inset:0; pointer-events:none}
+  #bgGrad{
     background:
-      radial-gradient(ellipse at 50% 19%, rgba(255,220,120,.85) 0%, rgba(255,170,90,.42) 18%, rgba(255,120,120,.14) 32%, rgba(255,120,200,0) 56%),
-      radial-gradient(circle at 20% 18%, rgba(118,80,255,.35), transparent 34%),
-      radial-gradient(circle at 80% 24%, rgba(60,232,255,.28), transparent 28%),
-      linear-gradient(180deg, rgba(18,8,29,.06), rgba(18,8,29,.28) 65%, rgba(0,0,0,.55));
-    mix-blend-mode:screen;
+      radial-gradient(circle at 50% 12%, rgba(255,167,27,.26), transparent 22%),
+      radial-gradient(circle at 50% 80%, rgba(16,62,180,.25), transparent 28%),
+      linear-gradient(180deg, rgba(255,134,25,.16), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 78%, rgba(255,98,0,.16));
+    z-index:1;
   }
 
-  #sun{
-    position:absolute;
-    left:50%;
-    top:15%;
-    width:58%;
-    aspect-ratio:1/1;
-    transform:translateX(-50%);
-    border-radius:50%;
-    background:
-      repeating-linear-gradient(
-        180deg,
-        rgba(255,245,190,0.0) 0%,
-        rgba(255,245,190,0.0) 6.3%,
-        rgba(255,135,120,.38) 6.3%,
-        rgba(255,135,120,.38) 8%
-      ),
-      linear-gradient(180deg, var(--sun3) 0%, #ffb94a 20%, var(--sun2) 58%, var(--sun1) 100%);
-    box-shadow:
-      0 0 60px rgba(255,170,90,.45),
-      0 0 160px rgba(255,70,160,.22);
-    filter:saturate(1.2);
+  #sunburst{
+    z-index:3;
+    mix-blend-mode:screen;
+    opacity:.55;
+    transform-origin:50% 42%;
+    animation: slowRotate 90s linear infinite;
+  }
+
+  #courtLines{
+    z-index:5;
     opacity:.95;
-    animation:sunPulse 13s ease-in-out infinite;
-  }
-  #sun::before{
-    content:"";
-    position:absolute; inset:-6%;
-    border-radius:50%;
-    border:2px solid rgba(255,180,220,.18);
-    transform:scale(1.08,1.02);
-  }
-  #sun::after{
-    content:"";
-    position:absolute; inset:0;
-    border-radius:50%;
-    background:
-      radial-gradient(circle at 50% 35%, rgba(255,255,255,.18), transparent 35%),
-      linear-gradient(180deg, transparent 0 52%, rgba(255,85,145,.16) 70%, rgba(120,30,90,.25) 100%);
     mix-blend-mode:screen;
   }
-  @keyframes sunPulse{
-    0%,100%{transform:translateX(-50%) scale(1)}
-    50%{transform:translateX(-50%) scale(1.025)}
+
+  #deco{
+    z-index:6;
+    opacity:.95;
   }
 
-  #horizonGlow{
+  #halftone{
+    z-index:7;
+    opacity:.22;
+    mix-blend-mode:soft-light;
+  }
+
+  #canvasPaint{
     position:absolute;
-    left:0; right:0; top:48%;
+    inset:0;
+    z-index:4;
+    opacity:.95;
+  }
+
+  #overlay{
+    z-index:8;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,0) 18%, rgba(0,0,0,0) 75%, rgba(0,0,0,.5)),
+      linear-gradient(90deg, rgba(0,0,0,.28), rgba(0,0,0,0) 14%, rgba(0,0,0,0) 86%, rgba(0,0,0,.28)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 2px, rgba(0,0,0,.01) 2px 4px);
+    mix-blend-mode:multiply;
+  }
+
+  .panel{
+    position:absolute;
+    border:4px solid rgba(246,225,187,.8);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,.3) inset,
+      0 0 30px rgba(255,148,31,.18);
+    z-index:6;
+  }
+  .panel.a{
+    left:-6%;
+    top:14%;
+    width:55%;
+    height:21%;
+    background:
+      linear-gradient(135deg, rgba(255,119,0,.8), rgba(125,30,0,.15)),
+      linear-gradient(90deg, transparent 0 84%, rgba(255,235,200,.75) 84% 88%, transparent 88%);
+    transform:rotate(-14deg);
+    animation: swayA 18s ease-in-out infinite;
+  }
+  .panel.b{
+    right:-8%;
+    top:28%;
+    width:50%;
+    height:18%;
+    background:
+      linear-gradient(135deg, rgba(22,77,214,.88), rgba(7,10,24,.08)),
+      linear-gradient(0deg, transparent 0 72%, rgba(255,255,255,.6) 72% 76%, transparent 76%);
+    transform:rotate(12deg);
+    animation: swayB 22s ease-in-out infinite;
+  }
+  .panel.c{
+    left:-4%;
+    bottom:18%;
+    width:48%;
     height:16%;
     background:
-      linear-gradient(180deg, rgba(255,190,110,0), rgba(255,185,90,.24) 30%, rgba(255,95,160,.14) 65%, rgba(0,0,0,0));
-    mix-blend-mode:screen;
-    filter:blur(14px);
+      linear-gradient(135deg, rgba(255,68,20,.8), rgba(32,5,10,.05));
+    transform:rotate(11deg);
+    animation: swayC 20s ease-in-out infinite;
   }
-
-  #gridCanvas, #fxCanvas{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-  }
-
-  #svgOverlay{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-  }
-
-  .vignette{
+  .panel.d{
+    right:-2%;
+    bottom:9%;
+    width:58%;
+    height:19%;
     background:
-      linear-gradient(180deg, rgba(0,0,0,.18), transparent 20%, transparent 82%, rgba(0,0,0,.44)),
-      radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.18) 84%, rgba(0,0,0,.45) 100%);
+      linear-gradient(135deg, rgba(255,176,0,.7), rgba(73,18,0,.1));
+    transform:rotate(-8deg);
+    animation: swayD 24s ease-in-out infinite;
   }
 
-  .scanlines{
-    opacity:.2;
+  .scoreArc{
+    position:absolute;
+    border:8px solid rgba(255,241,214,.82);
+    border-color:rgba(255,241,214,.82) transparent transparent transparent;
+    border-radius:50%;
+    z-index:6;
+    filter:drop-shadow(0 0 8px rgba(255,164,45,.15));
+  }
+  .arc1{
+    width:70%;
+    height:28%;
+    left:15%;
+    top:5%;
+    transform:rotate(180deg);
+    animation: pulseArc 14s ease-in-out infinite;
+  }
+  .arc2{
+    width:88%;
+    height:46%;
+    left:6%;
+    bottom:2%;
+    animation: pulseArc 16s ease-in-out infinite reverse;
+  }
+
+  .ball{
+    position:absolute;
+    width:34%;
+    aspect-ratio:1;
+    left:33%;
+    top:35%;
+    border-radius:50%;
+    z-index:9;
     background:
-      repeating-linear-gradient(
-        180deg,
-        rgba(255,255,255,.05) 0px,
-        rgba(255,255,255,.05) 1px,
-        rgba(0,0,0,0) 2px,
-        rgba(0,0,0,0) 5px
-      );
-    mix-blend-mode:soft-light;
-    animation: scanDrift 9s linear infinite;
+      radial-gradient(circle at 35% 28%, rgba(255,208,116,.95) 0 10%, rgba(255,159,39,.9) 10% 18%, rgba(255,122,0,.95) 18% 55%, rgba(166,64,10,1) 82%, rgba(76,23,4,1) 100%);
+    box-shadow:
+      0 0 0 6px rgba(255,188,85,.08),
+      0 28px 65px rgba(0,0,0,.42),
+      inset -18px -24px 38px rgba(72,16,0,.45),
+      inset 14px 14px 30px rgba(255,192,91,.22);
+    transform-origin:50% 50%;
+    animation: ballBob 12s ease-in-out infinite;
   }
-  @keyframes scanDrift{
-    from{transform:translateY(0)}
-    to{transform:translateY(6px)}
-  }
-
-  .noise{
-    opacity:.09;
-    background-image:
-      radial-gradient(circle at 14% 28%, rgba(255,255,255,.9) 0 1px, transparent 1.2px),
-      radial-gradient(circle at 66% 72%, rgba(255,255,255,.85) 0 1px, transparent 1.2px),
-      radial-gradient(circle at 44% 16%, rgba(255,255,255,.7) 0 .8px, transparent 1px),
-      radial-gradient(circle at 87% 46%, rgba(255,255,255,.9) 0 1.2px, transparent 1.4px),
-      radial-gradient(circle at 30% 85%, rgba(255,255,255,.7) 0 .9px, transparent 1.2px);
-    background-size: 90px 90px, 120px 120px, 70px 70px, 150px 150px, 110px 110px;
-    mix-blend-mode:screen;
-    animation: noiseShift 2.2s steps(3) infinite;
-  }
-  @keyframes noiseShift{
-    0%{transform:translate(0,0)}
-    33%{transform:translate(1px,-1px)}
-    66%{transform:translate(-1px,1px)}
-    100%{transform:translate(0,0)}
-  }
-
-  .chromeBars{
-    position:absolute; inset:0;
-  }
-  .chromeBars::before,
-  .chromeBars::after{
+  .ball:before,
+  .ball:after{
     content:"";
     position:absolute;
-    width:46%;
-    height:1.4%;
-    background:linear-gradient(90deg, transparent, rgba(79,246,255,.9), rgba(255,79,216,.9), transparent);
-    filter:blur(.4px);
-    opacity:.66;
+    inset:0;
+    border-radius:50%;
   }
-  .chromeBars::before{
-    top:10.6%; left:4%;
-    animation: barSlideA 14s ease-in-out infinite alternate;
+  .ball:before{
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0 49%, rgba(34,10,2,.95) 49.5% 51%, transparent 51.5%),
+      linear-gradient(90deg, transparent 0 48.5%, rgba(34,10,2,.95) 48.8% 51.2%, transparent 51.5%),
+      linear-gradient(0deg, transparent 0 48.5%, rgba(34,10,2,.95) 48.8% 51.2%, transparent 51.5%);
+    transform:rotate(18deg);
   }
-  .chromeBars::after{
-    bottom:14%; right:6%;
-    animation: barSlideB 17s ease-in-out infinite alternate;
-  }
-  @keyframes barSlideA{
-    0%{transform:translateX(-2%) scaleX(.92)}
-    100%{transform:translateX(7%) scaleX(1.06)}
-  }
-  @keyframes barSlideB{
-    0%{transform:translateX(3%) scaleX(1.02)}
-    100%{transform:translateX(-6%) scaleX(.94)}
+  .ball:after{
+    inset:8% 18%;
+    border-left:6px solid rgba(34,10,2,.95);
+    border-right:6px solid rgba(34,10,2,.95);
+    border-radius:50%;
+    transform:rotate(18deg);
   }
 
-  #dateStamp{
+  .rim{
     position:absolute;
-    right:20px;
-    bottom:16px;
-    color:rgba(255,235,250,.6);
-    font-size:15px;
-    letter-spacing:.22em;
-    text-transform:uppercase;
+    left:34%;
+    top:15%;
+    width:32%;
+    height:1.2%;
+    z-index:10;
+    background:linear-gradient(180deg, #ffb344, #d14d00);
+    border-radius:999px;
+    box-shadow:0 0 18px rgba(255,120,0,.35);
+    animation: rimGlow 8s ease-in-out infinite;
+  }
+  .net{
+    position:absolute;
+    left:37%;
+    top:16.2%;
+    width:26%;
+    height:13%;
+    z-index:9;
+    clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);
+    opacity:.75;
+    background:
+      repeating-linear-gradient(78deg, rgba(255,243,220,.85) 0 3px, transparent 3px 19px),
+      repeating-linear-gradient(-78deg, rgba(255,243,220,.85) 0 3px, transparent 3px 19px);
+    animation: netBreath 6s ease-in-out infinite;
+  }
+
+  .stripes{
+    position:absolute;
+    inset:-10%;
+    z-index:3;
+    opacity:.18;
+    mix-blend-mode:screen;
+    background:
+      repeating-linear-gradient(117deg,
+        transparent 0 62px,
+        rgba(255,128,0,.9) 62px 86px,
+        transparent 86px 172px,
+        rgba(26,74,223,.95) 172px 198px,
+        transparent 198px 292px);
+    transform:translateY(0) scale(1.05);
+    animation: stripeShift 28s ease-in-out infinite;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
     z-index:20;
-    text-shadow:0 0 8px rgba(255,80,190,.2);
+    color:rgba(255,244,224,.55);
+    font-size:15px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
     mix-blend-mode:screen;
   }
 
@@ -244,511 +289,337 @@
     width:18px;
     height:auto;
     left:14px;
-    bottom:162px;
-    opacity:.56;
-    filter:saturate(.95) brightness(.8) hue-rotate(210deg);
-    transform:rotate(-8deg);
+    bottom:134px;
+    opacity:.58;
     z-index:12;
+    filter:brightness(.78) saturate(.9);
+    transform:rotate(-8deg);
   }
 
-  #maskEdge{
-    position:absolute;
-    left:0;
-    bottom:145px;
-    width:88px;
-    height:60px;
-    background:linear-gradient(90deg, rgba(8,3,18,.9), rgba(8,3,18,.35), transparent);
-    z-index:13;
-    filter:blur(4px);
+  @keyframes slowRotate{
+    from{transform:rotate(0deg) scale(1)}
+    50%{transform:rotate(4deg) scale(1.03)}
+    to{transform:rotate(0deg) scale(1)}
   }
-
-  .frameGlow{
-    position:absolute; inset:0;
-    border:2px solid rgba(120,210,255,.12);
-    box-shadow:
-      inset 0 0 0 1px rgba(255,80,200,.14),
-      inset 0 0 45px rgba(97,44,255,.12),
-      0 0 24px rgba(255,60,180,.12);
-    z-index:18;
+  @keyframes swayA{
+    0%,100%{transform:rotate(-14deg) translate(0,0)}
+    50%{transform:rotate(-10deg) translate(2%,1%)}
+  }
+  @keyframes swayB{
+    0%,100%{transform:rotate(12deg) translate(0,0)}
+    50%{transform:rotate(15deg) translate(-2%,1%)}
+  }
+  @keyframes swayC{
+    0%,100%{transform:rotate(11deg) translate(0,0)}
+    50%{transform:rotate(8deg) translate(2%,-1%)}
+  }
+  @keyframes swayD{
+    0%,100%{transform:rotate(-8deg) translate(0,0)}
+    50%{transform:rotate(-5deg) translate(-2%,-1%)}
+  }
+  @keyframes pulseArc{
+    0%,100%{transform:scale(1); opacity:.85}
+    50%{transform:scale(1.03); opacity:1}
+  }
+  @keyframes ballBob{
+    0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}
+    50%{transform:translateY(-2.5%) rotate(3deg) scale(1.02)}
+  }
+  @keyframes rimGlow{
+    0%,100%{box-shadow:0 0 18px rgba(255,120,0,.35)}
+    50%{box-shadow:0 0 30px rgba(255,170,60,.55)}
+  }
+  @keyframes netBreath{
+    0%,100%{transform:scaleY(1)}
+    50%{transform:scaleY(1.06)}
+  }
+  @keyframes stripeShift{
+    0%,100%{transform:translateY(-1%) scale(1.05)}
+    50%{transform:translateY(1.5%) scale(1.08)}
   }
 </style>
 </head>
 <body>
   <div id="frame">
-    <video id="background-video" src="video/background.f2d0b697.mp4" autoplay loop muted playsinline></video>
+    <div id="bgGrad" class="layer"></div>
+    <div class="stripes"></div>
 
-    <div id="skyGlow" class="layer"></div>
-    <div id="sun"></div>
-    <div id="horizonGlow"></div>
+    <video id="background-video" src="video/background.e777952e.mp4" autoplay loop muted playsinline></video>
 
-    <canvas id="gridCanvas" class="layer"></canvas>
+    <canvas id="canvasPaint" width="1080" height="1920"></canvas>
 
-    <svg id="svgOverlay" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="archGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#6af6ff" stop-opacity="0.95"/>
-          <stop offset="45%" stop-color="#ff58d6" stop-opacity="0.78"/>
-          <stop offset="100%" stop-color="#7c50ff" stop-opacity="0.4"/>
-        </linearGradient>
-        <linearGradient id="edgeGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#fff2d0" stop-opacity="0.9"/>
-          <stop offset="60%" stop-color="#ff7fae" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#55206f" stop-opacity="0"/>
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="6" result="b"/>
-          <feMerge>
-            <feMergeNode in="b"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-
-      <g opacity="0.58" filter="url(#glow)">
-        <path d="M170 1280 Q540 1040 910 1280" fill="none" stroke="url(#archGrad)" stroke-width="8"/>
-        <path d="M135 1380 Q540 1085 945 1380" fill="none" stroke="url(#archGrad)" stroke-width="5"/>
-        <path d="M108 1490 Q540 1140 972 1490" fill="none" stroke="#72f7ff" stroke-opacity=".45" stroke-width="3"/>
-      </g>
-
-      <g opacity="0.75">
-        <polygon points="540,360 603,520 780,538 645,645 690,822 540,728 390,822 435,645 300,538 477,520"
-                 fill="none" stroke="#ffd977" stroke-opacity=".72" stroke-width="4"/>
-        <polygon points="540,425 584,535 705,548 612,623 642,745 540,680 438,745 468,623 375,548 496,535"
-                 fill="none" stroke="#ff6ec8" stroke-opacity=".6" stroke-width="3"/>
-      </g>
-
-      <g opacity="0.26">
-        <rect x="86" y="116" width="908" height="1600" fill="none" stroke="url(#edgeGrad)" stroke-width="10"/>
-        <rect x="122" y="152" width="836" height="1528" fill="none" stroke="#59efff" stroke-opacity=".3" stroke-width="2"/>
-      </g>
-
-      <g id="pillars" opacity="0.46">
-        <path d="M86 1160 L196 920 L230 920 L154 1160 Z" fill="#1a0d2d"/>
-        <path d="M994 1160 L884 920 L850 920 L926 1160 Z" fill="#1a0d2d"/>
-        <path d="M150 1160 L260 820 L295 820 L213 1160 Z" fill="#2a1044"/>
-        <path d="M930 1160 L820 820 L785 820 L867 1160 Z" fill="#2a1044"/>
-        <path d="M0 1440 L172 1080 L220 1080 L62 1440 Z" fill="#12081d"/>
-        <path d="M1080 1440 L908 1080 L860 1080 L1018 1440 Z" fill="#12081d"/>
-      </g>
-
-      <g opacity="0.7">
-        <line x1="186" y1="946" x2="298" y2="945" stroke="#64f0ff" stroke-opacity=".9" stroke-width="3"/>
-        <line x1="782" y1="945" x2="894" y2="944" stroke="#ff5ccb" stroke-opacity=".9" stroke-width="3"/>
-        <line x1="140" y1="1108" x2="258" y2="1108" stroke="#ffcc71" stroke-opacity=".66" stroke-width="2"/>
-        <line x1="822" y1="1108" x2="940" y2="1108" stroke="#6cf0ff" stroke-opacity=".66" stroke-width="2"/>
+    <svg id="sunburst" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g transform="translate(540 820)">
+        <g id="rays"></g>
       </g>
     </svg>
 
-    <canvas id="fxCanvas" class="layer"></canvas>
+    <svg id="courtLines" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldLine" x1="0" x2="1">
+          <stop offset="0%" stop-color="#fff0c5"/>
+          <stop offset="50%" stop-color="#ffb341"/>
+          <stop offset="100%" stop-color="#fff0c5"/>
+        </linearGradient>
+      </defs>
+      <rect x="76" y="118" width="928" height="1668" rx="18" ry="18" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.78"/>
+      <circle cx="540" cy="960" r="178" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.7"/>
+      <circle cx="540" cy="960" r="58" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.9"/>
+      <path d="M540,118 L540,1786" stroke="url(#goldLine)" stroke-width="8" opacity="0.68"/>
+      <path d="M250,118 h580 v220 h-580z" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.72"/>
+      <path d="M250,1786 h580 v-220 h-580z" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.72"/>
+      <path d="M190,338 A350,350 0 0 1 890,338" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.78"/>
+      <path d="M190,1582 A350,350 0 0 0 890,1582" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.78"/>
+      <path d="M422,338 A118,118 0 0 0 658,338" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.82"/>
+      <path d="M422,1582 A118,118 0 0 1 658,1582" fill="none" stroke="url(#goldLine)" stroke-width="8" opacity="0.82"/>
+    </svg>
 
-    <div class="layer chromeBars"></div>
-    <div class="layer scanlines"></div>
-    <div class="layer noise"></div>
-    <div class="layer vignette"></div>
-    <div class="frameGlow"></div>
+    <div class="panel a"></div>
+    <div class="panel b"></div>
+    <div class="panel c"></div>
+    <div class="panel d"></div>
 
-    <img id="guinea-pig" src="img/guineapig.f2d0b697.png" alt="">
-    <div id="maskEdge"></div>
+    <div class="scoreArc arc1"></div>
+    <div class="scoreArc arc2"></div>
 
-    <div id="dateStamp">2026-04-06</div>
+    <div class="rim"></div>
+    <div class="net"></div>
+    <div class="ball"></div>
+
+    <svg id="deco" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="orangeBand" x1="0" x2="1">
+          <stop offset="0%" stop-color="#ff4a1f"/>
+          <stop offset="50%" stop-color="#ffb000"/>
+          <stop offset="100%" stop-color="#ff6e00"/>
+        </linearGradient>
+        <linearGradient id="blueBand" x1="0" x2="1">
+          <stop offset="0%" stop-color="#1a4ee8"/>
+          <stop offset="100%" stop-color="#6ec7ff"/>
+        </linearGradient>
+      </defs>
+
+      <polygon points="0,220 240,120 350,320 120,470" fill="url(#orangeBand)" opacity=".78"/>
+      <polygon points="840,220 1080,140 1080,430 930,510" fill="url(#blueBand)" opacity=".82"/>
+      <polygon points="0,1420 190,1320 320,1510 80,1660" fill="url(#blueBand)" opacity=".72"/>
+      <polygon points="760,1490 1080,1360 1080,1780 900,1850" fill="url(#orangeBand)" opacity=".76"/>
+
+      <g opacity=".7">
+        <circle cx="180" cy="720" r="40" fill="#fff0c5"/>
+        <circle cx="900" cy="1130" r="24" fill="#fff0c5"/>
+        <rect x="860" y="720" width="120" height="16" fill="#fff0c5" transform="rotate(-22 860 720)"/>
+        <rect x="140" y="1180" width="160" height="16" fill="#fff0c5" transform="rotate(18 140 1180)"/>
+      </g>
+    </svg>
+
+    <svg id="halftone" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+          <circle cx="6" cy="6" r="3" fill="white"/>
+          <circle cx="18" cy="18" r="2.2" fill="white"/>
+        </pattern>
+        <radialGradient id="fadeDot" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stop-color="white" stop-opacity="1"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </radialGradient>
+        <mask id="dotMask">
+          <rect width="1080" height="1920" fill="black"/>
+          <circle cx="540" cy="760" r="460" fill="url(#fadeDot)"/>
+          <circle cx="540" cy="1360" r="320" fill="url(#fadeDot)" opacity=".75"/>
+        </mask>
+      </defs>
+      <rect width="1080" height="1920" fill="url(#dots)" mask="url(#dotMask)"/>
+    </svg>
+
+    <div id="overlay" class="layer"></div>
+
+    <img id="guinea-pig" src="img/guineapig.e777952e.png" alt="">
+
+    <div id="date">2026-04-07</div>
   </div>
 
 <script>
 (() => {
-  const DATE_SEED = "2026-04-06";
-
-  function xmur3(str){
-    let h = 1779033703 ^ str.length;
-    for(let i=0;i<str.length;i++){
-      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
-      h = h << 13 | h >>> 19;
-    }
-    return function(){
-      h = Math.imul(h ^ (h >>> 16), 2246822507);
-      h = Math.imul(h ^ (h >>> 13), 3266489909);
-      return (h ^= h >>> 16) >>> 0;
-    }
-  }
-  function mulberry32(a){
-    return function(){
-      let t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    }
-  }
-  const seed = xmur3(DATE_SEED)();
-  const rand = mulberry32(seed);
-
-  const frame = document.getElementById('frame');
-  const gridCanvas = document.getElementById('gridCanvas');
-  const fxCanvas = document.getElementById('fxCanvas');
-  const gctx = gridCanvas.getContext('2d');
-  const fctx = fxCanvas.getContext('2d');
-
-  let w=1080,h=1920,dpr=1,timeStart=performance.now();
-  const stars = [];
-  const shards = [];
-  const mountainBands = [];
-  const towers = [];
-
-  function resize(){
-    const rect = frame.getBoundingClientRect();
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    w = Math.round(rect.width);
-    h = Math.round(rect.height);
-    [gridCanvas, fxCanvas].forEach(c=>{
-      c.width = Math.round(w*dpr);
-      c.height = Math.round(h*dpr);
-      c.style.width = w+'px';
-      c.style.height = h+'px';
-    });
-    gctx.setTransform(dpr,0,0,dpr,0,0);
-    fctx.setTransform(dpr,0,0,dpr,0,0);
-    buildScene();
+  const seedStr = "2026-04-07";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
   }
 
-  function buildScene(){
-    stars.length = 0;
-    shards.length = 0;
-    mountainBands.length = 0;
-    towers.length = 0;
+  const rays = document.getElementById('rays');
+  const rayCount = 30;
+  for(let i=0;i<rayCount;i++){
+    const a = (Math.PI * 2 * i / rayCount) + rnd()*0.08;
+    const inner = 110 + rnd()*70;
+    const outer = 720 + rnd()*240;
+    const spread = 0.07 + rnd()*0.045;
+    const x1 = Math.cos(a-spread)*inner;
+    const y1 = Math.sin(a-spread)*inner;
+    const x2 = Math.cos(a+spread)*inner;
+    const y2 = Math.sin(a+spread)*inner;
+    const x3 = Math.cos(a+spread*0.45)*outer;
+    const y3 = Math.sin(a+spread*0.45)*outer;
+    const x4 = Math.cos(a-spread*0.45)*outer;
+    const y4 = Math.sin(a-spread*0.45)*outer;
+    const color = i % 3 === 0 ? "rgba(255,176,0,0.42)" : (i % 3 === 1 ? "rgba(255,84,31,0.35)" : "rgba(43,112,255,0.24)");
+    const p = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+    p.setAttribute("points", `${x1},${y1} ${x2},${y2} ${x3},${y3} ${x4},${y4}`);
+    p.setAttribute("fill", color);
+    rays.appendChild(p);
+  }
 
-    for(let i=0;i<90;i++){
-      stars.push({
-        x: rand()*w,
-        y: rand()*h*0.55,
-        r: rand()*1.7 + 0.5,
-        a: rand()*0.9 + 0.1,
-        hue: rand() > 0.5 ? 190 : 315
-      });
+  const canvas = document.getElementById('canvasPaint');
+  const ctx = canvas.getContext('2d');
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // woodgrain inspired energetic bands
+    for(let i=0;i<24;i++){
+      const y = 100 + i*74 + rnd()*24;
+      const h = 32 + rnd()*30;
+      const alpha = 0.05 + rnd()*0.07;
+      const grad = ctx.createLinearGradient(0,y,canvas.width,y+h);
+      grad.addColorStop(0, `rgba(255,155,60,${alpha*0.4})`);
+      grad.addColorStop(0.35, `rgba(116,48,10,${alpha})`);
+      grad.addColorStop(0.65, `rgba(206,111,34,${alpha*0.7})`);
+      grad.addColorStop(1, `rgba(60,18,5,${alpha*0.35})`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(0,y);
+      ctx.bezierCurveTo(
+        canvas.width*0.22, y + (rnd()*50-25),
+        canvas.width*0.7, y + (rnd()*60-30),
+        canvas.width, y + (rnd()*40-20)
+      );
+      ctx.lineTo(canvas.width, y+h);
+      ctx.bezierCurveTo(
+        canvas.width*0.75, y+h + (rnd()*50-25),
+        canvas.width*0.25, y+h + (rnd()*50-25),
+        0, y+h + (rnd()*50-25)
+      );
+      ctx.closePath();
+      ctx.fill();
     }
 
+    // aggressive paint slashes / motion vectors
     for(let i=0;i<18;i++){
-      const side = i%2===0 ? 0 : 1;
-      shards.push({
-        side,
-        y: h*(0.12 + rand()*0.7),
-        len: w*(0.12 + rand()*0.24),
-        thick: 10 + rand()*34,
-        tilt: rand()*0.8 - 0.4,
-        hue: side===0 ? (180 + rand()*35) : (300 + rand()*30),
-        alpha: 0.1 + rand()*0.26
-      });
+      const x = rnd()*1080;
+      const y = rnd()*1920;
+      const len = 180 + rnd()*420;
+      const ang = (-0.8 + rnd()*1.6);
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(ang);
+      const g = ctx.createLinearGradient(-len/2,0,len/2,0);
+      const c1 = i%2===0 ? `rgba(255,118,0,${0.09+rnd()*0.12})` : `rgba(39,92,255,${0.08+rnd()*0.11})`;
+      const c2 = `rgba(255,240,220,${0.03+rnd()*0.05})`;
+      g.addColorStop(0,c1);
+      g.addColorStop(.5,c2);
+      g.addColorStop(1,c1);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(-len/2, -18-rnd()*20);
+      ctx.lineTo(len/2, -4-rnd()*10);
+      ctx.lineTo(len/2, 18+rnd()*20);
+      ctx.lineTo(-len/2, 4+rnd()*12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     }
 
-    for(let b=0;b<3;b++){
-      const pts = [];
-      const baseY = h*(0.6 + b*0.075);
-      const step = w/8;
-      for(let i=-1;i<=9;i++){
-        pts.push({
-          x:i*step,
-          y:baseY - rand()*h*(0.05 + b*0.02)
-        });
-      }
-      mountainBands.push({pts, alpha: 0.22 + b*0.09, hue: [292,264,322][b]});
-    }
-
-    const count = 13;
-    for(let i=0;i<count;i++){
-      const tw = w*(0.03 + rand()*0.06);
-      const x = i*(w/count) + rand()*w*0.02;
-      towers.push({
-        x,
-        y: h*0.62 + rand()*h*0.08,
-        w: tw,
-        h: h*(0.12 + rand()*0.16),
-        top: rand()>0.55 ? 'spire' : 'flat',
-        glow: rand()>0.5
-      });
+    // dripped enamel circles as pop/deco accents
+    for(let i=0;i<12;i++){
+      const x = 120 + rnd()*840;
+      const y = 180 + rnd()*1500;
+      const r = 18 + rnd()*52;
+      ctx.fillStyle = i%3===0 ? "rgba(255,240,210,0.11)" : i%3===1 ? "rgba(255,178,0,0.09)" : "rgba(35,88,255,0.09)";
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
     }
   }
+  draw();
 
-  function drawGrid(t){
-    gctx.clearRect(0,0,w,h);
+  // subtle deterministic breathing on video and central forms
+  const vid = document.getElementById('background-video');
+  let t0 = performance.now();
+  function animate(t){
+    const s = (t - t0) * 0.001;
+    const pulse = Math.sin(s*0.35)*0.5 + 0.5;
+    vid.style.transform = `scale(${1.02 + pulse*0.025}) translateY(${Math.sin(s*0.21)*8}px)`;
+    vid.style.filter = `saturate(${1.18 + pulse*0.18}) contrast(1.15) brightness(${0.95 + pulse*0.07}) hue-rotate(${-10 + pulse*4}deg)`;
 
-    const horizon = h*0.58;
-    const vanishX = w*0.5 + Math.sin(t*0.00017)*w*0.03;
-
-    gctx.save();
-    gctx.globalAlpha = 0.95;
-
-    const grad = gctx.createLinearGradient(0,horizon,0,h);
-    grad.addColorStop(0,'rgba(255,85,170,0.15)');
-    grad.addColorStop(0.28,'rgba(79,246,255,0.18)');
-    grad.addColorStop(1,'rgba(10,5,24,0.0)');
-    gctx.fillStyle = grad;
-    gctx.fillRect(0,horizon,w,h-horizon);
-
-    for(let i=0;i<34;i++){
-      const y = horizon + Math.pow(i/33,1.9)*(h-horizon);
-      gctx.strokeStyle = i%4===0 ? 'rgba(255,118,196,0.34)' : 'rgba(90,232,255,0.2)';
-      gctx.lineWidth = i%5===0 ? 1.8 : 1;
-      gctx.beginPath();
-      gctx.moveTo(0,y);
-      gctx.lineTo(w,y);
-      gctx.stroke();
-    }
-
-    const cols = 22;
-    for(let i=-cols;i<=cols;i++){
-      const spread = i/cols;
-      const xBottom = vanishX + spread*w*1.15;
-      gctx.strokeStyle = Math.abs(i)%3===0 ? 'rgba(88,242,255,0.45)' : 'rgba(255,83,180,0.2)';
-      gctx.lineWidth = Math.abs(i)%4===0 ? 1.6 : 1;
-      gctx.beginPath();
-      gctx.moveTo(vanishX, horizon);
-      gctx.lineTo(xBottom, h);
-      gctx.stroke();
-    }
-
-    gctx.restore();
-  }
-
-  function drawMountains(t){
-    mountainBands.forEach((band, idx)=>{
-      fctx.save();
-      fctx.globalAlpha = band.alpha;
-      fctx.fillStyle = `hsla(${band.hue}, 80%, ${20 + idx*8}%, 1)`;
-      fctx.beginPath();
-      fctx.moveTo(0,h);
-      fctx.lineTo(0, band.pts[0].y);
-      band.pts.forEach((p, i)=>{
-        const wobble = Math.sin(t*0.00022 + i*0.9 + idx)*h*0.003;
-        fctx.lineTo(p.x, p.y + wobble);
-      });
-      fctx.lineTo(w,h);
-      fctx.closePath();
-      fctx.fill();
-
-      fctx.strokeStyle = idx===2 ? 'rgba(107,244,255,0.33)' : 'rgba(255,96,194,0.18)';
-      fctx.lineWidth = 2;
-      fctx.beginPath();
-      band.pts.forEach((p, i)=>{
-        const yy = p.y + Math.sin(t*0.00022 + i*0.9 + idx)*h*0.003;
-        if(i===0) fctx.moveTo(p.x,yy); else fctx.lineTo(p.x,yy);
-      });
-      fctx.stroke();
-      fctx.restore();
-    });
-  }
-
-  function drawStars(t){
-    for(const s of stars){
-      const pulse = 0.65 + 0.35*Math.sin(t*0.0012 + s.x*0.01 + s.y*0.02);
-      fctx.beginPath();
-      fctx.fillStyle = `hsla(${s.hue},100%,${75 + pulse*20}%,${s.a*0.7})`;
-      fctx.arc(s.x, s.y, s.r * pulse, 0, Math.PI*2);
-      fctx.fill();
-    }
-  }
-
-  function drawShards(t){
-    for(let i=0;i<shards.length;i++){
-      const s = shards[i];
-      const dir = s.side===0 ? 1 : -1;
-      const x0 = s.side===0 ? -20 : w+20;
-      const drift = Math.sin(t*0.00024 + i)*w*0.025;
-      const y = s.y + Math.cos(t*0.00018 + i*0.7)*h*0.008;
-
-      fctx.save();
-      fctx.translate(x0 + drift*dir, y);
-      fctx.rotate(s.tilt + Math.sin(t*0.0003+i)*0.06);
-      const grd = fctx.createLinearGradient(0,0, s.len*dir,0);
-      grd.addColorStop(0, `hsla(${s.hue},95%,65%,0)`);
-      grd.addColorStop(0.22, `hsla(${s.hue},95%,65%,${s.alpha})`);
-      grd.addColorStop(0.7, `hsla(${(s.hue+40)%360},95%,72%,${s.alpha*0.7})`);
-      grd.addColorStop(1, `hsla(${s.hue},95%,65%,0)`);
-      fctx.fillStyle = grd;
-      fctx.beginPath();
-      fctx.moveTo(0,0);
-      fctx.lineTo(s.len*dir, -s.thick*0.34);
-      fctx.lineTo(s.len*dir, s.thick*0.34);
-      fctx.closePath();
-      fctx.fill();
-      fctx.restore();
-    }
-  }
-
-  function drawTowers(t){
-    for(let i=0;i<towers.length;i++){
-      const b = towers[i];
-      const bob = Math.sin(t*0.00022 + i*0.6)*3;
-      const x = b.x, y = b.y + bob;
-
-      fctx.save();
-      const grd = fctx.createLinearGradient(x,y,x,y+b.h);
-      grd.addColorStop(0,'rgba(27,16,48,0.55)');
-      grd.addColorStop(1,'rgba(7,4,18,0.9)');
-      fctx.fillStyle = grd;
-      fctx.fillRect(x, y, b.w, b.h);
-
-      if(b.top==='spire'){
-        fctx.beginPath();
-        fctx.moveTo(x+b.w*0.1, y);
-        fctx.lineTo(x+b.w*0.5, y-b.h*0.22);
-        fctx.lineTo(x+b.w*0.9, y);
-        fctx.closePath();
-        fctx.fillStyle = 'rgba(24,14,42,0.82)';
-        fctx.fill();
-      }
-
-      fctx.strokeStyle = 'rgba(120,235,255,0.18)';
-      fctx.lineWidth = 1;
-      fctx.strokeRect(x+0.5, y+0.5, b.w-1, b.h-1);
-
-      if(b.glow){
-        fctx.fillStyle = i%2===0 ? 'rgba(255,86,190,0.56)' : 'rgba(96,244,255,0.48)';
-        for(let k=0;k<4;k++){
-          const wy = y + b.h*(0.16 + k*0.17);
-          fctx.fillRect(x+b.w*0.18, wy, b.w*0.64, 2);
-        }
-      }
-      fctx.restore();
-    }
-  }
-
-  function drawSunReflection(t){
-    const cx = w*0.5;
-    const horizon = h*0.58;
-    fctx.save();
-    fctx.globalCompositeOperation = 'screen';
-    const grad = fctx.createLinearGradient(cx, horizon, cx, h);
-    grad.addColorStop(0,'rgba(255,200,120,0.16)');
-    grad.addColorStop(0.15,'rgba(255,102,180,0.14)');
-    grad.addColorStop(0.55,'rgba(90,235,255,0.10)');
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    fctx.fillStyle = grad;
-
-    fctx.beginPath();
-    fctx.moveTo(cx - w*0.08, horizon);
-    for(let y=horizon; y<=h; y+=12){
-      const spread = ((y-horizon)/(h-horizon)) * w*0.22;
-      const wig = Math.sin(y*0.02 + t*0.002) * 8;
-      fctx.lineTo(cx - spread + wig, y);
-    }
-    for(let y=h; y>=horizon; y-=12){
-      const spread = ((y-horizon)/(h-horizon)) * w*0.22;
-      const wig = Math.sin(y*0.022 + 1.3 + t*0.0022) * 8;
-      fctx.lineTo(cx + spread + wig, y);
-    }
-    fctx.closePath();
-    fctx.fill();
-    fctx.restore();
-  }
-
-  function drawVhsGlitch(t){
-    if(Math.floor(t/1600)%5 !== 0) return;
-
-    const y = (0.12 + (Math.sin(t*0.0011)+1)*0.34) * h;
-    const hh = 18 + (Math.sin(t*0.003)+1)*14;
-    fctx.save();
-    fctx.globalAlpha = 0.16;
-    fctx.fillStyle = 'rgba(255,255,255,0.9)';
-    fctx.fillRect(0,y,w,hh);
-    fctx.globalAlpha = 0.18;
-    fctx.fillStyle = 'rgba(255,50,180,0.7)';
-    fctx.fillRect(0,y+2,w*0.96,hh*0.28);
-    fctx.fillStyle = 'rgba(70,235,255,0.6)';
-    fctx.fillRect(w*0.04,y+hh*0.58,w*0.92,hh*0.2);
-    fctx.restore();
-  }
-
-  function animate(now){
-    const t = now - timeStart;
-    fctx.clearRect(0,0,w,h);
-    drawGrid(t);
-    drawStars(t);
-    drawShards(t);
-    drawMountains(t);
-    drawSunReflection(t);
-    drawTowers(t);
-    drawVhsGlitch(t);
+    const ball = document.querySelector('.ball');
+    ball.style.boxShadow = `
+      0 0 0 6px rgba(255,188,85,.08),
+      0 28px 65px rgba(0,0,0,.42),
+      inset -18px -24px 38px rgba(72,16,0,.45),
+      inset 14px 14px 30px rgba(255,192,91,${0.18 + pulse*0.12})
+    `;
     requestAnimationFrame(animate);
   }
-
-  window.addEventListener('resize', resize);
-  resize();
   requestAnimationFrame(animate);
 
-  // procedural ambient audio, very quiet and self-starting if allowed
-  let audioStarted = false;
+  // procedural audio drone / arena hum
+  let started = false;
   function startAudio(){
-    if(audioStarted) return;
-    audioStarted = true;
+    if(started) return;
+    started = true;
     try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const master = ctx.createGain();
-      master.gain.value = 0.012;
-      master.connect(ctx.destination);
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
 
-      const low = ctx.createOscillator();
-      low.type = 'sawtooth';
-      low.frequency.value = 49;
+      const master = ac.createGain();
+      master.gain.value = 0.016;
+      master.connect(ac.destination);
 
-      const mid = ctx.createOscillator();
-      mid.type = 'triangle';
-      mid.frequency.value = 98;
+      const low = ac.createOscillator();
+      low.type = "sine";
+      low.frequency.value = 48;
 
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.07;
+      const mid = ac.createOscillator();
+      mid.type = "triangle";
+      mid.frequency.value = 96;
 
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 6;
+      const high = ac.createOscillator();
+      high.type = "sine";
+      high.frequency.value = 192;
 
-      const filt = ctx.createBiquadFilter();
-      filt.type = 'lowpass';
-      filt.frequency.value = 420;
-      filt.Q.value = 0.7;
+      const lGain = ac.createGain(); lGain.gain.value = 0.45;
+      const mGain = ac.createGain(); mGain.gain.value = 0.16;
+      const hGain = ac.createGain(); hGain.gain.value = 0.08;
 
-      const gain = ctx.createGain();
-      gain.gain.value = 0.28;
+      const filter = ac.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 850;
+      filter.Q.value = 0.7;
 
-      const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      const data = noiseBuf.getChannelData(0);
-      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.18;
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuf;
-      noise.loop = true;
-
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.value = 1800;
-      noiseFilter.Q.value = 0.6;
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.value = 0.03;
-
+      const lfo = ac.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.06;
+      const lfoGain = ac.createGain();
+      lfoGain.gain.value = 110;
       lfo.connect(lfoGain);
-      lfoGain.connect(filt.frequency);
+      lfoGain.connect(filter.frequency);
 
-      low.connect(filt);
-      mid.connect(filt);
-      filt.connect(gain);
-      gain.connect(master);
+      const trem = ac.createOscillator();
+      trem.type = "sine";
+      trem.frequency.value = 0.11;
+      const tremGain = ac.createGain();
+      tremGain.gain.value = 0.005;
+      trem.connect(tremGain);
+      tremGain.connect(master.gain);
 
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(master);
+      low.connect(lGain); mid.connect(mGain); high.connect(hGain);
+      lGain.connect(filter); mGain.connect(filter); hGain.connect(filter);
+      filter.connect(master);
 
-      low.start();
-      mid.start();
-      lfo.start();
-      noise.start();
-
-      setInterval(()=>{
-        const n = ctx.currentTime;
-        low.frequency.linearRampToValueAtTime(45 + rand()*18, n + 6);
-        mid.frequency.linearRampToValueAtTime(90 + rand()*36, n + 6);
-        filt.frequency.linearRampToValueAtTime(300 + rand()*420, n + 6);
-        noiseGain.gain.linearRampToValueAtTime(0.018 + rand()*0.02, n + 6);
-      }, 5000);
-
-      if(ctx.state === 'suspended') ctx.resume().catch(()=>{});
+      low.start(); mid.start(); high.start(); lfo.start(); trem.start();
     }catch(e){}
   }
 
