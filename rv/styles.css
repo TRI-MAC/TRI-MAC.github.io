@@ -836,6 +836,7 @@ a {
   border-radius: var(--radius);
   padding: 28px 24px 24px;
   background: transparent;
+  align-self: start;
 }
 
 .papers-label {
