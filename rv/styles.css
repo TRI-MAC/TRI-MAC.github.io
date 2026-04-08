@@ -254,19 +254,29 @@ a {
   margin-bottom: 12px;
 }
 
+.artagent-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
 .artagent-info-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
   background: none;
-  border: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8rem;
   color: var(--color-text-muted);
-  padding: 0 2px;
-  vertical-align: middle;
-  transition: color 0.2s;
+  padding: 4px 10px;
+  transition: color 0.2s, border-color 0.2s;
 }
 
 .artagent-info-btn:hover {
   color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .artagent-popup {
@@ -275,7 +285,7 @@ a {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 10px 14px;
-  margin-bottom: 10px;
+  margin-top: 8px;
   font-family: var(--font-body);
   font-size: 0.82rem;
   line-height: 1.5;
@@ -360,7 +370,6 @@ a {
 .artagent-nav {
   display: flex;
   gap: 6px;
-  margin-top: 10px;
   justify-content: flex-end;
 }
 
