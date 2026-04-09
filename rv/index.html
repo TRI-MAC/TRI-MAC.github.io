@@ -146,26 +146,6 @@
     </div>
   </footer>
 
-  <!-- ───── Restart Circuit Animation Every 2 Minutes ───── -->
-  <script>
-    (function() {
-      var RESTART_INTERVAL = 120000; // 2 minutes
-      var traces = document.querySelectorAll('.trace');
-      var dots = document.querySelectorAll('.node-dot');
-
-      function restartAnimation() {
-        var allEls = Array.prototype.slice.call(traces).concat(Array.prototype.slice.call(dots));
-        allEls.forEach(function(el) {
-          el.style.animation = 'none';
-          el.offsetHeight; // force reflow
-          el.style.animation = '';
-        });
-      }
-
-      setInterval(restartAnimation, RESTART_INTERVAL);
-    })();
-  </script>
-
   <!-- ───── Art Agent Navigation ───── -->
   <script>
     (function() {
