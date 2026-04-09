@@ -783,6 +783,9 @@
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
+
+  // Restart the maze animation every 2 minutes
+  setInterval(function(){ initMaze(); }, 120000);
 })();
 </script>
 </body>
