@@ -503,6 +503,7 @@
   };
 
   function initMaze(){
+    seed = (Date.now() * 9301 + 49297) >>> 0;
     maze.grid = [];
     maze.stack = [];
     maze.visitOrder = [];
