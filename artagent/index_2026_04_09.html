@@ -795,6 +795,7 @@
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
+  setInterval(() => { seed = Date.now() >>> 0; initMaze(); }, 60000);
 })();
 </script>
 </body>
