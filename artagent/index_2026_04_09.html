@@ -214,7 +214,7 @@
     <div class="mist b"></div>
     <div class="mist c"></div>
 
-    <img id="portrait-image" src="img/cw_matrix.png" alt="" /> <!-- portrait.d2709125.png-->
+    <img id="portrait-image" src="img/cw_matrix.png" alt="" /> <!-- Candice portrait.d2709125.png-->
     <canvas id="mazeCanvas" width="1080" height="1920"></canvas>
     <canvas id="codeCanvas" width="1080" height="1920"></canvas>
     <canvas id="petalCanvas" width="1080" height="1920"></canvas>
@@ -381,12 +381,24 @@
       [branchPoints[9].x+6, branchPoints[9].y+14]
     ];
     blossomAnchors.length = 0;
+    // Face exclusion zone — push blossoms outward so they frame the face
+    const faceX = 310, faceY = 310, faceRX = 220, faceRY = 260;
     twigTips.forEach((tip, i)=>{
       const n = 4 + (rand()*5|0);
       for(let j=0;j<n;j++){
+        let bx = tip[0] + r(-34,34);
+        let by = tip[1] + r(-34,34);
+        const dx = (bx - faceX) / faceRX;
+        const dy = (by - faceY) / faceRY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 1.0 && dist > 0.001){
+          const push = (1.05 + rand()*0.15) / dist;
+          bx = faceX + (bx - faceX) * push;
+          by = faceY + (by - faceY) * push;
+        }
         blossomAnchors.push({
-          x: tip[0] + r(-34,34),
-          y: tip[1] + r(-34,34),
+          x: bx,
+          y: by,
           s: r(12,24),
           rot: r(0,Math.PI*2),
           pulse: r(0,Math.PI*2),
