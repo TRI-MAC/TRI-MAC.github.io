@@ -6,12 +6,12 @@ Build a Python script + GitHub Actions workflow that scrapes 5 HCAI-relevant
 leaderboard sites nightly and commits the results as a JSON file to the
 TRI-MAC.github.io repo at `rv/benchmarks-data.json`.
 
-The page `rv/benchmarks.html` in that repo reads this JSON at load time and
+The page `rv/benchmarks/index.html` in that repo reads this JSON at load time and
 renders one card per benchmark with a top-10 leaderboard table.
 
 ## Output File
 
-Path: `rv/benchmarks-data.json` in the `TRI-MAC.github.io` repo.
+Path: `rv/benchmarks/benchmarks-data.json` in the `TRI-MAC.github.io` repo.
 
 Schema (example):
 
@@ -138,7 +138,7 @@ All 5 sites are JS-rendered. Use Playwright with headless Chromium.
 
          git config user.name "benchmark-bot"
          git config user.email "benchmark-bot@users.noreply.github.com"
-         git add rv/benchmarks-data.json
+         git add rv/benchmarks/benchmarks-data.json
          git diff --cached --quiet || git commit -m "chore: update benchmark data [skip ci]"
          git push
 

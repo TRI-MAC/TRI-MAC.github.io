@@ -317,7 +317,7 @@
       }
     }
 
-    fetch('../benchmarks-data.json')
+    fetch('benchmarks-data.json')
       .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function(data) { renderAll(data); })
       .catch(function() { renderAll(null); });
