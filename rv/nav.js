@@ -8,6 +8,7 @@
   var path = window.location.pathname;
   var active = '';
   if (/\/benchmarks(\/|$)/.test(path)) active = 'benchmarks';
+  else if (/\/about(\/|$)/.test(path)) active = 'about';
   else if (/\/rv\/?$/.test(path) || /\/rv\/index\.html/.test(path)) active = 'blog';
 
   function navCls(key) {
@@ -24,8 +25,8 @@
     '<nav class="site-nav" aria-label="Main navigation">' +
     '<a href="' + base + 'index.html" class="' + navCls('blog') + '">Blog</a>' +
     '<a href="' + base + 'benchmarks/" class="' + navCls('benchmarks') + '">Benchmarks</a>' +
-    '<a href="#" class="nav-link">Archive</a>' +
-    '<a href="#" class="nav-link">About</a>' +
+    /* '<a href="#" class="nav-link">Archive</a>' + */
+    '<a href="' + base + 'about/" class="' + navCls('about') + '">About</a>' +
     '</nav>' +
     '</div>' +
     '</header>';
