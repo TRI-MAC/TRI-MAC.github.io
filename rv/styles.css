@@ -3,6 +3,8 @@
    Cybernetic-themed, TRI-branded
    ═══════════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap');
+
 /* ── Tokens ── */
 :root {
   --color-bg:          #f9f9f9;
@@ -19,6 +21,7 @@
 
   --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
   --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+  --font-logo:  'Space Grotesk', var(--font-sans);
 
   --radius:     10px;
   --max-width:  1120px;
@@ -136,7 +139,7 @@ a {
 }
 
 .logo-tri {
-  font-family: var(--font-sans);
+  font-family: var(--font-logo);
   font-weight: 700;
   font-size: 1.2rem;
   letter-spacing: 0.02em;
