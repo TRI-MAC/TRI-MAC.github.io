@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-04-11</title>
+<style>
+  :root{
+    --bg:#f1eee6;
+    --ink:#111111;
+    --red:#d62323;
+    --blue:#1e48b8;
+    --yellow:#f4c311;
+    --off:#efe9db;
+    --gray:#cfc8ba;
+    --dark:#0a0a0a;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#0d0d0d;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    aspect-ratio:9/16;
+    background:var(--bg);
+    overflow:hidden;
+    box-shadow:0 0 60px rgba(0,0,0,.45);
+  }
+
+  /* Structural planes */
+  .plane{
+    position:absolute;
+    will-change:transform, opacity, filter;
+  }
+  .blkA{
+    left:-8%;
+    top:-4%;
+    width:52%;
+    height:28%;
+    background:#0b0b0b;
+    transform:rotate(-14deg);
+    animation:tiltA 23s ease-in-out infinite;
+  }
+  .blkB{
+    right:-14%;
+    top:17%;
+    width:54%;
+    height:21%;
+    background:#ece5d6;
+    border:16px solid #111;
+    transform:rotate(26deg);
+    animation:tiltB 27s ease-in-out infinite;
+  }
+  .redBar{
+    left:14%;
+    top:32%;
+    width:13%;
+    height:49%;
+    background:var(--red);
+    transform:rotate(7deg);
+    animation:barPulse 16s ease-in-out infinite;
+  }
+  .blueBlock{
+    right:9%;
+    bottom:14%;
+    width:31%;
+    height:18%;
+    background:var(--blue);
+    transform:rotate(-12deg);
+    animation:blueDrift 21s ease-in-out infinite;
+  }
+  .yellowSquare{
+    left:9%;
+    bottom:17%;
+    width:19%;
+    height:12%;
+    background:var(--yellow);
+    box-shadow:0 0 0 10px rgba(0,0,0,.9);
+    transform:rotate(-8deg);
+    animation:yellowBeat 18s ease-in-out infinite;
+  }
+  .circleHalo{
+    left:55%;
+    top:19%;
+    width:26%;
+    aspect-ratio:1;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, rgba(244,195,17,.95) 0 33%, rgba(244,195,17,.2) 33% 55%, rgba(0,0,0,.95) 56% 60%, transparent 61%);
+    filter:blur(.2px);
+    transform:translate(-50%,-50%);
+    animation:haloShift 20s ease-in-out infinite;
+    mix-blend-mode:multiply;
+  }
+
+  #art-image{
+    position:absolute;
+    left:50%;
+    top:53%;
+    width:56%;
+    height:38%;
+    object-fit:cover;
+    transform:translate(-50%,-50%) rotate(-8deg);
+    border:18px solid #111;
+    box-shadow:18px 18px 0 rgba(214,35,35,.95), -10px -10px 0 rgba(255,255,255,.55);
+    opacity:.98;
+    filter:contrast(1.12) saturate(1.08) grayscale(.08);
+    clip-path:polygon(4% 0, 100% 5%, 96% 100%, 0 94%);
+    animation:artFloat 24s ease-in-out infinite;
+    z-index:8;
+  }
+
+  #portrait-wrap{
+    position:absolute;
+    left:55%;
+    top:50%;
+    width:34%;
+    height:47%;
+    transform:translate(-50%,-50%) rotate(6deg);
+    z-index:10;
+    overflow:hidden;
+    clip-path:polygon(16% 0, 100% 11%, 87% 100%, 0 89%);
+    mix-blend-mode:multiply;
+    animation:portraitDrift 26s ease-in-out infinite;
+  }
+  #portrait-image{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:grayscale(1) contrast(1.45) brightness(1.02);
+    opacity:.9;
+    transform:scale(1.06);
+  }
+  #portrait-wrap::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(135deg, rgba(214,35,35,.45) 0 28%, transparent 28% 60%, rgba(30,72,184,.32) 60% 100%),
+      linear-gradient(0deg, rgba(255,255,255,.08), rgba(255,255,255,.08));
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+  #portrait-wrap::after{
+    content:"";
+    position:absolute;
+    inset:-8%;
+    border:16px solid #111;
+    transform:rotate(-7deg);
+    pointer-events:none;
+  }
+
+  .maskRect{
+    position:absolute;
+    background:#111;
+    z-index:11;
+  }
+  .mask1{
+    left:18%;
+    top:46%;
+    width:18%;
+    height:9%;
+    transform:rotate(-8deg);
+    animation:maskMove1 19s ease-in-out infinite;
+  }
+  .mask2{
+    right:10%;
+    top:40%;
+    width:12%;
+    height:19%;
+    background:var(--red);
+    transform:rotate(7deg);
+    animation:maskMove2 17s ease-in-out infinite;
+  }
+  .mask3{
+    left:42%;
+    bottom:17%;
+    width:28%;
+    height:6%;
+    background:#f0eadc;
+    border:10px solid #111;
+    transform:rotate(-12deg);
+    animation:maskMove3 22s ease-in-out infinite;
+  }
+
+  /* lightning wash */
+  #lightningFlash{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(0deg, rgba(255,255,255,.65), rgba(255,255,255,.15)),
+      radial-gradient(circle at 68% 14%, rgba(255,255,255,.95), rgba(255,255,255,0) 35%);
+    opacity:0;
+    mix-blend-mode:screen;
+    z-index:30;
+    pointer-events:none;
+  }
+
+  /* svg overlays */
+  #svgOverlay{
+    position:absolute;
+    inset:0;
+    z-index:18;
+    pointer-events:none;
+  }
+
+  /* rain canvas and puddles */
+  #rainCanvas, #puddleCanvas, #grainCanvas{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+  #puddleCanvas{ z-index:6; }
+  #rainCanvas{ z-index:22; opacity:.9; mix-blend-mode:multiply; }
+  #grainCanvas{ z-index:28; opacity:.18; mix-blend-mode:multiply; }
+
+  /* date */
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(0,0,0,.5);
+    font-size:15px;
+    letter-spacing:.12em;
+    z-index:40;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:18px;
+    bottom:150px;
+    opacity:.58;
+    filter:brightness(.78) saturate(.9);
+    z-index:12;
+    transform:rotate(-6deg);
+  }
+
+  @keyframes tiltA{
+    0%,100%{transform:rotate(-14deg) translateY(0)}
+    50%{transform:rotate(-11deg) translateY(1.2%)}
+  }
+  @keyframes tiltB{
+    0%,100%{transform:rotate(26deg) translate(0,0)}
+    50%{transform:rotate(22deg) translate(-1.2%,1%)}
+  }
+  @keyframes barPulse{
+    0%,100%{transform:rotate(7deg) scaleY(1)}
+    50%{transform:rotate(5deg) scaleY(1.06)}
+  }
+  @keyframes blueDrift{
+    0%,100%{transform:rotate(-12deg) translate(0,0)}
+    50%{transform:rotate(-8deg) translate(-2%,2%)}
+  }
+  @keyframes yellowBeat{
+    0%,100%{transform:rotate(-8deg) scale(1)}
+    50%{transform:rotate(-6deg) scale(1.05)}
+  }
+  @keyframes haloShift{
+    0%,100%{transform:translate(-50%,-50%) scale(1)}
+    50%{transform:translate(-48%,-52%) scale(1.08)}
+  }
+  @keyframes artFloat{
+    0%,100%{transform:translate(-50%,-50%) rotate(-8deg) scale(1)}
+    50%{transform:translate(-49.2%,-51.1%) rotate(-5deg) scale(1.018)}
+  }
+  @keyframes portraitDrift{
+    0%,100%{transform:translate(-50%,-50%) rotate(6deg)}
+    50%{transform:translate(-51.3%,-48.7%) rotate(3deg)}
+  }
+  @keyframes maskMove1{
+    0%,100%{transform:rotate(-8deg) translateX(0)}
+    50%{transform:rotate(-11deg) translateX(8%)}
+  }
+  @keyframes maskMove2{
+    0%,100%{transform:rotate(7deg) translateY(0)}
+    50%{transform:rotate(10deg) translateY(-6%)}
+  }
+  @keyframes maskMove3{
+    0%,100%{transform:rotate(-12deg) translateX(0)}
+    50%{transform:rotate(-9deg) translateX(-4%)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="plane blkA"></div>
+  <div class="plane blkB"></div>
+  <div class="plane redBar"></div>
+  <div class="plane blueBlock"></div>
+  <div class="plane yellowSquare"></div>
+  <div class="plane circleHalo"></div>
+
+  <canvas id="puddleCanvas" width="1080" height="1920"></canvas>
+
+  <img id="art-image" src="img/art.1bea611b.png" alt="" />
+
+  <div id="portrait-wrap">
+    <img id="portrait-image" src="img/portrait.1bea611b.png" alt="" />
+  </div>
+
+  <div class="maskRect mask1"></div>
+  <div class="maskRect mask2"></div>
+  <div class="maskRect mask3"></div>
+
+  <svg id="svgOverlay" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <g opacity="0.96">
+      <polygon points="690,120 820,245 760,420 605,378 575,215" fill="#111111"/>
+      <polygon points="728,146 790,206 760,315 672,292 650,194" fill="#f4c311"/>
+      <polygon points="130,930 390,840 440,1130 178,1190" fill="#efe9db" stroke="#111111" stroke-width="18"/>
+      <polygon points="148,960 308,902 342,1088 175,1122" fill="#1e48b8"/>
+      <rect x="805" y="1160" width="160" height="320" fill="#111111" transform="rotate(12 885 1320)"/>
+      <rect x="835" y="1210" width="92" height="170" fill="#d62323" transform="rotate(12 881 1295)"/>
+      <polygon points="248,1460 493,1412 455,1705 185,1668" fill="#111111"/>
+      <polygon points="282,1498 438,1466 416,1644 246,1622" fill="#f1eee6"/>
+      <circle cx="245" cy="276" r="92" fill="none" stroke="#111111" stroke-width="24"/>
+      <circle cx="245" cy="276" r="54" fill="#d62323"/>
+      <rect x="490" y="815" width="210" height="24" fill="#111111" transform="rotate(-8 595 827)"/>
+      <rect x="520" y="858" width="164" height="18" fill="#d62323" transform="rotate(-8 602 867)"/>
+      <rect x="540" y="892" width="124" height="14" fill="#1e48b8" transform="rotate(-8 602 899)"/>
+    </g>
+
+    <!-- stylized lightning bolts: hard-edged suprematist shards -->
+    <g id="bolts" opacity="0.0">
+      <polygon id="bolt1" points="770,118 720,290 782,292 706,510 845,292 780,292 842,118" fill="#ffffff"/>
+      <polygon id="bolt2" points="288,238 250,360 304,362 258,500 358,362 311,362 352,238" fill="#f4f4f4"/>
+    </g>
+  </svg>
+
+  <canvas id="rainCanvas" width="1080" height="1920"></canvas>
+  <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+
+  <div id="lightningFlash"></div>
+
+  <img id="guinea-pig" src="img/guineapig.1bea611b.png" alt="" />
+
+  <div id="date">2026-04-11</div>
+</div>
+
+<script>
+(function(){
+  const DATE = "2026-04-11";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rng = mulberry32(hashString(DATE + "-suprematist-rainstorm"));
+
+  const frame = document.getElementById('frame');
+  const rainCanvas = document.getElementById('rainCanvas');
+  const puddleCanvas = document.getElementById('puddleCanvas');
+  const grainCanvas = document.getElementById('grainCanvas');
+  const rctx = rainCanvas.getContext('2d');
+  const pctx = puddleCanvas.getContext('2d');
+  const gctx = grainCanvas.getContext('2d');
+  const flash = document.getElementById('lightningFlash');
+  const bolts = document.getElementById('bolts');
+  const bolt1 = document.getElementById('bolt1');
+  const bolt2 = document.getElementById('bolt2');
+
+  const W = 1080, H = 1920;
+
+  const rains = [];
+  const puddles = [];
+
+  for(let i=0;i<170;i++){
+    rains.push({
+      x:rng()*W,
+      y:rng()*H,
+      len: 16 + rng()*44,
+      speed: 15 + rng()*14,
+      thick: 1 + rng()*2.7,
+      skew: -18 - rng()*16,
+      alpha: 0.18 + rng()*0.35
+    });
+  }
+
+  const puddleBands = [
+    {y: 1485, x1: 120, x2: 520},
+    {y: 1570, x1: 600, x2: 980},
+    {y: 1715, x1: 80, x2: 340},
+    {y: 1770, x1: 410, x2: 820}
+  ];
+
+  function addRipple(x,y){
+    puddles.push({
+      x, y,
+      r: 2,
+      life: 0,
+      max: 60 + rng()*38,
+      alpha: 0.42 + rng()*0.28
+    });
+  }
+
+  let nextLightning = 2500 + rng()*2800;
+  let lastTime = performance.now();
+  let lightningActive = 0;
+
+  function drawGrain(t){
+    gctx.clearRect(0,0,W,H);
+    const img = gctx.createImageData(W/4, H/4);
+    for(let i=0;i<img.data.length;i+=4){
+      const v = 220 + ((Math.sin((i*0.013)+(t*0.002))+1)*12|0);
+      img.data[i]=v; img.data[i+1]=v-8; img.data[i+2]=v-15; img.data[i+3]=18;
+    }
+    const off = document.createElement('canvas');
+    off.width=W/4; off.height=H/4;
+    off.getContext('2d').putImageData(img,0,0);
+    gctx.imageSmoothingEnabled = false;
+    gctx.drawImage(off,0,0,W,H);
+    gctx.fillStyle='rgba(0,0,0,.035)';
+    for(let y=0;y<H;y+=8){
+      gctx.fillRect(0,y,W,1);
+    }
+  }
+
+  function renderRain(){
+    rctx.clearRect(0,0,W,H);
+    rctx.lineCap = 'butt';
+
+    for(const d of rains){
+      d.y += d.speed;
+      d.x += 0.15;
+      if(d.y > H + d.len){
+        d.y = -50 - rng()*300;
+        d.x = rng()*W;
+      }
+
+      const angle = d.skew * Math.PI / 180;
+      const dx = Math.cos(angle) * d.len;
+      const dy = Math.sin(angle) * d.len;
+
+      const grad = rctx.createLinearGradient(d.x, d.y, d.x + dx, d.y - dy);
+      grad.addColorStop(0, `rgba(20,20,20,0)`);
+      grad.addColorStop(0.45, `rgba(20,20,20,${d.alpha})`);
+      grad.addColorStop(1, `rgba(255,255,255,${d.alpha*0.75})`);
+      rctx.strokeStyle = grad;
+      rctx.lineWidth = d.thick;
+      rctx.beginPath();
+      rctx.moveTo(d.x, d.y);
+      rctx.lineTo(d.x + dx, d.y - dy);
+      rctx.stroke();
+
+      for(let i=0;i<puddleBands.length;i++){
+        const b = puddleBands[i];
+        if(d.y > b.y && d.y < b.y + d.speed + 6 && d.x > b.x1 && d.x < b.x2){
+          if(rng() < 0.085) addRipple(d.x, b.y + rng()*10 - 5);
+        }
+      }
+    }
+  }
+
+  function renderPuddles(t){
+    pctx.clearRect(0,0,W,H);
+
+    // base puddle slabs
+    pctx.fillStyle = 'rgba(17,17,17,0.88)';
+    pctx.save();
+    pctx.translate(320,1492); pctx.rotate(-0.11); pctx.fillRect(-190,-20,420,48);
+    pctx.restore();
+
+    pctx.fillStyle = 'rgba(30,72,184,0.78)';
+    pctx.save();
+    pctx.translate(785,1576); pctx.rotate(0.08); pctx.fillRect(-175,-18,350,42);
+    pctx.restore();
+
+    pctx.fillStyle = 'rgba(17,17,17,0.86)';
+    pctx.save();
+    pctx.translate(210,1718); pctx.rotate(0.07); pctx.fillRect(-110,-14,220,34);
+    pctx.restore();
+
+    pctx.fillStyle = 'rgba(214,35,35,0.78)';
+    pctx.save();
+    pctx.translate(615,1772); pctx.rotate(-0.05); pctx.fillRect(-210,-16,420,36);
+    pctx.restore();
+
+    // puddle highlights
+    pctx.strokeStyle = 'rgba(255,255,255,.25)';
+    pctx.lineWidth = 4;
+    for(const b of puddleBands){
+      pctx.beginPath();
+      pctx.moveTo(b.x1 + 22, b.y - 7);
+      pctx.lineTo(b.x2 - 26, b.y - 7);
+      pctx.stroke();
+    }
+
+    // ripples
+    for(let i=puddles.length-1;i>=0;i--){
+      const rp = puddles[i];
+      rp.life += 1.2;
+      rp.r += 1.15;
+      const a = rp.alpha * (1 - rp.life/rp.max);
+      if(a <= 0){
+        puddles.splice(i,1);
+        continue;
+      }
+      pctx.strokeStyle = `rgba(255,255,255,${a})`;
+      pctx.lineWidth = Math.max(1, 4*(1-rp.life/rp.max));
+      pctx.beginPath();
+      pctx.ellipse(rp.x, rp.y, rp.r*1.65, rp.r*0.42, 0, 0, Math.PI*2);
+      pctx.stroke();
+      if(rp.life < rp.max*0.45){
+        pctx.strokeStyle = `rgba(17,17,17,${a*0.45})`;
+        pctx.beginPath();
+        pctx.ellipse(rp.x, rp.y, rp.r*1.1, rp.r*0.28, 0, 0, Math.PI*2);
+        pctx.stroke();
+      }
+    }
+
+    // occasional static drip blocks
+    pctx.fillStyle='rgba(17,17,17,.7)';
+    for(let i=0;i<8;i++){
+      const x = 90 + i*120 + Math.sin(t*0.0008+i)*12;
+      const h = 24 + (i%3)*10;
+      pctx.save();
+      pctx.translate(x, 1300 + i*65);
+      pctx.rotate(-0.22);
+      pctx.fillRect(-4,0,8,h);
+      pctx.restore();
+    }
+  }
+
+  function triggerLightning(){
+    lightningActive = 1;
+    const useFirst = rng() < 0.66;
+    bolt1.setAttribute('fill', rng() < 0.5 ? '#ffffff' : '#f4c311');
+    bolt2.setAttribute('fill', rng() < 0.5 ? '#ffffff' : '#dcdcdc');
+    bolt1.style.opacity = useFirst ? 1 : 0.35;
+    bolt2.style.opacity = useFirst ? 0.25 : 1;
+    bolts.style.opacity = 1;
+
+    let seq = [
+      {o:.95, d:70},
+      {o:.15, d:90},
+      {o:.78, d:65},
+      {o:.0, d:260}
+    ];
+    let total = 0;
+    seq.forEach(step=>{
+      setTimeout(()=>{ flash.style.opacity = step.o; }, total);
+      total += step.d;
+    });
+    setTimeout(()=>{
+      bolts.style.opacity = 0;
+      lightningActive = 0;
+    }, total+40);
+    nextLightning = 3600 + rng()*5200;
+  }
+
+  // procedural audio drone and thunder ticks
+  let ac=null, master=null, ready=false;
+  function initAudio(){
+    try{
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      master = ac.createGain();
+      master.gain.value = 0.026;
+      master.connect(ac.destination);
+
+      const hp = ac.createBiquadFilter();
+      hp.type='highpass'; hp.frequency.value=1800;
+      const low = ac.createBiquadFilter();
+      low.type='lowpass'; low.frequency.value=420;
+      const rainNoiseGain = ac.createGain();
+      rainNoiseGain.gain.value=0.012;
+      const thunderGain = ac.createGain();
+      thunderGain.gain.value=0.0;
+
+      const buf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.7;
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      src.connect(hp);
+      hp.connect(rainNoiseGain);
+      rainNoiseGain.connect(master);
+
+      const src2 = ac.createBufferSource();
+      src2.buffer = buf;
+      src2.loop = true;
+      src2.connect(low);
+      low.connect(thunderGain);
+      thunderGain.connect(master);
+
+      src.start();
+      src2.start();
+
+      function thunder(){
+        const now = ac.currentTime;
+        thunderGain.gain.cancelScheduledValues(now);
+        thunderGain.gain.setValueAtTime(0.0, now);
+        thunderGain.gain.linearRampToValueAtTime(0.024, now+0.05);
+        thunderGain.gain.exponentialRampToValueAtTime(0.0001, now+2.8);
+        low.frequency.setValueAtTime(180, now);
+        low.frequency.exponentialRampToValueAtTime(80, now+2.4);
+      }
+      window.__thunder = thunder;
+      ready=true;
+    }catch(e){}
+  }
+  initAudio();
+
+  function animate(now){
+    const dt = now - lastTime;
+    lastTime = now;
+
+    renderPuddles(now);
+    renderRain();
+    if((now|0) % 180 < 20) drawGrain(now);
+
+    nextLightning -= dt;
+    if(nextLightning <= 0 && !lightningActive){
+      triggerLightning();
+      if(ready && window.__thunder) {
+        setTimeout(()=>window.__thunder(), 120 + rng()*240);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+  drawGrain(0);
+  requestAnimationFrame(animate);
+})();
+</script>
+</div>
+</body>
+</html>
