@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-12</title>
+<style>
+  :root{
+    --bg:#0d0810;
+    --ink:#180f18;
+    --paper:#f4dd7a;
+    --red:#ff5a36;
+    --hot:#ff2a7a;
+    --violet:#7a2bff;
+    --blue:#1e65ff;
+    --teal:#0fb7a7;
+    --acid:#d8ff3c;
+    --white:#fff8ef;
+    --shadow:#050306;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 20%, #2a1026 0%, #120a14 35%, #050307 100%);
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #190b15 0%, #120913 38%, #09070c 100%);
+    box-shadow:0 0 60px rgba(0,0,0,.55), inset 0 0 120px rgba(255,100,80,.05);
+  }
+
+  #bgCanvas,#paintCanvas,#fxCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  #gameLayer{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+
+  #art-image{
+    position:absolute;
+    left:13%;
+    top:19%;
+    width:74%;
+    height:38%;
+    object-fit:cover;
+    opacity:.96;
+    filter:saturate(1.25) contrast(1.16) brightness(.98) hue-rotate(-8deg);
+    mix-blend-mode:normal;
+    clip-path:polygon(8% 4%, 89% 0%, 100% 12%, 94% 88%, 78% 100%, 11% 95%, 0% 81%, 3% 18%);
+    transform-origin:center center;
+    animation: artBreath 24s ease-in-out infinite alternate;
+    box-shadow:
+      0 0 0 3px rgba(255,244,220,.08),
+      0 0 55px rgba(255,70,80,.12),
+      0 0 120px rgba(62,24,90,.25);
+  }
+  #artImageOverlay{
+    position:absolute;
+    left:12%;
+    top:18%;
+    width:76%;
+    height:40%;
+    clip-path:polygon(7% 3%, 90% 0%, 100% 11%, 95% 88%, 79% 100%, 9% 96%, 0% 82%, 2% 18%);
+    background:
+      linear-gradient(135deg, rgba(255,242,213,.22), rgba(255,255,255,0) 35%),
+      linear-gradient(215deg, rgba(255,40,110,.24), rgba(255,40,110,0) 45%),
+      linear-gradient(8deg, rgba(255,178,66,.12), rgba(60,10,80,0) 60%);
+    mix-blend-mode:screen;
+    animation: overlayShift 18s ease-in-out infinite alternate;
+    pointer-events:none;
+  }
+
+  .smear{
+    position:absolute;
+    border-radius:48% 52% 44% 56% / 42% 58% 46% 54%;
+    filter:blur(1px);
+    mix-blend-mode:screen;
+    opacity:.9;
+  }
+  .smear.one{
+    left:-8%; top:6%;
+    width:48%; height:20%;
+    background:linear-gradient(90deg, rgba(255,90,54,.85), rgba(255,145,56,.12));
+    transform:rotate(-12deg);
+    animation: driftA 30s ease-in-out infinite alternate;
+  }
+  .smear.two{
+    right:-12%; top:51%;
+    width:50%; height:18%;
+    background:linear-gradient(90deg, rgba(38,103,255,.1), rgba(40,212,255,.82));
+    transform:rotate(17deg);
+    animation: driftB 28s ease-in-out infinite alternate;
+  }
+  .smear.three{
+    left:18%; bottom:12%;
+    width:64%; height:15%;
+    background:linear-gradient(90deg, rgba(210,255,60,.0), rgba(225,255,80,.75), rgba(255,75,120,.2));
+    transform:rotate(-7deg);
+    animation: driftC 22s ease-in-out infinite alternate;
+    opacity:.58;
+  }
+
+  .field{
+    position:absolute;
+    inset:auto;
+    border-radius:50%;
+    filter:blur(24px);
+    opacity:.55;
+    mix-blend-mode:screen;
+  }
+  .field.f1{
+    width:44%; height:20%;
+    left:-10%; top:26%;
+    background:radial-gradient(circle, rgba(255,65,120,.8) 0%, rgba(255,65,120,.2) 40%, rgba(255,65,120,0) 70%);
+    animation:pulse1 16s ease-in-out infinite;
+  }
+  .field.f2{
+    width:52%; height:24%;
+    right:-8%; top:7%;
+    background:radial-gradient(circle, rgba(255,190,60,.85) 0%, rgba(255,190,60,.18) 40%, rgba(255,190,60,0) 72%);
+    animation:pulse2 20s ease-in-out infinite;
+  }
+  .field.f3{
+    width:48%; height:22%;
+    left:30%; bottom:4%;
+    background:radial-gradient(circle, rgba(58,100,255,.8) 0%, rgba(58,100,255,.18) 44%, rgba(58,100,255,0) 75%);
+    animation:pulse3 18s ease-in-out infinite;
+  }
+
+  .arena{
+    position:absolute;
+    left:9%;
+    right:9%;
+    bottom:8%;
+    height:32%;
+    border:4px solid rgba(255,243,224,.12);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)),
+      linear-gradient(0deg, rgba(0,0,0,.18), rgba(0,0,0,0));
+    box-shadow: inset 0 0 40px rgba(255,255,255,.03), 0 0 50px rgba(0,0,0,.25);
+    overflow:hidden;
+  }
+  .arena::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg,
+        transparent 0 6%,
+        rgba(255,255,255,.055) 6% 7%,
+        transparent 7% 18%,
+        rgba(255,255,255,.045) 18% 19%,
+        transparent 19% 34%,
+        rgba(255,255,255,.05) 34% 35%,
+        transparent 35% 48%,
+        rgba(255,255,255,.04) 48% 49%,
+        transparent 49% 64%,
+        rgba(255,255,255,.05) 64% 65%,
+        transparent 65% 82%,
+        rgba(255,255,255,.045) 82% 83%,
+        transparent 83% 100%);
+    mix-blend-mode:screen;
+    opacity:.8;
+  }
+  .arena::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:16%;
+    background:
+      linear-gradient(180deg, rgba(10,8,10,0), rgba(10,8,10,.85)),
+      repeating-linear-gradient(90deg,
+        rgba(255,74,54,.92) 0 28px,
+        rgba(255,198,60,.94) 28px 56px,
+        rgba(22,190,170,.94) 56px 84px,
+        rgba(58,90,255,.94) 84px 112px,
+        rgba(255,38,132,.94) 112px 140px);
+    opacity:.9;
+  }
+  #hud{
+    position:absolute;
+    left:9%;
+    right:9%;
+    bottom:41%;
+    height:6.2%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 1.6%;
+    color:rgba(255,247,231,.75);
+    font-size:12px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    opacity:.42;
+    mix-blend-mode:screen;
+  }
+  #hud .bars{
+    position:relative;
+    width:26%;
+    height:10px;
+    background:rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  #hud .bars::before{
+    content:"";
+    position:absolute; inset:0;
+    width:70%;
+    background:linear-gradient(90deg, var(--red), var(--paper), var(--blue));
+    animation:hudSlide 11s ease-in-out infinite alternate;
+  }
+  #scanlines{
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      180deg,
+      rgba(255,255,255,.028) 0 2px,
+      rgba(0,0,0,0) 2px 6px
+    );
+    mix-blend-mode:soft-light;
+    opacity:.45;
+    pointer-events:none;
+  }
+  #vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 45%, rgba(0,0,0,.24) 75%, rgba(0,0,0,.48) 100%);
+    pointer-events:none;
+  }
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(255,248,235,.42);
+    font-size:13px;
+    letter-spacing:.18em;
+    z-index:30;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:14px;
+    bottom:168px;
+    opacity:.58;
+    filter:saturate(.9) brightness(.8);
+    z-index:18;
+    transform:rotate(-8deg);
+  }
+
+  @keyframes artBreath{
+    0%{transform:scale(1) rotate(-2deg) translateY(0)}
+    50%{transform:scale(1.025) rotate(.8deg) translateY(-8px)}
+    100%{transform:scale(1.01) rotate(2.2deg) translateY(5px)}
+  }
+  @keyframes overlayShift{
+    0%{transform:translate(-1%,0) rotate(-1deg)}
+    100%{transform:translate(1.2%,1.5%) rotate(1.5deg)}
+  }
+  @keyframes driftA{
+    0%{transform:translate(-1%,0) rotate(-15deg) scaleX(1)}
+    100%{transform:translate(4%,2%) rotate(-8deg) scaleX(1.08)}
+  }
+  @keyframes driftB{
+    0%{transform:translate(0,0) rotate(16deg) scale(1)}
+    100%{transform:translate(-3%,2%) rotate(10deg) scale(1.06)}
+  }
+  @keyframes driftC{
+    0%{transform:translate(0,0) rotate(-9deg) scaleX(.98)}
+    100%{transform:translate(1%,-2%) rotate(-4deg) scaleX(1.04)}
+  }
+  @keyframes pulse1{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.18)}
+  }
+  @keyframes pulse2{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(.88)}
+  }
+  @keyframes pulse3{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.12)}
+  }
+  @keyframes hudSlide{
+    0%{transform:translateX(-12%)}
+    100%{transform:translateX(36%)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="bgCanvas" width="1080" height="1920"></canvas>
+
+    <div class="field f1"></div>
+    <div class="field f2"></div>
+    <div class="field f3"></div>
+
+    <div class="smear one"></div>
+    <div class="smear two"></div>
+    <div class="smear three"></div>
+
+    <img id="art-image" src="img/art.527d84f9.png" alt="">
+    <div id="artImageOverlay"></div>
+
+    <canvas id="paintCanvas" width="1080" height="1920"></canvas>
+
+    <div id="hud">
+      <div class="bars"></div>
+      <div>auto play</div>
+      <div class="bars"></div>
+    </div>
+
+    <div class="arena">
+      <canvas id="gameLayer" width="880" height="610"></canvas>
+      <img id="guinea-pig" src="img/guineapig.527d84f9.png" alt="">
+    </div>
+
+    <canvas id="fxCanvas" width="1080" height="1920"></canvas>
+    <div id="scanlines"></div>
+    <div id="vignette"></div>
+    <div id="date">2026-04-12</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-04-12";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const frame = document.getElementById('frame');
+  const bg = document.getElementById('bgCanvas');
+  const paint = document.getElementById('paintCanvas');
+  const fx = document.getElementById('fxCanvas');
+  const gcanvas = document.getElementById('gameLayer');
+
+  const bctx = bg.getContext('2d');
+  const pctx = paint.getContext('2d');
+  const fctx = fx.getContext('2d');
+  const gctx = gcanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+
+  function drawBackground() {
+    bctx.clearRect(0,0,W,H);
+
+    const grad = bctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, '#220d18');
+    grad.addColorStop(0.33, '#1a0b1d');
+    grad.addColorStop(0.68, '#0f0c18');
+    grad.addColorStop(1, '#08070c');
+    bctx.fillStyle = grad;
+    bctx.fillRect(0,0,W,H);
+
+    for(let i=0;i<8;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const r = 180 + rand()*260;
+      const rg = bctx.createRadialGradient(x,y,0,x,y,r);
+      const palette = [
+        ['rgba(255,72,90,0.22)','rgba(255,72,90,0)'],
+        ['rgba(255,180,60,0.24)','rgba(255,180,60,0)'],
+        ['rgba(53,98,255,0.23)','rgba(53,98,255,0)'],
+        ['rgba(0,220,180,0.18)','rgba(0,220,180,0)'],
+        ['rgba(220,255,60,0.16)','rgba(220,255,60,0)']
+      ][i%5];
+      rg.addColorStop(0,palette[0]);
+      rg.addColorStop(1,palette[1]);
+      bctx.fillStyle = rg;
+      bctx.beginPath();
+      bctx.arc(x,y,r,0,Math.PI*2);
+      bctx.fill();
+    }
+
+    bctx.globalAlpha = 0.16;
+    for(let i=0;i<140;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const w = 40 + rand()*220;
+      const h = 16 + rand()*90;
+      bctx.fillStyle = `hsla(${rand()*360},85%,${40+rand()*25}%,0.16)`;
+      bctx.save();
+      bctx.translate(x,y);
+      bctx.rotate((rand()*2-1)*0.7);
+      bctx.fillRect(-w/2,-h/2,w,h);
+      bctx.restore();
+    }
+    bctx.globalAlpha = 1;
+  }
+
+  function drawPaintTexture(t){
+    pctx.clearRect(0,0,W,H);
+
+    // gestural blocks around the central image
+    const blocks = [
+      {x:110,y:180,w:320,h:140,c:'rgba(255,86,54,0.52)',a:-0.24},
+      {x:720,y:250,w:250,h:170,c:'rgba(255,192,66,0.45)',a:0.19},
+      {x:150,y:920,w:350,h:130,c:'rgba(255,42,122,0.38)',a:0.12},
+      {x:600,y:1140,w:310,h:180,c:'rgba(31,101,255,0.45)',a:-0.14},
+      {x:280,y:1450,w:500,h:120,c:'rgba(218,255,60,0.28)',a:-0.07},
+      {x:90,y:1560,w:260,h:110,c:'rgba(255,240,228,0.14)',a:0.08},
+      {x:810,y:1480,w:180,h:220,c:'rgba(20,180,170,0.34)',a:0.18}
+    ];
+
+    for(const b of blocks){
+      pctx.save();
+      pctx.translate(b.x + Math.sin(t*0.0002 + b.x)*10, b.y + Math.cos(t*0.00017 + b.y)*8);
+      pctx.rotate(b.a + Math.sin(t*0.0003 + b.y)*0.03);
+      pctx.fillStyle = b.c;
+      pctx.fillRect(-b.w/2, -b.h/2, b.w, b.h);
+      pctx.globalAlpha = 0.32;
+      pctx.fillStyle = 'rgba(255,250,240,0.2)';
+      for(let i=0;i<7;i++){
+        const yy = -b.h/2 + i*(b.h/7) + (rand()-0.5)*4;
+        pctx.fillRect(-b.w/2, yy, b.w*(0.7+rand()*0.3), 4+rand()*8);
+      }
+      pctx.restore();
+      pctx.globalAlpha = 1;
+    }
+
+    // dry-brush dabs
+    for(let i=0;i<80;i++){
+      const x = (i*127.31)%W;
+      const y = (i*211.73)%H;
+      const w = 40 + ((i*53)%180);
+      const h = 14 + ((i*37)%70);
+      pctx.save();
+      pctx.translate(x,y);
+      pctx.rotate(Math.sin(i*1.7 + t*0.0003)*0.35);
+      pctx.fillStyle = i%5===0 ? 'rgba(255,86,54,0.11)'
+        : i%5===1 ? 'rgba(255,205,84,0.10)'
+        : i%5===2 ? 'rgba(45,110,255,0.11)'
+        : i%5===3 ? 'rgba(255,35,122,0.10)'
+        : 'rgba(230,255,120,0.08)';
+      pctx.fillRect(-w/2, -h/2, w, h);
+      pctx.restore();
+    }
+  }
+
+  // Self-playing retro platformer
+  const game = {
+    w: gcanvas.width,
+    h: gcanvas.height,
+    tile: 44,
+    platforms: [],
+    hazards: [],
+    gems: [],
+    player: {
+      x: 60, y: 0, w: 30, h: 42,
+      vx: 0, vy: 0, dir: 1,
+      onGround:false,
+      pulse:0
+    },
+    cameraX:0,
+    worldW: 3000,
+    gravity: 0.85,
+    jumpPower: -16,
+    score:0,
+    targetGem: null,
+    time:0
+  };
+
+  function addPlatform(x,y,w,h,type='solid'){
+    game.platforms.push({x,y,w,h,type});
+  }
+
+  function initWorld(){
+    game.platforms = [];
+    game.hazards = [];
+    game.gems = [];
+    const baseY = 480;
+    addPlatform(0, baseY, 240, 24);
+    addPlatform(280, 420, 180, 22);
+    addPlatform(520, 360, 210, 22);
+    addPlatform(800, 450, 260, 22);
+    addPlatform(1120, 390, 180, 22);
+    addPlatform(1380, 325, 210, 22);
+    addPlatform(1660, 430, 210, 22);
+    addPlatform(1940, 350, 180, 22);
+    addPlatform(2200, 285, 180, 22);
+    addPlatform(2460, 380, 240, 22);
+    addPlatform(2750, 320, 190, 22);
+
+    for(let i=0;i<12;i++){
+      const p = game.platforms[i+1] || game.platforms[game.platforms.length-1];
+      game.gems.push({
+        x: p.x + p.w*0.5 + ((i%2)*28-14),
+        y: p.y - 42 - (i%3)*12,
+        r: 10 + (i%3)*2,
+        taken:false,
+        hue:[18,48,220,330,74][i%5]
+      });
+    }
+
+    game.hazards = [
+      {x:240,y:baseY,width:40,height:20},
+      {x:740,y:baseY+2,width:50,height:18},
+      {x:1320,y:baseY+2,width:58,height:18},
+      {x:1600,y:baseY+2,width:46,height:18},
+      {x:2140,y:baseY+2,width:64,height:18},
+      {x:2708,y:baseY+2,width:34,height:18}
+    ];
+
+    game.player.x = 70;
+    game.player.y = 380;
+    game.player.vx = 0;
+    game.player.vy = 0;
+    game.score = 0;
+  }
+
+  function rectsOverlap(a,b){
+    return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+  }
+
+  function chooseTarget(){
+    let best = null;
+    let bestD = 1e9;
+    for(const g of game.gems){
+      if(g.taken) continue;
+      const d = Math.abs(g.x - game.player.x) + Math.abs(g.y - game.player.y)*1.6;
+      if(d < bestD){ bestD = d; best = g; }
+    }
+    game.targetGem = best;
+  }
+
+  function updateGame(){
+    game.time += 1;
+    const p = game.player;
+    chooseTarget();
+
+    // AI runner logic
+    let targetX = p.x + 140;
+    if(game.targetGem) targetX = game.targetGem.x;
+
+    p.dir = targetX > p.x ? 1 : -1;
+    p.vx = lerp(p.vx, p.dir * 4.1, 0.07);
+
+    // look for ledges / jumps
+    let shouldJump = false;
+    for(const plat of game.platforms){
+      const ahead = p.x + p.w/2 + p.dir*34;
+      if (ahead > plat.x && ahead < plat.x + plat.w) {
+        if (Math.abs((p.y + p.h) - plat.y) < 8 && p.onGround && game.targetGem && game.targetGem.y < plat.y - 18) {
+          shouldJump = true;
+        }
+      }
+    }
+
+    for(const plat of game.platforms){
+      if(p.dir > 0){
+        if(plat.x > p.x && plat.x - (p.x+p.w) < 70 && plat.y < p.y + p.h + 10 && plat.y > p.y - 110 && p.onGround){
+          shouldJump = true;
+        }
+      }else{
+        if(p.x - (plat.x + plat.w) < 70 && p.x > plat.x && plat.y < p.y + p.h + 10 && plat.y > p.y - 110 && p.onGround){
+          shouldJump = true;
+        }
+      }
+    }
+
+    for(const hz of game.hazards){
+      if(p.onGround && p.x + p.w + 8 > hz.x && p.x < hz.x + hz.width && Math.abs(p.y + p.h - hz.y) < 28){
+        shouldJump = true;
+      }
+    }
+
+    if(shouldJump && p.onGround){
+      p.vy = game.jumpPower;
+      p.onGround = false;
+    }
+
+    p.vy += game.gravity;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if(p.x < 0) p.x = 0;
+    if(p.x > game.worldW - p.w) p.x = game.worldW - p.w;
+
+    p.onGround = false;
+    for(const plat of game.platforms){
+      if(p.x + p.w > plat.x && p.x < plat.x + plat.w){
+        const prevBottom = p.y + p.h - p.vy;
+        const currBottom = p.y + p.h;
+        if(prevBottom <= plat.y && currBottom >= plat.y){
+          p.y = plat.y - p.h;
+          p.vy = 0;
+          p.onGround = true;
+        }
+      }
+    }
+
+    if(p.y > game.h){
+      p.x = Math.max(0, p.x - 120);
+      p.y = 120; p.vx = 0; p.vy = 0;
+    }
+
+    for(const hz of game.hazards){
+      const hb = {x:hz.x,y:hz.y-8,w:hz.width,h:28};
+      if(rectsOverlap(p,hb)){
+        p.x = Math.max(0, p.x - 150);
+        p.y = 130; p.vx = 0; p.vy = 0;
+      }
+    }
+
+    for(const g of game.gems){
+      if(g.taken) continue;
+      const dx = (p.x + p.w/2) - g.x;
+      const dy = (p.y + p.h/2) - g.y;
+      if(dx*dx + dy*dy < 28*28){
+        g.taken = true;
+        game.score++;
+      }
+    }
+
+    game.cameraX = lerp(game.cameraX, Math.max(0, Math.min(game.worldW - game.w, p.x - game.w*0.35)), 0.08);
+    p.pulse += 0.12;
+  }
+
+  function painterlyRect(ctx,x,y,w,h,colors,rot=0){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    for(let i=0;i<6;i++){
+      ctx.globalAlpha = 0.12 + i*0.05;
+      ctx.fillStyle = colors[i % colors.length];
+      const yy = -h/2 + (i/6)*h + Math.sin(i)*2;
+      ctx.fillRect(-w/2 + i*2, yy, w*(0.86+0.12*Math.sin(i*1.4)), h/8 + 4);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawGame(t){
+    const ctx = gctx;
+    const w = game.w, h = game.h;
+    ctx.clearRect(0,0,w,h);
+
+    const bgGrad = ctx.createLinearGradient(0,0,0,h);
+    bgGrad.addColorStop(0,'rgba(255,74,54,0.10)');
+    bgGrad.addColorStop(0.48,'rgba(95,25,135,0.08)');
+    bgGrad.addColorStop(1,'rgba(8,8,12,0.0)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0,0,w,h);
+
+    ctx.save();
+    ctx.translate(-game.cameraX,0);
+
+    // world backdrop blocks
+    for(let i=0;i<10;i++){
+      const x = i*310 + 30;
+      const y = 90 + (i%3)*22 + Math.sin(t*0.0003+i)*12;
+      painterlyRect(ctx, x, y, 180, 58,
+        ['rgba(255,72,54,0.18)','rgba(255,200,84,0.17)','rgba(255,255,240,0.08)'],
+        -0.1 + Math.sin(i)*0.05);
+    }
+
+    // platforms
+    for(const plat of game.platforms){
+      painterlyRect(ctx, plat.x + plat.w/2, plat.y + 8, plat.w, 28,
+        ['rgba(255,240,230,0.26)','rgba(255,84,54,0.36)','rgba(255,214,80,0.24)','rgba(30,90,255,0.24)'],
+        Math.sin((plat.x+t*0.07)*0.001)*0.03);
+      ctx.fillStyle = 'rgba(22,8,8,0.55)';
+      ctx.fillRect(plat.x+8, plat.y+18, plat.w-16, 12);
+    }
+
+    // hazards as thick expressionist teeth
+    for(const hz of game.hazards){
+      for(let i=0;i<hz.width;i+=14){
+        const xx = hz.x + i;
+        ctx.fillStyle = i%2===0 ? 'rgba(255,54,84,0.85)' : 'rgba(255,205,70,0.8)';
+        ctx.beginPath();
+        ctx.moveTo(xx, hz.y+16);
+        ctx.lineTo(xx+8, hz.y-4 - Math.sin((t*0.01)+i)*2);
+        ctx.lineTo(xx+16, hz.y+16);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // gems
+    for(const g of game.gems){
+      if(g.taken) continue;
+      const bob = Math.sin(t*0.004 + g.x*0.03)*7;
+      ctx.save();
+      ctx.translate(g.x, g.y + bob);
+      ctx.rotate(Math.PI/4);
+      ctx.fillStyle = `hsla(${g.hue},95%,62%,0.92)`;
+      ctx.fillRect(-g.r, -g.r, g.r*2, g.r*2);
+      ctx.globalAlpha = .35;
+      ctx.fillStyle = 'rgba(255,255,255,0.65)';
+      ctx.fillRect(-g.r*0.35, -g.r*0.9, g.r*0.7, g.r*0.7);
+      ctx.restore();
+    }
+
+    // player as chunky painted runner
+    const p = game.player;
+    ctx.save();
+    ctx.translate(p.x + p.w/2, p.y + p.h/2);
+    ctx.scale(p.dir,1);
+    ctx.rotate(Math.sin(p.pulse)*0.04);
+
+    const jumpStretch = Math.min(1, Math.abs(p.vy)/10);
+    ctx.fillStyle = 'rgba(255,248,235,0.92)';
+    ctx.fillRect(-12, -18 - jumpStretch*3, 24, 30 + jumpStretch*5);
+
+    ctx.fillStyle = 'rgba(255,70,60,0.92)';
+    ctx.fillRect(-14, 8, 12, 18);
+    ctx.fillStyle = 'rgba(30,95,255,0.92)';
+    ctx.fillRect(2, 8, 12, 18);
+
+    ctx.fillStyle = 'rgba(15,10,15,0.88)';
+    ctx.fillRect(3, -8, 4, 4);
+
+    ctx.fillStyle = 'rgba(255,210,76,0.86)';
+    ctx.fillRect(-18, -8, 8, 8);
+
+    ctx.globalAlpha = 0.26;
+    ctx.fillStyle = 'rgba(255,52,118,0.8)';
+    ctx.fillRect(-18, -24, 36, 50);
+    ctx.restore();
+
+    ctx.restore();
+
+    // overlay flashes
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = `rgba(255,255,240,${0.03 + 0.02*Math.sin(t*0.002)})`;
+    ctx.fillRect(0,0,w,h);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // mini score blocks, no extra text except date -> use bars only
+    for(let i=0;i<12;i++){
+      ctx.fillStyle = i < game.score ? ['#ff5a36','#ffd15a','#3f7fff','#ff2d8c'][i%4] : 'rgba(255,255,255,0.08)';
+      ctx.fillRect(18 + i*20, 16, 14, 8);
+    }
+  }
+
+  const shards = [];
+  for(let i=0;i<24;i++){
+    shards.push({
+      x: rand()*W,
+      y: rand()*H,
+      w: 50 + rand()*180,
+      h: 16 + rand()*60,
+      a: rand()*Math.PI,
+      s: 0.0002 + rand()*0.00035,
+      hue: [12,24,48,220,332,74][i%6]
+    });
+  }
+
+  function drawFX(t){
+    fctx.clearRect(0,0,W,H);
+
+    for(const s of shards){
+      fctx.save();
+      fctx.translate(s.x + Math.sin(t*s.s*3 + s.x)*20, s.y + Math.cos(t*s.s*2 + s.y)*16);
+      fctx.rotate(s.a + Math.sin(t*s.s)*0.2);
+      fctx.fillStyle = `hsla(${s.hue},95%,62%,0.10)`;
+      fctx.fillRect(-s.w/2, -s.h/2, s.w, s.h);
+      fctx.globalAlpha = 0.08;
+      fctx.fillStyle = 'rgba(255,255,255,0.18)';
+      fctx.fillRect(-s.w*0.3, -s.h*0.15, s.w*0.6, s.h*0.3);
+      fctx.restore();
+    }
+
+    // framing marks around art image
+    fctx.save();
+    fctx.translate(W/2, H*0.38);
+    fctx.rotate(Math.sin(t*0.0003)*0.03);
+    fctx.strokeStyle = 'rgba(255,240,220,0.12)';
+    fctx.lineWidth = 8;
+    fctx.strokeRect(-360,-380,720,760);
+    fctx.restore();
+
+    // large emotional colour field
+    const rg = fctx.createRadialGradient(W*0.52,H*0.32,100,W*0.52,H*0.32,600);
+    rg.addColorStop(0,'rgba(255,255,255,0.04)');
+    rg.addColorStop(0.28,'rgba(255,68,110,0.05)');
+    rg.addColorStop(0.52,'rgba(30,100,255,0.04)');
+    rg.addColorStop(1,'rgba(0,0,0,0)');
+    fctx.fillStyle = rg;
+    fctx.fillRect(0,0,W,H);
+  }
+
+  let audioStarted = false;
+  function startAudio(){
+    if(audioStarted) return;
+    audioStarted = true;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const osc3 = ac.createOscillator();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      const filter = ac.createBiquadFilter();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'triangle';
+      osc3.type = 'square';
+      osc1.frequency.value = 55;
+      osc2.frequency.value = 82.5;
+      osc3.frequency.value = 110;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 420;
+      filter.Q.value = 1.4;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.06;
+      lfoGain.gain.value = 95;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const g1 = ac.createGain(), g2 = ac.createGain(), g3 = ac.createGain();
+      g1.gain.value = 0.35;
+      g2.gain.value = 0.18;
+      g3.gain.value = 0.08;
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(filter); g2.connect(filter); g3.connect(filter);
+      filter.connect(master);
+
+      osc1.start(); osc2.start(); osc3.start(); lfo.start();
+    }catch(e){}
+  }
+  startAudio();
+
+  drawBackground();
+  initWorld();
+
+  function animate(t){
+    drawPaintTexture(t);
+    updateGame();
+    drawGame(t);
+    drawFX(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // resume audio on visibility if needed, no user interaction required
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) startAudio();
+  });
+})();
+</script>
+</body>
+</html>
