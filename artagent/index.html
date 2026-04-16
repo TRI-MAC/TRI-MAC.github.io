@@ -8,360 +8,157 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>2026-04-15</title>
+<title>Generative Art 2026-04-16</title>
 <style>
   :root{
-    --bg0:#f5f0d9;
-    --bg1:#e9dfb7;
-    --ink:#0d0d0f;
-    --red:#ff2b52;
-    --cyan:#00d7ff;
-    --gold:#ffd54a;
-    --blue:#135dff;
-    --paper:#fff8de;
+    --bg0:#02040b;
+    --bg1:#071120;
+    --cyan:#36f3ff;
+    --blue:#4b72ff;
+    --violet:#a041ff;
+    --magenta:#ff2fd1;
+    --red:#ff4a6e;
+    --lime:#73ffbe;
+    --grid:#14344d;
+    --soft:#8ab5d8;
   }
   *{box-sizing:border-box}
   html,body{
     margin:0;
     height:100%;
-    background:#111;
+    background:#000;
     overflow:hidden;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
   body{
     display:grid;
     place-items:center;
   }
-  #stage{
+  #frame{
     position:relative;
-    width:min(100vw, calc(100vh * 1080 / 1920));
-    height:min(100vh, calc(100vw * 1920 / 1080));
-    aspect-ratio:1080/1920;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    background:
+      radial-gradient(120% 90% at 50% 22%, rgba(44,93,160,.16), transparent 42%),
+      radial-gradient(70% 44% at 50% 50%, rgba(186,59,255,.08), transparent 60%),
+      linear-gradient(180deg,var(--bg1),var(--bg0) 35%, #010208 100%);
     overflow:hidden;
-    background:
-      radial-gradient(circle at 50% 50%, #fff7d7 0%, #f4e6ac 38%, #e6cf7c 68%, #caa33d 100%);
-    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.45);
+    box-shadow:0 0 0 1px rgba(70,150,255,.18), 0 0 40px rgba(0,0,0,.55);
   }
-
-  /* overall soft edge fade to avoid hard edge cutoffs */
-  #stage::after{
-    content:"";
-    position:absolute; inset:0;
-    pointer-events:none;
-    background:
-      linear-gradient(to right, rgba(16,16,16,.16), rgba(16,16,16,0) 8%, rgba(16,16,16,0) 92%, rgba(16,16,16,.16)),
-      linear-gradient(to bottom, rgba(16,16,16,.18), rgba(16,16,16,0) 7%, rgba(16,16,16,0) 93%, rgba(16,16,16,.2));
-    mix-blend-mode:multiply;
-  }
-
-  #bgCanvas, #overlayCanvas, #grainCanvas{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    display:block;
-  }
-
-  #background-video{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:66%;
-    height:88%;
-    transform:translate(-50%,-50%);
-    object-fit:cover;
-    opacity:.82;
-    filter:saturate(1.25) contrast(1.2) brightness(1.02) hue-rotate(4deg);
-    mix-blend-mode:multiply;
-    clip-path:inset(2.8% 5% 2.8% 5% round 10px);
-  }
-
-  #film-strip{
-    position:absolute;
-    left:50%;
-    top:-18%;
-    width:64%;
-    height:136%;
-    transform:translateX(-50%);
-    animation:scrollStrip 42s linear infinite;
-    filter: drop-shadow(0 0 18px rgba(0,0,0,.35)) drop-shadow(0 0 56px rgba(255,66,106,.18));
-    mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.95) 12%, rgba(0,0,0,.95) 88%, transparent 100%);
-    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.95) 12%, rgba(0,0,0,.95) 88%, transparent 100%);
-  }
-
-  @keyframes scrollStrip{
-    from{ transform:translateX(-50%) translateY(0); }
-    to{ transform:translateX(-50%) translateY(-22%); }
-  }
-
-  .strip-side{
-    position:absolute;
-    top:0; bottom:0;
-    width:8.5%;
-    background:
-      repeating-linear-gradient(
-        to bottom,
-        #08080a 0 44px,
-        #f5f0d9 44px 98px,
-        #08080a 98px 142px
-      );
-    box-shadow: inset 0 0 0 3px rgba(255,255,255,.04);
-  }
-  .strip-side.left{ left:0; }
-  .strip-side.right{ right:0; }
-
-  #film-core{
-    position:absolute;
-    left:10.2%;
-    top:0;
-    width:79.6%;
-    height:100%;
-    background:
-      linear-gradient(to right, rgba(10,10,10,.96), rgba(22,22,24,.88) 12%, rgba(12,12,12,.78) 50%, rgba(22,22,24,.88) 88%, rgba(10,10,10,.96));
-    box-shadow:
-      inset 0 0 0 4px rgba(242,234,192,.18),
-      inset 0 0 160px rgba(0,0,0,.55);
-  }
-
-  .frame{
-    position:absolute;
-    left:6.5%;
-    width:87%;
-    height:14.2%;
-    border:2px solid rgba(249,240,194,.55);
-    overflow:hidden;
-    background:
-      radial-gradient(circle at 50% 50%, rgba(255,245,202,.84) 0%, rgba(243,229,164,.6) 55%, rgba(211,184,91,.46) 100%);
-  }
-
-  .frame::before{
+  #frame::before{
     content:"";
     position:absolute; inset:0;
     background:
-      repeating-linear-gradient(
-        90deg,
-        rgba(0,0,0,.8) 0 10px,
-        rgba(255,255,255,.0) 10px 22px
-      );
-    opacity:.15;
-    mix-blend-mode:multiply;
-    animation:barShift 14s linear infinite;
-  }
-  @keyframes barShift{
-    from{ transform:translateX(0); }
-    to{ transform:translateX(22px); }
-  }
-
-  .frame .inner{
-    position:absolute; inset:2.8%;
-    overflow:hidden;
-    background:
-      radial-gradient(circle at 50% 50%, rgba(255,245,206,.92), rgba(241,222,133,.74) 58%, rgba(210,75,92,.18) 100%);
-  }
-
-  .frame .op-circle{
-    position:absolute;
-    left:50%; top:50%;
-    width:58%; aspect-ratio:1;
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    opacity:.95;
-    mix-blend-mode:multiply;
-    animation:throb 9s ease-in-out infinite;
-  }
-
-  .frame .op-circle.c1{
-    background:
-      repeating-radial-gradient(circle,
-        rgba(0,0,0,.95) 0 10px,
-        rgba(255,43,82,.95) 10px 19px,
-        rgba(255,245,206,.86) 19px 28px,
-        rgba(0,215,255,.95) 28px 36px);
-  }
-  .frame .op-circle.c2{
-    width:42%;
-    background:
-      repeating-radial-gradient(circle,
-        rgba(255,245,206,.92) 0 8px,
-        rgba(0,0,0,.96) 8px 16px,
-        rgba(19,93,255,.92) 16px 22px,
-        rgba(255,245,206,.92) 22px 30px);
-    animation-duration:13s;
-    animation-direction:reverse;
-  }
-  @keyframes throb{
-    0%,100%{ transform:translate(-50%,-50%) scale(0.95) rotate(0deg); }
-    50%{ transform:translate(-50%,-50%) scale(1.05) rotate(180deg); }
-  }
-
-  .frame .bars{
-    position:absolute;
-    inset:0;
-    background:
-      repeating-linear-gradient(0deg,
-        rgba(0,0,0,.92) 0 14px,
-        rgba(255,245,206,.0) 14px 26px),
-      repeating-linear-gradient(90deg,
-        rgba(255,43,82,.72) 0 18px,
-        rgba(0,215,255,.0) 18px 34px);
-    mix-blend-mode:multiply;
-    opacity:.55;
-    transform-origin:center;
-    animation:tiltBars 11s ease-in-out infinite;
-  }
-  @keyframes tiltBars{
-    0%,100%{ transform:rotate(-2deg) scale(1.02); }
-    50%{ transform:rotate(2deg) scale(1.06); }
-  }
-
-  .frame .diamond{
-    position:absolute;
-    left:50%; top:50%;
-    width:24%;
-    height:24%;
-    border:7px solid rgba(255,245,206,.95);
-    transform:translate(-50%,-50%) rotate(45deg);
-    box-shadow:0 0 0 9px rgba(0,0,0,.96), 0 0 0 18px rgba(255,43,82,.9);
-    animation:diamondPulse 10s ease-in-out infinite;
-    mix-blend-mode:multiply;
-  }
-  @keyframes diamondPulse{
-    0%,100%{ transform:translate(-50%,-50%) rotate(45deg) scale(.92); }
-    50%{ transform:translate(-50%,-50%) rotate(225deg) scale(1.08); }
-  }
-
-  .f1{ top:3.2%; }
-  .f2{ top:20.2%; }
-  .f3{ top:37.2%; }
-  .f4{ top:54.2%; }
-  .f5{ top:71.2%; }
-  .f6{ top:88.2%; }
-
-  .f1 .inner{ filter:hue-rotate(0deg); }
-  .f2 .inner{ filter:hue-rotate(18deg); }
-  .f3 .inner{ filter:hue-rotate(36deg); }
-  .f4 .inner{ filter:hue-rotate(54deg); }
-  .f5 .inner{ filter:hue-rotate(72deg); }
-  .f6 .inner{ filter:hue-rotate(90deg); }
-
-  /* portrait integration */
-  #portrait-wrap{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:54%;
-    height:39%;
-    transform:translate(-50%,-49%);
+      linear-gradient(180deg,
+        rgba(0,0,0,.06) 0px,
+        rgba(0,0,0,.06) 1px,
+        rgba(255,255,255,.015) 1px,
+        rgba(255,255,255,.015) 2px);
+    background-size:100% 5px;
+    opacity:.35;
     pointer-events:none;
-    opacity:.97;
-    filter: drop-shadow(0 0 20px rgba(255,245,206,.2));
-    mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 57%, rgba(0,0,0,.55) 72%, transparent 91%);
-    -webkit-mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 57%, rgba(0,0,0,.55) 72%, transparent 91%);
+    mix-blend-mode:screen;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(90% 70% at 50% 50%, transparent 64%, rgba(0,0,0,.22) 88%, rgba(0,0,0,.45) 100%);
+    pointer-events:none;
   }
 
-  #portrait-image{
+  canvas, svg, .layer{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
-    object-fit:cover;
-    object-position:center 28%;
-    filter: grayscale(1) contrast(1.4) brightness(1.08) saturate(0) hue-rotate(0deg);
-    mix-blend-mode:multiply;
-    opacity:.95;
-    clip-path:ellipse(40% 49% at 50% 50%);
-    transform:scale(1.04);
+    display:block;
   }
 
-  #portrait-rings{
-    position:absolute; inset:-8%;
-    opacity:.96;
-    mix-blend-mode:multiply;
-    animation:ringDrift 18s ease-in-out infinite;
-  }
-  @keyframes ringDrift{
-    0%,100%{ transform:scale(1) rotate(0deg); }
-    50%{ transform:scale(1.05) rotate(8deg); }
+  #hud{
+    pointer-events:none;
+    opacity:.9;
+    filter:drop-shadow(0 0 8px rgba(54,243,255,.18));
+    mask-image:radial-gradient(circle at 50% 50%, black 0%, black 70%, transparent 97%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, black 0%, black 70%, transparent 97%);
   }
 
-  #center-mask{
+  #hud .thin{ stroke:rgba(86,206,255,.18); stroke-width:1.2; fill:none; vector-effect:non-scaling-stroke; }
+  #hud .soft{ stroke:rgba(120,170,255,.10); stroke-width:1; fill:none; vector-effect:non-scaling-stroke; }
+  #hud .glow{ stroke:rgba(54,243,255,.35); stroke-width:2; fill:none; vector-effect:non-scaling-stroke; }
+  #hud .fillSoft{ fill:rgba(34,116,196,.08); }
+  #hud .fillAccent{ fill:rgba(160,65,255,.06); }
+
+  .bracket{
+    position:absolute;
+    border:1px solid rgba(72,176,255,.22);
+    width:16%;
+    height:7%;
+    opacity:.5;
+  }
+  .bracket::before,.bracket::after{
+    content:"";
+    position:absolute;
+    background:rgba(54,243,255,.45);
+  }
+  .bracket::before{ width:26%; height:2px; }
+  .bracket::after{ width:2px; height:36%; }
+  .tl{top:8%;left:8%; border-right:none;border-bottom:none;}
+  .tl::before{top:-1px;left:-1px}.tl::after{top:-1px;left:-1px}
+  .tr{top:8%;right:8%; border-left:none;border-bottom:none;}
+  .tr::before{top:-1px;right:-1px}.tr::after{top:-1px;right:-1px}
+  .bl{bottom:8%;left:8%; border-right:none;border-top:none;}
+  .bl::before{bottom:-1px;left:-1px}.bl::after{bottom:-1px;left:-1px}
+  .br{bottom:8%;right:8%; border-left:none;border-top:none;}
+  .br::before{bottom:-1px;right:-1px}.br::after{bottom:-1px;right:-1px}
+
+  #glowColumn{
     position:absolute;
     left:50%; top:50%;
-    width:58%; height:44%;
-    transform:translate(-50%,-49%);
-    border-radius:50%;
+    width:72%;
+    height:76%;
+    transform:translate(-50%,-50%);
     background:
-      radial-gradient(circle at 50% 50%,
-        rgba(255,245,206,0) 0 39%,
-        rgba(255,245,206,.92) 39.6% 41.2%,
-        rgba(0,0,0,.96) 41.2% 45.2%,
-        rgba(255,43,82,.8) 45.2% 46.5%,
-        rgba(0,215,255,.72) 46.5% 48.2%,
-        rgba(255,245,206,0) 49% 100%);
-    opacity:.88;
-    mix-blend-mode:multiply;
-    animation:maskBreath 15s ease-in-out infinite;
-    mask-image:radial-gradient(circle, black 0 72%, transparent 92%);
-    -webkit-mask-image:radial-gradient(circle, black 0 72%, transparent 92%);
-  }
-  @keyframes maskBreath{
-    0%,100%{ transform:translate(-50%,-49%) scale(0.98); }
-    50%{ transform:translate(-50%,-49%) scale(1.02); }
+      radial-gradient(48% 58% at 50% 50%, rgba(66,128,255,.08), transparent 70%),
+      linear-gradient(180deg, rgba(54,243,255,.04), rgba(160,65,255,.08), rgba(255,47,209,.04));
+    filter:blur(18px);
+    opacity:.8;
+    border-radius:44px;
+    mask-image:radial-gradient(circle at 50% 50%, black 0%, black 62%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, black 0%, black 62%, transparent 100%);
+    animation: breathe 18s ease-in-out infinite;
   }
 
-  /* side optical fields */
-  .op-field{
+  #dataBars{
     position:absolute;
-    top:0;
-    width:20%;
-    height:100%;
-    opacity:.92;
-    mix-blend-mode:multiply;
-    mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.96) 8%, rgba(0,0,0,.96) 92%, transparent 100%);
-    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.96) 8%, rgba(0,0,0,.96) 92%, transparent 100%);
+    left:8%; right:8%; bottom:14%;
+    height:8%;
+    display:flex;
+    gap:0.7%;
+    align-items:flex-end;
+    opacity:.45;
+    filter:drop-shadow(0 0 6px rgba(54,243,255,.16));
+    mask-image:linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image:linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
   }
-  .op-field.left{
-    left:0;
-    background:
-      repeating-radial-gradient(circle at 100% 50%,
-        rgba(0,0,0,.98) 0 10px,
-        rgba(255,245,206,.0) 10px 22px,
-        rgba(255,43,82,.8) 22px 28px,
-        rgba(255,245,206,.0) 28px 42px);
-    animation:fieldShiftL 17s ease-in-out infinite;
-  }
-  .op-field.right{
-    right:0;
-    background:
-      repeating-radial-gradient(circle at 0% 50%,
-        rgba(0,0,0,.98) 0 10px,
-        rgba(255,245,206,.0) 10px 22px,
-        rgba(0,215,255,.85) 22px 28px,
-        rgba(255,245,206,.0) 28px 42px);
-    animation:fieldShiftR 19s ease-in-out infinite;
-  }
-  @keyframes fieldShiftL{
-    0%,100%{ transform:translateX(-2%) scale(1); }
-    50%{ transform:translateX(2%) scale(1.04); }
-  }
-  @keyframes fieldShiftR{
-    0%,100%{ transform:translateX(2%) scale(1); }
-    50%{ transform:translateX(-2%) scale(1.04); }
+  #dataBars span{
+    flex:1;
+    display:block;
+    background:linear-gradient(180deg, rgba(54,243,255,.85), rgba(75,114,255,.3));
+    transform-origin:50% 100%;
+    animation: barPulse 7s ease-in-out infinite;
   }
 
-  /* svg overlays */
-  #svgLayer{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    pointer-events:none;
-  }
-
-  #date-stamp{
+  #date{
     position:absolute;
     right:22px;
     bottom:18px;
-    color:rgba(0,0,0,.48);
-    font-size:20px;
-    letter-spacing:.14em;
+    color:rgba(170,210,255,.42);
+    font-size:14px;
+    letter-spacing:.16em;
     z-index:50;
+    text-shadow:0 0 8px rgba(54,243,255,.14);
     user-select:none;
   }
 
@@ -369,340 +166,442 @@
     position:absolute;
     width:18px;
     height:auto;
-    left:92px;
-    bottom:124px;
+    right:41px;
+    top:188px;
     opacity:.58;
-    filter: saturate(.95) brightness(.82) contrast(1.05);
-    z-index:25;
-    transform:rotate(-8deg);
+    z-index:18;
+    filter:drop-shadow(0 0 2px rgba(80,220,255,.18)) saturate(.9);
+    transform:scaleX(-1) rotate(-8deg);
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:translate(-50%,-50%) scale(1)}
+    50%{transform:translate(-50%,-50%) scale(1.035)}
+  }
+  @keyframes barPulse{
+    0%,100%{transform:scaleY(.45)}
+    50%{transform:scaleY(1)}
   }
 </style>
 </head>
 <body>
-<div id="stage">
-  <canvas id="bgCanvas"></canvas>
+  <div id="frame">
+    <div id="glowColumn"></div>
+    <canvas id="bgCanvas" width="1080" height="1920"></canvas>
+    <canvas id="lifeCanvas" width="1080" height="1920"></canvas>
 
-  <div class="op-field left"></div>
-  <div class="op-field right"></div>
-
-  <div id="film-strip">
-    <div class="strip-side left"></div>
-    <div id="film-core">
-      <div class="frame f1"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-      <div class="frame f2"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-      <div class="frame f3"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-      <div class="frame f4"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-      <div class="frame f5"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-      <div class="frame f6"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
-    </div>
-    <div class="strip-side right"></div>
-  </div>
-
-  <video id="background-video" src="video/background.d0cd7d8c.mp4" autoplay loop muted playsinline></video>
-
-  <div id="portrait-wrap">
-    <img id="portrait-image" src="img/portrait.d0cd7d8c.png" alt="" />
-    <svg id="portrait-rings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <svg id="hud" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
       <defs>
-        <pattern id="ringLinesA" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="8" height="8" fill="transparent"></rect>
-          <rect x="0" y="0" width="4" height="8" fill="rgba(0,0,0,0.88)"></rect>
-        </pattern>
-        <pattern id="ringLinesB" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-          <rect width="10" height="10" fill="transparent"></rect>
-          <rect x="0" y="0" width="5" height="10" fill="rgba(255,43,82,0.72)"></rect>
-        </pattern>
+        <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#36f3ff" stop-opacity=".5"/>
+          <stop offset="50%" stop-color="#4b72ff" stop-opacity=".18"/>
+          <stop offset="100%" stop-color="#ff2fd1" stop-opacity=".38"/>
+        </linearGradient>
+        <linearGradient id="diagGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#36f3ff" stop-opacity=".24"/>
+          <stop offset="100%" stop-color="#a041ff" stop-opacity=".08"/>
+        </linearGradient>
       </defs>
-      <ellipse cx="50" cy="50" rx="35" ry="44" fill="none" stroke="url(#ringLinesA)" stroke-width="8" opacity="0.9"/>
-      <ellipse cx="50" cy="50" rx="29" ry="37" fill="none" stroke="url(#ringLinesB)" stroke-width="5" opacity="0.75"/>
-      <ellipse cx="50" cy="50" rx="41" ry="50" fill="none" stroke="rgba(255,245,206,0.72)" stroke-width="2"/>
+
+      <circle cx="540" cy="960" r="395" class="thin"/>
+      <circle cx="540" cy="960" r="468" class="soft"/>
+      <circle cx="540" cy="960" r="312" class="glow" stroke="url(#ringGrad)"/>
+      <circle cx="540" cy="960" r="545" class="soft"/>
+
+      <polygon points="540,335 855,520 855,1400 540,1585 225,1400 225,520" class="thin fillSoft"/>
+      <polygon points="540,255 925,480 925,1440 540,1665 155,1440 155,480" class="soft fillAccent"/>
+
+      <line x1="160" y1="520" x2="920" y2="520" class="soft"/>
+      <line x1="160" y1="1400" x2="920" y2="1400" class="soft"/>
+      <line x1="225" y1="480" x2="225" y2="1440" class="soft"/>
+      <line x1="855" y1="480" x2="855" y2="1440" class="soft"/>
+
+      <line x1="320" y1="390" x2="760" y2="1530" stroke="url(#diagGrad)" stroke-width="2" opacity=".38"/>
+      <line x1="760" y1="390" x2="320" y2="1530" stroke="url(#diagGrad)" stroke-width="2" opacity=".22"/>
+
+      <g opacity=".38">
+        <rect x="120" y="880" width="86" height="160" class="thin fillSoft"/>
+        <rect x="874" y="880" width="86" height="160" class="thin fillSoft"/>
+        <rect x="468" y="130" width="144" height="44" class="thin fillSoft"/>
+        <rect x="468" y="1746" width="144" height="44" class="thin fillSoft"/>
+      </g>
+
+      <g opacity=".26">
+        <line x1="260" y1="960" x2="820" y2="960" class="glow"/>
+        <line x1="540" y1="392" x2="540" y2="1528" class="glow"/>
+      </g>
     </svg>
+
+    <div class="bracket tl"></div>
+    <div class="bracket tr"></div>
+    <div class="bracket bl"></div>
+    <div class="bracket br"></div>
+
+    <div id="dataBars"></div>
+
+    <img id="guinea-pig" src="img/guineapig.a102ce42.png" alt="">
+
+    <div id="date">2026-04-16</div>
   </div>
-
-  <div id="center-mask"></div>
-
-  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <radialGradient id="fadeBurst" cx="50%" cy="50%" r="60%">
-        <stop offset="0%" stop-color="rgba(255,245,206,0)" />
-        <stop offset="58%" stop-color="rgba(255,245,206,0)" />
-        <stop offset="70%" stop-color="rgba(0,0,0,0.9)" />
-        <stop offset="78%" stop-color="rgba(255,43,82,0.7)" />
-        <stop offset="86%" stop-color="rgba(0,215,255,0.55)" />
-        <stop offset="100%" stop-color="rgba(255,245,206,0)" />
-      </radialGradient>
-
-      <pattern id="diagPattern" patternUnits="userSpaceOnUse" width="36" height="36" patternTransform="rotate(35)">
-        <rect width="36" height="36" fill="transparent"></rect>
-        <rect width="18" height="36" fill="rgba(0,0,0,0.82)"></rect>
-      </pattern>
-
-      <mask id="edgeFadeMask">
-        <rect width="1080" height="1920" fill="url(#edgeFade)"/>
-      </mask>
-
-      <linearGradient id="edgeFade" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="transparent"/>
-        <stop offset="9%" stop-color="white"/>
-        <stop offset="91%" stop-color="white"/>
-        <stop offset="100%" stop-color="transparent"/>
-      </linearGradient>
-    </defs>
-
-    <g opacity="0.72" mask="url(#edgeFadeMask)">
-      <ellipse cx="540" cy="960" rx="310" ry="520" fill="url(#fadeBurst)">
-        <animateTransform attributeName="transform" type="scale" values="1 1;1.03 1.015;1 1" dur="18s" repeatCount="indefinite"/>
-      </ellipse>
-    </g>
-
-    <g opacity="0.42" style="mix-blend-mode:multiply">
-      <polygon points="540,116 620,300 540,484 460,300" fill="url(#diagPattern)">
-        <animateTransform attributeName="transform" type="rotate" values="0 540 300;8 540 300;0 540 300" dur="20s" repeatCount="indefinite"/>
-      </polygon>
-      <polygon points="540,1436 640,1620 540,1804 440,1620" fill="url(#diagPattern)">
-        <animateTransform attributeName="transform" type="rotate" values="0 540 1620;-7 540 1620;0 540 1620" dur="23s" repeatCount="indefinite"/>
-      </polygon>
-    </g>
-  </svg>
-
-  <canvas id="overlayCanvas"></canvas>
-  <canvas id="grainCanvas"></canvas>
-
-  <img id="guinea-pig" src="img/guineapig.d0cd7d8c.png" alt="" />
-  <div id="date-stamp">2026-04-15</div>
-</div>
 
 <script>
 (() => {
-  const seedString = "2026-04-15";
-  let seed = 0;
-  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
-  function rand() {
-    seed ^= seed << 13; seed >>>= 0;
-    seed ^= seed >> 17; seed >>>= 0;
-    seed ^= seed << 5;  seed >>>= 0;
-    return (seed >>> 0) / 4294967295;
+  const dateSeed = "2026-04-16";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
   }
-
-  const stage = document.getElementById('stage');
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(hashString(dateSeed));
+  const frame = document.getElementById('frame');
   const bg = document.getElementById('bgCanvas');
-  const ov = document.getElementById('overlayCanvas');
-  const grain = document.getElementById('grainCanvas');
+  const life = document.getElementById('lifeCanvas');
   const bctx = bg.getContext('2d');
-  const octx = ov.getContext('2d');
-  const gctx = grain.getContext('2d');
+  const lctx = life.getContext('2d');
 
-  function resize(){
-    const rect = stage.getBoundingClientRect();
-    [bg, ov, grain].forEach(c => {
-      c.width = rect.width * devicePixelRatio;
-      c.height = rect.height * devicePixelRatio;
-      c.style.width = rect.width + 'px';
-      c.style.height = rect.height + 'px';
-      const ctx = c.getContext('2d');
-      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-    });
-    drawBackground(rect.width, rect.height);
-    drawGrain(rect.width, rect.height);
-  }
+  const W = 1080, H = 1920;
 
-  function drawBackground(w,h){
-    bctx.clearRect(0,0,w,h);
+  function drawBackground(t){
+    bctx.clearRect(0,0,W,H);
 
-    const grad = bctx.createLinearGradient(0,0,0,h);
-    grad.addColorStop(0,'#fff6d8');
-    grad.addColorStop(0.33,'#f0dfa0');
-    grad.addColorStop(0.66,'#e2c460');
-    grad.addColorStop(1,'#b98818');
+    const grad = bctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#050b17');
+    grad.addColorStop(0.45,'#08101f');
+    grad.addColorStop(1,'#020309');
     bctx.fillStyle = grad;
-    bctx.fillRect(0,0,w,h);
+    bctx.fillRect(0,0,W,H);
 
-    // structured op-art fan fields
-    const cx = w/2, cy = h/2;
+    const rg = bctx.createRadialGradient(W*0.5,H*0.5,140,W*0.5,H*0.5,780);
+    rg.addColorStop(0,'rgba(53,113,255,0.10)');
+    rg.addColorStop(0.35,'rgba(130,40,255,0.07)');
+    rg.addColorStop(0.72,'rgba(15,28,48,0.02)');
+    rg.addColorStop(1,'rgba(0,0,0,0)');
+    bctx.fillStyle = rg;
+    bctx.fillRect(0,0,W,H);
+
     bctx.save();
-    bctx.translate(cx, cy);
-    for(let i=0;i<64;i++){
-      const a0 = (Math.PI*2/64)*i;
-      const a1 = a0 + Math.PI*2/128;
-      const r = Math.max(w,h)*0.92;
+    bctx.globalAlpha = 0.18;
+    bctx.strokeStyle = 'rgba(44,103,160,0.30)';
+    bctx.lineWidth = 1;
+    const step = 54;
+    const phase = t * 0.00003;
+    for(let x=0;x<=W;x+=step){
+      const off = Math.sin(phase + x*0.01)*8;
       bctx.beginPath();
-      bctx.moveTo(0,0);
-      bctx.lineTo(Math.cos(a0)*r, Math.sin(a0)*r);
-      bctx.lineTo(Math.cos(a1)*r, Math.sin(a1)*r);
-      bctx.closePath();
-      bctx.fillStyle = i%2===0 ? 'rgba(0,0,0,0.08)' : 'rgba(255,245,206,0.00)';
-      bctx.fill();
+      bctx.moveTo(x+off, 230);
+      bctx.lineTo(x-off, H-230);
+      bctx.stroke();
+    }
+    for(let y=250;y<=H-250;y+=step){
+      const off = Math.cos(phase + y*0.008)*8;
+      bctx.beginPath();
+      bctx.moveTo(160, y+off);
+      bctx.lineTo(W-160, y-off);
+      bctx.stroke();
     }
     bctx.restore();
 
-    // halftone vertical side bands
-    function dotField(x0, width, side){
-      for(let y=0;y<h;y+=18){
-        for(let x=0;x<width;x+=18){
-          const dx = side === 'left' ? (width - x) : x;
-          const d = dx / width;
-          const r = 1.6 + (1-d) * 4.8 * (0.6 + 0.4*Math.sin(y*0.006));
-          bctx.beginPath();
-          bctx.arc(x0 + x, y + ((x/18)%2)*3, r, 0, Math.PI*2);
-          bctx.fillStyle = (x+y)%36===0 ? 'rgba(255,43,82,0.36)' : 'rgba(0,0,0,0.26)';
-          bctx.fill();
+    for(let i=0;i<6;i++){
+      const yy = 280 + i*260;
+      const alpha = 0.045 + i*0.008;
+      bctx.fillStyle = `rgba(${i%2?70:54}, ${i%2?110:243}, 255, ${alpha})`;
+      bctx.fillRect(140, yy, W-280, 2);
+    }
+
+    bctx.save();
+    bctx.translate(W/2,H/2);
+    bctx.rotate(Math.PI/4);
+    for(let i=0;i<12;i++){
+      const r = 180 + i*42;
+      bctx.strokeStyle = `rgba(${80+i*6},${220-i*7},255,${0.03 + i*0.005})`;
+      bctx.lineWidth = i % 3 === 0 ? 2 : 1;
+      bctx.strokeRect(-r,-r,r*2,r*2);
+    }
+    bctx.restore();
+
+    bctx.save();
+    bctx.globalCompositeOperation = 'screen';
+    const pulse = 0.5 + 0.5*Math.sin(t*0.00025);
+    const beam = bctx.createLinearGradient(0,H*0.18,0,H*0.82);
+    beam.addColorStop(0,'rgba(54,243,255,0)');
+    beam.addColorStop(0.3,`rgba(54,243,255,${0.02 + pulse*0.02})`);
+    beam.addColorStop(0.5,`rgba(160,65,255,${0.03 + pulse*0.03})`);
+    beam.addColorStop(0.7,`rgba(255,47,209,${0.02 + pulse*0.02})`);
+    beam.addColorStop(1,'rgba(255,47,209,0)');
+    bctx.fillStyle = beam;
+    bctx.fillRect(W*0.24,H*0.16,W*0.52,H*0.68);
+    bctx.restore();
+  }
+
+  const cols = 18;
+  const rows = 30;
+  const cell = 46;
+  const gridW = cols * cell;
+  const gridH = rows * cell;
+  const originX = Math.floor((W - gridW) / 2);
+  const originY = Math.floor((H - gridH) / 2);
+
+  let current = Array.from({length: rows}, ()=>Array(cols).fill(0));
+  let next = Array.from({length: rows}, ()=>Array(cols).fill(0));
+  let age = Array.from({length: rows}, ()=>Array(cols).fill(0));
+  let phase = Array.from({length: rows}, ()=>Array(cols).fill(0).map(()=>rand()*Math.PI*2));
+
+  function seedLife(){
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const dx = (x-cols/2)/(cols/2);
+        const dy = (y-rows/2)/(rows/2);
+        const d = Math.sqrt(dx*dx*0.8 + dy*dy*1.15);
+        const band = Math.sin((x*0.83 + y*0.61) + rand()*0.4);
+        const ring = Math.cos(d*8.5 - 1.2);
+        const p = 0.16 + Math.max(0, 0.34*(1-d)) + (band>0.55?0.16:0) + (ring>0.65?0.12:0);
+        current[y][x] = rand() < p ? 1 : 0;
+        age[y][x] = current[y][x] ? 1 + Math.floor(rand()*4) : 0;
+      }
+    }
+  }
+  seedLife();
+
+  function countNeighbors(x,y){
+    let n = 0;
+    for(let j=-1;j<=1;j++){
+      for(let i=-1;i<=1;i++){
+        if(i===0 && j===0) continue;
+        const xx = (x+i+cols)%cols;
+        const yy = (y+j+rows)%rows;
+        n += current[yy][xx];
+      }
+    }
+    return n;
+  }
+
+  let genTimer = 0;
+  const genInterval = 1200;
+
+  function stepLife(){
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const n = countNeighbors(x,y);
+        const alive = current[y][x] === 1;
+        const survive = alive && (n===2 || n===3);
+        const born = !alive && n===3;
+        next[y][x] = (survive || born) ? 1 : 0;
+      }
+    }
+
+    let aliveCount = 0;
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        current[y][x] = next[y][x];
+        if(current[y][x]){
+          age[y][x] = Math.min(age[y][x] + 1, 18);
+          aliveCount++;
+        } else {
+          age[y][x] = 0;
         }
       }
     }
-    dotField(0, w*0.19, 'left');
-    dotField(w*0.81, w*0.19, 'right');
 
-    // large central optical rings behind strip/video
-    for(let i=0;i<16;i++){
-      bctx.beginPath();
-      const rr = Math.min(w,h)*(0.12 + i*0.025);
-      bctx.arc(cx, cy, rr, 0, Math.PI*2);
-      bctx.lineWidth = i%3===0 ? 10 : 5;
-      bctx.strokeStyle = i%4===0 ? 'rgba(255,43,82,0.16)' :
-                         i%4===1 ? 'rgba(0,0,0,0.18)' :
-                         i%4===2 ? 'rgba(0,215,255,0.15)' :
-                                   'rgba(255,245,206,0.18)';
-      bctx.stroke();
+    if(aliveCount < 48 || aliveCount > 310){
+      for(let k=0;k<26;k++){
+        const x = Math.floor(rand()*cols);
+        const y = Math.floor(rand()*rows);
+        current[y][x] = 1;
+        age[y][x] = 1 + Math.floor(rand()*3);
+      }
     }
   }
 
-  function drawGrain(w,h){
-    gctx.clearRect(0,0,w,h);
-    const img = gctx.createImageData(w,h);
-    for(let i=0;i<img.data.length;i+=4){
-      const v = 210 + Math.floor(rand()*45);
-      img.data[i]=v;
-      img.data[i+1]=v-6;
-      img.data[i+2]=v-18;
-      img.data[i+3]=22;
+  function cellColor(a, pulse){
+    const p = Math.min(1, a / 12);
+    const c1 = [54,243,255];
+    const c2 = [75,114,255];
+    const c3 = [255,47,209];
+    let r,g,b;
+    if(p < 0.5){
+      const q = p*2;
+      r = c1[0] + (c2[0]-c1[0])*q;
+      g = c1[1] + (c2[1]-c1[1])*q;
+      b = c1[2] + (c2[2]-c1[2])*q;
+    } else {
+      const q = (p-0.5)*2;
+      r = c2[0] + (c3[0]-c2[0])*q;
+      g = c2[1] + (c3[1]-c2[1])*q;
+      b = c2[2] + (c3[2]-c2[2])*q;
     }
-    gctx.putImageData(img,0,0);
-    gctx.globalCompositeOperation = 'multiply';
-    gctx.fillStyle = 'rgba(0,0,0,0.06)';
-    for(let i=0;i<16;i++){
-      const y = rand()*h;
-      const hh = 2 + rand()*5;
-      gctx.fillRect(0,y,w,hh);
-    }
-    gctx.globalCompositeOperation = 'source-over';
+    const lift = 18 * pulse;
+    return `rgb(${Math.min(255,r+lift)},${Math.min(255,g+lift)},${Math.min(255,b+lift)})`;
   }
 
-  const frames = Array.from(document.querySelectorAll('.frame .inner'));
-  const tOffsets = frames.map((_,i)=>rand()*Math.PI*2 + i*0.33);
+  function drawLife(t){
+    lctx.clearRect(0,0,W,H);
 
-  function render(t){
-    const rect = stage.getBoundingClientRect();
-    const w = rect.width, h = rect.height;
-    octx.clearRect(0,0,w,h);
+    lctx.save();
+    lctx.translate(originX, originY);
 
-    // animated moire overlays inside frames, each slightly evolved
-    frames.forEach((el, idx) => {
-      const phase = t*0.00018 + tOffsets[idx];
-      const scale = 1 + Math.sin(phase)*0.04;
-      const rot = Math.sin(phase*0.7)*4 + idx*0.6;
-      const hue = idx*15 + Math.sin(phase)*8;
-      el.style.transform = `scale(${scale}) rotate(${rot}deg)`;
-      el.style.filter = `hue-rotate(${hue}deg) contrast(1.14) saturate(1.18)`;
-    });
+    const panelGrad = lctx.createLinearGradient(0,0,0,gridH);
+    panelGrad.addColorStop(0,'rgba(8,20,36,0.20)');
+    panelGrad.addColorStop(0.5,'rgba(14,28,52,0.34)');
+    panelGrad.addColorStop(1,'rgba(8,14,26,0.20)');
+    lctx.fillStyle = panelGrad;
+    lctx.fillRect(-18,-18,gridW+36,gridH+36);
 
-    // central animated black/cream/red/cyan wedges
-    const cx = w/2, cy = h/2;
-    octx.save();
-    octx.translate(cx, cy);
-    octx.rotate(Math.sin(t*0.00012)*0.12);
-    for(let i=0;i<24;i++){
-      const a = (Math.PI*2/24)*i + t*0.00006*(i%2===0?1:-1);
-      const rr0 = Math.min(w,h)*0.18;
-      const rr1 = Math.min(w,h)*0.34;
-      octx.beginPath();
-      octx.moveTo(Math.cos(a)*rr0, Math.sin(a)*rr0);
-      octx.lineTo(Math.cos(a+0.08)*rr1, Math.sin(a+0.08)*rr1);
-      octx.lineTo(Math.cos(a-0.08)*rr1, Math.sin(a-0.08)*rr1);
-      octx.closePath();
-      octx.fillStyle = i%4===0 ? 'rgba(0,0,0,0.28)' :
-                       i%4===1 ? 'rgba(255,43,82,0.18)' :
-                       i%4===2 ? 'rgba(0,215,255,0.16)' :
-                                 'rgba(255,245,206,0.12)';
-      octx.fill();
+    lctx.strokeStyle = 'rgba(55,128,188,0.22)';
+    lctx.lineWidth = 1;
+    for(let x=0;x<=cols;x++){
+      lctx.beginPath();
+      lctx.moveTo(x*cell,0);
+      lctx.lineTo(x*cell,gridH);
+      lctx.stroke();
     }
-    octx.restore();
-
-    // scanline texture
-    octx.fillStyle = 'rgba(0,0,0,0.08)';
-    for(let y=0;y<h;y+=4){
-      octx.fillRect(0,y,w,1);
+    for(let y=0;y<=rows;y++){
+      lctx.beginPath();
+      lctx.moveTo(0,y*cell);
+      lctx.lineTo(gridW,y*cell);
+      lctx.stroke();
     }
 
-    requestAnimationFrame(render);
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const xx = x*cell, yy = y*cell;
+        const alive = current[y][x];
+        const localPulse = 0.5 + 0.5*Math.sin(t*0.0021 + phase[y][x]);
+        if(alive){
+          const a = age[y][x];
+          const pad = 4 + (1-localPulse)*2.6;
+          const w = cell - pad*2;
+          const h = cell - pad*2;
+
+          lctx.save();
+          lctx.shadowBlur = 18 + localPulse*12;
+          lctx.shadowColor = cellColor(a, localPulse);
+          lctx.fillStyle = `rgba(10,18,30,0.82)`;
+          lctx.fillRect(xx+pad,yy+pad,w,h);
+
+          const g = lctx.createLinearGradient(xx+pad,yy+pad,xx+cell-pad,yy+cell-pad);
+          const col = cellColor(a, localPulse);
+          g.addColorStop(0, col.replace('rgb','rgba').replace(')',',0.95)'));
+          g.addColorStop(0.55, col.replace('rgb','rgba').replace(')',',0.55)'));
+          g.addColorStop(1, 'rgba(255,47,209,0.20)');
+          lctx.fillStyle = g;
+          lctx.fillRect(xx+pad,yy+pad,w,h);
+
+          lctx.strokeStyle = `rgba(180,240,255,${0.25 + localPulse*0.22})`;
+          lctx.lineWidth = 1.4;
+          lctx.strokeRect(xx+pad+0.5,yy+pad+0.5,w-1,h-1);
+
+          lctx.strokeStyle = `rgba(54,243,255,${0.17 + localPulse*0.18})`;
+          lctx.strokeRect(xx+pad+4.5,yy+pad+4.5,w-9,h-9);
+          lctx.restore();
+
+        } else {
+          if ((x+y)%3===0){
+            lctx.fillStyle = `rgba(24,52,84,${0.035 + 0.015*Math.sin(t*0.001 + x*0.4 + y*0.3)})`;
+            lctx.fillRect(xx+7,yy+7,cell-14,cell-14);
+          }
+        }
+      }
+    }
+
+    lctx.restore();
+
+    lctx.save();
+    lctx.globalCompositeOperation = 'screen';
+    const rg = lctx.createRadialGradient(W/2,H/2,180,W/2,H/2,760);
+    rg.addColorStop(0,'rgba(54,243,255,0.08)');
+    rg.addColorStop(0.45,'rgba(160,65,255,0.05)');
+    rg.addColorStop(1,'rgba(0,0,0,0)');
+    lctx.fillStyle = rg;
+    lctx.fillRect(0,0,W,H);
+    lctx.restore();
   }
 
-  // gentle audio drone
-  let audioStarted = false;
-  function startAudio(){
-    if(audioStarted) return;
-    audioStarted = true;
-    try{
-      const AC = window.AudioContext || window.webkitAudioContext;
-      const ac = new AC();
-      const master = ac.createGain();
-      master.gain.value = 0.015;
-      master.connect(ac.destination);
-
-      const freqs = [146.83, 220, 293.66];
-      freqs.forEach((f, i) => {
-        const osc = ac.createOscillator();
-        const gain = ac.createGain();
-        const lfo = ac.createOscillator();
-        const lfoGain = ac.createGain();
-        const filt = ac.createBiquadFilter();
-
-        osc.type = i===0 ? 'sawtooth' : 'triangle';
-        osc.frequency.value = f;
-        gain.gain.value = 0.008 + i*0.002;
-        filt.type = 'lowpass';
-        filt.frequency.value = 420 + i*120;
-        filt.Q.value = 0.8;
-
-        lfo.type = 'sine';
-        lfo.frequency.value = 0.03 + i*0.01;
-        lfoGain.gain.value = 8 + i*4;
-
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-
-        osc.connect(filt);
-        filt.connect(gain);
-        gain.connect(master);
-
-        osc.start();
-        lfo.start();
-      });
-
-      const noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for(let i=0;i<data.length;i++) data[i] = (rand()*2-1)*0.22;
-      const noise = ac.createBufferSource();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-      const nfilter = ac.createBiquadFilter();
-      nfilter.type = 'bandpass';
-      nfilter.frequency.value = 900;
-      nfilter.Q.value = 0.5;
-      const ngain = ac.createGain();
-      ngain.gain.value = 0.0035;
-      noise.connect(nfilter);
-      nfilter.connect(ngain);
-      ngain.connect(master);
-      noise.start();
-    }catch(e){}
+  const barsWrap = document.getElementById('dataBars');
+  const barCount = 38;
+  for(let i=0;i<barCount;i++){
+    const s = document.createElement('span');
+    const delay = (rand()*4).toFixed(2);
+    const dur = (5.5 + rand()*4).toFixed(2);
+    s.style.height = `${18 + Math.floor(rand()*82)}%`;
+    s.style.animationDelay = `-${delay}s`;
+    s.style.animationDuration = `${dur}s`;
+    barsWrap.appendChild(s);
   }
 
-  window.addEventListener('load', ()=>{
-    resize();
-    requestAnimationFrame(render);
-    startAudio();
-  });
-  window.addEventListener('resize', resize);
+  let last = performance.now();
+  function animate(now){
+    const dt = now - last;
+    last = now;
+    genTimer += dt;
+    if(genTimer >= genInterval){
+      genTimer = 0;
+      stepLife();
+    }
+    drawBackground(now);
+    drawLife(now);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // Ambient procedural audio, subtle and unattended-safe.
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const audio = new AudioCtx();
+    const master = audio.createGain();
+    master.gain.value = 0.012;
+    master.connect(audio.destination);
+
+    const osc1 = audio.createOscillator();
+    const osc2 = audio.createOscillator();
+    const lfo = audio.createOscillator();
+    const lfoGain = audio.createGain();
+    const filt = audio.createBiquadFilter();
+
+    osc1.type = 'sawtooth';
+    osc2.type = 'triangle';
+    osc1.frequency.value = 86;
+    osc2.frequency.value = 129;
+    filt.type = 'lowpass';
+    filt.frequency.value = 520;
+    filt.Q.value = 0.8;
+
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.06;
+    lfoGain.gain.value = 18;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc2.frequency);
+
+    const g1 = audio.createGain();
+    const g2 = audio.createGain();
+    g1.gain.value = 0.18;
+    g2.gain.value = 0.12;
+
+    osc1.connect(g1);
+    osc2.connect(g2);
+    g1.connect(filt);
+    g2.connect(filt);
+    filt.connect(master);
+
+    osc1.start();
+    osc2.start();
+    lfo.start();
+
+    const resume = () => {
+      if(audio.state !== 'running') audio.resume();
+    };
+    setTimeout(resume, 200);
+  } catch(e){}
 })();
 </script>
 </body>
