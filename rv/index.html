@@ -203,8 +203,20 @@
         navigate(new Date(today));
       });
 
-      // Set initial folder URL
-      frame.closest('.artagent-callout').dataset.folderUrl = base + fmt(current).file;
+      // Resolve initial folder URL — use index.json to find actual latest day
+      fetch(base + 'index.json')
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .then(function(entries) {
+          if (entries.length > 0) {
+            var latest = entries[0].date; // e.g. "2026-04-16"
+            frame.closest('.artagent-callout').dataset.folderUrl = base + latest + '/';
+          } else {
+            frame.closest('.artagent-callout').dataset.folderUrl = base + fmt(current).file;
+          }
+        })
+        .catch(function() {
+          frame.closest('.artagent-callout').dataset.folderUrl = base + fmt(current).file;
+        });
       updateDisplay();
     })();
   </script>
