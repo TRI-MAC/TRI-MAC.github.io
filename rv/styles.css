@@ -265,6 +265,12 @@ a {
   margin-top: 10px;
 }
 
+.artagent-footer-left {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .artagent-info-btn {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -276,6 +282,16 @@ a {
   color: var(--color-text-muted);
   padding: 4px 10px;
   transition: color 0.2s, border-color 0.2s;
+}
+
+.artagent-critique-btn {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+}
+
+.artagent-critique-btn svg {
+  display: block;
 }
 
 .artagent-info-btn:hover {
@@ -306,6 +322,26 @@ a {
 }
 
 .artagent-popup p {
+  margin: 0;
+}
+
+.critique-loading {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.critique-meta {
+  margin: 0 0 6px 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.critique-provider {
+  text-transform: uppercase;
+}
+
+.critique-text {
   margin: 0;
 }
 

@@ -59,8 +59,14 @@
         <div class="artagent-popup" id="artagent-popup">
           <p>AI Art Agent makes a new piece of art every evening. Its pieces appear in a kiosk in the TRI offices (the kiosk is in a portrait orientation).</p>
         </div>
+        <div class="artagent-popup" id="artagent-critique-popup">
+          <p class="critique-loading">Loading critique…</p>
+        </div>
         <div class="artagent-footer">
-          <button class="artagent-info-btn" id="artagent-info-btn" title="About AI Art Agent" aria-label="About AI Art Agent">i</button>
+          <div class="artagent-footer-left">
+            <button class="artagent-info-btn" id="artagent-info-btn" title="About AI Art Agent" aria-label="About AI Art Agent">i</button>
+            <button class="artagent-info-btn artagent-critique-btn" id="artagent-critique-btn" title="AI Critique" aria-label="AI Critique"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="14"/><circle cx="12" cy="2" r="1.5" fill="currentColor" stroke="none"/><line x1="4" y1="6" x2="20" y2="6"/><path d="M4 6 L1.5 14 Q4 17 6.5 14 Z"/><path d="M20 6 L17.5 14 Q20 17 22.5 14 Z"/><path d="M8 14 L12 18 L16 14"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="7" y1="22" x2="17" y2="22"/></svg></button>
+          </div>
           <div class="artagent-nav">
             <button class="artagent-btn" id="artagent-prev" title="Previous day">&lt;</button>
             <button class="artagent-btn" id="artagent-next" title="Next day">&gt;</button>
@@ -175,6 +181,9 @@
         current = d;
         frame.src = fileUrl(d);
         linkEl.href = fileUrl(d);
+        // Expose folder URL for critique script
+        var folderUrl = base + fmt(d).file;
+        frame.closest('.artagent-callout').dataset.folderUrl = folderUrl;
         updateDisplay();
       }
 
@@ -194,22 +203,58 @@
         navigate(new Date(today));
       });
 
+      // Set initial folder URL
+      frame.closest('.artagent-callout').dataset.folderUrl = base + fmt(current).file;
       updateDisplay();
     })();
   </script>
 
-  <!-- ───── Art Agent Info Popup ───── -->
+  <!-- ───── Art Agent Info & Critique Popups ───── -->
   <script>
     (function() {
-      var btn = document.getElementById('artagent-info-btn');
-      var popup = document.getElementById('artagent-popup');
-      btn.addEventListener('click', function(e) {
+      var infoBtn = document.getElementById('artagent-info-btn');
+      var infoPopup = document.getElementById('artagent-popup');
+      var critiqueBtn = document.getElementById('artagent-critique-btn');
+      var critiquePopup = document.getElementById('artagent-critique-popup');
+      var callout = document.querySelector('.artagent-callout');
+
+      function closeAll() {
+        infoPopup.classList.remove('visible');
+        critiquePopup.classList.remove('visible');
+      }
+
+      infoBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        popup.classList.toggle('visible');
+        critiquePopup.classList.remove('visible');
+        infoPopup.classList.toggle('visible');
       });
+
+      critiqueBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        infoPopup.classList.remove('visible');
+        var wasVisible = critiquePopup.classList.contains('visible');
+        if (wasVisible) { critiquePopup.classList.remove('visible'); return; }
+        critiquePopup.classList.add('visible');
+        critiquePopup.innerHTML = '<p class="critique-loading">Loading critique…</p>';
+        var folderUrl = callout.dataset.folderUrl || '';
+        fetch(folderUrl + 'critique.json')
+          .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function(c) {
+            critiquePopup.innerHTML =
+              '<p class="critique-meta">' +
+              '<span class="critique-provider">' + (c.critic_provider || '?') + '</span> ' +
+              '<span class="critique-model">' + (c.critic_model || '') + '</span></p>' +
+              '<p class="critique-text">' + (c.critique || 'No critique available.') + '</p>';
+          })
+          .catch(function() {
+            critiquePopup.innerHTML = '<p class="critique-text" style="opacity:.5">No critique available for this day.</p>';
+          });
+      });
+
       document.addEventListener('click', function(e) {
-        if (!popup.contains(e.target) && e.target !== btn) {
-          popup.classList.remove('visible');
+        if (!infoPopup.contains(e.target) && e.target !== infoBtn &&
+            !critiquePopup.contains(e.target) && !critiqueBtn.contains(e.target)) {
+          closeAll();
         }
       });
     })();
