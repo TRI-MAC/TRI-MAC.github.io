@@ -811,6 +811,7 @@
   function startAudio(){
     if(audioStarted) return;
     audioStarted = true;
+    if (window.self === window.top) {
     try{
       const AC = window.AudioContext || window.webkitAudioContext;
       const ac = new AC();
@@ -853,6 +854,7 @@
 
       osc1.start(); osc2.start(); osc3.start(); lfo.start();
     }catch(e){}
+  } // end iframe audio check
   }
   startAudio();
 

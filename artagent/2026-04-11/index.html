@@ -578,6 +578,7 @@
   // procedural audio drone and thunder ticks
   let ac=null, master=null, ready=false;
   function initAudio(){
+    if (window.self === window.top) {
     try{
       ac = new (window.AudioContext || window.webkitAudioContext)();
       master = ac.createGain();
@@ -626,6 +627,7 @@
       window.__thunder = thunder;
       ready=true;
     }catch(e){}
+  } // end iframe audio check
   }
   initAudio();
 

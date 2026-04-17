@@ -381,6 +381,7 @@
   video.play().catch(()=>{});
 
   if (window.AudioContext || window.webkitAudioContext){
+    if (window.self === window.top) {
     const AC = window.AudioContext || window.webkitAudioContext;
     const ctx = new AC();
     const startAudio = () => {

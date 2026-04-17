@@ -484,6 +484,7 @@
   requestAnimationFrame(draw);
 
   // Subtle ambient tones
+  if (window.self === window.top) {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (AudioContextClass) {
     const audioCtx = new AudioContextClass();

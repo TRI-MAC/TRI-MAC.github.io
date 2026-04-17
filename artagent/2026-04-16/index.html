@@ -555,6 +555,8 @@
   requestAnimationFrame(animate);
 
   // Ambient procedural audio, subtle and unattended-safe.
+  // Mute when embedded in an iframe (e.g. rv/index.html).
+  if (window.self === window.top) {
   try{
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const audio = new AudioCtx();
@@ -602,6 +604,7 @@
     };
     setTimeout(resume, 200);
   } catch(e){}
+  } // end iframe check
 })();
 </script>
 </body>

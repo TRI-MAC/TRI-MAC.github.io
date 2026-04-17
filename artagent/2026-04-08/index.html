@@ -580,6 +580,7 @@
   requestAnimationFrame(draw);
 
   // subtle deterministic procedural audio
+  if (window.self === window.top) {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let started = false;
   function startAudio(){

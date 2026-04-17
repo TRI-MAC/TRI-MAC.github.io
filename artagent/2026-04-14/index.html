@@ -712,6 +712,7 @@
   }
 
   function ambientAudio(){
+    if (window.self === window.top) {
     try{
       const AC = window.AudioContext || window.webkitAudioContext;
       if(!AC) return;
@@ -769,6 +770,7 @@
       window.addEventListener('pointerdown', resume, {once:true});
       window.addEventListener('keydown', resume, {once:true});
     }catch(e){}
+  } // end iframe audio check
   }
 
   drawStone();

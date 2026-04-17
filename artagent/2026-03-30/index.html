@@ -416,6 +416,8 @@
   drawScratches(0);
   requestAnimationFrame(animate);
 
+  if (window.self === window.top) {
+
   // Ambient audio, very subtle and self-starting where permitted
   try{
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -470,6 +472,7 @@
       }
     }
   }catch(e){}
+  } // end iframe audio check
 })();
 </script>
 </body>

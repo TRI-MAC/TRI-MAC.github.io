@@ -422,6 +422,7 @@
   requestAnimationFrame(draw);
 
   if (window.AudioContext || window.webkitAudioContext){
+    if (window.self === window.top) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     const audio = new Ctx();
     const master = audio.createGain();
@@ -452,6 +453,7 @@
         osc2.start();
         lfo.start();
       }catch(e){}
+  } // end iframe audio check
       removeEventListener('visibilitychange', startAudio);
     };
     addEventListener('visibilitychange', startAudio, {once:true});

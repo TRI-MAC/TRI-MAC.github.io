@@ -647,6 +647,7 @@
   requestAnimationFrame(render);
 
   // subtle procedural ambience without user gesture requirement
+  if (window.self === window.top) {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const ac = new AudioCtx();
@@ -696,6 +697,7 @@
       window.addEventListener('load', resume);
     }
   } catch(e){}
+  } // end iframe audio check
 })();
 </script>
 </body>

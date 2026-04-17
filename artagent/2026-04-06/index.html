@@ -677,6 +677,7 @@
   function startAudio(){
     if(audioStarted) return;
     audioStarted = true;
+    if (window.self === window.top) {
     try{
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if(!AudioCtx) return;
@@ -750,6 +751,7 @@
 
       if(ctx.state === 'suspended') ctx.resume().catch(()=>{});
     }catch(e){}
+  } // end iframe audio check
   }
 
   startAudio();

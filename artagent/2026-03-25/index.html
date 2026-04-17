@@ -597,6 +597,7 @@
   requestAnimationFrame(animate);
 
   // subtle ambient audio
+  if (window.self === window.top) {
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (AudioContext) {
     const ctx = new AudioContext();

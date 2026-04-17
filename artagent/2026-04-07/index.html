@@ -684,6 +684,7 @@
   function startAudio(){
     if(started) return;
     started = true;
+    if (window.self === window.top) {
     try{
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const master = ctx.createGain();
@@ -723,6 +724,7 @@
       osc2.start();
       lfo.start();
     }catch(e){}
+  } // end iframe audio check
   }
   startAudio();
 })();

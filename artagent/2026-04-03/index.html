@@ -479,6 +479,7 @@
   }
   requestAnimationFrame(draw);
 
+  if (window.self === window.top) {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const master = audioCtx.createGain();
   master.gain.value = 0.012;
@@ -519,6 +520,7 @@
     const resume = () => audioCtx.resume().catch(()=>{});
     setTimeout(resume, 400);
   }
+  } // end iframe audio check
 })();
 </script>
 </body>
