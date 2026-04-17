@@ -57,7 +57,7 @@
           <iframe src="https://tri-mac.github.io/artagent/" id="artagent-frame" class="artagent-iframe" title="AI Art Agent" loading="lazy" allow="autoplay" sandbox="allow-scripts allow-same-origin" style="pointer-events:none;"></iframe>
         </a>
         <div class="artagent-popup" id="artagent-popup">
-          <p>AI Art Agent makes a new piece of art every evening. Its pieces appear in a kiosk in the TRI offices (the kiosk is in a portrait orientation).</p>
+          <p>AI Art Agent makes a new piece of art every evening. Its pieces appear in a kiosk in the TRI offices (the kiosk is in a portrait orientation). Each piece is reviewed by an independent AI critic.</p>
         </div>
         <div class="artagent-popup" id="artagent-critique-popup">
           <p class="critique-loading">Loading critique…</p>
@@ -251,9 +251,7 @@
           .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
           .then(function(c) {
             critiquePopup.innerHTML =
-              '<p class="critique-meta">' +
-              '<span class="critique-provider">' + (c.critic_provider || '?') + '</span> ' +
-              '<span class="critique-model">' + (c.critic_model || '') + '</span></p>' +
+              '<p class="critique-meta">AI CRITIC</p>' +
               '<p class="critique-text">' + (c.critique || 'No critique available.') + '</p>';
             critiquePopup.classList.add('visible');
           })
