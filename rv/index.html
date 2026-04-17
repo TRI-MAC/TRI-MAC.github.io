@@ -127,7 +127,7 @@
         var y = d.getFullYear();
         var m = String(d.getMonth()+1).padStart(2,'0');
         var day = String(d.getDate()).padStart(2,'0');
-        return { y: y, m: m, day: day, file: 'index_'+y+'_'+m+'_'+day+'.html', label: y+'.'+m+'.'+day };
+        return { y: y, m: m, day: day, file: y+'-'+m+'-'+day+'/', label: y+'.'+m+'.'+day };
       }
 
       function isToday(d) {
