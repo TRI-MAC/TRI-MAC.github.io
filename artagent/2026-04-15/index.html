@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-15</title>
+<style>
+  :root{
+    --bg0:#f5f0d9;
+    --bg1:#e9dfb7;
+    --ink:#0d0d0f;
+    --red:#ff2b52;
+    --cyan:#00d7ff;
+    --gold:#ffd54a;
+    --blue:#135dff;
+    --paper:#fff8de;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:1080/1920;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 50%, #fff7d7 0%, #f4e6ac 38%, #e6cf7c 68%, #caa33d 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.45);
+  }
+
+  /* overall soft edge fade to avoid hard edge cutoffs */
+  #stage::after{
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:
+      linear-gradient(to right, rgba(16,16,16,.16), rgba(16,16,16,0) 8%, rgba(16,16,16,0) 92%, rgba(16,16,16,.16)),
+      linear-gradient(to bottom, rgba(16,16,16,.18), rgba(16,16,16,0) 7%, rgba(16,16,16,0) 93%, rgba(16,16,16,.2));
+    mix-blend-mode:multiply;
+  }
+
+  #bgCanvas, #overlayCanvas, #grainCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  #background-video{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:66%;
+    height:88%;
+    transform:translate(-50%,-50%);
+    object-fit:cover;
+    opacity:.82;
+    filter:saturate(1.25) contrast(1.2) brightness(1.02) hue-rotate(4deg);
+    mix-blend-mode:multiply;
+    clip-path:inset(2.8% 5% 2.8% 5% round 10px);
+  }
+
+  #film-strip{
+    position:absolute;
+    left:50%;
+    top:-18%;
+    width:64%;
+    height:136%;
+    transform:translateX(-50%);
+    animation:scrollStrip 42s linear infinite;
+    filter: drop-shadow(0 0 18px rgba(0,0,0,.35)) drop-shadow(0 0 56px rgba(255,66,106,.18));
+    mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.95) 12%, rgba(0,0,0,.95) 88%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.95) 12%, rgba(0,0,0,.95) 88%, transparent 100%);
+  }
+
+  @keyframes scrollStrip{
+    from{ transform:translateX(-50%) translateY(0); }
+    to{ transform:translateX(-50%) translateY(-22%); }
+  }
+
+  .strip-side{
+    position:absolute;
+    top:0; bottom:0;
+    width:8.5%;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        #08080a 0 44px,
+        #f5f0d9 44px 98px,
+        #08080a 98px 142px
+      );
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.04);
+  }
+  .strip-side.left{ left:0; }
+  .strip-side.right{ right:0; }
+
+  #film-core{
+    position:absolute;
+    left:10.2%;
+    top:0;
+    width:79.6%;
+    height:100%;
+    background:
+      linear-gradient(to right, rgba(10,10,10,.96), rgba(22,22,24,.88) 12%, rgba(12,12,12,.78) 50%, rgba(22,22,24,.88) 88%, rgba(10,10,10,.96));
+    box-shadow:
+      inset 0 0 0 4px rgba(242,234,192,.18),
+      inset 0 0 160px rgba(0,0,0,.55);
+  }
+
+  .frame{
+    position:absolute;
+    left:6.5%;
+    width:87%;
+    height:14.2%;
+    border:2px solid rgba(249,240,194,.55);
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,245,202,.84) 0%, rgba(243,229,164,.6) 55%, rgba(211,184,91,.46) 100%);
+  }
+
+  .frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(0,0,0,.8) 0 10px,
+        rgba(255,255,255,.0) 10px 22px
+      );
+    opacity:.15;
+    mix-blend-mode:multiply;
+    animation:barShift 14s linear infinite;
+  }
+  @keyframes barShift{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(22px); }
+  }
+
+  .frame .inner{
+    position:absolute; inset:2.8%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,245,206,.92), rgba(241,222,133,.74) 58%, rgba(210,75,92,.18) 100%);
+  }
+
+  .frame .op-circle{
+    position:absolute;
+    left:50%; top:50%;
+    width:58%; aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    opacity:.95;
+    mix-blend-mode:multiply;
+    animation:throb 9s ease-in-out infinite;
+  }
+
+  .frame .op-circle.c1{
+    background:
+      repeating-radial-gradient(circle,
+        rgba(0,0,0,.95) 0 10px,
+        rgba(255,43,82,.95) 10px 19px,
+        rgba(255,245,206,.86) 19px 28px,
+        rgba(0,215,255,.95) 28px 36px);
+  }
+  .frame .op-circle.c2{
+    width:42%;
+    background:
+      repeating-radial-gradient(circle,
+        rgba(255,245,206,.92) 0 8px,
+        rgba(0,0,0,.96) 8px 16px,
+        rgba(19,93,255,.92) 16px 22px,
+        rgba(255,245,206,.92) 22px 30px);
+    animation-duration:13s;
+    animation-direction:reverse;
+  }
+  @keyframes throb{
+    0%,100%{ transform:translate(-50%,-50%) scale(0.95) rotate(0deg); }
+    50%{ transform:translate(-50%,-50%) scale(1.05) rotate(180deg); }
+  }
+
+  .frame .bars{
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(0deg,
+        rgba(0,0,0,.92) 0 14px,
+        rgba(255,245,206,.0) 14px 26px),
+      repeating-linear-gradient(90deg,
+        rgba(255,43,82,.72) 0 18px,
+        rgba(0,215,255,.0) 18px 34px);
+    mix-blend-mode:multiply;
+    opacity:.55;
+    transform-origin:center;
+    animation:tiltBars 11s ease-in-out infinite;
+  }
+  @keyframes tiltBars{
+    0%,100%{ transform:rotate(-2deg) scale(1.02); }
+    50%{ transform:rotate(2deg) scale(1.06); }
+  }
+
+  .frame .diamond{
+    position:absolute;
+    left:50%; top:50%;
+    width:24%;
+    height:24%;
+    border:7px solid rgba(255,245,206,.95);
+    transform:translate(-50%,-50%) rotate(45deg);
+    box-shadow:0 0 0 9px rgba(0,0,0,.96), 0 0 0 18px rgba(255,43,82,.9);
+    animation:diamondPulse 10s ease-in-out infinite;
+    mix-blend-mode:multiply;
+  }
+  @keyframes diamondPulse{
+    0%,100%{ transform:translate(-50%,-50%) rotate(45deg) scale(.92); }
+    50%{ transform:translate(-50%,-50%) rotate(225deg) scale(1.08); }
+  }
+
+  .f1{ top:3.2%; }
+  .f2{ top:20.2%; }
+  .f3{ top:37.2%; }
+  .f4{ top:54.2%; }
+  .f5{ top:71.2%; }
+  .f6{ top:88.2%; }
+
+  .f1 .inner{ filter:hue-rotate(0deg); }
+  .f2 .inner{ filter:hue-rotate(18deg); }
+  .f3 .inner{ filter:hue-rotate(36deg); }
+  .f4 .inner{ filter:hue-rotate(54deg); }
+  .f5 .inner{ filter:hue-rotate(72deg); }
+  .f6 .inner{ filter:hue-rotate(90deg); }
+
+  /* portrait integration */
+  #portrait-wrap{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:54%;
+    height:39%;
+    transform:translate(-50%,-49%);
+    pointer-events:none;
+    opacity:.97;
+    filter: drop-shadow(0 0 20px rgba(255,245,206,.2));
+    mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 57%, rgba(0,0,0,.55) 72%, transparent 91%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 57%, rgba(0,0,0,.55) 72%, transparent 91%);
+  }
+
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 28%;
+    filter: grayscale(1) contrast(1.4) brightness(1.08) saturate(0) hue-rotate(0deg);
+    mix-blend-mode:multiply;
+    opacity:.95;
+    clip-path:ellipse(40% 49% at 50% 50%);
+    transform:scale(1.04);
+  }
+
+  #portrait-rings{
+    position:absolute; inset:-8%;
+    opacity:.96;
+    mix-blend-mode:multiply;
+    animation:ringDrift 18s ease-in-out infinite;
+  }
+  @keyframes ringDrift{
+    0%,100%{ transform:scale(1) rotate(0deg); }
+    50%{ transform:scale(1.05) rotate(8deg); }
+  }
+
+  #center-mask{
+    position:absolute;
+    left:50%; top:50%;
+    width:58%; height:44%;
+    transform:translate(-50%,-49%);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%,
+        rgba(255,245,206,0) 0 39%,
+        rgba(255,245,206,.92) 39.6% 41.2%,
+        rgba(0,0,0,.96) 41.2% 45.2%,
+        rgba(255,43,82,.8) 45.2% 46.5%,
+        rgba(0,215,255,.72) 46.5% 48.2%,
+        rgba(255,245,206,0) 49% 100%);
+    opacity:.88;
+    mix-blend-mode:multiply;
+    animation:maskBreath 15s ease-in-out infinite;
+    mask-image:radial-gradient(circle, black 0 72%, transparent 92%);
+    -webkit-mask-image:radial-gradient(circle, black 0 72%, transparent 92%);
+  }
+  @keyframes maskBreath{
+    0%,100%{ transform:translate(-50%,-49%) scale(0.98); }
+    50%{ transform:translate(-50%,-49%) scale(1.02); }
+  }
+
+  /* side optical fields */
+  .op-field{
+    position:absolute;
+    top:0;
+    width:20%;
+    height:100%;
+    opacity:.92;
+    mix-blend-mode:multiply;
+    mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.96) 8%, rgba(0,0,0,.96) 92%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.96) 8%, rgba(0,0,0,.96) 92%, transparent 100%);
+  }
+  .op-field.left{
+    left:0;
+    background:
+      repeating-radial-gradient(circle at 100% 50%,
+        rgba(0,0,0,.98) 0 10px,
+        rgba(255,245,206,.0) 10px 22px,
+        rgba(255,43,82,.8) 22px 28px,
+        rgba(255,245,206,.0) 28px 42px);
+    animation:fieldShiftL 17s ease-in-out infinite;
+  }
+  .op-field.right{
+    right:0;
+    background:
+      repeating-radial-gradient(circle at 0% 50%,
+        rgba(0,0,0,.98) 0 10px,
+        rgba(255,245,206,.0) 10px 22px,
+        rgba(0,215,255,.85) 22px 28px,
+        rgba(255,245,206,.0) 28px 42px);
+    animation:fieldShiftR 19s ease-in-out infinite;
+  }
+  @keyframes fieldShiftL{
+    0%,100%{ transform:translateX(-2%) scale(1); }
+    50%{ transform:translateX(2%) scale(1.04); }
+  }
+  @keyframes fieldShiftR{
+    0%,100%{ transform:translateX(2%) scale(1); }
+    50%{ transform:translateX(-2%) scale(1.04); }
+  }
+
+  /* svg overlays */
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #date-stamp{
+    position:absolute;
+    right:22px;
+    bottom:18px;
+    color:rgba(0,0,0,.48);
+    font-size:20px;
+    letter-spacing:.14em;
+    z-index:50;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:92px;
+    bottom:124px;
+    opacity:.58;
+    filter: saturate(.95) brightness(.82) contrast(1.05);
+    z-index:25;
+    transform:rotate(-8deg);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="op-field left"></div>
+  <div class="op-field right"></div>
+
+  <div id="film-strip">
+    <div class="strip-side left"></div>
+    <div id="film-core">
+      <div class="frame f1"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+      <div class="frame f2"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+      <div class="frame f3"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+      <div class="frame f4"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+      <div class="frame f5"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+      <div class="frame f6"><div class="inner"><div class="bars"></div><div class="op-circle c1"></div><div class="op-circle c2"></div><div class="diamond"></div></div></div>
+    </div>
+    <div class="strip-side right"></div>
+  </div>
+
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <div id="portrait-wrap">
+    <img id="portrait-image" src="portrait.png" alt="" />
+    <svg id="portrait-rings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="ringLinesA" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="8" height="8" fill="transparent"></rect>
+          <rect x="0" y="0" width="4" height="8" fill="rgba(0,0,0,0.88)"></rect>
+        </pattern>
+        <pattern id="ringLinesB" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+          <rect width="10" height="10" fill="transparent"></rect>
+          <rect x="0" y="0" width="5" height="10" fill="rgba(255,43,82,0.72)"></rect>
+        </pattern>
+      </defs>
+      <ellipse cx="50" cy="50" rx="35" ry="44" fill="none" stroke="url(#ringLinesA)" stroke-width="8" opacity="0.9"/>
+      <ellipse cx="50" cy="50" rx="29" ry="37" fill="none" stroke="url(#ringLinesB)" stroke-width="5" opacity="0.75"/>
+      <ellipse cx="50" cy="50" rx="41" ry="50" fill="none" stroke="rgba(255,245,206,0.72)" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <div id="center-mask"></div>
+
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <radialGradient id="fadeBurst" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stop-color="rgba(255,245,206,0)" />
+        <stop offset="58%" stop-color="rgba(255,245,206,0)" />
+        <stop offset="70%" stop-color="rgba(0,0,0,0.9)" />
+        <stop offset="78%" stop-color="rgba(255,43,82,0.7)" />
+        <stop offset="86%" stop-color="rgba(0,215,255,0.55)" />
+        <stop offset="100%" stop-color="rgba(255,245,206,0)" />
+      </radialGradient>
+
+      <pattern id="diagPattern" patternUnits="userSpaceOnUse" width="36" height="36" patternTransform="rotate(35)">
+        <rect width="36" height="36" fill="transparent"></rect>
+        <rect width="18" height="36" fill="rgba(0,0,0,0.82)"></rect>
+      </pattern>
+
+      <mask id="edgeFadeMask">
+        <rect width="1080" height="1920" fill="url(#edgeFade)"/>
+      </mask>
+
+      <linearGradient id="edgeFade" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="transparent"/>
+        <stop offset="9%" stop-color="white"/>
+        <stop offset="91%" stop-color="white"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </linearGradient>
+    </defs>
+
+    <g opacity="0.72" mask="url(#edgeFadeMask)">
+      <ellipse cx="540" cy="960" rx="310" ry="520" fill="url(#fadeBurst)">
+        <animateTransform attributeName="transform" type="scale" values="1 1;1.03 1.015;1 1" dur="18s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <g opacity="0.42" style="mix-blend-mode:multiply">
+      <polygon points="540,116 620,300 540,484 460,300" fill="url(#diagPattern)">
+        <animateTransform attributeName="transform" type="rotate" values="0 540 300;8 540 300;0 540 300" dur="20s" repeatCount="indefinite"/>
+      </polygon>
+      <polygon points="540,1436 640,1620 540,1804 440,1620" fill="url(#diagPattern)">
+        <animateTransform attributeName="transform" type="rotate" values="0 540 1620;-7 540 1620;0 540 1620" dur="23s" repeatCount="indefinite"/>
+      </polygon>
+    </g>
+  </svg>
+
+  <canvas id="overlayCanvas"></canvas>
+  <canvas id="grainCanvas"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date-stamp">2026-04-15</div>
+</div>
+
+<script>
+(() => {
+  const seedString = "2026-04-15";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967295;
+  }
+
+  const stage = document.getElementById('stage');
+  const bg = document.getElementById('bgCanvas');
+  const ov = document.getElementById('overlayCanvas');
+  const grain = document.getElementById('grainCanvas');
+  const bctx = bg.getContext('2d');
+  const octx = ov.getContext('2d');
+  const gctx = grain.getContext('2d');
+
+  function resize(){
+    const rect = stage.getBoundingClientRect();
+    [bg, ov, grain].forEach(c => {
+      c.width = rect.width * devicePixelRatio;
+      c.height = rect.height * devicePixelRatio;
+      c.style.width = rect.width + 'px';
+      c.style.height = rect.height + 'px';
+      const ctx = c.getContext('2d');
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    });
+    drawBackground(rect.width, rect.height);
+    drawGrain(rect.width, rect.height);
+  }
+
+  function drawBackground(w,h){
+    bctx.clearRect(0,0,w,h);
+
+    const grad = bctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0,'#fff6d8');
+    grad.addColorStop(0.33,'#f0dfa0');
+    grad.addColorStop(0.66,'#e2c460');
+    grad.addColorStop(1,'#b98818');
+    bctx.fillStyle = grad;
+    bctx.fillRect(0,0,w,h);
+
+    // structured op-art fan fields
+    const cx = w/2, cy = h/2;
+    bctx.save();
+    bctx.translate(cx, cy);
+    for(let i=0;i<64;i++){
+      const a0 = (Math.PI*2/64)*i;
+      const a1 = a0 + Math.PI*2/128;
+      const r = Math.max(w,h)*0.92;
+      bctx.beginPath();
+      bctx.moveTo(0,0);
+      bctx.lineTo(Math.cos(a0)*r, Math.sin(a0)*r);
+      bctx.lineTo(Math.cos(a1)*r, Math.sin(a1)*r);
+      bctx.closePath();
+      bctx.fillStyle = i%2===0 ? 'rgba(0,0,0,0.08)' : 'rgba(255,245,206,0.00)';
+      bctx.fill();
+    }
+    bctx.restore();
+
+    // halftone vertical side bands
+    function dotField(x0, width, side){
+      for(let y=0;y<h;y+=18){
+        for(let x=0;x<width;x+=18){
+          const dx = side === 'left' ? (width - x) : x;
+          const d = dx / width;
+          const r = 1.6 + (1-d) * 4.8 * (0.6 + 0.4*Math.sin(y*0.006));
+          bctx.beginPath();
+          bctx.arc(x0 + x, y + ((x/18)%2)*3, r, 0, Math.PI*2);
+          bctx.fillStyle = (x+y)%36===0 ? 'rgba(255,43,82,0.36)' : 'rgba(0,0,0,0.26)';
+          bctx.fill();
+        }
+      }
+    }
+    dotField(0, w*0.19, 'left');
+    dotField(w*0.81, w*0.19, 'right');
+
+    // large central optical rings behind strip/video
+    for(let i=0;i<16;i++){
+      bctx.beginPath();
+      const rr = Math.min(w,h)*(0.12 + i*0.025);
+      bctx.arc(cx, cy, rr, 0, Math.PI*2);
+      bctx.lineWidth = i%3===0 ? 10 : 5;
+      bctx.strokeStyle = i%4===0 ? 'rgba(255,43,82,0.16)' :
+                         i%4===1 ? 'rgba(0,0,0,0.18)' :
+                         i%4===2 ? 'rgba(0,215,255,0.15)' :
+                                   'rgba(255,245,206,0.18)';
+      bctx.stroke();
+    }
+  }
+
+  function drawGrain(w,h){
+    gctx.clearRect(0,0,w,h);
+    const img = gctx.createImageData(w,h);
+    for(let i=0;i<img.data.length;i+=4){
+      const v = 210 + Math.floor(rand()*45);
+      img.data[i]=v;
+      img.data[i+1]=v-6;
+      img.data[i+2]=v-18;
+      img.data[i+3]=22;
+    }
+    gctx.putImageData(img,0,0);
+    gctx.globalCompositeOperation = 'multiply';
+    gctx.fillStyle = 'rgba(0,0,0,0.06)';
+    for(let i=0;i<16;i++){
+      const y = rand()*h;
+      const hh = 2 + rand()*5;
+      gctx.fillRect(0,y,w,hh);
+    }
+    gctx.globalCompositeOperation = 'source-over';
+  }
+
+  const frames = Array.from(document.querySelectorAll('.frame .inner'));
+  const tOffsets = frames.map((_,i)=>rand()*Math.PI*2 + i*0.33);
+
+  function render(t){
+    const rect = stage.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    octx.clearRect(0,0,w,h);
+
+    // animated moire overlays inside frames, each slightly evolved
+    frames.forEach((el, idx) => {
+      const phase = t*0.00018 + tOffsets[idx];
+      const scale = 1 + Math.sin(phase)*0.04;
+      const rot = Math.sin(phase*0.7)*4 + idx*0.6;
+      const hue = idx*15 + Math.sin(phase)*8;
+      el.style.transform = `scale(${scale}) rotate(${rot}deg)`;
+      el.style.filter = `hue-rotate(${hue}deg) contrast(1.14) saturate(1.18)`;
+    });
+
+    // central animated black/cream/red/cyan wedges
+    const cx = w/2, cy = h/2;
+    octx.save();
+    octx.translate(cx, cy);
+    octx.rotate(Math.sin(t*0.00012)*0.12);
+    for(let i=0;i<24;i++){
+      const a = (Math.PI*2/24)*i + t*0.00006*(i%2===0?1:-1);
+      const rr0 = Math.min(w,h)*0.18;
+      const rr1 = Math.min(w,h)*0.34;
+      octx.beginPath();
+      octx.moveTo(Math.cos(a)*rr0, Math.sin(a)*rr0);
+      octx.lineTo(Math.cos(a+0.08)*rr1, Math.sin(a+0.08)*rr1);
+      octx.lineTo(Math.cos(a-0.08)*rr1, Math.sin(a-0.08)*rr1);
+      octx.closePath();
+      octx.fillStyle = i%4===0 ? 'rgba(0,0,0,0.28)' :
+                       i%4===1 ? 'rgba(255,43,82,0.18)' :
+                       i%4===2 ? 'rgba(0,215,255,0.16)' :
+                                 'rgba(255,245,206,0.12)';
+      octx.fill();
+    }
+    octx.restore();
+
+    // scanline texture
+    octx.fillStyle = 'rgba(0,0,0,0.08)';
+    for(let y=0;y<h;y+=4){
+      octx.fillRect(0,y,w,1);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  // gentle audio drone
+  let audioStarted = false;
+  function startAudio(){
+    if(audioStarted) return;
+    audioStarted = true;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.015;
+      master.connect(ac.destination);
+
+      const freqs = [146.83, 220, 293.66];
+      freqs.forEach((f, i) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        const lfo = ac.createOscillator();
+        const lfoGain = ac.createGain();
+        const filt = ac.createBiquadFilter();
+
+        osc.type = i===0 ? 'sawtooth' : 'triangle';
+        osc.frequency.value = f;
+        gain.gain.value = 0.008 + i*0.002;
+        filt.type = 'lowpass';
+        filt.frequency.value = 420 + i*120;
+        filt.Q.value = 0.8;
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.03 + i*0.01;
+        lfoGain.gain.value = 8 + i*4;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.connect(filt);
+        filt.connect(gain);
+        gain.connect(master);
+
+        osc.start();
+        lfo.start();
+      });
+
+      const noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (rand()*2-1)*0.22;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+      const nfilter = ac.createBiquadFilter();
+      nfilter.type = 'bandpass';
+      nfilter.frequency.value = 900;
+      nfilter.Q.value = 0.5;
+      const ngain = ac.createGain();
+      ngain.gain.value = 0.0035;
+      noise.connect(nfilter);
+      nfilter.connect(ngain);
+      ngain.connect(master);
+      noise.start();
+    }catch(e){}
+  }
+
+  window.addEventListener('load', ()=>{
+    resize();
+    requestAnimationFrame(render);
+    startAudio();
+  });
+  window.addEventListener('resize', resize);
+})();
+</script>
+</body>
+</html>

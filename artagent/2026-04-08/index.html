@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-08</title>
+<style>
+  :root{
+    --bg:#120b07;
+    --deep:#1b110b;
+    --bronze:#7a4f1c;
+    --gold:#d8a84a;
+    --champ:#f2d08a;
+    --sand:#b78443;
+    --amber:#ffbf52;
+    --ink:#24150c;
+    --ivory:#f0dfbf;
+    --line:rgba(255,214,132,.42);
+    --glow:rgba(255,198,92,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 20%, #3e250f 0%, #1c1009 30%, #090504 68%, #050303 100%);
+    font-family: Georgia, serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:1080 / 1920;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #2e180b 0%, #4c2b12 16%, #7d4917 34%, #c0862f 56%, #7b4f22 78%, #24140d 100%);
+    box-shadow:0 0 60px rgba(0,0,0,.55), inset 0 0 120px rgba(255,210,120,.08);
+  }
+
+  #bgCanvas,#fxCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  #fxCanvas{mix-blend-mode:screen; opacity:.85}
+
+  .frame, .sunburst, .deco-lines, .grille, .vignette, .shimmer, .mask-top, .mask-bottom{
+    position:absolute; inset:0; pointer-events:none;
+  }
+
+  .frame{
+    border:10px solid rgba(219,170,82,.48);
+    outline:2px solid rgba(244,218,154,.38);
+    outline-offset:-24px;
+    box-shadow:
+      inset 0 0 0 28px rgba(48,26,11,.28),
+      inset 0 0 0 32px rgba(215,170,87,.15),
+      inset 0 0 80px rgba(0,0,0,.38);
+  }
+  .frame::before,.frame::after{
+    content:"";
+    position:absolute;
+    left:48px; right:48px;
+    height:2px;
+    background:linear-gradient(90deg, transparent, rgba(255,215,130,.85), transparent);
+  }
+  .frame::before{top:82px}
+  .frame::after{bottom:82px}
+
+  .sunburst{
+    opacity:.55;
+    background:
+      conic-gradient(from -8deg at 50% 44%,
+        rgba(255,225,160,.18) 0deg 4deg,
+        rgba(120,70,16,.0) 4deg 11deg,
+        rgba(255,217,142,.15) 11deg 15deg,
+        rgba(120,70,16,.0) 15deg 22deg,
+        rgba(255,220,148,.13) 22deg 25deg,
+        rgba(120,70,16,.0) 25deg 32deg,
+        rgba(255,224,156,.14) 32deg 36deg,
+        rgba(120,70,16,.0) 36deg 43deg,
+        rgba(255,214,128,.12) 43deg 47deg,
+        rgba(120,70,16,.0) 47deg 54deg,
+        rgba(255,222,150,.15) 54deg 58deg,
+        rgba(120,70,16,.0) 58deg 65deg,
+        rgba(255,219,146,.12) 65deg 69deg,
+        rgba(120,70,16,.0) 69deg 76deg,
+        rgba(255,229,171,.15) 76deg 80deg,
+        rgba(120,70,16,.0) 80deg 87deg,
+        rgba(255,217,140,.12) 87deg 91deg,
+        rgba(120,70,16,.0) 91deg 360deg);
+    animation: rotateSlow 80s linear infinite;
+    mix-blend-mode:screen;
+  }
+
+  .deco-lines{
+    opacity:.7;
+    background:
+      linear-gradient(90deg, transparent 0 6%, rgba(243,208,132,.15) 6% 6.3%, transparent 6.3% 93.7%, rgba(243,208,132,.15) 93.7% 94%, transparent 94% 100%),
+      linear-gradient(180deg, transparent 0 7%, rgba(255,221,154,.08) 7% 7.2%, transparent 7.2% 92.8%, rgba(255,221,154,.08) 92.8% 93%, transparent 93% 100%);
+  }
+
+  .grille{
+    opacity:.2;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,231,182,.07) 0 2px, transparent 2px 40px),
+      repeating-linear-gradient(180deg, rgba(80,42,12,.11) 0 1px, transparent 1px 20px);
+    mix-blend-mode:overlay;
+    transform:perspective(900px) rotateX(74deg) translateY(39%);
+    transform-origin:bottom;
+  }
+
+  #art-image{
+    position:absolute;
+    left:50%;
+    top:14%;
+    width:73%;
+    height:34%;
+    object-fit:cover;
+    transform:translateX(-50%);
+    opacity:.96;
+    border:2px solid rgba(243,205,126,.72);
+    outline:1px solid rgba(255,241,197,.42);
+    outline-offset:-12px;
+    box-shadow:
+      0 0 0 18px rgba(74,42,16,.22),
+      0 18px 50px rgba(0,0,0,.38),
+      inset 0 0 40px rgba(255,210,110,.08);
+    clip-path:polygon(8% 0, 92% 0, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0 92%, 0 8%);
+    filter:saturate(1.08) contrast(1.08) sepia(.18) hue-rotate(-6deg);
+    z-index:5;
+  }
+  #art-image::after{display:none}
+
+  #portrait-image{
+    position:absolute;
+    left:50%;
+    top:18%;
+    width:46%;
+    height:48%;
+    object-fit:cover;
+    object-position:center top;
+    transform:translateX(-50%);
+    opacity:.72;
+    z-index:7;
+    filter:grayscale(.12) sepia(.52) contrast(1.15) brightness(.96) saturate(1.22);
+    mix-blend-mode:screen;
+    clip-path:polygon(18% 0, 82% 0, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0 82%, 0 18%);
+    animation: portraitBreathe 19s ease-in-out infinite;
+  }
+
+  .portrait-aura{
+    position:absolute;
+    left:50%;
+    top:17.2%;
+    width:54%;
+    height:50%;
+    transform:translateX(-50%);
+    z-index:6;
+    border-radius:8px;
+    clip-path:polygon(16% 0, 84% 0, 100% 16%, 100% 84%, 84% 100%, 16% 100%, 0 84%, 0 16%);
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,232,173,.34), rgba(255,204,92,.12) 28%, rgba(0,0,0,0) 62%),
+      conic-gradient(from 0deg, rgba(255,214,132,.18), rgba(110,61,17,0) 18%, rgba(255,214,132,.1) 30%, rgba(110,61,17,0) 44%, rgba(255,214,132,.15) 59%, rgba(110,61,17,0) 74%, rgba(255,214,132,.14) 88%, rgba(110,61,17,0));
+    filter:blur(1px);
+    mix-blend-mode:screen;
+    animation: rotateSlowReverse 70s linear infinite;
+  }
+
+  .pedestal{
+    position:absolute;
+    left:16%;
+    right:16%;
+    top:58%;
+    height:23%;
+    z-index:4;
+    background:
+      linear-gradient(180deg, rgba(255,226,160,.11), rgba(135,82,29,.13) 12%, rgba(45,24,10,.0) 14%),
+      linear-gradient(180deg, rgba(186,122,48,.0) 0%, rgba(180,110,36,.36) 48%, rgba(58,31,11,.72) 100%);
+    clip-path:polygon(12% 0, 88% 0, 100% 100%, 0 100%);
+    box-shadow:inset 0 10px 20px rgba(255,228,165,.09), inset 0 -30px 40px rgba(0,0,0,.28);
+  }
+  .pedestal::before{
+    content:"";
+    position:absolute;
+    left:5%; right:5%; top:8%;
+    height:8px;
+    background:linear-gradient(90deg, transparent, rgba(255,230,176,.75), transparent);
+  }
+
+  .arch{
+    position:absolute;
+    left:11%;
+    right:11%;
+    top:8.5%;
+    height:54%;
+    z-index:3;
+    border:2px solid rgba(232,191,107,.4);
+    border-bottom:none;
+    border-radius:520px 520px 0 0 / 360px 360px 0 0;
+    box-shadow:
+      inset 0 0 0 18px rgba(255,214,132,.06),
+      inset 0 0 0 34px rgba(74,43,17,.18);
+    opacity:.75;
+  }
+  .arch::before,.arch::after{
+    content:"";
+    position:absolute;
+    top:7%;
+    bottom:-1px;
+    width:2px;
+    background:linear-gradient(180deg, rgba(255,224,150,.45), rgba(255,214,132,.08));
+  }
+  .arch::before{left:12%}
+  .arch::after{right:12%}
+
+  .fan{
+    position:absolute;
+    left:50%;
+    top:53.5%;
+    width:78%;
+    height:18%;
+    transform:translateX(-50%);
+    z-index:8;
+    opacity:.85;
+    background:
+      conic-gradient(from 180deg at 50% 100%,
+        rgba(255,224,154,.52) 0deg 3deg, transparent 3deg 8deg,
+        rgba(234,179,76,.44) 8deg 11deg, transparent 11deg 16deg,
+        rgba(255,219,143,.46) 16deg 19deg, transparent 19deg 24deg,
+        rgba(234,179,76,.38) 24deg 27deg, transparent 27deg 32deg,
+        rgba(255,226,165,.38) 32deg 35deg, transparent 35deg 40deg,
+        rgba(240,186,86,.44) 40deg 43deg, transparent 43deg 48deg,
+        rgba(255,222,150,.46) 48deg 51deg, transparent 51deg 56deg,
+        rgba(234,179,76,.38) 56deg 59deg, transparent 59deg 64deg,
+        rgba(255,224,154,.52) 64deg 67deg, transparent 67deg 72deg,
+        rgba(234,179,76,.44) 72deg 75deg, transparent 75deg 80deg,
+        rgba(255,219,143,.46) 80deg 83deg, transparent 83deg 88deg,
+        rgba(234,179,76,.38) 88deg 91deg, transparent 91deg 96deg,
+        rgba(255,226,165,.38) 96deg 99deg, transparent 99deg 104deg,
+        rgba(240,186,86,.44) 104deg 107deg, transparent 107deg 112deg,
+        rgba(255,222,150,.46) 112deg 115deg, transparent 115deg 120deg,
+        rgba(234,179,76,.38) 120deg 123deg, transparent 123deg 128deg,
+        rgba(255,224,154,.52) 128deg 131deg, transparent 131deg 136deg,
+        rgba(234,179,76,.44) 136deg 139deg, transparent 139deg 144deg,
+        rgba(255,219,143,.46) 144deg 147deg, transparent 147deg 152deg,
+        rgba(234,179,76,.38) 152deg 155deg, transparent 155deg 160deg,
+        rgba(255,226,165,.38) 160deg 163deg, transparent 163deg 168deg,
+        rgba(240,186,86,.44) 168deg 171deg, transparent 171deg 176deg,
+        rgba(255,222,150,.46) 176deg 180deg);
+    clip-path:ellipse(50% 100% at 50% 100%);
+    filter:blur(.2px);
+    animation: shimmerFan 18s ease-in-out infinite;
+    mix-blend-mode:screen;
+  }
+
+  .mask-top{
+    z-index:9;
+    background:
+      linear-gradient(180deg, rgba(29,16,8,.0) 0%, rgba(29,16,8,.0) 57%, rgba(29,16,8,.16) 61%, rgba(20,11,6,.0) 63%),
+      linear-gradient(180deg, rgba(255,230,176,.09), transparent 22%);
+  }
+
+  .mask-bottom{
+    z-index:10;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(31,17,8,0) 58%, rgba(25,14,7,.08) 65%, rgba(14,8,5,.18) 76%, rgba(8,4,3,.52) 100%);
+  }
+
+  .shimmer{
+    z-index:11;
+    opacity:.33;
+    background:
+      linear-gradient(115deg,
+        transparent 0%,
+        rgba(255,224,163,.0) 24%,
+        rgba(255,224,163,.15) 32%,
+        rgba(255,247,218,.22) 35%,
+        rgba(255,224,163,.12) 39%,
+        transparent 46%),
+      linear-gradient(65deg,
+        transparent 0%,
+        rgba(255,214,133,.0) 58%,
+        rgba(255,214,133,.11) 66%,
+        rgba(255,240,200,.14) 69%,
+        rgba(255,214,133,.08) 72%,
+        transparent 80%);
+    animation: shimmerSweep 23s ease-in-out infinite;
+    mix-blend-mode:screen;
+  }
+
+  .vignette{
+    z-index:20;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(0,0,0,0) 38%, rgba(0,0,0,.18) 68%, rgba(0,0,0,.54) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0) 15%, rgba(0,0,0,0) 78%, rgba(0,0,0,.28));
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:18px;
+    right:74px;
+    bottom:203px;
+    opacity:.58;
+    z-index:12;
+    filter:brightness(.7) sepia(.25) saturate(.8);
+    transform:rotate(-5deg);
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    z-index:30;
+    color:rgba(255,230,176,.48);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    user-select:none;
+  }
+
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg) scale(1.03)}
+    to{transform:rotate(360deg) scale(1.03)}
+  }
+  @keyframes rotateSlowReverse{
+    from{transform:translateX(-50%) rotate(360deg)}
+    to{transform:translateX(-50%) rotate(0deg)}
+  }
+  @keyframes portraitBreathe{
+    0%,100%{transform:translateX(-50%) scale(1) translateY(0)}
+    50%{transform:translateX(-50%) scale(1.018) translateY(-6px)}
+  }
+  @keyframes shimmerSweep{
+    0%,100%{transform:translateX(-4%)}
+    50%{transform:translateX(4%)}
+  }
+  @keyframes shimmerFan{
+    0%,100%{opacity:.74; transform:translateX(-50%) scaleY(1)}
+    50%{opacity:.95; transform:translateX(-50%) scaleY(1.05)}
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="bgCanvas" width="1080" height="1920"></canvas>
+
+    <div class="sunburst"></div>
+    <div class="arch"></div>
+    <div class="deco-lines"></div>
+
+    <img id="art-image" src="art.png" alt="">
+    <div class="portrait-aura"></div>
+    <img id="portrait-image" src="portrait.png" alt="">
+
+    <div class="fan"></div>
+    <div class="pedestal"></div>
+    <div class="grille"></div>
+
+    <canvas id="fxCanvas" width="1080" height="1920"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+
+    <div class="mask-top"></div>
+    <div class="mask-bottom"></div>
+    <div class="shimmer"></div>
+    <div class="frame"></div>
+    <div class="vignette"></div>
+
+    <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" style="position:absolute;inset:0;z-index:15;pointer-events:none">
+      <defs>
+        <linearGradient id="goldStroke" x1="0" x2="1">
+          <stop offset="0%" stop-color="rgba(255,223,154,0)" />
+          <stop offset="50%" stop-color="rgba(255,223,154,0.7)" />
+          <stop offset="100%" stop-color="rgba(255,223,154,0)" />
+        </linearGradient>
+      </defs>
+      <g opacity=".7">
+        <path d="M210 1110 L540 910 L870 1110" fill="none" stroke="url(#goldStroke)" stroke-width="4"/>
+        <path d="M250 1180 L540 1010 L830 1180" fill="none" stroke="url(#goldStroke)" stroke-width="2"/>
+        <path d="M300 1245 L540 1110 L780 1245" fill="none" stroke="rgba(255,222,150,.32)" stroke-width="2"/>
+        <path d="M140 1460 L540 1210 L940 1460" fill="none" stroke="rgba(255,222,150,.26)" stroke-width="3"/>
+      </g>
+      <g opacity=".36">
+        <rect x="114" y="126" width="852" height="1330" rx="12" ry="12" fill="none" stroke="rgba(255,218,140,.26)" stroke-width="3"/>
+        <rect x="144" y="156" width="792" height="1270" rx="10" ry="10" fill="none" stroke="rgba(255,238,196,.14)" stroke-width="1.5"/>
+      </g>
+    </svg>
+
+    <div id="date">2026-04-08</div>
+  </div>
+
+<script>
+(() => {
+  const dateSeed = "2026-04-08";
+  function xmur3(str){for(var i=0,h=1779033703^str.length;i<str.length;i++)h=Math.imul(h^str.charCodeAt(i),3432918353),h=h<<13|h>>>19;return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}}
+  function sfc32(a,b,c,d){return function(){a|=0;b|=0;c|=0;d|=0;var t=(a+b|0)+d|0;d=d+1|0;a=b^b>>>9;b=c+(c<<3)|0;c=(c<<21|c>>>11);c=c+t|0;return (t>>>0)/4294967296}}
+  const seed = xmur3(dateSeed);
+  const rand = sfc32(seed(), seed(), seed(), seed());
+
+  const bg = document.getElementById('bgCanvas');
+  const fx = document.getElementById('fxCanvas');
+  const bctx = bg.getContext('2d');
+  const fctx = fx.getContext('2d');
+
+  const W = bg.width, H = bg.height;
+
+  const dunes = [];
+  const duneColors = [
+    ['#f0d08c','#d79b44','#8d551d','#4a2a11'],
+    ['#eab968','#c98532','#7c4618','#31190d'],
+    ['#c58a43','#a76928','#653813','#24120b'],
+    ['#8f5a2a','#6d3d16','#3f210d','#180d08']
+  ];
+
+  for(let i=0;i<6;i++){
+    dunes.push({
+      baseY: 950 + i*140 + rand()*40,
+      amp: 70 + i*24 + rand()*25,
+      freq: 1.1 + rand()*1.6,
+      speed: 0.00005 + rand()*0.00015,
+      phase: rand()*Math.PI*2,
+      ridge: 0.25 + rand()*0.5,
+      colorSet: duneColors[Math.min(i<2?0:i<4?1:i<5?2:3,3)]
+    });
+  }
+
+  const grains = Array.from({length: 520}, (_,i)=>({
+    x: rand()*W,
+    y: 860 + rand()*860,
+    z: 0.3 + rand()*1.2,
+    s: 0.7 + rand()*2.2,
+    vx: 0.1 + rand()*0.6,
+    a: 0.08 + rand()*0.24
+  }));
+
+  function drawSky(t){
+    const g = bctx.createLinearGradient(0,0,0,H*0.9);
+    g.addColorStop(0,'#2a140a');
+    g.addColorStop(0.18,'#68361a');
+    g.addColorStop(0.34,'#ad6422');
+    g.addColorStop(0.5,'#d89434');
+    g.addColorStop(0.63,'#9a5d24');
+    g.addColorStop(1,'#23120c');
+    bctx.fillStyle = g;
+    bctx.fillRect(0,0,W,H);
+
+    const sunX = W/2, sunY = 570;
+    const rg = bctx.createRadialGradient(sunX, sunY, 30, sunX, sunY, 430);
+    rg.addColorStop(0,'rgba(255,241,196,.85)');
+    rg.addColorStop(0.18,'rgba(255,207,118,.72)');
+    rg.addColorStop(0.4,'rgba(255,179,72,.32)');
+    rg.addColorStop(0.75,'rgba(255,145,44,.08)');
+    rg.addColorStop(1,'rgba(255,145,44,0)');
+    bctx.fillStyle = rg;
+    bctx.fillRect(0,0,W,H);
+
+    for(let i=0;i<14;i++){
+      const y = 160 + i*56 + Math.sin(t*0.00012 + i)*4;
+      bctx.fillStyle = `rgba(255,222,150,${0.012 + i*0.0015})`;
+      bctx.fillRect(0,y,W,2);
+    }
+  }
+
+  function duneY(layer, x, t){
+    const nx = x / W;
+    return layer.baseY
+      + Math.sin(nx * Math.PI * layer.freq + layer.phase + t*layer.speed) * layer.amp
+      + Math.sin(nx * Math.PI * (layer.freq*2.1) + layer.phase*0.6 + t*layer.speed*1.8) * (layer.amp*0.18)
+      + Math.cos(nx * Math.PI * (layer.freq*0.7) - layer.phase*0.9 + t*layer.speed*0.7) * (layer.amp*0.1);
+  }
+
+  function drawDunes(t){
+    dunes.forEach((d, idx) => {
+      const path = new Path2D();
+      path.moveTo(0,H);
+      path.lineTo(0,duneY(d,0,t));
+
+      for(let x=0;x<=W;x+=8){
+        path.lineTo(x, duneY(d,x,t));
+      }
+      path.lineTo(W,H);
+      path.closePath();
+
+      const grad = bctx.createLinearGradient(0, d.baseY-d.amp, 0, H);
+      grad.addColorStop(0, d.colorSet[0]);
+      grad.addColorStop(0.28, d.colorSet[1]);
+      grad.addColorStop(0.66, d.colorSet[2]);
+      grad.addColorStop(1, d.colorSet[3]);
+      bctx.fillStyle = grad;
+      bctx.fill(path);
+
+      bctx.save();
+      bctx.clip(path);
+
+      for(let y = d.baseY - d.amp - 20; y < H; y += 18){
+        const alpha = 0.017 + idx*0.008;
+        bctx.fillStyle = `rgba(255,233,180,${alpha})`;
+        const offset = Math.sin(y*0.022 + idx*1.7 + t*0.00018) * 14;
+        bctx.fillRect(offset, y, W, 1.5);
+      }
+
+      for(let x=40; x<W; x+=62){
+        const yy = duneY(d,x,t);
+        const lg = bctx.createLinearGradient(x-36,yy-10,x+36,yy+10);
+        lg.addColorStop(0,'rgba(255,243,209,0)');
+        lg.addColorStop(0.5,`rgba(255,238,198,${0.055 + idx*0.012})`);
+        lg.addColorStop(1,'rgba(255,243,209,0)');
+        bctx.strokeStyle = lg;
+        bctx.lineWidth = 2 + idx*0.22;
+        bctx.beginPath();
+        bctx.moveTo(x-34, yy-3);
+        bctx.lineTo(x+34, yy+3);
+        bctx.stroke();
+      }
+
+      bctx.restore();
+    });
+  }
+
+  function drawShimmer(t){
+    fctx.clearRect(0,0,W,H);
+    const horizon = 820;
+
+    for(let i=0;i<48;i++){
+      const y = horizon - 60 + i*7;
+      const amp = 8 + i*0.25;
+      const phase = i*0.43 + t*0.0014;
+      fctx.beginPath();
+      for(let x=0;x<=W;x+=14){
+        const yy = y + Math.sin(x*0.027 + phase)*amp*0.18 + Math.cos(x*0.012 - phase*1.7)*amp*0.12;
+        if(x===0) fctx.moveTo(x,yy);
+        else fctx.lineTo(x,yy);
+      }
+      fctx.strokeStyle = `rgba(255,227,165,${0.015 + i*0.0024})`;
+      fctx.lineWidth = 2;
+      fctx.stroke();
+    }
+
+    fctx.save();
+    fctx.globalCompositeOperation = 'lighter';
+    for(const g of grains){
+      g.x += g.vx * g.z;
+      if(g.x > W + 10){
+        g.x = -20;
+        g.y = 880 + rand()*760;
+      }
+      const tw = 0.5 + 0.5*Math.sin(t*0.002 + g.x*0.01 + g.y*0.004);
+      fctx.fillStyle = `rgba(255,224,160,${g.a * tw})`;
+      fctx.fillRect(g.x, g.y + Math.sin(t*0.001 + g.x*0.02)*1.4, g.s, g.s);
+    }
+    fctx.restore();
+
+    const veil = fctx.createLinearGradient(0,740,0,1160);
+    veil.addColorStop(0,'rgba(255,234,188,0)');
+    veil.addColorStop(0.5,'rgba(255,222,150,.07)');
+    veil.addColorStop(1,'rgba(255,234,188,0)');
+    fctx.fillStyle = veil;
+    fctx.fillRect(0,730,W,460);
+  }
+
+  function draw(t){
+    drawSky(t);
+    drawDunes(t);
+    drawShimmer(t);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  // subtle deterministic procedural audio
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let started = false;
+  function startAudio(){
+    if(started || !AudioCtx) return;
+    started = true;
+    const ac = new AudioCtx();
+    const master = ac.createGain();
+    master.gain.value = 0.012;
+    master.connect(ac.destination);
+
+    const osc1 = ac.createOscillator();
+    const osc2 = ac.createOscillator();
+    const lfo = ac.createOscillator();
+    const lfoGain = ac.createGain();
+    const filter = ac.createBiquadFilter();
+
+    osc1.type = 'triangle';
+    osc2.type = 'sine';
+    osc1.frequency.value = 110;
+    osc2.frequency.value = 164.81;
+    filter.type = 'lowpass';
+    filter.frequency.value = 430;
+    filter.Q.value = 0.8;
+
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.047;
+    lfoGain.gain.value = 42;
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+
+    const g1 = ac.createGain();
+    const g2 = ac.createGain();
+    g1.gain.value = 0.42;
+    g2.gain.value = 0.2;
+
+    osc1.connect(g1).connect(filter);
+    osc2.connect(g2).connect(filter);
+    filter.connect(master);
+
+    osc1.start();
+    osc2.start();
+    lfo.start();
+  }
+  startAudio();
+})();
+</script>
+</body>
+</html>

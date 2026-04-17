@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-03-29</title>
+<style>
+  :root{
+    --bg:#f5f0e6;
+    --paper:#f1eadc;
+    --black:#111111;
+    --red:#d7262e;
+    --blue:#1f5fd1;
+    --yellow:#f2c318;
+    --cream:#f7f2e8;
+    --line:#171717;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#d9d2c4;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  .frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    background:var(--bg);
+    overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,.18);
+  }
+
+  .base{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.33), rgba(255,255,255,0) 18%),
+      linear-gradient(90deg, rgba(0,0,0,.02), rgba(0,0,0,0) 40%, rgba(0,0,0,.03)),
+      var(--paper);
+  }
+
+  #paint{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  .grid{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, transparent 0 11.05%, rgba(0,0,0,.06) 11.05% 11.2%, transparent 11.2% 22.2%, rgba(0,0,0,.06) 22.2% 22.35%, transparent 22.35% 33.3%, rgba(0,0,0,.06) 33.3% 33.45%, transparent 33.45% 44.4%, rgba(0,0,0,.06) 44.4% 44.55%, transparent 44.55% 55.5%, rgba(0,0,0,.06) 55.5% 55.65%, transparent 55.65% 66.6%, rgba(0,0,0,.06) 66.6% 66.75%, transparent 66.75% 77.7%, rgba(0,0,0,.06) 77.7% 77.85%, transparent 77.85% 88.8%, rgba(0,0,0,.06) 88.8% 88.95%, transparent 88.95% 100%),
+      linear-gradient(180deg, transparent 0 9.98%, rgba(0,0,0,.06) 9.98% 10.15%, transparent 10.15% 20%, rgba(0,0,0,.06) 20% 20.17%, transparent 20.17% 30%, rgba(0,0,0,.06) 30% 30.17%, transparent 30.17% 40%, rgba(0,0,0,.06) 40% 40.17%, transparent 40.17% 50%, rgba(0,0,0,.06) 50% 50.17%, transparent 50.17% 60%, rgba(0,0,0,.06) 60% 60.17%, transparent 60.17% 70%, rgba(0,0,0,.06) 70% 70.17%, transparent 70.17% 80%, rgba(0,0,0,.06) 80% 80.17%, transparent 80.17% 90%, rgba(0,0,0,.06) 90% 90.17%, transparent 90.17% 100%);
+    opacity:.25;
+    pointer-events:none;
+  }
+
+  .vbar{
+    position:absolute;
+    left:7%;
+    top:7%;
+    width:3.6%;
+    height:86%;
+    background:var(--black);
+    transform-origin:center;
+    animation:barShift 22s ease-in-out infinite alternate;
+  }
+
+  .hbar{
+    position:absolute;
+    left:7%;
+    top:58%;
+    width:86%;
+    height:1.6%;
+    background:var(--black);
+    transform-origin:left center;
+    animation:hbarShift 18s ease-in-out infinite alternate;
+  }
+
+  .rect{
+    position:absolute;
+    border:5px solid var(--line);
+    background:transparent;
+  }
+  .rect.r1{
+    left:14%; top:11%;
+    width:33%; height:21%;
+    border-width:0;
+    background:var(--red);
+    animation:blockA 15s ease-in-out infinite alternate;
+  }
+  .rect.r2{
+    left:56%; top:14%;
+    width:20%; height:16%;
+    border-width:0;
+    background:var(--blue);
+    animation:blockB 21s ease-in-out infinite alternate;
+  }
+  .rect.r3{
+    left:18%; top:69%;
+    width:25%; height:13%;
+    border-width:0;
+    background:var(--yellow);
+    animation:blockC 17s ease-in-out infinite alternate;
+  }
+  .rect.r4{
+    left:61%; top:63%;
+    width:18%; height:18%;
+    border-width:5px;
+    animation:frameBreath 19s ease-in-out infinite alternate;
+  }
+
+  .circle{
+    position:absolute;
+    border-radius:50%;
+    border:5px solid var(--line);
+    overflow:hidden;
+  }
+  .circle.c1{
+    width:29%;
+    aspect-ratio:1;
+    left:57%;
+    top:38%;
+    background:var(--yellow);
+    border-width:0;
+    animation:circleDrift 24s ease-in-out infinite alternate;
+  }
+  .circle.c2{
+    width:18%;
+    aspect-ratio:1;
+    left:22%;
+    top:46%;
+    background:transparent;
+    animation:ringShift 20s ease-in-out infinite alternate;
+  }
+
+  .diag{
+    position:absolute;
+    left:42%;
+    top:33%;
+    width:46%;
+    height:2%;
+    background:var(--black);
+    transform:rotate(-32deg);
+    transform-origin:left center;
+    animation:diagMove 20s ease-in-out infinite alternate;
+  }
+
+  .diag.red{
+    left:14%;
+    top:85%;
+    width:36%;
+    height:1.6%;
+    background:var(--red);
+    transform:rotate(-32deg);
+    animation-duration:26s;
+  }
+
+  .mask-band{
+    position:absolute;
+    left:0; right:0;
+    top:48.4%;
+    height:7.8%;
+    background:rgba(245,240,230,.92);
+    border-top:5px solid var(--line);
+    border-bottom:5px solid var(--line);
+    animation:bandFloat 16s ease-in-out infinite alternate;
+  }
+
+  #art-image{
+    position:absolute;
+    left:31%;
+    top:27%;
+    width:38%;
+    height:46%;
+    object-fit:cover;
+    opacity:.96;
+    border:5px solid var(--line);
+    background:#e8e0cf;
+    clip-path:inset(0 round 0);
+    filter:saturate(.92) contrast(1.05) brightness(1.02);
+    transform-origin:center;
+    animation:artShift 23s ease-in-out infinite alternate;
+    z-index:4;
+  }
+
+  .art-overlay{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+  }
+  .art-overlay .slice{
+    position:absolute;
+    background:rgba(245,240,230,.88);
+    border:5px solid var(--line);
+  }
+  .art-overlay .s1{
+    left:27%;
+    top:33%;
+    width:18%;
+    height:7%;
+    animation:sliceA 14s ease-in-out infinite alternate;
+  }
+  .art-overlay .s2{
+    left:58%;
+    top:55%;
+    width:16%;
+    height:9%;
+    background:rgba(31,95,209,.92);
+    animation:sliceB 19s ease-in-out infinite alternate;
+  }
+  .art-overlay .s3{
+    left:36%;
+    top:67%;
+    width:22%;
+    height:4.8%;
+    background:rgba(242,195,24,.94);
+    animation:sliceC 17s ease-in-out infinite alternate;
+  }
+  .art-overlay .s4{
+    left:61%;
+    top:28%;
+    width:7%;
+    height:16%;
+    background:rgba(215,38,46,.94);
+    animation:sliceD 21s ease-in-out infinite alternate;
+  }
+
+  .svg-layer{
+    position:absolute; inset:0;
+    z-index:6;
+    pointer-events:none;
+  }
+
+  .date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    color:rgba(17,17,17,.48);
+    font-size:15px;
+    letter-spacing:.08em;
+    z-index:10;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:10px;
+    bottom:201px;
+    opacity:.56;
+    z-index:3;
+    filter:brightness(.82) saturate(.9);
+    transform:rotate(-4deg);
+  }
+
+  @keyframes artShift{
+    0%{transform:translate(-1.2%, -0.8%) scale(1) rotate(0deg)}
+    50%{transform:translate(1.1%, .7%) scale(1.022) rotate(.55deg)}
+    100%{transform:translate(.4%, -1.2%) scale(.992) rotate(-.45deg)}
+  }
+  @keyframes blockA{
+    0%{transform:translateX(0) scaleX(1)}
+    100%{transform:translateX(2.2%) scaleX(1.06)}
+  }
+  @keyframes blockB{
+    0%{transform:translateY(0) scaleY(1)}
+    100%{transform:translateY(2.8%) scaleY(.92)}
+  }
+  @keyframes blockC{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(2.4%,-1.2%) scale(1.05,.96)}
+  }
+  @keyframes frameBreath{
+    0%{transform:scale(1)}
+    100%{transform:scale(1.08,.95)}
+  }
+  @keyframes circleDrift{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(-2%,2%) scale(1.06)}
+  }
+  @keyframes ringShift{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(2.2%,-1.5%) scale(.95)}
+  }
+  @keyframes diagMove{
+    0%{transform:rotate(-32deg) scaleX(1)}
+    100%{transform:rotate(-29deg) scaleX(1.08)}
+  }
+  @keyframes bandFloat{
+    0%{transform:translateY(0)}
+    100%{transform:translateY(-1.6%)}
+  }
+  @keyframes barShift{
+    0%{transform:scaleY(1)}
+    100%{transform:scaleY(.93)}
+  }
+  @keyframes hbarShift{
+    0%{transform:scaleX(1)}
+    100%{transform:scaleX(.94)}
+  }
+  @keyframes sliceA{
+    0%{transform:translateX(0)}
+    100%{transform:translateX(7%)}
+  }
+  @keyframes sliceB{
+    0%{transform:translateY(0) scale(1)}
+    100%{transform:translateY(-8%) scale(1.03)}
+  }
+  @keyframes sliceC{
+    0%{transform:translateX(0) scaleX(1)}
+    100%{transform:translateX(-6%) scaleX(1.12)}
+  }
+  @keyframes sliceD{
+    0%{transform:translateY(0)}
+    100%{transform:translateY(6%)}
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="base"></div>
+    <canvas id="paint" width="1080" height="1920"></canvas>
+    <div class="grid"></div>
+
+    <div class="vbar"></div>
+    <div class="hbar"></div>
+
+    <div class="rect r1"></div>
+    <div class="rect r2"></div>
+    <div class="rect r3"></div>
+    <div class="rect r4"></div>
+
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+
+    <div class="diag"></div>
+    <div class="diag red"></div>
+
+    <img id="art-image" src="art.png" alt="" />
+
+    <div class="art-overlay">
+      <div class="slice s1"></div>
+      <div class="slice s2"></div>
+      <div class="slice s3"></div>
+      <div class="slice s4"></div>
+    </div>
+
+    <div class="mask-band"></div>
+
+    <svg class="svg-layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="none" stroke="#111111" stroke-width="10">
+        <path d="M120 215 L120 1710" opacity="0.45"/>
+        <path d="M120 1120 L950 1120" opacity="0.45"/>
+        <path d="M758 725 L930 620" opacity="1"/>
+      </g>
+      <g>
+        <rect x="735" y="250" width="120" height="120" fill="#f2c318" stroke="#111111" stroke-width="10">
+          <animate attributeName="x" values="735;750;742;735" dur="24s" repeatCount="indefinite"/>
+        </rect>
+        <circle cx="292" cy="934" r="92" fill="none" stroke="#111111" stroke-width="10">
+          <animate attributeName="cy" values="934;950;938;934" dur="20s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div class="date">2026-03-29</div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('paint');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  const seed = hashString("2026-03-29-bauhaus");
+  const rand = mulberry32(seed);
+
+  const textureRects = [];
+  for(let i=0;i<32;i++){
+    textureRects.push({
+      x: rand()*W,
+      y: rand()*H,
+      w: 30 + rand()*170,
+      h: 14 + rand()*110,
+      a: 0.025 + rand()*0.05,
+      c: rand() < .6 ? '#111111' : (rand() < .5 ? '#d7262e' : '#1f5fd1')
+    });
+  }
+
+  const arcs = [];
+  for(let i=0;i<8;i++){
+    arcs.push({
+      cx: 180 + rand()*720,
+      cy: 220 + rand()*1400,
+      r: 80 + rand()*260,
+      start: rand()*Math.PI*2,
+      len: 0.8 + rand()*1.6,
+      lw: 5 + rand()*9,
+      c: ['#111111','#d7262e','#1f5fd1','#f2c318'][Math.floor(rand()*4)],
+      speed: 0.00008 + rand()*0.0002
+    });
+  }
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(255,255,255,0.15)');
+    grad.addColorStop(0.45,'rgba(0,0,0,0)');
+    grad.addColorStop(1,'rgba(0,0,0,0.03)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    for(const r of textureRects){
+      ctx.globalAlpha = r.a;
+      ctx.fillStyle = r.c;
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+    }
+    ctx.globalAlpha = 1;
+
+    for(let i=0;i<16;i++){
+      const y = (i/16)*H + Math.sin(t*0.00012 + i*0.7 + seed*0.00001)*6;
+      ctx.strokeStyle = `rgba(17,17,17,${0.03 + (i%3)*0.01})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0,y);
+      ctx.lineTo(W,y);
+      ctx.stroke();
+    }
+
+    for(const a of arcs){
+      ctx.save();
+      ctx.strokeStyle = a.c;
+      ctx.lineWidth = a.lw;
+      ctx.globalAlpha = 0.12;
+      ctx.beginPath();
+      const st = a.start + t*a.speed;
+      ctx.arc(a.cx, a.cy, a.r, st, st + a.len);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = '#f2c318';
+    ctx.fillRect(0, H*0.515 + Math.sin(t*0.0002)*14, W, H*0.018);
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  // Subtle ambient tones
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (AudioContextClass) {
+    const audioCtx = new AudioContextClass();
+    const master = audioCtx.createGain();
+    master.gain.value = 0.012;
+    master.connect(audioCtx.destination);
+
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc1.type = 'sine';
+    osc2.type = 'triangle';
+    osc1.frequency.value = 110;
+    osc2.frequency.value = 164.81;
+
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.031;
+    lfoGain.gain.value = 18;
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 520;
+    filter.Q.value = 0.7;
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(master);
+
+    const now = audioCtx.currentTime;
+    osc1.start(now);
+    osc2.start(now);
+    lfo.start(now);
+
+    function swell(){
+      const t = audioCtx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.linearRampToValueAtTime(0.008, t + 6);
+      master.gain.linearRampToValueAtTime(0.014, t + 16);
+      osc2.frequency.cancelScheduledValues(t);
+      osc2.frequency.linearRampToValueAtTime(146.83, t + 10);
+      osc2.frequency.linearRampToValueAtTime(164.81, t + 22);
+    }
+
+    if (audioCtx.state === 'suspended') {
+      const resume = () => { audioCtx.resume(); swell(); };
+      setTimeout(resume, 500);
+    } else {
+      swell();
+    }
+    setInterval(swell, 22000);
+  }
+})();
+</script>
+</body>
+</html>
