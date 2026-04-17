@@ -234,8 +234,6 @@
         infoPopup.classList.remove('visible');
         var wasVisible = critiquePopup.classList.contains('visible');
         if (wasVisible) { critiquePopup.classList.remove('visible'); return; }
-        critiquePopup.classList.add('visible');
-        critiquePopup.innerHTML = '<p class="critique-loading">Loading critique…</p>';
         var folderUrl = callout.dataset.folderUrl || '';
         fetch(folderUrl + 'critique.json')
           .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -245,9 +243,11 @@
               '<span class="critique-provider">' + (c.critic_provider || '?') + '</span> ' +
               '<span class="critique-model">' + (c.critic_model || '') + '</span></p>' +
               '<p class="critique-text">' + (c.critique || 'No critique available.') + '</p>';
+            critiquePopup.classList.add('visible');
           })
           .catch(function() {
             critiquePopup.innerHTML = '<p class="critique-text" style="opacity:.5">No critique available for this day.</p>';
+            critiquePopup.classList.add('visible');
           });
       });
 
