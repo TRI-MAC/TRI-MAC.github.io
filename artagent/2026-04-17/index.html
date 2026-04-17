@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Art 2026-04-17</title>
+<style>
+  :root{
+    --bg1:#f3e5bf;
+    --bg2:#d8b86e;
+    --ochre:#c9882e;
+    --umber:#6b3518;
+    --char:#120d09;
+    --red:#9e2d20;
+    --jade:#315347;
+    --bone:#f5edd8;
+    --ink:#0b0907;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    font-family:system-ui, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    height:min(100vh, calc(100vw * 16 / 9));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 22%, rgba(255,241,205,.95), rgba(244,216,151,.82) 18%, rgba(213,164,84,.70) 40%, rgba(129,74,33,.58) 72%, rgba(28,16,10,.96) 100%),
+      linear-gradient(180deg, #ead29a 0%, #b47130 44%, #3a1f11 100%);
+    box-shadow:0 0 40px rgba(0,0,0,.45);
+    isolation:isolate;
+  }
+
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 56%, rgba(0,0,0,.06) 74%, rgba(0,0,0,.34) 100%),
+      repeating-linear-gradient(180deg, rgba(255,244,220,.04) 0 2px, rgba(0,0,0,.02) 2px 6px);
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  #smokeCanvas, #patternCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  #patternCanvas{
+    opacity:.56;
+    mix-blend-mode:multiply;
+    filter:saturate(1.05);
+  }
+
+  .panel{
+    position:absolute;
+    top:4.5%;
+    bottom:4.5%;
+    width:25.5%;
+    border-radius:40px;
+    opacity:.9;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.18));
+    mask-image:linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+  .panel.left{ left:2.5%; }
+  .panel.right{ right:2.5%; transform:scaleX(-1); }
+
+  svg{
+    display:block;
+    width:100%;
+    height:100%;
+    overflow:visible;
+  }
+
+  .carve{
+    fill:none;
+    stroke:var(--ink);
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .carve.thick{ stroke-width:30; }
+  .carve.med{ stroke-width:18; }
+  .carve.fine{ stroke-width:10; opacity:.95; }
+
+  .panelFill{
+    fill:rgba(22,13,8,.88);
+  }
+  .bone{
+    fill:rgba(244,232,203,.68);
+  }
+  .rust{
+    fill:rgba(155,70,34,.42);
+  }
+
+  #portrait-wrap{
+    position:absolute;
+    left:18%;
+    top:21%;
+    width:64%;
+    height:48%;
+    border-radius:44% 44% 40% 40% / 34% 34% 52% 52%;
+    overflow:hidden;
+    z-index:5;
+    opacity:.94;
+    transform:translateZ(0);
+    animation: portraitBreath 16s ease-in-out infinite;
+    filter:drop-shadow(0 18px 30px rgba(0,0,0,.32));
+    mask-image:radial-gradient(circle at 50% 44%, #000 0%, #000 58%, rgba(0,0,0,.94) 72%, rgba(0,0,0,.45) 83%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 44%, #000 0%, #000 58%, rgba(0,0,0,.94) 72%, rgba(0,0,0,.45) 83%, transparent 100%);
+  }
+  #portrait-wrap::before{
+    content:"";
+    position:absolute; inset:-8%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(245,236,216,.75) 0 17%, rgba(201,136,46,.5) 26%, rgba(107,53,24,.22) 42%, transparent 68%),
+      radial-gradient(circle at 50% 50%, transparent 55%, rgba(0,0,0,.22) 80%, transparent 100%);
+    opacity:.55;
+    animation: haloTurn 40s linear infinite;
+    pointer-events:none;
+    z-index:2;
+    mask-image:radial-gradient(circle, transparent 0%, #000 28%, #000 63%, transparent 86%);
+    -webkit-mask-image:radial-gradient(circle, transparent 0%, #000 28%, #000 63%, transparent 86%);
+  }
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 32%;
+    filter:grayscale(1) sepia(.7) contrast(1.18) saturate(1.2) hue-rotate(-6deg);
+    transform:scale(1.08);
+    mix-blend-mode:multiply;
+  }
+  #portrait-overlay{
+    position:absolute; inset:0;
+    z-index:3;
+    background:
+      radial-gradient(circle at 48% 36%, rgba(245,237,216,.0) 0 18%, rgba(245,237,216,.12) 26%, rgba(158,45,32,.15) 44%, rgba(11,9,7,.45) 100%),
+      linear-gradient(180deg, rgba(244,232,203,.12), rgba(11,9,7,.18));
+    mix-blend-mode:multiply;
+  }
+
+  #core-mask{
+    position:absolute;
+    inset:14% 10% 13% 10%;
+    z-index:4;
+    border-radius:50% 50% 46% 46% / 36% 36% 54% 54%;
+    pointer-events:none;
+    border:2px solid rgba(244,232,203,.18);
+    opacity:.55;
+    box-shadow:
+      0 0 0 16px rgba(107,53,24,.07),
+      0 0 0 40px rgba(11,9,7,.045);
+    mask-image:radial-gradient(circle, transparent 0 26%, #000 31%, #000 72%, transparent 97%);
+    -webkit-mask-image:radial-gradient(circle, transparent 0 26%, #000 31%, #000 72%, transparent 97%);
+    animation: slowPulse 18s ease-in-out infinite;
+  }
+
+  #center-svg{
+    position:absolute;
+    inset:8% 14%;
+    z-index:6;
+    overflow:visible;
+    pointer-events:none;
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,.15));
+    mask-image:radial-gradient(circle at 50% 44%, #000 0%, #000 72%, rgba(0,0,0,.72) 83%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 44%, #000 0%, #000 72%, rgba(0,0,0,.72) 83%, transparent 100%);
+  }
+
+  .ringA{ fill:none; stroke:rgba(11,9,7,.82); stroke-width:16; }
+  .ringB{ fill:none; stroke:rgba(245,237,216,.62); stroke-width:7; }
+  .ringC{ fill:none; stroke:rgba(158,45,32,.45); stroke-width:11; }
+
+  .rotSlow{ animation: haloTurn 60s linear infinite; transform-origin:50% 50%; }
+  .rotRev{ animation: haloTurnRev 46s linear infinite; transform-origin:50% 50%; }
+  .breathe{ animation: slowPulse 17s ease-in-out infinite; transform-origin:50% 50%; }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    z-index:30;
+    color:rgba(245,237,216,.55);
+    font-size:14px;
+    letter-spacing:.08em;
+    text-transform:none;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:90px;
+    bottom:152px;
+    z-index:12;
+    opacity:.58;
+    filter:sepia(.5) saturate(.7) contrast(.95);
+    transform:rotate(-8deg);
+  }
+
+  @keyframes haloTurn{
+    from{transform:rotate(0deg) scale(1)}
+    to{transform:rotate(360deg) scale(1)}
+  }
+  @keyframes haloTurnRev{
+    from{transform:rotate(360deg) scale(1.02)}
+    to{transform:rotate(0deg) scale(1.02)}
+  }
+  @keyframes slowPulse{
+    0%,100%{transform:scale(1); opacity:.5}
+    50%{transform:scale(1.035); opacity:.72}
+  }
+  @keyframes portraitBreath{
+    0%,100%{transform:scale(1) translateY(0px)}
+    50%{transform:scale(1.02) translateY(-6px)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="smokeCanvas" width="1080" height="1920"></canvas>
+    <canvas id="patternCanvas" width="1080" height="1920"></canvas>
+
+    <div class="panel left">
+      <svg viewBox="0 0 280 1680" preserveAspectRatio="none" aria-hidden="true">
+        <rect class="panelFill" x="12" y="10" rx="42" ry="42" width="256" height="1660"/>
+        <path class="bone" d="M40 50 h200 a20 20 0 0 1 20 20 v1540 a20 20 0 0 1-20 20 h-200 a20 20 0 0 1-20-20 v-1540 a20 20 0 0 1 20-20z" opacity=".2"/>
+        <g transform="translate(0,0)">
+          <circle class="carve thick" cx="142" cy="150" r="78"/>
+          <circle class="carve med" cx="142" cy="150" r="36"/>
+          <path class="carve med" d="M54 284 h176"/>
+          <path class="carve thick" d="M70 420 c0 0 76 -88 140 0 c-62 86 -140 76 -140 0z"/>
+          <circle class="carve med" cx="140" cy="420" r="26"/>
+          <path class="carve thick" d="M62 610 c42 -58 102 -78 156 0 c-40 84 -118 102 -156 0z"/>
+          <path class="carve med" d="M90 610 c18 34 54 44 96 0"/>
+          <path class="carve thick" d="M62 800 c66 -88 152 -74 156 20 c-18 82 -114 100 -156 -20z"/>
+          <circle class="carve fine" cx="150" cy="820" r="22"/>
+          <path class="carve med" d="M58 980 h164"/>
+          <path class="carve thick" d="M70 1120 c24 -76 112 -104 152 2 c-28 88 -120 96 -152 -2z"/>
+          <path class="carve med" d="M100 1120 c14 26 42 36 78 6"/>
+          <circle class="carve thick" cx="142" cy="1330" r="82"/>
+          <circle class="carve med" cx="142" cy="1330" r="38"/>
+          <path class="carve thick" d="M62 1502 c40 -60 112 -84 158 0 c-40 86 -124 94 -158 0z"/>
+          <path class="carve med" d="M90 1502 c20 34 58 42 98 0"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel right">
+      <svg viewBox="0 0 280 1680" preserveAspectRatio="none" aria-hidden="true">
+        <rect class="panelFill" x="12" y="10" rx="42" ry="42" width="256" height="1660"/>
+        <path class="bone" d="M40 50 h200 a20 20 0 0 1 20 20 v1540 a20 20 0 0 1-20 20 h-200 a20 20 0 0 1-20-20 v-1540 a20 20 0 0 1 20-20z" opacity=".2"/>
+        <g transform="translate(0,0)">
+          <circle class="carve thick" cx="142" cy="150" r="78"/>
+          <circle class="carve med" cx="142" cy="150" r="36"/>
+          <path class="carve med" d="M54 284 h176"/>
+          <path class="carve thick" d="M70 420 c0 0 76 -88 140 0 c-62 86 -140 76 -140 0z"/>
+          <circle class="carve med" cx="140" cy="420" r="26"/>
+          <path class="carve thick" d="M62 610 c42 -58 102 -78 156 0 c-40 84 -118 102 -156 0z"/>
+          <path class="carve med" d="M90 610 c18 34 54 44 96 0"/>
+          <path class="carve thick" d="M62 800 c66 -88 152 -74 156 20 c-18 82 -114 100 -156 -20z"/>
+          <circle class="carve fine" cx="150" cy="820" r="22"/>
+          <path class="carve med" d="M58 980 h164"/>
+          <path class="carve thick" d="M70 1120 c24 -76 112 -104 152 2 c-28 88 -120 96 -152 -2z"/>
+          <path class="carve med" d="M100 1120 c14 26 42 36 78 6"/>
+          <circle class="carve thick" cx="142" cy="1330" r="82"/>
+          <circle class="carve med" cx="142" cy="1330" r="38"/>
+          <path class="carve thick" d="M62 1502 c40 -60 112 -84 158 0 c-40 86 -124 94 -158 0z"/>
+          <path class="carve med" d="M90 1502 c20 34 58 42 98 0"/>
+        </g>
+      </svg>
+    </div>
+
+    <div id="portrait-wrap">
+      <img id="portrait-image" src="portrait.png" alt="" />
+      <div id="portrait-overlay"></div>
+    </div>
+
+    <div id="core-mask"></div>
+
+    <svg id="center-svg" viewBox="0 0 720 1160" preserveAspectRatio="none" aria-hidden="true">
+      <g class="rotSlow">
+        <circle class="ringA" cx="360" cy="370" r="220"/>
+        <circle class="ringB" cx="360" cy="370" r="166"/>
+      </g>
+      <g class="rotRev">
+        <path class="ringC" d="M245 370a115 115 0 1 0 230 0a115 115 0 1 0 -230 0"/>
+        <path class="ringA" d="M190 370a170 170 0 1 0 340 0a170 170 0 1 0 -340 0" opacity=".5"/>
+      </g>
+      <g class="breathe">
+        <path d="M360 694
+                 c-76 -14 -130 -72 -144 -134
+                 c-14 -60 4 -113 42 -152
+                 c30 -30 68 -48 102 -50
+                 c34 2 72 20 102 50
+                 c38 39 56 92 42 152
+                 c-14 62 -68 120 -144 134z"
+              fill="rgba(11,9,7,.72)"/>
+        <path d="M360 694
+                 c-46 -8 -84 -40 -96 -82
+                 c-12 -42 0 -82 26 -108
+                 c20 -20 44 -30 70 -32
+                 c26 2 50 12 70 32
+                 c26 26 38 66 26 108
+                 c-12 42 -50 74 -96 82z"
+              fill="rgba(245,237,216,.42)"/>
+      </g>
+      <g opacity=".72">
+        <path d="M170 818c74 -44 146 -68 190 -48c34 14 52 48 0 92c-62 52 -158 42 -190 -44z" fill="rgba(11,9,7,.78)"/>
+        <path d="M550 818c-74 -44 -146 -68 -190 -48c-34 14 -52 48 0 92c62 52 158 42 190 -44z" fill="rgba(11,9,7,.78)"/>
+        <circle cx="360" cy="834" r="28" fill="rgba(158,45,32,.55)"/>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="date">2026-04-17</div>
+  </div>
+
+<script>
+(function(){
+  const seedString = "2026-04-17";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function sfc32(a,b,c,d){
+    return function(){
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
+      let t = (a + b) | 0;
+      a = b ^ b >>> 9;
+      b = c + (c << 3) | 0;
+      c = (c << 21 | c >>> 11);
+      d = d + 1 | 0;
+      t = t + d | 0;
+      c = c + t | 0;
+      return (t >>> 0) / 4294967296;
+    }
+  }
+  const seed = xmur3(seedString);
+  const rand = sfc32(seed(), seed(), seed(), seed());
+
+  const smoke = document.getElementById('smokeCanvas');
+  const sctx = smoke.getContext('2d');
+  const pattern = document.getElementById('patternCanvas');
+  const pctx = pattern.getContext('2d');
+
+  const W = smoke.width, H = smoke.height;
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function drawPattern(){
+    pctx.clearRect(0,0,W,H);
+    pctx.globalCompositeOperation = 'source-over';
+
+    pctx.fillStyle = 'rgba(14,9,6,0.18)';
+    for(let side=0; side<2; side++){
+      const sx = side===0 ? 124 : W-124;
+      for(let i=0;i<9;i++){
+        const y = 162 + i*190;
+        pctx.save();
+        pctx.translate(sx, y);
+        if(side===1) pctx.scale(-1,1);
+
+        pctx.beginPath();
+        pctx.arc(0,0,70,0,Math.PI*2);
+        pctx.arc(0,0,30,0,Math.PI*2);
+        pctx.strokeStyle = 'rgba(8,6,4,0.55)';
+        pctx.lineWidth = 18;
+        pctx.stroke();
+
+        pctx.beginPath();
+        pctx.moveTo(-74,116);
+        pctx.arc(0,116,74,Math.PI,0,false);
+        pctx.arc(0,116,24,0,Math.PI,true);
+        pctx.closePath();
+        pctx.fillStyle = i%2 ? 'rgba(108,54,24,0.23)' : 'rgba(245,232,203,0.14)';
+        pctx.fill();
+
+        pctx.restore();
+      }
+    }
+
+    pctx.globalCompositeOperation = 'multiply';
+    for(let i=0;i<160;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const r = lerp(8,28,rand());
+      const g = pctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,'rgba(70,35,14,0.08)');
+      g.addColorStop(1,'rgba(70,35,14,0)');
+      pctx.fillStyle = g;
+      pctx.beginPath();
+      pctx.arc(x,y,r,0,Math.PI*2);
+      pctx.fill();
+    }
+  }
+  drawPattern();
+
+  const blobs = [];
+  const palette = [
+    [11,9,7,0.070],
+    [107,53,24,0.050],
+    [158,45,32,0.040],
+    [201,136,46,0.040],
+    [49,83,71,0.028],
+    [245,237,216,0.035]
+  ];
+
+  const centers = [
+    [W*0.5,H*0.24],[W*0.5,H*0.36],[W*0.5,H*0.5],[W*0.5,H*0.68],
+    [W*0.36,H*0.47],[W*0.64,H*0.47],[W*0.43,H*0.84],[W*0.57,H*0.84]
+  ];
+
+  for(let i=0;i<44;i++){
+    const c = centers[i % centers.length];
+    blobs.push({
+      cx:c[0] + (rand()-.5)*170,
+      cy:c[1] + (rand()-.5)*140,
+      rx:lerp(90,220,rand()),
+      ry:lerp(120,300,rand()),
+      rot:rand()*Math.PI*2,
+      rotV:(rand()-.5)*0.0009,
+      phase:rand()*Math.PI*2,
+      speed:lerp(0.0005,0.0015,rand()),
+      wob:lerp(16,52,rand()),
+      color:palette[(Math.floor(rand()*palette.length))],
+      driftX:(rand()-.5)*0.22,
+      driftY:(rand()-.5)*0.26
+    });
+  }
+
+  function drawBlob(b,t){
+    const pulse = Math.sin(t*b.speed + b.phase);
+    const rx = b.rx + pulse*b.wob;
+    const ry = b.ry + Math.cos(t*b.speed*0.9 + b.phase*1.4)*b.wob*0.9;
+    const x = b.cx + Math.sin(t*0.00027 + b.phase)*24 + t*b.driftX*0.02;
+    const y = b.cy + Math.cos(t*0.00022 + b.phase*1.7)*28 + t*b.driftY*0.02;
+    const angle = b.rot + t*b.rotV;
+    sctx.save();
+    sctx.translate(x,y);
+    sctx.rotate(angle);
+    const grad = sctx.createRadialGradient(-rx*0.16,-ry*0.1,rx*0.06,0,0,Math.max(rx,ry));
+    const c = b.color;
+    grad.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${c[3]*1.4})`);
+    grad.addColorStop(.56, `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`);
+    grad.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+    sctx.fillStyle = grad;
+    sctx.beginPath();
+    sctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);
+    sctx.fill();
+    sctx.restore();
+  }
+
+  function drawCentralInk(t){
+    const y0 = H*0.18;
+    const y1 = H*0.87;
+    const steps = 22;
+    sctx.save();
+    sctx.globalCompositeOperation = 'multiply';
+    for(let i=0;i<steps;i++){
+      const tt = i/(steps-1);
+      const y = lerp(y0,y1,tt);
+      const spread = Math.sin(t*0.0003 + tt*4.2)*18;
+      const rx = 170 + Math.sin(t*0.00042 + tt*7.0)*34;
+      const ry = 78 + Math.cos(t*0.00038 + tt*5.2)*22;
+      const g = sctx.createRadialGradient(W*0.5 + spread*0.4, y - 8, 10, W*0.5, y, rx);
+      g.addColorStop(0,'rgba(18,12,8,0.16)');
+      g.addColorStop(.55,'rgba(18,12,8,0.08)');
+      g.addColorStop(1,'rgba(18,12,8,0)');
+      sctx.fillStyle = g;
+      sctx.beginPath();
+      sctx.ellipse(W*0.5 + spread, y, rx, ry, 0, 0, Math.PI*2);
+      sctx.fill();
+    }
+    sctx.restore();
+  }
+
+  function frameMask(){
+    const g = sctx.createRadialGradient(W*0.5,H*0.46,200,W*0.5,H*0.46,940);
+    g.addColorStop(0,'rgba(0,0,0,0)');
+    g.addColorStop(.76,'rgba(0,0,0,0)');
+    g.addColorStop(1,'rgba(0,0,0,0.18)');
+    sctx.fillStyle = g;
+    sctx.fillRect(0,0,W,H);
+  }
+
+  let start = performance.now();
+  function render(now){
+    const t = now - start;
+    sctx.clearRect(0,0,W,H);
+
+    sctx.globalCompositeOperation = 'source-over';
+    for(let i=0;i<blobs.length;i++) drawBlob(blobs[i], t);
+
+    sctx.globalCompositeOperation = 'overlay';
+    for(let i=0;i<8;i++){
+      const y = H*(0.22 + i*0.075);
+      const w = 210 + Math.sin(t*0.00032 + i)*58;
+      const g = sctx.createLinearGradient(W*0.5-w,y,W*0.5+w,y);
+      g.addColorStop(0,'rgba(245,237,216,0)');
+      g.addColorStop(.5,'rgba(245,237,216,0.035)');
+      g.addColorStop(1,'rgba(245,237,216,0)');
+      sctx.fillStyle = g;
+      sctx.fillRect(W*0.5-w, y-58, w*2, 116);
+    }
+
+    drawCentralInk(t);
+    frameMask();
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  if (window.self === window.top) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
+      const ctx = new AC();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'triangle';
+      low.frequency.value = 54;
+
+      const high = ctx.createOscillator();
+      high.type = 'sine';
+      high.frequency.value = 162;
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.037;
+
+      const lowGain = ctx.createGain();
+      lowGain.gain.value = 0.18;
+
+      const highGain = ctx.createGain();
+      highGain.gain.value = 0.03;
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 12;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 420;
+      filter.Q.value = 0.2;
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const ch = noiseBuffer.getChannelData(0);
+      for(let i=0;i<ch.length;i++) ch[i] = (rand()*2-1) * 0.18;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 380;
+      noiseFilter.Q.value = 0.5;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.012;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(low.frequency);
+
+      low.connect(lowGain).connect(filter).connect(master);
+      high.connect(highGain).connect(filter).connect(master);
+      noise.connect(noiseFilter).connect(noiseGain).connect(master);
+
+      const nowT = ctx.currentTime;
+      master.gain.setValueAtTime(0.0001, nowT);
+      master.gain.exponentialRampToValueAtTime(0.018, nowT + 4);
+
+      low.start();
+      high.start();
+      lfo.start();
+      noise.start();
+
+      function modulate(){
+        const t = ctx.currentTime;
+        filter.frequency.setTargetAtTime(300 + rand()*240, t, 8);
+        high.frequency.setTargetAtTime(140 + rand()*60, t, 10);
+        noiseFilter.frequency.setTargetAtTime(280 + rand()*180, t, 12);
+        setTimeout(modulate, 9000);
+      }
+      modulate();
+    }
+  }
+})();
+</script>
+</body>
+</html>
