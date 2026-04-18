@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-04-18</title>
+<style>
+  :root{
+    --bg:#f2e6b8;
+    --red:#c92823;
+    --gold:#f0b323;
+    --green:#117f56;
+    --blue:#1456a3;
+    --black:#101010;
+    --white:#f7f2dd;
+    --cream:#ead9a2;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#121212;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:var(--bg);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.45);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:4.5%;
+    width:91%;
+    height:91%;
+    object-fit:cover;
+    opacity:.8;
+    filter:saturate(1.25) contrast(1.05) hue-rotate(-8deg);
+    clip-path:polygon(50% 0%, 92% 10%, 100% 50%, 92% 90%, 50% 100%, 8% 90%, 0% 50%, 8% 10%);
+    z-index:1;
+  }
+
+  .fade-mask{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 58%, rgba(0,0,0,.08) 72%, rgba(0,0,0,.34) 100%);
+  }
+
+  #svgLayer, #patternCanvas, #overlayCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    pointer-events:none;
+  }
+  #svgLayer{z-index:3}
+  #patternCanvas{z-index:2}
+  #overlayCanvas{z-index:6}
+
+  .panel{
+    position:absolute;
+    inset:0;
+    z-index:4;
+    pointer-events:none;
+    mix-blend-mode:multiply;
+    opacity:.65;
+    background:
+      linear-gradient(90deg, transparent 0 6%, rgba(16,16,16,.07) 6% 7%, transparent 7% 13%, rgba(16,16,16,.05) 13% 14%, transparent 14% 100%),
+      linear-gradient(0deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+    animation:panelShift 24s ease-in-out infinite alternate;
+  }
+
+  .centerAura{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:70%;
+    height:40%;
+    transform:translate(-50%,-50%);
+    z-index:5;
+    pointer-events:none;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at center,
+      rgba(240,179,35,.34) 0%,
+      rgba(240,179,35,.2) 26%,
+      rgba(201,40,35,.12) 44%,
+      rgba(17,127,86,.08) 58%,
+      rgba(20,86,163,0) 76%);
+    filter:blur(14px);
+    animation:breathe 18s ease-in-out infinite;
+  }
+
+  .vignettePattern{
+    position:absolute;
+    inset:0;
+    z-index:7;
+    pointer-events:none;
+    opacity:.38;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 46%, rgba(16,16,16,.04) 58%, rgba(16,16,16,.16) 100%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 2px, rgba(0,0,0,0) 2px 9px);
+    mix-blend-mode:multiply;
+  }
+
+  #date{
+    position:absolute;
+    right:22px;
+    bottom:16px;
+    z-index:30;
+    font-size:13px;
+    letter-spacing:.16em;
+    color:rgba(16,16,16,.45);
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:20px;
+    bottom:86px;
+    opacity:.58;
+    z-index:8;
+    filter:saturate(.9) contrast(.95) brightness(.9);
+    transform:rotate(-8deg);
+  }
+
+  @keyframes panelShift{
+    0%{transform:translateX(-1.4%) scaleX(1)}
+    100%{transform:translateX(1.4%) scaleX(1.02)}
+  }
+  @keyframes breathe{
+    0%,100%{transform:translate(-50%,-50%) scale(.96)}
+    50%{transform:translate(-50%,-50%) scale(1.04)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="patternCanvas" width="1080" height="1920"></canvas>
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldBand" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f6d05f"/>
+          <stop offset="50%" stop-color="#e9aa18"/>
+          <stop offset="100%" stop-color="#b27800"/>
+        </linearGradient>
+        <linearGradient id="redBand" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#d2352a"/>
+          <stop offset="100%" stop-color="#8f140f"/>
+        </linearGradient>
+        <radialGradient id="softFade" cx="50%" cy="50%" r="50%">
+          <stop offset="55%" stop-color="rgba(255,255,255,1)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </radialGradient>
+        <mask id="edgeFeather">
+          <rect width="1080" height="1920" fill="url(#softFade)"/>
+        </mask>
+        <pattern id="kenteStrip" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="120" height="120" fill="none"/>
+          <rect x="0" y="0" width="28" height="120" fill="#101010"/>
+          <rect x="28" y="0" width="16" height="120" fill="#f0b323"/>
+          <rect x="44" y="0" width="10" height="120" fill="#f7f2dd"/>
+          <rect x="54" y="0" width="32" height="120" fill="#c92823"/>
+          <rect x="86" y="0" width="14" height="120" fill="#117f56"/>
+          <rect x="100" y="0" width="20" height="120" fill="#1456a3"/>
+        </pattern>
+      </defs>
+
+      <g opacity="0.96" mask="url(#edgeFeather)">
+        <polygon points="540,72 886,182 1005,536 900,875 540,975 190,878 73,536 184,182"
+                 fill="none" stroke="url(#goldBand)" stroke-width="22"/>
+        <polygon points="540,142 820,232 910,536 828,828 540,910 256,828 168,536 260,232"
+                 fill="none" stroke="#101010" stroke-width="12" opacity=".75"/>
+        <polygon points="540,210 764,278 832,536 764,786 540,854 320,786 250,536 320,278"
+                 fill="url(#kenteStrip)" opacity=".45"/>
+      </g>
+
+      <g opacity=".95">
+        <rect x="96" y="116" width="888" height="42" fill="#101010"/>
+        <rect x="96" y="156" width="888" height="20" fill="#f0b323"/>
+        <rect x="96" y="1744" width="888" height="42" fill="#101010"/>
+        <rect x="96" y="1786" width="888" height="20" fill="#c92823"/>
+
+        <g transform="translate(0 0)">
+          <rect x="84" y="210" width="84" height="1500" fill="#101010"/>
+          <rect x="912" y="210" width="84" height="1500" fill="#101010"/>
+          <rect x="102" y="250" width="48" height="1420" fill="#f0b323"/>
+          <rect x="930" y="250" width="48" height="1420" fill="#1456a3"/>
+        </g>
+      </g>
+
+      <g opacity=".85" mask="url(#edgeFeather)">
+        <g fill="#f7f2dd" opacity=".7">
+          <circle cx="540" cy="536" r="24"/>
+          <circle cx="540" cy="1386" r="24"/>
+          <rect x="514" y="980" width="52" height="52" transform="rotate(45 540 1006)"/>
+        </g>
+        <g fill="none" stroke="#101010" stroke-width="14" opacity=".35">
+          <polygon points="540,292 632,352 632,460 540,516 448,460 448,352"/>
+          <polygon points="540,1402 632,1462 632,1570 540,1626 448,1570 448,1462"/>
+        </g>
+      </g>
+    </svg>
+
+    <div class="panel"></div>
+    <div class="centerAura"></div>
+    <canvas id="overlayCanvas" width="1080" height="1920"></canvas>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div class="vignettePattern"></div>
+    <div class="fade-mask"></div>
+    <div id="date">2026-04-18</div>
+  </div>
+
+<script>
+(() => {
+  const dateSeed = "2026-04-18";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  const seed = hashString(dateSeed + "-african-tribal-tessellation-video");
+  const rand = mulberry32(seed);
+
+  const pCanvas = document.getElementById('patternCanvas');
+  const oCanvas = document.getElementById('overlayCanvas');
+  const pctx = pCanvas.getContext('2d');
+  const octx = oCanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+  const cx = W/2, cy = H/2;
+
+  const palette = ["#c92823","#f0b323","#117f56","#1456a3","#101010","#f7f2dd"];
+  const accent = ["#c92823","#f0b323","#117f56","#1456a3"];
+
+  const cols = 9, rows = 13;
+  const tileW = 112, tileH = 112;
+  const tiles = [];
+
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const x = 36 + c*112;
+      const y = 236 + r*112;
+      const kind = (c + r + Math.floor(rand()*3)) % 4;
+      tiles.push({
+        x,y,kind,
+        rot: (Math.floor(rand()*4) * Math.PI/2),
+        phase: rand()*Math.PI*2,
+        speed: 0.25 + rand()*0.45,
+        colorA: accent[(c + r) % accent.length],
+        colorB: palette[(c*2 + r*3 + 1) % palette.length]
+      });
+    }
+  }
+
+  function drawAdinkraDiamond(ctx, x, y, s, t, col1, col2){
+    const pulse = 0.12*Math.sin(t);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI/4 + pulse*0.4);
+    const size = s*(1+pulse);
+    ctx.fillStyle = col1;
+    ctx.fillRect(-size*0.36, -size*0.36, size*0.72, size*0.72);
+    ctx.fillStyle = col2;
+    ctx.fillRect(-size*0.15, -size*0.15, size*0.3, size*0.3);
+    ctx.strokeStyle = "#101010";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(-size*0.36, -size*0.36, size*0.72, size*0.72);
+    ctx.restore();
+  }
+
+  function drawStepTile(ctx, x, y, s, t, a, b){
+    const m = 0.18 + 0.08*Math.sin(t);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.fillStyle = a;
+    ctx.beginPath();
+    ctx.moveTo(-s*0.5, -s*0.5);
+    ctx.lineTo(0, -s*0.5);
+    ctx.lineTo(0, -s*m);
+    ctx.lineTo(s*m, -s*m);
+    ctx.lineTo(s*m, s*0.5);
+    ctx.lineTo(-s*0.5, s*0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = b;
+    ctx.beginPath();
+    ctx.moveTo(0, -s*0.5);
+    ctx.lineTo(s*0.5, -s*0.5);
+    ctx.lineTo(s*0.5, s*0.5);
+    ctx.lineTo(s*m, s*0.5);
+    ctx.lineTo(s*m, -s*m);
+    ctx.lineTo(0, -s*m);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "#101010";
+    ctx.lineWidth = 7;
+    ctx.strokeRect(-s*0.5, -s*0.5, s, s);
+    ctx.restore();
+  }
+
+  function drawCrossTile(ctx, x, y, s, t, a, b){
+    const arm = 0.22 + 0.06*Math.sin(t*1.1);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.fillStyle = b;
+    ctx.fillRect(-s/2,-s/2,s,s);
+    ctx.fillStyle = a;
+    ctx.fillRect(-s*arm, -s/2, s*arm*2, s);
+    ctx.fillRect(-s/2, -s*arm, s, s*arm*2);
+    ctx.fillStyle = "#f7f2dd";
+    ctx.fillRect(-s*0.12, -s*0.12, s*0.24, s*0.24);
+    ctx.strokeStyle = "#101010";
+    ctx.lineWidth = 7;
+    ctx.strokeRect(-s/2,-s/2,s,s);
+    ctx.restore();
+  }
+
+  function drawChevronHex(ctx, x, y, s, t, a, b){
+    const k = 0.1*Math.sin(t);
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const ang = Math.PI/6 + i*Math.PI/3;
+      const px = Math.cos(ang)*s*0.52;
+      const py = Math.sin(ang)*s*0.52;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = a;
+    ctx.fill();
+    ctx.strokeStyle = "#101010";
+    ctx.lineWidth = 7;
+    ctx.stroke();
+
+    ctx.fillStyle = b;
+    ctx.beginPath();
+    ctx.moveTo(-s*0.22, -s*0.08+k*s);
+    ctx.lineTo(0, -s*0.26);
+    ctx.lineTo(s*0.22, -s*0.08+k*s);
+    ctx.lineTo(s*0.1, -s*0.08+k*s);
+    ctx.lineTo(0, -s*0.18);
+    ctx.lineTo(-s*0.1, -s*0.08+k*s);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-s*0.22, s*0.08-k*s);
+    ctx.lineTo(0, s*0.26);
+    ctx.lineTo(s*0.22, s*0.08-k*s);
+    ctx.lineTo(s*0.1, s*0.08-k*s);
+    ctx.lineTo(0, s*0.18);
+    ctx.lineTo(-s*0.1, s*0.08-k*s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function paintBackground(t){
+    pctx.clearRect(0,0,W,H);
+
+    const grad = pctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,"#f3e6b2");
+    grad.addColorStop(0.45,"#e8d08e");
+    grad.addColorStop(1,"#cfb067");
+    pctx.fillStyle = grad;
+    pctx.fillRect(0,0,W,H);
+
+    pctx.save();
+    pctx.globalAlpha = 0.16;
+    for(let i=0;i<18;i++){
+      const y = 70 + i*100;
+      pctx.fillStyle = i%2 ? "#ffffff" : "#101010";
+      pctx.fillRect(0, y, W, 6);
+    }
+    pctx.restore();
+
+    pctx.save();
+    pctx.globalAlpha = 0.18;
+    pctx.fillStyle = "#c92823";
+    pctx.fillRect(0, 0, W, 90);
+    pctx.fillStyle = "#101010";
+    pctx.fillRect(0, H-110, W, 110);
+    pctx.restore();
+
+    for(const tile of tiles){
+      const localT = t*tile.speed + tile.phase;
+      pctx.save();
+      pctx.translate(tile.x + tileW/2, tile.y + tileH/2);
+      pctx.rotate(tile.rot + 0.18*Math.sin(localT));
+      const swap = Math.sin(localT*0.5) > 0;
+      const c1 = swap ? tile.colorA : tile.colorB;
+      const c2 = swap ? tile.colorB : tile.colorA;
+
+      if(tile.kind === 0) drawStepTile(pctx,0,0,tileW*0.92,localT,c1,c2);
+      else if(tile.kind === 1) drawCrossTile(pctx,0,0,tileW*0.92,localT,c1,c2);
+      else if(tile.kind === 2) drawChevronHex(pctx,0,0,tileW*0.92,localT,c1,c2);
+      else drawAdinkraDiamond(pctx,0,0,tileW*0.92,localT,c1,c2);
+      pctx.restore();
+    }
+
+    pctx.save();
+    pctx.globalAlpha = 0.12;
+    pctx.strokeStyle = "#101010";
+    pctx.lineWidth = 3;
+    for(let c=0;c<=cols;c++){
+      const x = 36 + c*112;
+      pctx.beginPath();
+      pctx.moveTo(x,236);
+      pctx.lineTo(x,236+rows*112);
+      pctx.stroke();
+    }
+    for(let r=0;r<=rows;r++){
+      const y = 236 + r*112;
+      pctx.beginPath();
+      pctx.moveTo(36,y);
+      pctx.lineTo(36+cols*112,y);
+      pctx.stroke();
+    }
+    pctx.restore();
+  }
+
+  function paintOverlay(t){
+    octx.clearRect(0,0,W,H);
+
+    octx.save();
+    octx.globalAlpha = 0.4;
+    const rg = octx.createRadialGradient(cx,cy,120,cx,cy,620);
+    rg.addColorStop(0,"rgba(247,242,221,0.95)");
+    rg.addColorStop(0.28,"rgba(240,179,35,0.18)");
+    rg.addColorStop(0.62,"rgba(201,40,35,0.08)");
+    rg.addColorStop(1,"rgba(0,0,0,0)");
+    octx.fillStyle = rg;
+    octx.beginPath();
+    octx.ellipse(cx,cy,400+20*Math.sin(t*0.35),290+16*Math.cos(t*0.28),0,0,Math.PI*2);
+    octx.fill();
+    octx.restore();
+
+    octx.save();
+    octx.translate(cx,cy);
+    octx.rotate(t*0.05);
+    octx.globalAlpha = 0.56;
+    for(let i=0;i<12;i++){
+      octx.save();
+      octx.rotate((Math.PI*2/12)*i);
+      octx.fillStyle = i%3===0 ? "#101010" : i%3===1 ? "#c92823" : "#f0b323";
+      octx.beginPath();
+      octx.moveTo(0,-28);
+      octx.lineTo(390, -70);
+      octx.lineTo(470,0);
+      octx.lineTo(390,70);
+      octx.lineTo(0,28);
+      octx.closePath();
+      octx.fill();
+      octx.restore();
+    }
+    octx.restore();
+
+    octx.save();
+    octx.globalCompositeOperation = "multiply";
+    octx.globalAlpha = 0.18;
+    for(let i=0;i<8;i++){
+      const yy = 260 + i*180 + Math.sin(t*0.3+i)*8;
+      const lg = octx.createLinearGradient(100,yy,980,yy);
+      lg.addColorStop(0,"rgba(16,16,16,0)");
+      lg.addColorStop(0.2,"rgba(16,16,16,0.5)");
+      lg.addColorStop(0.5,"rgba(16,16,16,0.12)");
+      lg.addColorStop(0.8,"rgba(16,16,16,0.5)");
+      lg.addColorStop(1,"rgba(16,16,16,0)");
+      octx.fillStyle = lg;
+      octx.fillRect(90,yy,900,18);
+    }
+    octx.restore();
+
+    octx.save();
+    octx.globalAlpha = .2;
+    for(let i=0;i<320;i++){
+      const x = (i*73.3)%W;
+      const y = (i*137.7)%H;
+      const s = 2 + (i%3);
+      octx.fillStyle = i%4===0 ? "#101010" : i%4===1 ? "#c92823" : i%4===2 ? "#117f56" : "#1456a3";
+      octx.fillRect(x,y,s,s);
+    }
+    octx.restore();
+  }
+
+  let start = performance.now();
+  function loop(now){
+    const t = (now-start)/1000;
+    paintBackground(t);
+    paintOverlay(t);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  if (window.self === window.top) {
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const master = ctx.createGain();
+      master.gain.value = 0.015;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = "triangle";
+      osc2.type = "sine";
+      osc1.frequency.value = 82.41;
+      osc2.frequency.value = 123.47;
+      lfo.type = "sine";
+      lfo.frequency.value = 0.07;
+      lfoGain.gain.value = 8;
+
+      filter.type = "lowpass";
+      filter.frequency.value = 420;
+      filter.Q.value = 0.4;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(master);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
