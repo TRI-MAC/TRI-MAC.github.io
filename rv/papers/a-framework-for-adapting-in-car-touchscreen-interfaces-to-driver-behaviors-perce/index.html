@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Framework for Adapting In-Car Touchscreen Interfaces to Driver Behaviors, Perception, and Cognition — Requisite Variety</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../post.css">
+  <style>
+    .paper-image {
+      max-width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
+      margin: 1.5em 0;
+    }
+    .paper-detail {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+    }
+    .paper-detail strong {
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+  <svg class="circuit-bg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dot-grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.8" fill="var(--color-circuit)"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dot-grid)"/>
+    <line class="trace trace-v1" x1="15%" y1="0" x2="15%" y2="100%"/>
+    <line class="trace trace-v2" x1="85%" y1="0" x2="85%" y2="100%"/>
+  </svg>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../../index.html" class="logo-link">
+        <img src="../../tri_mark.png" alt="TRI" class="logo-img">
+        <span class="logo-text">
+          <span class="logo-tri">Requisite Variety</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="../../index.html" class="nav-link">Blog</a>
+        <a href="../../benchmarks.html" class="nav-link">Benchmarks</a>
+        <a href="#" class="nav-link">Archive</a>
+        <a href="#" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <article class="post">
+    <header class="post-header">
+      <div class="post-header-inner">
+        <div class="post-meta-top">
+          <span class="tag">paper</span>
+        </div>
+        <h1 class="post-title">A Framework for Adapting In-Car Touchscreen Interfaces to Driver Behaviors, Perception, and Cognition</h1>
+        <div class="post-author" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <p class="paper-detail"><strong>Authors:</strong> Seokhyun Hwang, Xiyuan Shen, Alexandre L. S. Filipowicz, Andrew Best, Jean Costa, Scott Carter, James Fogarty, Jacob O. Wobbrock</p>
+          <p class="paper-detail"><strong>Published in:</strong> Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems (CHI ’26), 2026</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="post-separator" aria-hidden="true">
+      <svg width="100%" height="20" viewBox="0 0 800 20" preserveAspectRatio="none">
+        <line x1="0" y1="10" x2="360" y2="10" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="6 4"/>
+        <circle cx="370" cy="10" r="3" fill="var(--color-primary)" opacity="0.2"/>
+        <circle cx="400" cy="10" r="4" fill="var(--color-primary)" opacity="0.35"/>
+        <circle cx="430" cy="10" r="3" fill="var(--color-primary)" opacity="0.2"/>
+        <line x1="440" y1="10" x2="800" y2="10" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="6 4"/>
+      </svg>
+    </div>
+
+    <div class="post-body">
+      <img src="image.png" alt="Paper figure" class="paper-image">
+      <p>Although in-car touchscreens expand interaction possibilities, they risk compromising driver safety and vigilance. We propose a data- and expert-informed framework for designing adaptive touchscreens that respond to a driver’s usage profile and cognitive state, maximizing usability while mitigating safety risks. First, in a driving simulator study, we find that cognitive load slows touchscreen button selections by 20% and produced shorter, more frequent off-road glances. We also find that enlarging buttons improves selection speeds by 0.3 seconds but at the cost of requiring more display pages. Next, these findings informed a co-design session with expert in-cabin designers, generating guidelines for adaptive interfaces that balance usability and safety. These guidelines form the basis of our Profile-State Adaptive (PSA) framework, which integrates driver profiles with cognitive states to guide interface adaptations. We then extend the framework to include a quantitative Time-Cost model as well as design patterns for adaptive layouts across usage profiles and cognitive demands.</p>
+      <a href="https://doi.org/10.1145/3772318.3790434" target="_blank" rel="noopener" class="hero-cta">View paper <span class="arrow">→</span></a>
+    </div>
+
+    <footer class="post-footer">
+      <div class="post-tags">
+        <span class="tag">paper</span>
+      </div>
+      <div class="post-nav">
+        <a href="../../index.html" class="post-nav-link">
+          <span class="arrow">←</span> All posts
+        </a>
+      </div>
+    </footer>
+  </article>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="../../tri_mark.png" alt="TRI" style="width:24px;height:24px;">
+        <span>requisite variety</span>
+        <span class="footer-dot">·</span>
+        <span>2026</span>
+      </div>
+      <div class="footer-links">
+        <a href="#">GitHub</a>
+        <a href="#">RSS</a>
+      </div>
+    </div>
+    <div class="footer-circuit" aria-hidden="true">
+      <svg width="100%" height="2">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="var(--color-border)" stroke-width="1" stroke-dasharray="8 4"/>
+      </svg>
+    </div>
+  </footer>
+</body>
+</html>
