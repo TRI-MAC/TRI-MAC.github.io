@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-19</title>
+<style>
+  :root{
+    --bg:#f5f0e6;
+    --ink:#101010;
+    --red:#cf2e22;
+    --blue:#204ccf;
+    --gold:#f0c13b;
+    --cream:#f3ede0;
+    --shadow:#0f0f12;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.77778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:var(--bg);
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 25px 80px rgba(0,0,0,.45);
+  }
+
+  /* layered backlit screen */
+  .screenGlow{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(255,247,223,.98) 0 18%, rgba(244,229,188,.95) 19%, rgba(238,220,173,.9) 36%, rgba(230,206,148,.7) 53%, rgba(194,167,103,.35) 69%, rgba(0,0,0,0) 84%),
+      linear-gradient(180deg, #efe4c8 0%, #ead9af 38%, #d9bc72 100%);
+    opacity:.98;
+    animation:breathe 16s ease-in-out infinite;
+  }
+  .paperGrain{
+    position:absolute; inset:0;
+    opacity:.18;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.025) 0 2px, transparent 2px 6px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 3px, transparent 3px 9px);
+    mix-blend-mode:multiply;
+  }
+
+  /* suprematist blocks */
+  .plane{
+    position:absolute;
+    transform-origin:center;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.12));
+  }
+  .plane.red1{
+    width:58%;
+    height:6.5%;
+    left:19%;
+    top:22%;
+    background:var(--red);
+    transform:rotate(-22deg);
+    animation:slideA 26s ease-in-out infinite;
+  }
+  .plane.black1{
+    width:11%;
+    height:47%;
+    left:71%;
+    top:10%;
+    background:#111;
+    transform:rotate(12deg);
+    animation:tiltA 22s ease-in-out infinite;
+  }
+  .plane.blue1{
+    width:21%;
+    height:21%;
+    left:11%;
+    top:12%;
+    background:var(--blue);
+    transform:rotate(45deg);
+    animation:driftSquare 24s ease-in-out infinite;
+  }
+  .plane.gold1{
+    width:34%;
+    height:4.6%;
+    left:7%;
+    top:64%;
+    background:var(--gold);
+    transform:rotate(31deg);
+    animation:slideB 23s ease-in-out infinite;
+  }
+  .plane.black2{
+    width:42%;
+    height:5.5%;
+    left:47%;
+    top:74%;
+    background:#0d0d0d;
+    transform:rotate(-34deg);
+    animation:slideC 28s ease-in-out infinite;
+  }
+  .plane.circle1{
+    width:18%;
+    height:18%;
+    left:58%;
+    top:29%;
+    border-radius:50%;
+    background:#f8f5ef;
+    box-shadow:inset 0 0 0 9px rgba(0,0,0,.88);
+    animation:pulseOrb 18s ease-in-out infinite;
+  }
+  .plane.circle2{
+    width:8%;
+    height:8%;
+    left:28%;
+    top:79%;
+    border-radius:50%;
+    background:#111;
+    animation:orb2 20s ease-in-out infinite;
+  }
+
+  /* portrait integrated as backlit ghost figure */
+  #portraitWrap{
+    position:absolute;
+    left:24%;
+    top:32%;
+    width:46%;
+    height:38%;
+    transform:rotate(-4deg);
+    opacity:.72;
+    mix-blend-mode:multiply;
+    filter:blur(.2px) contrast(1.2) saturate(.2);
+    mask-image:
+      radial-gradient(circle at 50% 46%, rgba(0,0,0,1) 0 42%, rgba(0,0,0,.86) 54%, rgba(0,0,0,.35) 70%, rgba(0,0,0,0) 83%);
+    -webkit-mask-image:
+      radial-gradient(circle at 50% 46%, rgba(0,0,0,1) 0 42%, rgba(0,0,0,.86) 54%, rgba(0,0,0,.35) 70%, rgba(0,0,0,0) 83%);
+    animation:portraitShift 19s ease-in-out infinite;
+  }
+  #portrait-image{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    filter:grayscale(1) contrast(1.55) brightness(.5);
+    transform:scale(1.06);
+  }
+
+  /* SVG puppet theatre overlay */
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+  }
+
+  /* canvases */
+  canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+  #scan{
+    opacity:.26;
+    mix-blend-mode:multiply;
+  }
+  #dust{
+    opacity:.20;
+    mix-blend-mode:multiply;
+  }
+
+  /* guinea pig */
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:78px;
+    bottom:214px;
+    opacity:.58;
+    transform:rotate(-6deg);
+    filter:brightness(.75) saturate(.75);
+    z-index:8;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    font-size:13px;
+    letter-spacing:.08em;
+    color:rgba(0,0,0,.42);
+    z-index:20;
+    user-select:none;
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1); filter:saturate(1) brightness(1)}
+    50%{transform:scale(1.018); filter:saturate(1.05) brightness(1.02)}
+  }
+  @keyframes slideA{
+    0%,100%{transform:translate(0,0) rotate(-22deg)}
+    50%{transform:translate(-1.2%,1.1%) rotate(-18deg)}
+  }
+  @keyframes slideB{
+    0%,100%{transform:translate(0,0) rotate(31deg)}
+    50%{transform:translate(1.8%,-1.4%) rotate(26deg)}
+  }
+  @keyframes slideC{
+    0%,100%{transform:translate(0,0) rotate(-34deg)}
+    50%{transform:translate(-1.5%,1.4%) rotate(-28deg)}
+  }
+  @keyframes tiltA{
+    0%,100%{transform:rotate(12deg) translateY(0)}
+    50%{transform:rotate(8deg) translateY(1.2%)}
+  }
+  @keyframes driftSquare{
+    0%,100%{transform:rotate(45deg) translate(0,0)}
+    50%{transform:rotate(39deg) translate(2%,1%)}
+  }
+  @keyframes pulseOrb{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.05)}
+  }
+  @keyframes orb2{
+    0%,100%{transform:translate(0,0)}
+    50%{transform:translate(6px,-8px)}
+  }
+  @keyframes portraitShift{
+    0%,100%{transform:rotate(-4deg) translateY(0) scale(1)}
+    50%{transform:rotate(-2deg) translateY(-1.2%) scale(1.03)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="screenGlow"></div>
+  <div class="paperGrain"></div>
+
+  <div class="plane blue1"></div>
+  <div class="plane red1"></div>
+  <div class="plane black1"></div>
+  <div class="plane gold1"></div>
+  <div class="plane black2"></div>
+  <div class="plane circle1"></div>
+  <div class="plane circle2"></div>
+
+  <div id="portraitWrap">
+    <img id="portrait-image" src="portrait.png" alt="">
+  </div>
+
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="8" result="b"/>
+        <feColorMatrix in="b" type="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 .45 0"/>
+      </filter>
+      <radialGradient id="fadeStage" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stop-color="white" stop-opacity="1"/>
+        <stop offset="72%" stop-color="white" stop-opacity=".95"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="edgeMask">
+        <rect width="1080" height="1920" fill="url(#fadeStage)"/>
+      </mask>
+    </defs>
+
+    <g mask="url(#edgeMask)">
+      <!-- theatre aperture -->
+      <ellipse cx="540" cy="1040" rx="340" ry="580" fill="rgba(255,248,232,.36)"/>
+      <ellipse cx="540" cy="1040" rx="282" ry="515" fill="rgba(0,0,0,.06)"/>
+
+      <!-- puppet rods / structural diagonals -->
+      <g opacity="0.55">
+        <rect x="487" y="230" width="8" height="850" fill="#141414" transform="rotate(-6 491 655)"/>
+        <rect x="618" y="260" width="8" height="760" fill="#141414" transform="rotate(9 622 640)"/>
+      </g>
+
+      <!-- figure group 1 -->
+      <g id="puppetA" transform="translate(0 0)">
+        <circle cx="405" cy="820" r="66" fill="#0f0f10"/>
+        <rect x="338" y="884" width="142" height="290" fill="#0f0f10" transform="rotate(-14 409 1029)"/>
+        <polygon points="304,1008 405,922 430,1005 325,1108" fill="#0f0f10"/>
+        <polygon points="430,1032 538,978 557,1054 449,1112" fill="#0f0f10"/>
+        <polygon points="352,1160 430,1152 445,1455 377,1458" fill="#0f0f10"/>
+        <polygon points="425,1151 497,1135 555,1412 492,1427" fill="#0f0f10"/>
+        <polygon points="372,763 470,788 459,858 360,834" fill="#0f0f10"/>
+      </g>
+
+      <!-- figure group 2 -->
+      <g id="puppetB" transform="translate(0 0)">
+        <circle cx="712" cy="932" r="58" fill="#131313"/>
+        <polygon points="662,985 788,1015 735,1260 604,1230" fill="#131313"/>
+        <polygon points="742,1080 862,1125 836,1208 722,1161" fill="#131313"/>
+        <polygon points="654,1240 724,1238 705,1494 642,1498" fill="#131313"/>
+        <polygon points="712,1240 776,1238 812,1502 752,1506" fill="#131313"/>
+        <rect x="676" y="823" width="19" height="122" fill="#131313" transform="rotate(-22 685 884)"/>
+      </g>
+
+      <!-- abstract story object / bird-kite-mask -->
+      <g id="totem" transform="translate(0 0)">
+        <polygon points="470,650 642,578 786,690 640,774 505,735" fill="#cf2e22"/>
+        <polygon points="642,602 736,546 832,628 734,681" fill="#204ccf"/>
+        <circle cx="638" cy="676" r="36" fill="#f3ede0"/>
+        <circle cx="638" cy="676" r="14" fill="#111"/>
+        <polygon points="551,734 607,808 528,830" fill="#f0c13b"/>
+      </g>
+
+      <!-- stage base -->
+      <polygon points="112,1540 460,1438 942,1520 868,1632 210,1652" fill="rgba(15,15,18,.9)"/>
+      <polygon points="0,1742 1080,1650 1080,1920 0,1920" fill="#111"/>
+    </g>
+  </svg>
+
+  <canvas id="dust" width="1080" height="1920"></canvas>
+  <canvas id="scan" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-04-19</div>
+</div>
+
+<script>
+(function(){
+  const seedStr = "2026-04-19";
+  let h = 1779033703 ^ seedStr.length;
+  for (let i = 0; i < seedStr.length; i++) {
+    h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  function rand(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+
+  const dust = document.getElementById('dust');
+  const dctx = dust.getContext('2d');
+  const scan = document.getElementById('scan');
+  const sctx = scan.getContext('2d');
+
+  const puppetA = document.getElementById('puppetA');
+  const puppetB = document.getElementById('puppetB');
+  const totem = document.getElementById('totem');
+
+  const motes = [];
+  for(let i=0;i<90;i++){
+    motes.push({
+      x: rand()*1080,
+      y: rand()*1920,
+      r: 1 + rand()*4.8,
+      a: 0.03 + rand()*0.09,
+      vx: -0.05 + rand()*0.1,
+      vy: -0.18 - rand()*0.35
+    });
+  }
+
+  function drawScan(t){
+    sctx.clearRect(0,0,1080,1920);
+    const g = sctx.createLinearGradient(0,0,0,1920);
+    g.addColorStop(0,'rgba(255,255,255,0.05)');
+    g.addColorStop(0.5,'rgba(0,0,0,0.0)');
+    g.addColorStop(1,'rgba(0,0,0,0.08)');
+    sctx.fillStyle = g;
+    sctx.fillRect(0,0,1080,1920);
+
+    for(let y=0;y<1920;y+=5){
+      const alpha = 0.02 + 0.01*Math.sin(y*0.05 + t*0.0005);
+      sctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      sctx.fillRect(0,y,1080,1);
+    }
+
+    sctx.save();
+    sctx.globalAlpha = 0.06;
+    sctx.translate(540,960);
+    sctx.rotate(-0.37);
+    sctx.fillStyle = '#cf2e22';
+    sctx.fillRect(-350,-14,700,28);
+    sctx.rotate(0.92);
+    sctx.fillStyle = '#204ccf';
+    sctx.fillRect(-210,-10,420,20);
+    sctx.restore();
+  }
+
+  function drawDust(){
+    dctx.clearRect(0,0,1080,1920);
+    for(const m of motes){
+      m.x += m.vx;
+      m.y += m.vy;
+      if(m.y < 260){ m.y = 1750 + rand()*120; m.x = 180 + rand()*720; }
+      if(m.x < 150) m.x = 920;
+      if(m.x > 930) m.x = 160;
+
+      const grad = dctx.createRadialGradient(m.x,m.y,0,m.x,m.y,m.r*2.5);
+      grad.addColorStop(0,`rgba(255,248,220,${m.a})`);
+      grad.addColorStop(1,'rgba(255,248,220,0)');
+      dctx.fillStyle = grad;
+      dctx.beginPath();
+      dctx.arc(m.x,m.y,m.r*2.5,0,Math.PI*2);
+      dctx.fill();
+    }
+  }
+
+  function animate(ts){
+    const t = ts || 0;
+    const s1 = Math.sin(t*0.00042);
+    const s2 = Math.sin(t*0.00031 + 1.4);
+    const s3 = Math.sin(t*0.00027 + 3.1);
+
+    puppetA.setAttribute('transform',
+      `translate(${s1*26} ${s2*18}) rotate(${s2*4} 405 1120)`);
+    puppetB.setAttribute('transform',
+      `translate(${s2*20} ${s3*22}) rotate(${s1*5} 712 1160)`);
+    totem.setAttribute('transform',
+      `translate(${s3*30} ${-18 + s1*24}) rotate(${s2*6} 650 690)`);
+
+    drawDust();
+    drawScan(t);
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.016;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.value = 71.5;
+      osc2.frequency.value = 107.25;
+      filter.type = 'lowpass';
+      filter.frequency.value = 620;
+      filter.Q.value = 0.2;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.047;
+      lfoGain.gain.value = 18;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const g1 = ctx.createGain();
+      const g2 = ctx.createGain();
+      g1.gain.value = 0.55;
+      g2.gain.value = 0.32;
+
+      osc1.connect(g1); osc2.connect(g2);
+      g1.connect(filter); g2.connect(filter);
+      filter.connect(master);
+
+      const now = ctx.currentTime;
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(0.016, now + 3.5);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+
+      document.addEventListener('visibilitychange', () => {
+        if(document.hidden){
+          master.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.8);
+        } else {
+          if(ctx.state === 'suspended') ctx.resume();
+          master.gain.setTargetAtTime(0.016, ctx.currentTime, 1.6);
+        }
+      }, {passive:true});
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
