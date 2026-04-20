@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-20</title>
+<style>
+  :root{
+    --bg:#efe7d2;
+    --paper:#f6f0df;
+    --red:#c5121b;
+    --deep-red:#7e0d12;
+    --black:#0d0d0e;
+    --cream:#f3ead0;
+    --gold:#d8b55b;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#151515;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:var(--paper);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 24px 80px rgba(0,0,0,.45);
+  }
+
+  .layer, canvas, svg, img {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #bg{
+    z-index:0;
+    background:
+      radial-gradient(circle at 82% 18%, rgba(255,255,255,.45), rgba(255,255,255,0) 18%),
+      linear-gradient(145deg, var(--cream) 0%, #eadfbe 36%, #f5efdf 36.5%, #f5efdf 100%);
+  }
+
+  #paperTexture{
+    z-index:1;
+    opacity:.24;
+    mix-blend-mode:multiply;
+  }
+
+  .diagA,.diagB,.diagC,.diagD,.diagE{
+    position:absolute;
+    transform:rotate(-24deg);
+    transform-origin:center;
+    filter:blur(.2px);
+  }
+  .diagA{
+    z-index:2;
+    width:165%;
+    height:36%;
+    left:-36%;
+    top:7%;
+    background:var(--red);
+    opacity:.96;
+  }
+  .diagB{
+    z-index:2;
+    width:125%;
+    height:14%;
+    left:-18%;
+    top:53%;
+    background:var(--black);
+    opacity:.98;
+  }
+  .diagC{
+    z-index:2;
+    width:78%;
+    height:24%;
+    right:-14%;
+    top:69%;
+    background:var(--red);
+    opacity:.95;
+  }
+  .diagD{
+    z-index:2;
+    width:90%;
+    height:8%;
+    left:-10%;
+    top:82%;
+    background:#111;
+    opacity:.9;
+  }
+  .diagE{
+    z-index:2;
+    width:110%;
+    height:4.2%;
+    left:-5%;
+    top:28%;
+    background:#f8f2e3;
+    opacity:.8;
+  }
+
+  #sunburst{
+    z-index:3;
+    opacity:.7;
+    mix-blend-mode:multiply;
+    mask-image:radial-gradient(circle at 50% 35%, black 0%, black 58%, transparent 86%);
+    -webkit-mask-image:radial-gradient(circle at 50% 35%, black 0%, black 58%, transparent 86%);
+  }
+
+  #portraitWrap{
+    position:absolute;
+    z-index:5;
+    left:12%;
+    right:20%;
+    top:15%;
+    height:44%;
+    pointer-events:none;
+    mask-image:radial-gradient(circle at 46% 42%, rgba(0,0,0,1) 0 44%, rgba(0,0,0,.9) 57%, rgba(0,0,0,.35) 72%, transparent 88%);
+    -webkit-mask-image:radial-gradient(circle at 46% 42%, rgba(0,0,0,1) 0 44%, rgba(0,0,0,.9) 57%, rgba(0,0,0,.35) 72%, transparent 88%);
+  }
+  #portrait-image{
+    object-fit:cover;
+    object-position:center 22%;
+    width:100%;
+    height:100%;
+    filter:grayscale(1) contrast(1.35) brightness(.88) saturate(0) sepia(.15);
+    mix-blend-mode:multiply;
+    opacity:.95;
+    transform:scale(1.1);
+  }
+  #portraitTint{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 42% 36%, rgba(197,18,27,.22), rgba(197,18,27,0) 42%),
+      linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.28));
+    mix-blend-mode:multiply;
+  }
+
+  #halo{
+    position:absolute;
+    z-index:4;
+    left:15%;
+    top:9%;
+    width:52%;
+    height:34%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle, rgba(243,234,208,.95) 0 20%, rgba(243,234,208,.92) 24%, rgba(216,181,91,.68) 35%, rgba(197,18,27,.28) 52%, rgba(197,18,27,0) 72%);
+    filter:blur(2px);
+    opacity:.82;
+    transform:rotate(-10deg);
+    mask-image:radial-gradient(circle, black 0 64%, rgba(0,0,0,.85) 72%, transparent 92%);
+    -webkit-mask-image:radial-gradient(circle, black 0 64%, rgba(0,0,0,.85) 72%, transparent 92%);
+    animation:haloBreath 18s ease-in-out infinite;
+  }
+
+  #constructText{
+    position:absolute;
+    z-index:6;
+    left:6%;
+    top:7%;
+    width:90%;
+    height:26%;
+    opacity:.9;
+    mix-blend-mode:multiply;
+  }
+
+  #pendulumCanvas{
+    z-index:7;
+  }
+
+  #frontGlyphs{
+    position:absolute;
+    z-index:8;
+    inset:0;
+    pointer-events:none;
+  }
+
+  .stampBand{
+    position:absolute;
+    z-index:8;
+    left:0;
+    right:0;
+    bottom:0;
+    height:18%;
+    background:
+      linear-gradient(180deg, rgba(245,239,223,0) 0%, rgba(245,239,223,.05) 24%, rgba(13,13,14,.04) 100%);
+    mask-image:linear-gradient(180deg, transparent, black 28%);
+    -webkit-mask-image:linear-gradient(180deg, transparent, black 28%);
+  }
+
+  #guinea-pig{
+    z-index:9;
+    width:18px;
+    height:18px;
+    left:86.6%;
+    top:88.4%;
+    opacity:.58;
+    filter:contrast(1.05) brightness(.76) saturate(.8);
+    transform:rotate(-5deg);
+  }
+
+  #date{
+    position:absolute;
+    z-index:10;
+    right:18px;
+    bottom:14px;
+    color:rgba(13,13,14,.46);
+    font-size:13px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+
+  @keyframes haloBreath{
+    0%,100%{transform:rotate(-10deg) scale(1)}
+    50%{transform:rotate(-8deg) scale(1.03)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="bg" class="layer"></div>
+    <canvas id="paperTexture" width="1080" height="1920"></canvas>
+
+    <div class="diagA"></div>
+    <div class="diagB"></div>
+    <div class="diagC"></div>
+    <div class="diagD"></div>
+    <div class="diagE"></div>
+
+    <svg id="sunburst" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g transform="translate(520 600)">
+        <polygon points="0,-520 26,-1380 -26,-1380" fill="#0d0d0e"/>
+        <polygon points="0,-520 120,-1340 70,-1360" fill="#0d0d0e"/>
+        <polygon points="0,-520 -120,-1340 -70,-1360" fill="#0d0d0e"/>
+        <polygon points="0,-520 250,-1280 204,-1304" fill="#0d0d0e"/>
+        <polygon points="0,-520 -250,-1280 -204,-1304" fill="#0d0d0e"/>
+        <polygon points="0,-520 390,-1170 350,-1205" fill="#0d0d0e"/>
+        <polygon points="0,-520 -390,-1170 -350,-1205" fill="#0d0d0e"/>
+        <polygon points="0,-520 520,-1030 486,-1076" fill="#0d0d0e"/>
+        <polygon points="0,-520 -520,-1030 -486,-1076" fill="#0d0d0e"/>
+      </g>
+    </svg>
+
+    <div id="halo"></div>
+
+    <div id="portraitWrap">
+      <img id="portrait-image" src="portrait.png" alt="">
+      <div id="portraitTint"></div>
+    </div>
+
+    <svg id="constructText" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="#0d0d0e">
+        <rect x="78" y="118" width="290" height="38" transform="rotate(-24 78 118)"/>
+        <rect x="138" y="174" width="190" height="22" transform="rotate(-24 138 174)" opacity=".8"/>
+        <rect x="725" y="1220" width="245" height="34" transform="rotate(-24 725 1220)"/>
+      </g>
+      <g fill="#f3ead0" opacity=".94">
+        <rect x="106" y="124" width="208" height="12" transform="rotate(-24 106 124)"/>
+        <rect x="744" y="1227" width="172" height="11" transform="rotate(-24 744 1227)"/>
+      </g>
+      <g fill="#c5121b">
+        <polygon points="846,246 1028,156 1035,290"/>
+        <polygon points="724,1408 880,1330 888,1452"/>
+      </g>
+      <g fill="#0d0d0e" opacity=".95">
+        <rect x="92" y="202" width="70" height="70"/>
+        <rect x="166" y="202" width="70" height="70"/>
+        <rect x="240" y="202" width="70" height="70"/>
+        <rect x="314" y="202" width="70" height="70"/>
+        <rect x="388" y="202" width="70" height="70"/>
+
+        <rect x="744" y="1294" width="55" height="55"/>
+        <rect x="803" y="1294" width="55" height="55"/>
+        <rect x="862" y="1294" width="55" height="55"/>
+      </g>
+    </svg>
+
+    <canvas id="pendulumCanvas" width="1080" height="1920"></canvas>
+
+    <svg id="frontGlyphs" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fadeBand" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+          <stop offset="30%" stop-color="rgba(0,0,0,1)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,1)"/>
+        </linearGradient>
+      </defs>
+      <g opacity=".92">
+        <polygon points="120,1540 420,1420 390,1580 80,1690" fill="#c5121b"/>
+        <polygon points="380,1450 660,1358 630,1510 350,1605" fill="#0d0d0e"/>
+        <polygon points="610,1368 940,1250 920,1418 592,1522" fill="#c5121b"/>
+      </g>
+      <g fill="#f3ead0" opacity=".9">
+        <rect x="110" y="1597" width="210" height="15" transform="rotate(-21 110 1597)"/>
+        <rect x="620" y="1410" width="190" height="13" transform="rotate(-20 620 1410)"/>
+      </g>
+      <g fill="#0d0d0e" opacity=".14">
+        <circle cx="914" cy="345" r="130"/>
+        <circle cx="945" cy="345" r="72" fill="#f3ead0" opacity=".8"/>
+      </g>
+    </svg>
+
+    <div class="stampBand"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div id="date">2026-04-20</div>
+  </div>
+
+<script>
+(function(){
+  const seedString = "2026-04-20";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rand(){
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  const tex = document.getElementById('paperTexture');
+  const tctx = tex.getContext('2d');
+  tctx.clearRect(0,0,tex.width,tex.height);
+  for(let i=0;i<26000;i++){
+    const x = rand()*tex.width;
+    const y = rand()*tex.height;
+    const a = rand()*0.06;
+    const s = rand()*2.2 + 0.3;
+    tctx.fillStyle = `rgba(0,0,0,${a})`;
+    tctx.fillRect(x,y,s,s);
+  }
+  for(let i=0;i<2200;i++){
+    const x = rand()*tex.width;
+    const y = rand()*tex.height;
+    const w = rand()*36 + 8;
+    const h = rand()*2 + .6;
+    tctx.fillStyle = `rgba(120,70,20,${rand()*0.03})`;
+    tctx.fillRect(x,y,w,h);
+  }
+
+  const canvas = document.getElementById('pendulumCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const pendulums = [];
+  const count = 21;
+  const topY = 860;
+  const left = 116;
+  const spacing = 39;
+  const baseL = 300;
+  const step = 11.8;
+
+  for(let i=0;i<count;i++){
+    pendulums.push({
+      x:left + i*spacing,
+      L:baseL + i*step,
+      phase:i*0.07,
+      amp:0.36 + (i/count)*0.06,
+      bobR:16 + ((i%4===0)?6:0),
+      stripe:(i%3===0)
+    });
+  }
+
+  function drawPosterField(t){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'rgba(255,255,255,0)');
+    g.addColorStop(.55,'rgba(255,255,255,0)');
+    g.addColorStop(1,'rgba(13,13,14,.05)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.translate(830, 930);
+    ctx.rotate(-0.39);
+    for(let i=0;i<9;i++){
+      ctx.fillStyle = i%2===0 ? '#c5121b' : '#0d0d0e';
+      ctx.fillRect(-360 + i*62, -14, 34, 640);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.translate(195, 1080);
+    ctx.rotate(-0.42);
+    for(let i=0;i<6;i++){
+      ctx.fillStyle = i%2===0 ? '#0d0d0e' : '#c5121b';
+      ctx.fillRect(-210 + i*58, -8, 28, 420);
+    }
+    ctx.restore();
+  }
+
+  function drawPendulum(p, angle, t, idx){
+    const anchorX = p.x;
+    const anchorY = topY;
+    const bobX = anchorX + Math.sin(angle)*p.L;
+    const bobY = anchorY + Math.cos(angle)*p.L;
+
+    ctx.save();
+
+    ctx.strokeStyle = '#0d0d0e';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(anchorX, anchorY);
+    ctx.lineTo(bobX, bobY);
+    ctx.stroke();
+
+    ctx.fillStyle = '#0d0d0e';
+    ctx.beginPath();
+    ctx.arc(anchorX, anchorY, 8, 0, Math.PI*2);
+    ctx.fill();
+
+    const shadowGrad = ctx.createRadialGradient(bobX+6,bobY+10,6,bobX+6,bobY+10,p.bobR*2.8);
+    shadowGrad.addColorStop(0,'rgba(0,0,0,.22)');
+    shadowGrad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.arc(bobX+6,bobY+10,p.bobR*2.8,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.translate(bobX,bobY);
+    ctx.rotate(angle*0.5);
+
+    if(p.stripe){
+      ctx.fillStyle = '#f3ead0';
+      ctx.beginPath();
+      ctx.arc(0,0,p.bobR+6,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#c5121b';
+      ctx.fillRect(-(p.bobR+4), -4, (p.bobR+4)*2, 8);
+      ctx.rotate(Math.PI/2.8);
+      ctx.fillStyle = '#0d0d0e';
+      ctx.fillRect(-(p.bobR+4), -3.5, (p.bobR+4)*2, 7);
+      ctx.rotate(-Math.PI/2.8);
+    }
+
+    ctx.fillStyle = idx%2===0 ? '#c5121b' : '#0d0d0e';
+    ctx.beginPath();
+    ctx.arc(0,0,p.bobR,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = idx%2===0 ? '#f3ead0' : '#f3ead0';
+    ctx.beginPath();
+    ctx.arc(0,0,p.bobR*0.68,0,Math.PI*2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawWaveArcs(t, positions){
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = '#c5121b';
+    ctx.lineWidth = 18;
+    for(let i=0;i<positions.length-1;i++){
+      const a = positions[i], b = positions[i+1];
+      const mx = (a.x+b.x)/2;
+      const my = (a.y+b.y)/2 - 12;
+      ctx.beginPath();
+      ctx.arc(mx, my, Math.max(16, Math.hypot(b.x-a.x,b.y-a.y)*0.24), Math.PI*0.16, Math.PI*0.84, false);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function frame(ts){
+    const t = ts*0.001;
+    ctx.clearRect(0,0,W,H);
+
+    drawPosterField(t);
+
+    ctx.fillStyle = '#0d0d0e';
+    ctx.fillRect(95, topY-18, 850, 22);
+    ctx.fillStyle = '#c5121b';
+    ctx.fillRect(95, topY+10, 850, 10);
+
+    const positions = [];
+    const baseFreq = 0.69;
+    for(let i=0;i<count;i++){
+      const p = pendulums[i];
+      const freq = baseFreq + i*0.0094;
+      const angle = Math.sin(t*freq + p.phase) * p.amp;
+      const bx = p.x + Math.sin(angle)*p.L;
+      const by = topY + Math.cos(angle)*p.L;
+      positions.push({x:bx,y:by});
+    }
+
+    drawWaveArcs(t, positions);
+
+    for(let i=0;i<count;i++){
+      const p = pendulums[i];
+      const freq = baseFreq + i*0.0094;
+      const angle = Math.sin(t*freq + p.phase) * p.amp;
+      drawPendulum(p, angle, t, i);
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    ctx.fillStyle = '#0d0d0e';
+    ctx.beginPath();
+    ctx.moveTo(0, 1510);
+    ctx.lineTo(310, 1390);
+    ctx.lineTo(286, 1544);
+    ctx.lineTo(0, 1668);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#c5121b';
+    ctx.beginPath();
+    ctx.moveTo(270, 1448);
+    ctx.lineTo(690, 1300);
+    ctx.lineTo(666, 1466);
+    ctx.lineTo(246, 1612);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#0d0d0e';
+    ctx.beginPath();
+    ctx.moveTo(620, 1350);
+    ctx.lineTo(1080, 1188);
+    ctx.lineTo(1080, 1378);
+    ctx.lineTo(592, 1542);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = .2;
+    ctx.translate(770, 1460);
+    ctx.rotate(-0.34);
+    for(let i=0;i<13;i++){
+      ctx.fillStyle = i%2 ? '#f3ead0' : '#c5121b';
+      ctx.fillRect(-160 + i*26, -8, 16, 160);
+    }
+    ctx.restore();
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const audio = new AudioCtx();
+      const master = audio.createGain();
+      master.gain.value = 0.024;
+      master.connect(audio.destination);
+
+      const now = audio.currentTime;
+
+      const freqs = [55, 82.5, 110, 165];
+      freqs.forEach((f, i) => {
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        const lfo = audio.createOscillator();
+        const lfoGain = audio.createGain();
+        osc.type = i % 2 ? 'triangle' : 'sine';
+        osc.frequency.value = f;
+        gain.gain.value = 0.0;
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.035 + i*0.008;
+        lfoGain.gain.value = 0.008 + i*0.003;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        osc.connect(gain).connect(master);
+
+        gain.gain.setValueAtTime(0.004 + i*0.002, now);
+        osc.start();
+        lfo.start();
+      });
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
