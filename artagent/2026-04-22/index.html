@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative Beaux-Arts Maze</title>
+<style>
+  :root{
+    --bg1:#130d08;
+    --bg2:#2a180f;
+    --bg3:#5c3b1b;
+    --gold1:#f4e6a0;
+    --gold2:#d8b35b;
+    --gold3:#8f6325;
+    --gold4:#fff7cf;
+    --cream:#f2e3bc;
+    --shadow:#090603;
+    --ruby:#7b1f18;
+    --emerald:#264c34;
+    --maze:#e9d28a;
+    --mazeSoft:rgba(233,210,138,.28);
+    --lineDark:#3b2712;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,226,146,.12), transparent 28%),
+      linear-gradient(180deg, #0f0906 0%, #1b110b 18%, #3e240f 56%, #160d08 100%);
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  body{
+    display:grid;
+    place-items:center;
+  }
+
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(255,245,210,.14), rgba(255,230,180,.04) 16%, transparent 34%),
+      radial-gradient(circle at 50% 72%, rgba(94,34,19,.18), transparent 36%),
+      linear-gradient(180deg, #201109 0%, #4a2912 20%, #7a4c20 50%, #4d2a13 77%, #1a0f09 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,236,184,.18),
+      0 0 40px rgba(0,0,0,.45),
+      inset 0 0 80px rgba(0,0,0,.35);
+  }
+
+  #frame:before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,243,210,.18), transparent 28%),
+      radial-gradient(circle at 50% 100%, rgba(0,0,0,.35), transparent 30%),
+      repeating-linear-gradient(90deg, rgba(255,240,200,.018) 0 2px, rgba(0,0,0,0) 2px 8px),
+      repeating-linear-gradient(0deg, rgba(255,239,190,.01) 0 3px, rgba(0,0,0,0) 3px 11px);
+    opacity:.7;
+    pointer-events:none;
+  }
+
+  #frame:after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 58%, rgba(0,0,0,.18) 88%, rgba(0,0,0,.36) 100%);
+    pointer-events:none;
+  }
+
+  .fade-mask{
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 63%, rgba(0,0,0,.92) 74%, rgba(0,0,0,.45) 88%, transparent 100%);
+            mask-image: radial-gradient(circle at 50% 50%, #000 63%, rgba(0,0,0,.92) 74%, rgba(0,0,0,.45) 88%, transparent 100%);
+  }
+
+  #ornament-svg,
+  #maze-canvas,
+  #gold-canvas,
+  #dust-canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  #gold-canvas{mix-blend-mode:screen; opacity:.55}
+  #dust-canvas{opacity:.22}
+
+  #portrait-wrap{
+    position:absolute;
+    left:50%;
+    top:14%;
+    width:54%;
+    height:38%;
+    transform:translateX(-50%);
+    pointer-events:none;
+    filter: drop-shadow(0 12px 20px rgba(0,0,0,.28));
+    -webkit-mask-image: radial-gradient(circle at 50% 42%, #000 0 48%, rgba(0,0,0,.88) 62%, rgba(0,0,0,.35) 78%, transparent 96%);
+            mask-image: radial-gradient(circle at 50% 42%, #000 0 48%, rgba(0,0,0,.88) 62%, rgba(0,0,0,.35) 78%, transparent 96%);
+  }
+
+  #portrait-halo{
+    position:absolute;
+    left:50%;
+    top:16%;
+    width:62%;
+    height:34%;
+    transform:translateX(-50%);
+    border-radius:50% 50% 46% 46%/58% 58% 42% 42%;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(255,244,194,.65) 0%, rgba(219,175,88,.42) 26%, rgba(166,111,34,.15) 48%, transparent 71%);
+    filter: blur(10px);
+    opacity:.75;
+    pointer-events:none;
+    animation: haloBreath 14s ease-in-out infinite;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.75) 72%, transparent 100%);
+            mask-image: radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.75) 72%, transparent 100%);
+  }
+
+  @keyframes haloBreath{
+    0%,100%{transform:translateX(-50%) scale(1); opacity:.68}
+    50%{transform:translateX(-50%) scale(1.035); opacity:.84}
+  }
+
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center top;
+    opacity:.82;
+    filter:
+      sepia(.55)
+      saturate(1.2)
+      contrast(1.12)
+      brightness(.95)
+      drop-shadow(0 0 10px rgba(255,232,173,.12));
+    mix-blend-mode:screen;
+    clip-path: ellipse(38% 46% at 50% 42%);
+    animation: portraitShift 22s ease-in-out infinite;
+  }
+
+  @keyframes portraitShift{
+    0%,100%{transform:scale(1.02) translateY(0px)}
+    50%{transform:scale(1.05) translateY(-10px)}
+  }
+
+  #art-holder{
+    position:absolute;
+    left:50%;
+    bottom:17%;
+    width:52%;
+    height:26%;
+    transform:translateX(-50%) rotate(-1.5deg);
+    pointer-events:none;
+    opacity:.98;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+  }
+
+  #art-holder::before{
+    content:"";
+    position:absolute; inset:-5% -8%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(244,230,160,.24), rgba(216,179,91,.08) 44%, transparent 73%);
+    filter:blur(16px);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 60%, rgba(0,0,0,.5) 82%, transparent 100%);
+            mask-image: radial-gradient(circle at 50% 50%, #000 0 60%, rgba(0,0,0,.5) 82%, transparent 100%);
+  }
+
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    opacity:.96;
+    border-radius:2px;
+    filter: sepia(.24) saturate(1.08) contrast(1.1) brightness(1);
+    clip-path: polygon(12% 0, 88% 0, 100% 18%, 100% 82%, 88% 100%, 12% 100%, 0 82%, 0 18%);
+    box-shadow:
+      0 0 0 2px rgba(255,232,180,.42),
+      0 0 0 10px rgba(92,59,27,.48),
+      0 0 0 12px rgba(238,213,140,.26);
+    animation: artFloat 18s ease-in-out infinite;
+  }
+
+  @keyframes artFloat{
+    0%,100%{transform:scale(1) rotate(0deg)}
+    50%{transform:scale(1.022) rotate(.8deg)}
+  }
+
+  .pillar{
+    position:absolute;
+    top:0;
+    width:16%;
+    height:100%;
+    opacity:.72;
+    pointer-events:none;
+    background:
+      linear-gradient(90deg, rgba(26,13,8,.05), rgba(255,228,160,.16), rgba(75,45,18,.38), rgba(255,228,160,.12), rgba(28,14,9,.1)),
+      repeating-linear-gradient(180deg,
+        rgba(255,227,162,.18) 0 18px,
+        rgba(105,70,31,.12) 18px 24px,
+        rgba(60,34,15,.1) 24px 42px);
+    box-shadow: inset 0 0 30px rgba(0,0,0,.22);
+  }
+  .pillar.left{left:0}
+  .pillar.right{right:0}
+
+  .side-cap{
+    position:absolute;
+    top:7%;
+    width:19%;
+    height:10%;
+    background:
+      linear-gradient(180deg, rgba(255,241,205,.6), rgba(194,144,55,.55) 38%, rgba(81,51,21,.85) 100%);
+    opacity:.72;
+    pointer-events:none;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  }
+  .side-cap.left{left:0; clip-path: polygon(0 0,100% 0,86% 100%,0 100%)}
+  .side-cap.right{right:0; clip-path: polygon(14% 0,100% 0,100% 100%,0 100%)}
+
+  .cartouche{
+    position:absolute;
+    left:50%;
+    top:4.2%;
+    width:44%;
+    height:8.4%;
+    transform:translateX(-50%);
+    background:
+      linear-gradient(180deg, rgba(255,242,194,.92), rgba(218,180,91,.95) 42%, rgba(125,82,31,.98) 100%);
+    clip-path: polygon(7% 0, 93% 0, 100% 28%, 100% 72%, 93% 100%, 7% 100%, 0 72%, 0 28%);
+    box-shadow:
+      0 0 0 2px rgba(255,243,204,.36),
+      0 10px 18px rgba(0,0,0,.28);
+    opacity:.92;
+    pointer-events:none;
+    animation: crestGlow 16s ease-in-out infinite;
+  }
+  @keyframes crestGlow{
+    0%,100%{filter:brightness(1)}
+    50%{filter:brightness(1.08)}
+  }
+
+  #date{
+    position:absolute;
+    right:2.2%;
+    bottom:1.6%;
+    color:rgba(255,239,193,.6);
+    font-size:14px;
+    letter-spacing:1.5px;
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:17px;
+    right:15px;
+    top:1288px;
+    opacity:.58;
+    filter: sepia(.7) saturate(.8) brightness(.78);
+    z-index:8;
+    pointer-events:none;
+    transform:rotate(-6deg);
+  }
+</style>
+</head>
+<body>
+  <div id="frame" class="fade-mask">
+    <div class="pillar left"></div>
+    <div class="pillar right"></div>
+    <div class="side-cap left"></div>
+    <div class="side-cap right"></div>
+    <div class="cartouche"></div>
+
+    <div id="portrait-halo"></div>
+    <div id="portrait-wrap">
+      <img id="portrait-image" src="portrait.png" alt="" />
+    </div>
+
+    <div id="art-holder">
+      <img id="art-image" src="art.png" alt="" />
+    </div>
+
+    <svg id="ornament-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fff1b8"/>
+          <stop offset="35%" stop-color="#dfb65d"/>
+          <stop offset="70%" stop-color="#8f6325"/>
+          <stop offset="100%" stop-color="#f9eab1"/>
+        </linearGradient>
+        <linearGradient id="darkGold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6c4517"/>
+          <stop offset="100%" stop-color="#281507"/>
+        </linearGradient>
+        <radialGradient id="softLight" cx="50%" cy="45%" r="50%">
+          <stop offset="0%" stop-color="rgba(255,244,194,0.9)"/>
+          <stop offset="55%" stop-color="rgba(220,175,85,0.35)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+        <filter id="blur8"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="blur20"><feGaussianBlur stdDeviation="20"/></filter>
+      </defs>
+
+      <g opacity="0.22" filter="url(#blur20)">
+        <ellipse cx="540" cy="560" rx="265" ry="335" fill="url(#softLight)"/>
+      </g>
+
+      <g opacity="0.92">
+        <path d="M240 180 Q540 40 840 180 L812 214 Q540 96 268 214 Z" fill="url(#goldGrad)"/>
+        <path d="M210 160 Q540 10 870 160 L852 182 Q540 52 228 182 Z" fill="rgba(255,241,204,0.35)"/>
+        <path d="M268 214 Q540 96 812 214" fill="none" stroke="#4f2f11" stroke-width="8"/>
+      </g>
+
+      <g id="sunburst" transform="translate(540 306)" opacity="0.7">
+      </g>
+
+      <g opacity="0.85">
+        <ellipse cx="540" cy="565" rx="218" ry="286" fill="none" stroke="url(#goldGrad)" stroke-width="20"/>
+        <ellipse cx="540" cy="565" rx="242" ry="314" fill="none" stroke="rgba(255,236,181,0.36)" stroke-width="3"/>
+      </g>
+
+      <g opacity="0.8">
+        <path d="M108 1300 L214 1220 L214 1345 Z" fill="#c7a049"/>
+        <path d="M972 1300 L866 1220 L866 1345 Z" fill="#c7a049"/>
+        <path d="M122 1320 L218 1242 L218 1400 L122 1468 Z" fill="#5e3917"/>
+        <path d="M958 1320 L862 1242 L862 1400 L958 1468 Z" fill="#5e3917"/>
+      </g>
+
+      <g opacity="0.95">
+        <path d="M260 1476 Q540 1378 820 1476 L790 1516 Q540 1434 290 1516 Z" fill="url(#goldGrad)"/>
+        <path d="M308 1560 Q540 1512 772 1560 L740 1598 Q540 1560 340 1598 Z" fill="rgba(255,230,164,0.82)"/>
+        <path d="M376 1656 Q540 1636 704 1656 L676 1690 Q540 1674 404 1690 Z" fill="#a8742b"/>
+      </g>
+
+      <g opacity="0.4">
+        <rect x="178" y="270" width="724" height="1128" fill="none" stroke="rgba(255,236,184,0.18)" stroke-width="2"/>
+        <rect x="156" y="248" width="768" height="1172" fill="none" stroke="rgba(84,52,20,0.45)" stroke-width="6"/>
+      </g>
+    </svg>
+
+    <canvas id="maze-canvas" width="1080" height="1920"></canvas>
+    <canvas id="gold-canvas" width="1080" height="1920"></canvas>
+    <canvas id="dust-canvas" width="1080" height="1920"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="date">2026-04-22</div>
+  </div>
+
+<script>
+(() => {
+  const seedString = "2026-04-22";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = ((seed * 131) + seedString.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const svgSun = document.getElementById('sunburst');
+  for(let i=0;i<28;i++){
+    const a = (Math.PI * 2 * i / 28) - Math.PI/2;
+    const inner = 120;
+    const outer = 258 + (i%2)*20;
+    const width = 18 + (i%3)*8;
+    const x1 = Math.cos(a - 0.03) * inner;
+    const y1 = Math.sin(a - 0.03) * inner;
+    const x2 = Math.cos(a + 0.03) * inner;
+    const y2 = Math.sin(a + 0.03) * inner;
+    const x3 = Math.cos(a) * outer + Math.cos(a + Math.PI/2) * width;
+    const y3 = Math.sin(a) * outer + Math.sin(a + Math.PI/2) * width;
+    const x4 = Math.cos(a) * outer - Math.cos(a + Math.PI/2) * width;
+    const y4 = Math.sin(a) * outer - Math.sin(a + Math.PI/2) * width;
+    const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d", `M${x1} ${y1} L${x3} ${y3} L${x4} ${y4} L${x2} ${y2} Z`);
+    p.setAttribute("fill", i%2 ? "rgba(247,225,160,0.56)" : "rgba(158,103,35,0.54)");
+    svgSun.appendChild(p);
+  }
+
+  const canvas = document.getElementById('maze-canvas');
+  const ctx = canvas.getContext('2d');
+
+  const goldCanvas = document.getElementById('gold-canvas');
+  const gctx = goldCanvas.getContext('2d');
+
+  const dustCanvas = document.getElementById('dust-canvas');
+  const dctx = dustCanvas.getContext('2d');
+
+  const W = canvas.width, H = canvas.height;
+
+  const mazeArea = {
+    x: 230,
+    y: 785,
+    w: 620,
+    h: 540
+  };
+
+  const cols = 20;
+  const rows = 16;
+  const cell = Math.floor(Math.min(mazeArea.w / cols, mazeArea.h / rows));
+  const gridW = cols * cell;
+  const gridH = rows * cell;
+  mazeArea.x = Math.round((W - gridW) / 2);
+  mazeArea.y = 790;
+
+  function makeCell(x,y){
+    return {x,y,walls:[1,1,1,1],visited:false}; // top,right,bottom,left
+  }
+  const grid = [];
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++) grid.push(makeCell(x,y));
+  }
+  const idx = (x,y) => x + y * cols;
+  const neighbors = (c) => {
+    const n = [];
+    const {x,y} = c;
+    if (y>0 && !grid[idx(x,y-1)].visited) n.push([grid[idx(x,y-1)],0]);
+    if (x<cols-1 && !grid[idx(x+1,y)].visited) n.push([grid[idx(x+1,y)],1]);
+    if (y<rows-1 && !grid[idx(x,y+1)].visited) n.push([grid[idx(x,y+1)],2]);
+    if (x>0 && !grid[idx(x-1,y)].visited) n.push([grid[idx(x-1,y)],3]);
+    return n;
+  };
+
+  let carveStack = [];
+  let current = grid[0];
+  current.visited = true;
+  let carvedDone = false;
+  let solution = [];
+  let solvingIndex = 0;
+  let pulse = 0;
+
+  function removeWall(a,b,dir){
+    a.walls[dir] = 0;
+    b.walls[(dir+2)%4] = 0;
+  }
+
+  function buildSolution(){
+    const q = [grid[0]];
+    const prev = new Map();
+    prev.set(grid[0], null);
+    while(q.length){
+      const c = q.shift();
+      if(c.x===cols-1 && c.y===rows-1) break;
+      const dirs = [[0,-1,0],[1,0,1],[0,1,2],[-1,0,3]];
+      for(const [dx,dy,w] of dirs){
+        if(c.walls[w]) continue;
+        const nx = c.x+dx, ny = c.y+dy;
+        if(nx<0||ny<0||nx>=cols||ny>=rows) continue;
+        const n = grid[idx(nx,ny)];
+        if(!prev.has(n)){
+          prev.set(n,c);
+          q.push(n);
+        }
+      }
+    }
+    const end = grid[idx(cols-1,rows-1)];
+    let cur = end;
+    const path = [];
+    while(cur){
+      path.push(cur);
+      cur = prev.get(cur);
+    }
+    path.reverse();
+    solution = path;
+  }
+
+  function stepMaze(){
+    if(carvedDone) return;
+    for(let k=0;k<5;k++){
+      const n = neighbors(current);
+      if(n.length){
+        const pick = n[Math.floor(rnd()*n.length)];
+        const next = pick[0], dir = pick[1];
+        carveStack.push(current);
+        removeWall(current,next,dir);
+        current = next;
+        current.visited = true;
+      }else if(carveStack.length){
+        current = carveStack.pop();
+      }else{
+        carvedDone = true;
+        buildSolution();
+        break;
+      }
+    }
+  }
+
+  function drawMaze(){
+    ctx.clearRect(0,0,W,H);
+
+    const archGrad = ctx.createLinearGradient(mazeArea.x, mazeArea.y-70, mazeArea.x+gridW, mazeArea.y+gridH+110);
+    archGrad.addColorStop(0, 'rgba(255,239,190,0.10)');
+    archGrad.addColorStop(0.5, 'rgba(130,82,29,0.20)');
+    archGrad.addColorStop(1, 'rgba(255,229,168,0.08)');
+
+    ctx.save();
+    ctx.fillStyle = archGrad;
+    roundRectPath(ctx, mazeArea.x-42, mazeArea.y-60, gridW+84, gridH+120, 28);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,231,181,0.22)';
+    ctx.lineWidth = 4;
+    roundRectPath(ctx, mazeArea.x-24, mazeArea.y-36, gridW+48, gridH+72, 16);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(65,37,14,0.58)';
+    ctx.lineWidth = 12;
+    roundRectPath(ctx, mazeArea.x-34, mazeArea.y-46, gridW+68, gridH+92, 22);
+    ctx.stroke();
+    ctx.restore();
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const c = grid[idx(x,y)];
+        const px = mazeArea.x + x*cell;
+        const py = mazeArea.y + y*cell;
+
+        ctx.fillStyle = ((x+y)%2===0) ? 'rgba(82,48,22,0.15)' : 'rgba(255,225,160,0.04)';
+        ctx.fillRect(px,py,cell,cell);
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if(c.visited){
+          const grad = ctx.createRadialGradient(px+cell/2, py+cell/2, 0, px+cell/2, py+cell/2, cell*.95);
+          grad.addColorStop(0,'rgba(255,237,182,0.08)');
+          grad.addColorStop(1,'rgba(255,202,108,0.01)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(px,py,cell,cell);
+        }
+
+        const wallGlow = ctx.createLinearGradient(px,py,px+cell,py+cell);
+        wallGlow.addColorStop(0,'rgba(255,241,205,0.9)');
+        wallGlow.addColorStop(.45,'rgba(216,179,91,0.95)');
+        wallGlow.addColorStop(1,'rgba(102,64,24,0.95)');
+
+        ctx.strokeStyle = wallGlow;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        if(c.walls[0]){ ctx.moveTo(px,py); ctx.lineTo(px+cell,py); }
+        if(c.walls[1]){ ctx.moveTo(px+cell,py); ctx.lineTo(px+cell,py+cell); }
+        if(c.walls[2]){ ctx.moveTo(px,py+cell); ctx.lineTo(px+cell,py+cell); }
+        if(c.walls[3]){ ctx.moveTo(px,py); ctx.lineTo(px,py+cell); }
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(58,35,15,0.55)';
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        if(c.walls[0]){ ctx.moveTo(px,py+2); ctx.lineTo(px+cell,py+2); }
+        if(c.walls[1]){ ctx.moveTo(px+cell-2,py); ctx.lineTo(px+cell-2,py+cell); }
+        if(c.walls[2]){ ctx.moveTo(px,py+cell-2); ctx.lineTo(px+cell,py+cell-2); }
+        if(c.walls[3]){ ctx.moveTo(px+2,py); ctx.lineTo(px+2,py+cell); }
+        ctx.stroke();
+      }
+    }
+
+    const startX = mazeArea.x + cell/2;
+    const startY = mazeArea.y + cell/2;
+    const endX = mazeArea.x + (cols-1)*cell + cell/2;
+    const endY = mazeArea.y + (rows-1)*cell + cell/2;
+
+    drawRosette(startX, startY, 12 + Math.sin(pulse)*1.5, '#f6e9b3', '#9a6928');
+    drawRosette(endX, endY, 12 + Math.cos(pulse*0.85)*1.5, '#f2c899', '#7b2518');
+
+    if(carvedDone && solution.length){
+      solvingIndex = Math.min(solution.length, solvingIndex + 0.22);
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.shadowColor = 'rgba(255,233,171,0.32)';
+      ctx.shadowBlur = 20;
+      ctx.strokeStyle = 'rgba(255,236,184,0.88)';
+      ctx.lineWidth = 11;
+      ctx.beginPath();
+      for(let i=0;i<Math.floor(solvingIndex);i++){
+        const c = solution[i];
+        const mx = mazeArea.x + c.x*cell + cell/2;
+        const my = mazeArea.y + c.y*cell + cell/2;
+        if(i===0) ctx.moveTo(mx,my);
+        else ctx.lineTo(mx,my);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(125,38,24,0.92)';
+      ctx.lineWidth = 4;
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+
+      const head = solution[Math.min(solution.length-1, Math.floor(solvingIndex))];
+      if(head){
+        const hx = mazeArea.x + head.x*cell + cell/2;
+        const hy = mazeArea.y + head.y*cell + cell/2;
+        const rg = ctx.createRadialGradient(hx,hy,1,hx,hy,22);
+        rg.addColorStop(0,'rgba(255,248,218,0.95)');
+        rg.addColorStop(.45,'rgba(227,190,96,0.75)');
+        rg.addColorStop(1,'rgba(227,190,96,0)');
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.arc(hx,hy,22,0,Math.PI*2);
+        ctx.fill();
+
+        drawRosette(hx, hy, 9 + Math.sin(pulse*2)*1.4, '#fff2c7', '#ab6f22');
+      }
+      ctx.restore();
+    } else {
+      const cx = mazeArea.x + current.x*cell + cell/2;
+      const cy = mazeArea.y + current.y*cell + cell/2;
+      const rg = ctx.createRadialGradient(cx,cy,1,cx,cy,26);
+      rg.addColorStop(0,'rgba(255,247,217,0.92)');
+      rg.addColorStop(.5,'rgba(227,190,96,0.72)');
+      rg.addColorStop(1,'rgba(227,190,96,0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(cx,cy,26,0,Math.PI*2);
+      ctx.fill();
+      drawRosette(cx, cy, 10 + Math.sin(pulse*1.5)*1.4, '#fef2cc', '#9f6928');
+    }
+
+    ctx.save();
+    ctx.globalAlpha = .25;
+    const pedGrad = ctx.createLinearGradient(0, mazeArea.y+gridH+70, 0, mazeArea.y+gridH+160);
+    pedGrad.addColorStop(0,'rgba(255,233,181,0.28)');
+    pedGrad.addColorStop(1,'rgba(39,20,10,0)');
+    ctx.fillStyle = pedGrad;
+    ctx.fillRect(mazeArea.x-80, mazeArea.y+gridH+30, gridW+160, 160);
+    ctx.restore();
+  }
+
+  function drawRosette(x,y,r,light,dark){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(pulse*0.2);
+    for(let i=0;i<8;i++){
+      ctx.rotate(Math.PI/4);
+      ctx.beginPath();
+      ctx.moveTo(0,-r*1.8);
+      ctx.lineTo(r*.52,-r*.42);
+      ctx.lineTo(-r*.52,-r*.42);
+      ctx.closePath();
+      ctx.fillStyle = i%2? light : dark;
+      ctx.globalAlpha = .88;
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(0,0,r*.86,0,Math.PI*2);
+    ctx.fillStyle = light;
+    ctx.globalAlpha = .98;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function roundRectPath(c,x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y);
+    c.lineTo(x+w-r,y);
+    c.arcTo(x+w,y,x+w,y+r,r);
+    c.lineTo(x+w,y+h-r);
+    c.arcTo(x+w,y+h,x+w-r,y+h,r);
+    c.lineTo(x+r,y+h);
+    c.arcTo(x,y+h,x,y+h-r,r);
+    c.lineTo(x,y+r);
+    c.arcTo(x,y,x+r,y,r);
+  }
+
+  function drawGold(){
+    gctx.clearRect(0,0,W,H);
+    gctx.save();
+    gctx.globalCompositeOperation = 'screen';
+
+    for(let i=0;i<18;i++){
+      const t = pulse*0.15 + i*0.31;
+      const x = 540 + Math.cos(t*1.7 + i) * (180 + i*10);
+      const y = 930 + Math.sin(t*1.2 + i*0.3) * (300 + i*18);
+      const r = 26 + (i%4)*16;
+      const grad = gctx.createRadialGradient(x,y,0,x,y,r*2.5);
+      grad.addColorStop(0,'rgba(255,240,192,0.18)');
+      grad.addColorStop(.5,'rgba(227,185,94,0.09)');
+      grad.addColorStop(1,'rgba(227,185,94,0)');
+      gctx.fillStyle = grad;
+      gctx.beginPath();
+      gctx.arc(x,y,r*2.5,0,Math.PI*2);
+      gctx.fill();
+    }
+
+    gctx.restore();
+  }
+
+  const motes = [];
+  for(let i=0;i<80;i++){
+    motes.push({
+      x:rnd()*W,
+      y:rnd()*H,
+      r:rnd()*1.8+0.3,
+      a:rnd()*Math.PI*2,
+      s:rnd()*0.18+0.03
+    });
+  }
+
+  function drawDust(){
+    dctx.clearRect(0,0,W,H);
+    for(const m of motes){
+      m.a += m.s*0.02;
+      m.y -= m.s*0.45;
+      if(m.y < 0) m.y = H + rnd()*40;
+      m.x += Math.sin(m.a)*0.12;
+
+      dctx.fillStyle = `rgba(255,236,184,${0.08 + m.r*0.03})`;
+      dctx.beginPath();
+      dctx.arc(m.x,m.y,m.r,0,Math.PI*2);
+      dctx.fill();
+    }
+  }
+
+  function animate(){
+    pulse += 0.016;
+    stepMaze();
+    drawMaze();
+    drawGold();
+    drawDust();
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const now = ac.currentTime;
+      const freqs = [130.81, 196.00, 261.63, 392.00];
+      freqs.forEach((f, i) => {
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        const lfo = ac.createOscillator();
+        const lfoG = ac.createGain();
+        o.type = i % 2 ? 'triangle' : 'sine';
+        o.frequency.value = f * (i===3 ? 0.5 : 1);
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.03 + i*0.01;
+        lfoG.gain.value = 1.5 + i*0.7;
+        lfo.connect(lfoG).connect(o.frequency);
+        g.gain.value = 0.0;
+        o.connect(g).connect(master);
+        g.gain.setValueAtTime(0.001, now);
+        g.gain.linearRampToValueAtTime(0.006 + i*0.003, now + 3 + i);
+        o.start();
+        lfo.start();
+      });
+
+      const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (rnd()*2-1)*0.18;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+      const bp = ac.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 1800;
+      bp.Q.value = 0.4;
+      const ng = ac.createGain();
+      ng.gain.value = 0.0035;
+      noise.connect(bp).connect(ng).connect(master);
+      noise.start();
+
+      const resume = () => { if (ac.state !== 'running') ac.resume(); };
+      setTimeout(resume, 200);
+      document.addEventListener('visibilitychange', resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
