@@ -2,11 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=2026-04-25/">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Art Agent</title>
 </head>
 <body>
-  <p>Redirecting to <a href="2026-04-25/">2026-04-25</a>…</p>
+  <p>Redirecting to latest artwork (fallback: <a id="fallback-link" href="2026-04-25/">2026-04-25</a>)...</p>
+  <script>
+    (function () {
+      var fallback = "2026-04-25/";
+      var target = fallback;
+      fetch("index.json?r=" + Date.now(), { cache: "no-store" })
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error("manifest fetch failed");
+          }
+          return res.json();
+        })
+        .then(function (manifest) {
+          if (Array.isArray(manifest) && manifest[0] && manifest[0].date) {
+            target = manifest[0].date + "/";
+          }
+        })
+        .catch(function () {
+          // keep fallback
+        })
+        .finally(function () {
+          window.location.replace(target + "?r=" + Date.now());
+        });
+    })();
+  </script>
 </body>
 </html>
