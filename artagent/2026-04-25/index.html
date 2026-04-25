@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+setTimeout(function () {
+  var parts = window.location.pathname.split("/").filter(Boolean);
+  if (parts.length && parts[parts.length - 1].toLowerCase() === "index.html") {
+    parts.pop();
+  }
+  if (parts.length) {
+    parts.pop();
+  }
+  var parentPath = "/" + parts.join("/") + "/";
+  window.location.replace(parentPath + "?r=" + Date.now());
+}, 14400000);
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-25</title>
+<style>
+  :root{
+    --bg:#f5f0e6;
+    --paper:#f8f3ea;
+    --ink:#151515;
+    --sand1:#db6d47;
+    --sand2:#d8a64e;
+    --sand3:#b55b3d;
+    --sand4:#6f8f82;
+    --sand5:#314e58;
+    --soft:#d9d1c4;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#ddd7cc;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    height:min(100vh, calc(100vw * 16 / 9));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #f6f2ea 0%, #f3ede2 35%, #eee6d7 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.04), 0 24px 60px rgba(0,0,0,.18);
+  }
+
+  #backwash, #sandCanvas, #maskCanvas, #grainCanvas, #overlaySvg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #backwash{
+    pointer-events:none;
+    background:
+      radial-gradient(120% 60% at 50% -10%, rgba(255,255,255,.9), rgba(255,255,255,0) 55%),
+      linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0) 24%),
+      linear-gradient(180deg, #f7f3ea 0%, #f3ecdf 42%, #eee5d5 100%);
+  }
+
+  #portrait-wrap{
+    position:absolute;
+    left:50%;
+    top:28%;
+    width:52%;
+    height:34%;
+    transform:translateX(-50%);
+    pointer-events:none;
+    z-index:6;
+    opacity:.85;
+    filter:saturate(.72) contrast(1.08) sepia(.18);
+    mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,.95) 42%, rgba(0,0,0,.58) 63%, rgba(0,0,0,0) 82%);
+    -webkit-mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,.95) 42%, rgba(0,0,0,.58) 63%, rgba(0,0,0,0) 82%);
+  }
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 28%;
+    mix-blend-mode:multiply;
+    clip-path:ellipse(37% 43% at 50% 46%);
+    transform:scale(1.06);
+    animation: portraitBreath 36s ease-in-out infinite;
+  }
+
+  #portrait-aura{
+    position:absolute;
+    inset:-12%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(255,248,236,.92) 0 16%, rgba(238,225,205,.6) 23%, rgba(214,163,85,.16) 35%, rgba(0,0,0,0) 68%);
+    filter:blur(10px);
+    opacity:.65;
+    animation: auraShift 30s ease-in-out infinite;
+  }
+
+  #maskCanvas{
+    z-index:7;
+    opacity:.88;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+  #sandCanvas{
+    z-index:5;
+    pointer-events:none;
+  }
+  #grainCanvas{
+    z-index:8;
+    opacity:.42;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+  #overlaySvg{
+    z-index:9;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:11px;
+    bottom:152px;
+    opacity:.56;
+    z-index:10;
+    filter:saturate(.8) contrast(1.02);
+    transform:rotate(-8deg);
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:16px;
+    font-size:12px;
+    letter-spacing:.12em;
+    color:rgba(0,0,0,.38);
+    z-index:12;
+    user-select:none;
+  }
+
+  .slow-shift{
+    transform-origin:center;
+    animation: slowShift 42s ease-in-out infinite;
+  }
+
+  @keyframes portraitBreath{
+    0%,100%{transform:scale(1.06) translateY(0px)}
+    50%{transform:scale(1.085) translateY(5px)}
+  }
+  @keyframes auraShift{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.04) translateY(10px)}
+  }
+  @keyframes slowShift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(8px) scale(1.012)}
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="backwash"></div>
+
+    <div id="portrait-wrap">
+      <div id="portrait-aura"></div>
+      <img id="portrait-image" src="portrait.png" alt="" />
+    </div>
+
+    <canvas id="sandCanvas" width="1080" height="1920"></canvas>
+    <canvas id="maskCanvas" width="1080" height="1920"></canvas>
+    <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+
+    <svg id="overlaySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+          <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="fadeBottom" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#d8c7ac" stop-opacity="0.38"/>
+        </linearGradient>
+        <radialGradient id="portraitHalo" cx="50%" cy="33%" r="32%">
+          <stop offset="0%" stop-color="#fff8ee" stop-opacity=".72"/>
+          <stop offset="45%" stop-color="#ecd8b4" stop-opacity=".28"/>
+          <stop offset="78%" stop-color="#ecd8b4" stop-opacity="0"/>
+        </radialGradient>
+        <mask id="edgeFade">
+          <rect width="1080" height="1920" fill="url(#fullMask)"/>
+          <radialGradient id="fullMask" cx="50%" cy="50%" r="72%">
+            <stop offset="0%" stop-color="white"/>
+            <stop offset="78%" stop-color="white"/>
+            <stop offset="100%" stop-color="black"/>
+          </radialGradient>
+        </mask>
+      </defs>
+
+      <g class="slow-shift" opacity=".8">
+        <ellipse cx="540" cy="630" rx="260" ry="180" fill="url(#portraitHalo)"/>
+      </g>
+
+      <rect x="0" y="0" width="1080" height="320" fill="url(#fadeTop)" opacity=".6"/>
+      <rect x="0" y="1520" width="1080" height="400" fill="url(#fadeBottom)" opacity=".75"/>
+
+      <g opacity=".18">
+        <path d="M270 1280 C 430 1240, 650 1240, 830 1290 L 830 1322 C 640 1276, 430 1278, 270 1318 Z" fill="#ffffff"/>
+        <path d="M180 1454 C 390 1416, 650 1422, 900 1468 L 900 1502 C 645 1454, 386 1450, 180 1488 Z" fill="#ffffff"/>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-04-25</div>
+  </div>
+
+<script>
+(() => {
+  const dateSeed = "2026-04-25";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const seed = hashString(dateSeed + "-minimal-sand-portrait");
+  const rand = mulberry32(seed);
+
+  const sandCanvas = document.getElementById('sandCanvas');
+  const sandCtx = sandCanvas.getContext('2d');
+  const maskCanvas = document.getElementById('maskCanvas');
+  const maskCtx = maskCanvas.getContext('2d');
+  const grainCanvas = document.getElementById('grainCanvas');
+  const grainCtx = grainCanvas.getContext('2d');
+
+  const W = sandCanvas.width;
+  const H = sandCanvas.height;
+
+  const palette = [
+    {r:219,g:109,b:71},
+    {r:216,g:166,b:78},
+    {r:181,g:91,b:61},
+    {r:111,g:143,b:130},
+    {r:49,g:78,b:88}
+  ];
+
+  const streams = [];
+  const grains = [];
+  const dunes = [];
+  const duneCount = 6;
+
+  for(let i=0;i<duneCount;i++){
+    dunes.push({
+      base: H * (0.62 + i * 0.065),
+      amp: 34 + i * 12,
+      freq: 1.1 + i * 0.23,
+      phase: rand() * Math.PI * 2,
+      color: palette[Math.min(i, palette.length-1)],
+      shift: rand() * 1000
+    });
+  }
+
+  const streamCount = 5;
+  for(let i=0;i<streamCount;i++){
+    streams.push({
+      x: W*(0.24 + i*0.13) + (rand()-0.5)*60,
+      width: 10 + rand()*13,
+      sway: 20 + rand()*26,
+      speed: 0.00024 + rand()*0.00022,
+      offset: rand()*Math.PI*2,
+      colorIndex: i % palette.length,
+      spawnRate: 2 + Math.floor(rand()*2.5)
+    });
+  }
+
+  function duneY(layerIndex, x, t){
+    const d = dunes[layerIndex];
+    const nx = x / W;
+    return d.base
+      + Math.sin(nx * Math.PI * 2 * d.freq + d.phase + t*0.00008 + d.shift*0.0006) * d.amp
+      + Math.sin(nx * Math.PI * (d.freq*0.6) + d.phase*0.7) * (d.amp*0.35);
+  }
+
+  function portraitInfluence(x,y){
+    const px = W*0.5, py = H*0.33;
+    const dx = (x-px)/(W*0.22);
+    const dy = (y-py)/(H*0.16);
+    const d = Math.sqrt(dx*dx + dy*dy);
+    return Math.max(0, 1 - d);
+  }
+
+  function spawn(t){
+    for(const s of streams){
+      const sx = s.x + Math.sin(t*s.speed + s.offset) * s.sway;
+      for(let i=0;i<s.spawnRate;i++){
+        grains.push({
+          x: sx + (rand()-0.5)*s.width,
+          y: -20 - rand()*80,
+          vy: 3.5 + rand()*1.3,
+          vx: (rand()-0.5)*0.3,
+          size: 1 + rand()*2.3,
+          c: palette[s.colorIndex],
+          layerBias: s.colorIndex
+        });
+      }
+    }
+    while(grains.length > 3400) grains.splice(0, grains.length - 3400);
+  }
+
+  function update(t){
+    spawn(t);
+    sandCtx.clearRect(0,0,W,H);
+
+    sandCtx.fillStyle = "#f7f1e6";
+    sandCtx.fillRect(0,0,W,H);
+
+    const topGrad = sandCtx.createLinearGradient(0,0,0,H);
+    topGrad.addColorStop(0, "rgba(255,255,255,0.65)");
+    topGrad.addColorStop(0.32, "rgba(255,255,255,0)");
+    sandCtx.fillStyle = topGrad;
+    sandCtx.fillRect(0,0,W,H);
+
+    for(let i=0;i<dunes.length;i++){
+      const c = dunes[i].color;
+      sandCtx.beginPath();
+      sandCtx.moveTo(0, H);
+      for(let x=0;x<=W;x+=12){
+        sandCtx.lineTo(x, duneY(i, x, t));
+      }
+      sandCtx.lineTo(W,H);
+      sandCtx.closePath();
+      sandCtx.fillStyle = `rgba(${c.r},${c.g},${c.b},${0.88 - i*0.09})`;
+      sandCtx.fill();
+
+      sandCtx.beginPath();
+      for(let x=0;x<=W;x+=14){
+        const y = duneY(i, x, t);
+        if(x===0) sandCtx.moveTo(x,y);
+        else sandCtx.lineTo(x,y);
+      }
+      sandCtx.strokeStyle = `rgba(255,255,255,${0.18 - i*0.015})`;
+      sandCtx.lineWidth = 3;
+      sandCtx.stroke();
+    }
+
+    sandCtx.save();
+    for(let i=grains.length-1;i>=0;i--){
+      const g = grains[i];
+      g.vy += 0.018;
+      g.x += g.vx;
+      g.y += g.vy;
+
+      const targetLayer = Math.min(dunes.length-1, g.layerBias + Math.floor((g.y/H)*2));
+      let settleY = duneY(targetLayer, g.x, t) - portraitInfluence(g.x,g.y)*18;
+
+      if(g.y >= settleY){
+        const layer = dunes[targetLayer];
+        layer.base -= 0.0018;
+        layer.amp += (rand()-0.5)*0.003;
+        grains.splice(i,1);
+        continue;
+      }
+
+      const pInf = portraitInfluence(g.x,g.y);
+      if(pInf > 0.01){
+        g.vx += (g.x < W*0.5 ? -0.005 : 0.005) * pInf;
+        g.vy *= 0.996;
+      }
+
+      sandCtx.fillStyle = `rgba(${g.c.r},${g.c.g},${g.c.b},0.92)`;
+      sandCtx.fillRect(g.x, g.y, g.size, g.size);
+    }
+    sandCtx.restore();
+
+    const vign = sandCtx.createRadialGradient(W*0.5,H*0.48, H*0.28, W*0.5,H*0.5, H*0.9);
+    vign.addColorStop(0,"rgba(0,0,0,0)");
+    vign.addColorStop(1,"rgba(70,50,28,0.08)");
+    sandCtx.fillStyle = vign;
+    sandCtx.fillRect(0,0,W,H);
+  }
+
+  function drawMask(t){
+    maskCtx.clearRect(0,0,W,H);
+
+    const px = W*0.5;
+    const py = H*0.32 + Math.sin(t*0.00015)*10;
+    const rx = W*0.165;
+    const ry = H*0.145;
+
+    const halo = maskCtx.createRadialGradient(px,py,10,px,py,Math.max(rx,ry)*1.6);
+    halo.addColorStop(0,"rgba(255,246,230,0.88)");
+    halo.addColorStop(0.48,"rgba(239,220,185,0.34)");
+    halo.addColorStop(0.78,"rgba(239,220,185,0.08)");
+    halo.addColorStop(1,"rgba(239,220,185,0)");
+    maskCtx.fillStyle = halo;
+    maskCtx.beginPath();
+    maskCtx.arc(px,py,rx*1.7,0,Math.PI*2);
+    maskCtx.fill();
+
+    maskCtx.beginPath();
+    maskCtx.ellipse(px,py,rx,ry,0,0,Math.PI*2);
+    maskCtx.fillStyle = "rgba(247,241,230,0.22)";
+    maskCtx.fill();
+
+    maskCtx.beginPath();
+    maskCtx.ellipse(px, py+22, rx*0.84, ry*1.08, 0, 0, Math.PI*2);
+    maskCtx.strokeStyle = "rgba(70,54,40,0.18)";
+    maskCtx.lineWidth = 2;
+    maskCtx.stroke();
+
+    maskCtx.beginPath();
+    maskCtx.moveTo(px-rx*0.95, py+ry*0.85);
+    maskCtx.lineTo(px-rx*1.3, py+ry*1.65);
+    maskCtx.lineTo(px+rx*1.3, py+ry*1.65);
+    maskCtx.lineTo(px+rx*0.95, py+ry*0.85);
+    maskCtx.closePath();
+    maskCtx.fillStyle = "rgba(216,166,78,0.10)";
+    maskCtx.fill();
+  }
+
+  function drawGrainTexture(){
+    grainCtx.clearRect(0,0,W,H);
+    grainCtx.fillStyle = "rgba(255,255,255,0)";
+    grainCtx.fillRect(0,0,W,H);
+
+    const img = grainCtx.createImageData(W,H);
+    const data = img.data;
+    for(let i=0;i<data.length;i+=4){
+      const v = 232 + Math.floor(rand()*18);
+      data[i] = v-8;
+      data[i+1] = v-11;
+      data[i+2] = v-16;
+      data[i+3] = 15;
+    }
+    grainCtx.putImageData(img,0,0);
+
+    grainCtx.globalCompositeOperation = "multiply";
+    for(let y=0;y<H;y+=6){
+      grainCtx.fillStyle = `rgba(90,70,55,${0.012 + rand()*0.012})`;
+      grainCtx.fillRect(0,y,W,1);
+    }
+    grainCtx.globalCompositeOperation = "source-over";
+  }
+
+  drawGrainTexture();
+
+  let lastTexture = 0;
+  function frame(t){
+    update(t);
+    drawMask(t);
+    if(t - lastTexture > 12000){
+      drawGrainTexture();
+      lastTexture = t;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    try{
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.018;
+      master.connect(audioCtx.destination);
+
+      const freqs = [110, 164.81, 220];
+      freqs.forEach((f, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+
+        osc.type = i===0 ? 'sine' : 'triangle';
+        osc.frequency.value = f;
+        gain.gain.value = 0.012 / (i+1);
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.018 + i*0.007;
+        lfoGain.gain.value = 3 + i*1.5;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.connect(gain);
+        gain.connect(master);
+
+        osc.start();
+        lfo.start();
+      });
+
+      const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for(let i=0;i<output.length;i++) output[i] = (rand()*2 - 1) * 0.12;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 280;
+      filter.Q.value = 0.7;
+
+      const ng = audioCtx.createGain();
+      ng.gain.value = 0.006;
+
+      noise.connect(filter);
+      filter.connect(ng);
+      ng.connect(master);
+      noise.start();
+
+      const unlock = () => {
+        if(audioCtx.state !== 'running') audioCtx.resume();
+        window.removeEventListener('load', unlock);
+      };
+      window.addEventListener('load', unlock);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
