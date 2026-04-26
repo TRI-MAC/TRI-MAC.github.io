@@ -9,16 +9,15 @@
   <title>AI Art Agent</title>
 </head>
 <body>
-  <p>Redirecting to latest artwork (fallback: <a id="fallback-link" href="2026-04-25/">2026-04-25</a>)...</p>
+  <p>Redirecting to latest artwork (fallback: <a id="fallback-link" href="2026-04-26/">2026-04-26</a>)...</p>
   <script>
     (function () {
-      var fallback = "2026-04-25/";
+      var fallback = "2026-04-26/";
+      var bust = Date.now();
       var target = fallback;
-      fetch("index.json?r=" + Date.now(), { cache: "no-store" })
+      fetch("index.json?r=" + bust, { cache: "no-store" })
         .then(function (res) {
-          if (!res.ok) {
-            throw new Error("manifest fetch failed");
-          }
+          if (!res.ok) { throw new Error("manifest fetch failed"); }
           return res.json();
         })
         .then(function (manifest) {
@@ -26,9 +25,7 @@
             target = manifest[0].date + "/";
           }
         })
-        .catch(function () {
-          // keep fallback
-        })
+        .catch(function () { /* keep fallback */ })
         .finally(function () {
           window.location.replace(target + "?r=" + Date.now());
         });
