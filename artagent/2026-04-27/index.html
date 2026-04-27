@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-27</title>
+<style>
+  :root{
+    --bg1:#f5f0ff;
+    --bg2:#fff8d6;
+    --ink:#0a0a12;
+    --c1:#ff2158;
+    --c2:#00d1ff;
+    --c3:#ffe600;
+    --c4:#111111;
+    --c5:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 20%, #fffde8 0%, #f5f0ff 35%, #d9f7ff 72%, #ffffff 100%);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg,#fffef8 0%,#eef8ff 48%,#fff7fb 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.08), 0 18px 60px rgba(0,0,0,.18);
+  }
+
+  .layer, canvas, svg, img, .overlay{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #bg{
+    background:
+      radial-gradient(circle at 50% 28%, rgba(255,255,255,.92) 0%, rgba(255,255,255,.88) 18%, rgba(255,255,255,.15) 44%, rgba(255,255,255,0) 64%),
+      radial-gradient(circle at 50% 70%, rgba(255,230,0,.17) 0%, rgba(255,230,0,.09) 18%, rgba(255,230,0,0) 38%),
+      linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.55));
+    mix-blend-mode:normal;
+  }
+
+  #fluidCanvas{ z-index:2; }
+  #moireCanvas{ z-index:4; opacity:.82; mix-blend-mode:multiply; }
+  #ringsSvg{ z-index:5; opacity:.95; }
+
+  #art-image{
+    z-index:3;
+    object-fit:cover;
+    width:78%;
+    height:44%;
+    left:11%;
+    top:28%;
+    right:auto;
+    bottom:auto;
+    border-radius:28px;
+    opacity:.96;
+    filter: contrast(1.1) saturate(1.15) hue-rotate(-5deg) grayscale(.04);
+    clip-path: ellipse(47% 43% at 50% 50%);
+    transform-origin:50% 50%;
+    animation:
+      imageBreath 18s ease-in-out infinite,
+      imageTilt 37s ease-in-out infinite;
+    box-shadow:
+      0 0 0 18px rgba(255,255,255,.18),
+      0 0 60px rgba(255,255,255,.28);
+  }
+
+  .imageHalo{
+    z-index:3;
+    left:8%;
+    top:22%;
+    width:84%;
+    height:56%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at center,
+        rgba(255,255,255,.9) 0%,
+        rgba(255,255,255,.45) 16%,
+        rgba(255,230,0,.2) 28%,
+        rgba(0,209,255,.18) 39%,
+        rgba(255,33,88,.14) 52%,
+        rgba(255,255,255,0) 72%);
+    filter: blur(16px);
+    opacity:.8;
+    transform-origin:center;
+    animation: haloSpin 48s linear infinite;
+    -webkit-mask-image: radial-gradient(circle at center, black 0 60%, transparent 78%);
+            mask-image: radial-gradient(circle at center, black 0 60%, transparent 78%);
+  }
+
+  .vignette{
+    z-index:9;
+    background:
+      radial-gradient(ellipse at center, rgba(255,255,255,0) 54%, rgba(255,255,255,.05) 64%, rgba(0,0,0,.1) 100%);
+    pointer-events:none;
+  }
+
+  .edgeFade{
+    z-index:8;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0) 9%, rgba(255,255,255,0) 91%, rgba(255,255,255,.7)),
+      linear-gradient(90deg, rgba(255,255,255,.62), rgba(255,255,255,0) 8%, rgba(255,255,255,0) 92%, rgba(255,255,255,.62));
+    mix-blend-mode:screen;
+  }
+
+  .bar{
+    position:absolute;
+    z-index:6;
+    left:8%;
+    right:8%;
+    height:16px;
+    border-radius:999px;
+    background:
+      repeating-linear-gradient(90deg,
+        #000 0 6px, #fff 6px 12px,
+        #000 12px 18px, #fff 18px 24px);
+    mix-blend-mode:multiply;
+    opacity:.8;
+    filter: blur(.2px);
+  }
+  .bar.top{ top:12%; transform:scaleX(.85); animation: barShift1 22s ease-in-out infinite; }
+  .bar.mid{ top:50.5%; transform:scaleX(1); animation: barShift2 27s ease-in-out infinite; }
+  .bar.bot{ top:84%; transform:scaleX(.76); animation: barShift3 24s ease-in-out infinite; }
+
+  .disc{
+    position:absolute;
+    z-index:7;
+    border-radius:50%;
+    mix-blend-mode:multiply;
+    opacity:.95;
+    filter: blur(.2px);
+  }
+  .disc.d1{
+    width:178px;height:178px; left:7.5%; top:13%;
+    background:
+      radial-gradient(circle at center, #fff 0 18%, #000 18% 29%, #fff 29% 40%, #000 40% 51%, #fff 51% 62%, #000 62% 73%, rgba(255,255,255,0) 73%);
+    animation: discDrift1 25s ease-in-out infinite;
+  }
+  .disc.d2{
+    width:220px;height:220px; right:6%; bottom:11%;
+    background:
+      radial-gradient(circle at center, var(--c1) 0 15%, #fff 15% 27%, #000 27% 39%, var(--c2) 39% 51%, #fff 51% 63%, #000 63% 75%, rgba(255,255,255,0) 75%);
+    animation: discDrift2 34s ease-in-out infinite;
+    opacity:.85;
+  }
+
+  .scan{
+    z-index:10;
+    pointer-events:none;
+    opacity:.14;
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,.42) 0 1px, rgba(255,255,255,0) 1px 6px);
+    mix-blend-mode:multiply;
+  }
+
+  #guinea-pig{
+    z-index:11;
+    width:17px;
+    height:17px;
+    left:24px;
+    bottom:154px;
+    top:auto;
+    right:auto;
+    opacity:.58;
+    object-fit:contain;
+    filter:saturate(.9) contrast(.95);
+    transform:rotate(-8deg);
+  }
+
+  #date{
+    position:absolute;
+    z-index:12;
+    right:18px;
+    bottom:14px;
+    font-size:15px;
+    letter-spacing:.08em;
+    color:rgba(0,0,0,.45);
+    user-select:none;
+  }
+
+  @keyframes imageBreath{
+    0%,100%{ transform:translateY(0px) scale(1) rotate(-1.2deg); }
+    50%{ transform:translateY(-16px) scale(1.025) rotate(1deg); }
+  }
+  @keyframes imageTilt{
+    0%,100%{ clip-path: ellipse(47% 43% at 50% 50%); }
+    50%{ clip-path: ellipse(45% 45% at 50% 50%); }
+  }
+  @keyframes haloSpin{
+    0%{ transform:rotate(0deg) scale(1); }
+    50%{ transform:rotate(180deg) scale(1.04); }
+    100%{ transform:rotate(360deg) scale(1); }
+  }
+  @keyframes barShift1{
+    0%,100%{ transform:scaleX(.85) translateX(0); }
+    50%{ transform:scaleX(.93) translateX(18px); }
+  }
+  @keyframes barShift2{
+    0%,100%{ transform:scaleX(1) translateX(0); }
+    50%{ transform:scaleX(.92) translateX(-24px); }
+  }
+  @keyframes barShift3{
+    0%,100%{ transform:scaleX(.76) translateX(0); }
+    50%{ transform:scaleX(.88) translateX(26px); }
+  }
+  @keyframes discDrift1{
+    0%,100%{ transform:translate(0,0) rotate(0deg); }
+    50%{ transform:translate(18px,10px) rotate(90deg); }
+  }
+  @keyframes discDrift2{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(-15px,-12px) scale(1.05); }
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="bg" class="layer"></div>
+    <canvas id="fluidCanvas" width="1080" height="1920"></canvas>
+    <img id="art-image" src="art.png" alt="">
+    <div class="imageHalo layer"></div>
+    <canvas id="moireCanvas" width="1080" height="1920"></canvas>
+
+    <svg id="ringsSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="fadeCenter" cx="50%" cy="50%" r="52%">
+          <stop offset="0%" stop-color="white" stop-opacity="1"/>
+          <stop offset="65%" stop-color="white" stop-opacity=".75"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </radialGradient>
+        <mask id="softMask">
+          <rect width="1080" height="1920" fill="url(#fadeCenter)"/>
+        </mask>
+      </defs>
+      <g mask="url(#softMask)" opacity=".92">
+        <circle cx="540" cy="960" r="410" fill="none" stroke="#ffffff" stroke-width="22" stroke-opacity=".8"/>
+        <circle cx="540" cy="960" r="455" fill="none" stroke="#000000" stroke-width="10" stroke-opacity=".55"/>
+        <circle cx="540" cy="960" r="515" fill="none" stroke="#ff2158" stroke-width="18" stroke-opacity=".55"/>
+        <circle cx="540" cy="960" r="585" fill="none" stroke="#00d1ff" stroke-width="14" stroke-opacity=".52"/>
+        <ellipse cx="540" cy="960" rx="360" ry="620" fill="none" stroke="#000" stroke-width="6" stroke-opacity=".38"/>
+        <ellipse cx="540" cy="960" rx="300" ry="550" fill="none" stroke="#fff" stroke-width="16" stroke-opacity=".55"/>
+      </g>
+    </svg>
+
+    <div class="bar top"></div>
+    <div class="bar mid"></div>
+    <div class="bar bot"></div>
+    <div class="disc d1"></div>
+    <div class="disc d2"></div>
+    <div class="edgeFade layer"></div>
+    <div class="scan layer"></div>
+    <div class="vignette layer"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div id="date">2026-04-27</div>
+  </div>
+
+<script>
+(() => {
+  const seedString = "2026-04-27";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const seed = xmur3(seedString)();
+  const rand = mulberry32(seed);
+
+  const fluidCanvas = document.getElementById('fluidCanvas');
+  const moireCanvas = document.getElementById('moireCanvas');
+  const fctx = fluidCanvas.getContext('2d');
+  const mctx = moireCanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+
+  const blobs = [];
+  const palette = [
+    [255,33,88],
+    [0,209,255],
+    [255,230,0],
+    [10,10,18],
+    [255,255,255]
+  ];
+
+  for(let i=0;i<18;i++){
+    const c = palette[i % palette.length];
+    blobs.push({
+      x: W*(0.18 + 0.64*rand()),
+      y: H*(0.12 + 0.76*rand()),
+      r: 90 + rand()*240,
+      vx: (rand()-.5)*0.25,
+      vy: (rand()-.5)*0.18,
+      ax: rand()*Math.PI*2,
+      ay: rand()*Math.PI*2,
+      spx: 0.0007 + rand()*0.0014,
+      spy: 0.0007 + rand()*0.0011,
+      color: c,
+      phase: rand()*Math.PI*2
+    });
+  }
+
+  function drawFluid(t){
+    fctx.clearRect(0,0,W,H);
+
+    const bg = fctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,"rgba(255,255,255,0.65)");
+    bg.addColorStop(0.5,"rgba(255,255,255,0.08)");
+    bg.addColorStop(1,"rgba(255,255,255,0.3)");
+    fctx.fillStyle = bg;
+    fctx.fillRect(0,0,W,H);
+
+    fctx.globalCompositeOperation = 'multiply';
+
+    for(const b of blobs){
+      const x = b.x + Math.sin(t*b.spx + b.ax)*120 + Math.cos(t*b.spx*0.6 + b.phase)*38;
+      const y = b.y + Math.cos(t*b.spy + b.ay)*150 + Math.sin(t*b.spy*0.8 + b.phase)*52;
+      const rr = b.r * (0.85 + 0.18*Math.sin(t*0.0011 + b.phase));
+
+      const g = fctx.createRadialGradient(x,y,rr*0.08,x,y,rr);
+      const [r,gc,bc] = b.color;
+      g.addColorStop(0, `rgba(${r},${gc},${bc},0.78)`);
+      g.addColorStop(0.34, `rgba(${r},${gc},${bc},0.46)`);
+      g.addColorStop(0.7, `rgba(${r},${gc},${bc},0.16)`);
+      g.addColorStop(1, `rgba(${r},${gc},${bc},0)`);
+      fctx.fillStyle = g;
+      fctx.beginPath();
+      fctx.arc(x,y,rr,0,Math.PI*2);
+      fctx.fill();
+    }
+
+    fctx.globalCompositeOperation = 'source-over';
+
+    for(let i=0;i<7;i++){
+      const y = 220 + i*220 + Math.sin(t*0.0005 + i)*20;
+      const grad = fctx.createLinearGradient(0,y-50,W,y+50);
+      grad.addColorStop(0,"rgba(255,255,255,0)");
+      grad.addColorStop(0.16,"rgba(255,255,255,0.35)");
+      grad.addColorStop(0.5,"rgba(0,0,0,0.14)");
+      grad.addColorStop(0.84,"rgba(255,255,255,0.3)");
+      grad.addColorStop(1,"rgba(255,255,255,0)");
+      fctx.fillStyle = grad;
+      fctx.fillRect(0,y-40,W,80);
+    }
+  }
+
+  function drawMoire(t){
+    mctx.clearRect(0,0,W,H);
+    mctx.save();
+
+    const sets = [
+      {cx:540, cy:930, rot: t*0.00006, scale:1, alpha:0.46, color:"#000"},
+      {cx:530, cy:960, rot:-t*0.000075 + 0.2, scale:1.02, alpha:0.27, color:"#ff2158"},
+      {cx:560, cy:975, rot:t*0.00005 - 0.12, scale:0.98, alpha:0.22, color:"#00d1ff"}
+    ];
+
+    for(const s of sets){
+      mctx.save();
+      mctx.translate(s.cx,s.cy);
+      mctx.rotate(s.rot);
+      mctx.scale(s.scale, s.scale*1.18);
+      mctx.strokeStyle = s.color;
+      mctx.globalAlpha = s.alpha;
+      mctx.lineWidth = 3;
+      for(let r=80; r<740; r+=12){
+        mctx.beginPath();
+        mctx.ellipse(0,0,r*0.68,r,0,0,Math.PI*2);
+        mctx.stroke();
+      }
+      mctx.restore();
+    }
+
+    mctx.globalAlpha = 0.22;
+    mctx.fillStyle = "#ffffff";
+    mctx.fillRect(0,0,W,H);
+    mctx.restore();
+  }
+
+  let start = performance.now();
+  function animate(now){
+    const t = now - start;
+    drawFluid(t);
+    drawMoire(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.018;
+      master.connect(audioCtx.destination);
+
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 900;
+      lp.Q.value = 0.6;
+      lp.connect(master);
+
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const osc3 = audioCtx.createOscillator();
+      osc1.type = "sine";
+      osc2.type = "triangle";
+      osc3.type = "sine";
+      osc1.frequency.value = 112;
+      osc2.frequency.value = 149.6;
+      osc3.frequency.value = 223.2;
+
+      const g1 = audioCtx.createGain();
+      const g2 = audioCtx.createGain();
+      const g3 = audioCtx.createGain();
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.1;
+      g3.gain.value = 0.05;
+
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.041;
+      lfoGain.gain.value = 52;
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      const wob = audioCtx.createOscillator();
+      const wobGain = audioCtx.createGain();
+      wob.type = "sine";
+      wob.frequency.value = 0.07;
+      wobGain.gain.value = 0.009;
+      wob.connect(wobGain);
+      wobGain.connect(g1.gain);
+      wobGain.connect(g2.gain);
+
+      osc1.connect(g1); g1.connect(lp);
+      osc2.connect(g2); g2.connect(lp);
+      osc3.connect(g3); g3.connect(lp);
+
+      const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (rand()*2-1)*0.25;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.value = 480;
+      noiseFilter.Q.value = 0.8;
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.value = 0.008;
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      osc1.start();
+      osc2.start();
+      osc3.start();
+      lfo.start();
+      wob.start();
+      noise.start();
+
+      function sweep(){
+        const ct = audioCtx.currentTime;
+        osc1.frequency.cancelScheduledValues(ct);
+        osc2.frequency.cancelScheduledValues(ct);
+        osc3.frequency.cancelScheduledValues(ct);
+        osc1.frequency.linearRampToValueAtTime(110 + rand()*12, ct + 12);
+        osc2.frequency.linearRampToValueAtTime(146 + rand()*16, ct + 15);
+        osc3.frequency.linearRampToValueAtTime(218 + rand()*18, ct + 18);
+        noiseFilter.frequency.linearRampToValueAtTime(420 + rand()*240, ct + 16);
+        setTimeout(sweep, 12000);
+      }
+      sweep();
+
+      const resume = () => {
+        if(audioCtx.state !== 'running') audioCtx.resume();
+      };
+      setTimeout(resume, 300);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
