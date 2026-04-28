@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026-04-28</title>
+<style>
+  :root{
+    --bg1:#ff5a1f;
+    --bg2:#f7d11f;
+    --bg3:#00a7a2;
+    --bg4:#3156d3;
+    --bg5:#ef2f7f;
+    --ink:#10203a;
+    --cream:#fff2cb;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#241418;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,240,180,.55), transparent 28%),
+      radial-gradient(circle at 80% 22%, rgba(255,60,130,.28), transparent 30%),
+      linear-gradient(160deg, #ff7a1f 0%, #ff4f35 22%, #f1d31e 48%, #00a4a0 72%, #2047b5 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 30px 90px rgba(0,0,0,.45);
+  }
+
+  #paint, #glass, #texture{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  #background-video{
+    position:absolute;
+    inset:4.5% 4.5% 4.5% 4.5%;
+    width:91%;
+    height:91%;
+    object-fit:cover;
+    opacity:.82;
+    filter:saturate(1.4) contrast(1.1) hue-rotate(-8deg);
+    mix-blend-mode:multiply;
+    transform:scale(1.08);
+    animation: videoDrift 42s ease-in-out infinite alternate;
+    mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 58%, rgba(0,0,0,.88) 72%, rgba(0,0,0,.48) 84%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,.98) 58%, rgba(0,0,0,.88) 72%, rgba(0,0,0,.48) 84%, rgba(0,0,0,0) 100%);
+  }
+
+  @keyframes videoDrift{
+    0%{transform:scale(1.08) translate(-1.2%, -0.8%)}
+    50%{transform:scale(1.13) translate(1.2%, 0.6%)}
+    100%{transform:scale(1.1) translate(-0.4%, 1%)}
+  }
+
+  #shards{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .shard{
+    position:absolute;
+    overflow:hidden;
+    filter: drop-shadow(0 0 1px rgba(255,255,255,.15)) drop-shadow(0 6px 16px rgba(0,0,0,.12));
+    animation: shardShift var(--dur) ease-in-out infinite alternate;
+    transform-origin:center;
+  }
+  .shard::before{
+    content:"";
+    position:absolute; inset:-8%;
+    background:
+      linear-gradient(115deg, rgba(255,255,255,.22), rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,.11)),
+      radial-gradient(circle at var(--gx) var(--gy), rgba(255,248,218,.28), rgba(255,248,218,0) 38%),
+      var(--fill);
+    mix-blend-mode:screen;
+    opacity:.92;
+    transform:scale(var(--s)) translate(var(--tx), var(--ty)) rotate(var(--rot));
+    filter:saturate(var(--sat)) hue-rotate(var(--hue)) contrast(1.06);
+  }
+  .shard::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(135deg, rgba(255,250,230,.55), rgba(255,250,230,0) 14%, rgba(0,0,0,0) 55%, rgba(255,250,230,.22) 100%);
+    mix-blend-mode:screen;
+    opacity:.45;
+  }
+
+  @keyframes shardShift{
+    0%{transform:translate(0px,0px) rotate(0deg)}
+    100%{transform:translate(calc(var(--mx) * 1px), calc(var(--my) * 1px)) rotate(calc(var(--mr) * 1deg))}
+  }
+
+  #cracks{
+    position:absolute; inset:0;
+    pointer-events:none;
+    mix-blend-mode:multiply;
+    opacity:.9;
+  }
+  .crack{
+    position:absolute;
+    background:#14233b;
+    box-shadow:0 0 0 1px rgba(255,245,220,.16);
+    transform-origin:0 50%;
+    border-radius:999px;
+  }
+  .chip{
+    position:absolute;
+    background:rgba(255,246,214,.23);
+    border:1px solid rgba(20,35,59,.25);
+    mix-blend-mode:screen;
+    filter:blur(.2px);
+  }
+
+  #sunburst{
+    position:absolute;
+    inset:-12%;
+    opacity:.34;
+    mix-blend-mode:multiply;
+    animation: slowTurn 70s linear infinite;
+    mask-image:radial-gradient(circle at center, rgba(0,0,0,0) 0 17%, rgba(0,0,0,.95) 28%, rgba(0,0,0,.75) 62%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image:radial-gradient(circle at center, rgba(0,0,0,0) 0 17%, rgba(0,0,0,.95) 28%, rgba(0,0,0,.75) 62%, rgba(0,0,0,0) 100%);
+  }
+  @keyframes slowTurn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+  #fields{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .field{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(12px);
+    opacity:.48;
+    mix-blend-mode:screen;
+    animation: breathe var(--bd) ease-in-out infinite alternate;
+  }
+  @keyframes breathe{
+    0%{transform:scale(1) translate(0,0)}
+    100%{transform:scale(1.08) translate(var(--dx), var(--dy))}
+  }
+
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    font-size:14px;
+    letter-spacing:.12em;
+    color:rgba(255,245,220,.58);
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:14px;
+    bottom:134px;
+    opacity:.56;
+    z-index:14;
+    filter:saturate(.8) contrast(.95);
+    transform:rotate(-6deg);
+  }
+
+  .edgefade{
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:
+      linear-gradient(to bottom, rgba(255,180,70,.16), rgba(255,180,70,0) 10%),
+      linear-gradient(to top, rgba(25,14,18,.20), rgba(25,14,18,0) 10%);
+    mask-image:radial-gradient(ellipse at center, rgba(0,0,0,0) 0, rgba(0,0,0,.0) 74%, rgba(0,0,0,.75) 90%, rgba(0,0,0,1) 100%);
+    -webkit-mask-image:radial-gradient(ellipse at center, rgba(0,0,0,0) 0, rgba(0,0,0,.0) 74%, rgba(0,0,0,.75) 90%, rgba(0,0,0,1) 100%);
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <svg id="sunburst" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <g id="rays"></g>
+  </svg>
+
+  <canvas id="paint" width="1080" height="1920"></canvas>
+
+  <div id="fields"></div>
+  <div id="shards"></div>
+  <div id="cracks"></div>
+
+  <canvas id="glass" width="1080" height="1920"></canvas>
+  <canvas id="texture" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div class="edgefade"></div>
+  <div id="date">2026-04-28</div>
+</div>
+
+<script>
+(() => {
+  const DATE_STR = "2026-04-28";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(hashString(DATE_STR + "-fauve-shards"));
+
+  const W = 1080, H = 1920, cx = W/2, cy = H/2;
+
+  const paint = document.getElementById('paint');
+  const pctx = paint.getContext('2d');
+
+  const glass = document.getElementById('glass');
+  const gctx = glass.getContext('2d');
+
+  const texture = document.getElementById('texture');
+  const tctx = texture.getContext('2d');
+
+  function r(a,b){ return a + (b-a)*rand(); }
+  function pick(arr){ return arr[(rand()*arr.length)|0]; }
+
+  const palette = [
+    "#ff5b21", "#ff7e1f", "#f4d01f", "#00a79d", "#0d71c5", "#2548b8",
+    "#ef2b7b", "#7b2cbf", "#fff0b8", "#14325f", "#f28f16", "#12b2b6"
+  ];
+
+  function poly(ctx, pts, fill, alpha=1, stroke=null, lw=1){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if(stroke){ ctx.lineWidth = lw; ctx.strokeStyle = stroke; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  function brushRect(x,y,w,h,color,rot,passes=8){
+    pctx.save();
+    pctx.translate(x,y);
+    pctx.rotate(rot);
+    for(let i=0;i<passes;i++){
+      const ox = r(-w*0.08, w*0.08);
+      const oy = r(-h*0.08, h*0.08);
+      const ww = w * r(.85,1.12);
+      const hh = h * r(.72,1.15);
+      pctx.globalAlpha = r(.08,.22);
+      pctx.fillStyle = color;
+      pctx.fillRect(-ww/2+ox, -hh/2+oy, ww, hh);
+    }
+    pctx.restore();
+  }
+
+  function thickArc(x,y,rad,a0,a1,lw,color,alpha){
+    pctx.save();
+    pctx.strokeStyle = color;
+    pctx.globalAlpha = alpha;
+    pctx.lineWidth = lw;
+    pctx.lineCap = "butt";
+    pctx.beginPath();
+    pctx.arc(x,y,rad,a0,a1);
+    pctx.stroke();
+    pctx.restore();
+  }
+
+  function drawPaintScene(time=0){
+    pctx.clearRect(0,0,W,H);
+
+    const bg = pctx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,"#ff6c1c");
+    bg.addColorStop(.24,"#f04f3e");
+    bg.addColorStop(.48,"#f4d11f");
+    bg.addColorStop(.72,"#00a6a0");
+    bg.addColorStop(1,"#2f4cc8");
+    pctx.fillStyle = bg;
+    pctx.fillRect(0,0,W,H);
+
+    for(let i=0;i<24;i++){
+      brushRect(r(80,1000), r(90,1830), r(140,460), r(120,360), pick(palette), r(-.8,.8), 10);
+    }
+
+    for(let i=0;i<18;i++){
+      const pts = [];
+      const sides = 3 + ((rand()*3)|0);
+      const px = r(100,980), py = r(140,1780);
+      const rr = r(90,260);
+      const ang = r(0,Math.PI*2);
+      for(let s=0;s<sides;s++){
+        const a = ang + s * Math.PI*2/sides + r(-.18,.18);
+        const pr = rr * r(.7,1.25);
+        pts.push([px + Math.cos(a)*pr, py + Math.sin(a)*pr]);
+      }
+      poly(pctx, pts, pick(palette), r(.12,.24));
+    }
+
+    const drift = Math.sin(time*0.00018)*28;
+
+    thickArc(cx-90+drift*0.6, cy+80, 300, -0.8, 2.3, 70, "#14325f", .33);
+    thickArc(cx+130-drift*0.4, cy+40, 240, 2.1, 5.25, 60, "#fff0b8", .26);
+    thickArc(cx-180, cy-180+drift*0.3, 430, 0.2, 1.85, 88, "#ef2b7b", .24);
+    thickArc(cx+220, cy+260-drift*0.2, 350, 3.2, 5.5, 82, "#00a79d", .23);
+
+    brushRect(315+drift*.2, 640, 420, 310, "#ef2b7b", -.36, 18);
+    brushRect(730-drift*.25, 740, 360, 420, "#f4d01f", .26, 18);
+    brushRect(470-drift*.18, 1135, 540, 280, "#00a79d", -.19, 16);
+    brushRect(780+drift*.15, 1240, 300, 460, "#2548b8", .35, 18);
+    brushRect(260, 1400-drift*.15, 260, 390, "#ff7e1f", -.44, 16);
+    brushRect(610, 1500+drift*.12, 440, 220, "#fff0b8", .12, 12);
+
+    pctx.save();
+    pctx.globalAlpha = .14;
+    for(let i=0;i<180;i++){
+      pctx.fillStyle = pick(palette);
+      pctx.beginPath();
+      pctx.arc(r(0,W), r(0,H), r(8,32), 0, Math.PI*2);
+      pctx.fill();
+    }
+    pctx.restore();
+
+    const grad = pctx.createRadialGradient(cx, cy, 120, cx, cy, 760);
+    grad.addColorStop(0,"rgba(255,248,220,0.35)");
+    grad.addColorStop(.35,"rgba(255,248,220,0.06)");
+    grad.addColorStop(1,"rgba(20,15,35,0.24)");
+    pctx.fillStyle = grad;
+    pctx.fillRect(0,0,W,H);
+  }
+
+  drawPaintScene(0);
+
+  const shardContainer = document.getElementById('shards');
+  const crackContainer = document.getElementById('cracks');
+  const fields = document.getElementById('fields');
+
+  const centers = [];
+  for(let i=0;i<13;i++){
+    centers.push([r(70,1010), r(90,1830)]);
+  }
+  centers.push([cx, cy]);
+
+  function voronoiCell(i){
+    const [sx,sy] = centers[i];
+    let polyPts = [[0,0],[W,0],[W,H],[0,H]];
+    for(let j=0;j<centers.length;j++){
+      if(j===i) continue;
+      const [tx,ty] = centers[j];
+      const mx = (sx+tx)/2, my = (sy+ty)/2;
+      const nx = tx - sx, ny = ty - sy;
+      const keepSide = (x,y) => ((x-mx)*nx + (y-my)*ny) <= 0;
+      const out = [];
+      for(let k=0;k<polyPts.length;k++){
+        const a = polyPts[k];
+        const b = polyPts[(k+1)%polyPts.length];
+        const ain = keepSide(a[0],a[1]);
+        const bin = keepSide(b[0],b[1]);
+        if(ain && bin){
+          out.push(b);
+        }else if(ain && !bin){
+          const da = (a[0]-mx)*nx + (a[1]-my)*ny;
+          const db = (b[0]-mx)*nx + (b[1]-my)*ny;
+          const t = da/(da-db);
+          out.push([a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t]);
+        }else if(!ain && bin){
+          const da = (a[0]-mx)*nx + (a[1]-my)*ny;
+          const db = (b[0]-mx)*nx + (b[1]-my)*ny;
+          const t = da/(da-db);
+          out.push([a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t]);
+          out.push(b);
+        }
+      }
+      polyPts = out;
+      if(!polyPts.length) break;
+    }
+    return polyPts;
+  }
+
+  const shardPolys = [];
+  for(let i=0;i<centers.length;i++){
+    const pts = voronoiCell(i).map(([x,y]) => [Math.max(0,Math.min(W,x)), Math.max(0,Math.min(H,y))]);
+    if(pts.length >= 3) shardPolys.push(pts);
+  }
+
+  shardPolys.forEach((pts, idx) => {
+    let minX=1e9, minY=1e9, maxX=-1e9, maxY=-1e9;
+    pts.forEach(([x,y]) => { minX=Math.min(minX,x); minY=Math.min(minY,y); maxX=Math.max(maxX,x); maxY=Math.max(maxY,y); });
+    const div = document.createElement('div');
+    div.className = 'shard';
+    const pad = 6;
+    div.style.left = (minX-pad) + 'px';
+    div.style.top = (minY-pad) + 'px';
+    div.style.width = (maxX-minX+pad*2) + 'px';
+    div.style.height = (maxY-minY+pad*2) + 'px';
+    const local = pts.map(([x,y]) => `${(x-minX+pad).toFixed(1)}px ${(y-minY+pad).toFixed(1)}px`).join(',');
+    div.style.clipPath = `polygon(${local})`;
+    div.style.setProperty('--tx', `${r(-3,3).toFixed(2)}%`);
+    div.style.setProperty('--ty', `${r(-3,3).toFixed(2)}%`);
+    div.style.setProperty('--s', `${r(1.02,1.1).toFixed(3)}`);
+    div.style.setProperty('--rot', `${r(-2.8,2.8).toFixed(2)}deg`);
+    div.style.setProperty('--sat', `${r(1.05,1.45).toFixed(2)}`);
+    div.style.setProperty('--hue', `${r(-18,18).toFixed(2)}deg`);
+    div.style.setProperty('--gx', `${r(10,90).toFixed(1)}%`);
+    div.style.setProperty('--gy', `${r(10,90).toFixed(1)}%`);
+    div.style.setProperty('--mx', `${r(-7,7).toFixed(2)}`);
+    div.style.setProperty('--my', `${r(-10,10).toFixed(2)}`);
+    div.style.setProperty('--mr', `${r(-.7,.7).toFixed(3)}`);
+    div.style.setProperty('--dur', `${r(18,38).toFixed(2)}s`);
+
+    const gx = minX / W * 100, gy = minY / H * 100, gw = (maxX-minX)/W*100, gh = (maxY-minY)/H*100;
+    const c1 = pick(palette), c2 = pick(palette), c3 = pick(palette);
+    div.style.setProperty('--fill',
+      `linear-gradient(${r(0,360).toFixed(1)}deg,
+        rgba(255,242,205,.15),
+        rgba(255,242,205,0) 22%,
+        rgba(0,0,0,0) 30%),
+       url("") no-repeat,
+       radial-gradient(circle at ${r(18,82).toFixed(1)}% ${r(18,82).toFixed(1)}%,
+        ${c1} 0%,
+        ${c2} 40%,
+        ${c3} 100%),
+       linear-gradient(${r(0,360).toFixed(1)}deg, ${c1}, ${c2} 50%, ${c3})`
+    );
+    div.style.backgroundImage = `url("")`;
+    div.style.background = `transparent`;
+    const inner = document.createElement('div');
+    inner.style.position = 'absolute';
+    inner.style.inset = '-4%';
+    inner.style.background = `url("")`;
+    shardContainer.appendChild(div);
+  });
+
+  shardPolys.forEach((pts, idx) => {
+    const div = shardContainer.children[idx];
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.position = 'absolute';
+    canvas.style.left = `${-(parseFloat(div.style.left)||0)}px`;
+    canvas.style.top = `${-(parseFloat(div.style.top)||0)}px`;
+    canvas.style.width = `${W}px`;
+    canvas.style.height = `${H}px`;
+    const c = canvas.getContext('2d');
+    c.drawImage(paint,0,0);
+    c.globalCompositeOperation = 'source-atop';
+    c.fillStyle = `hsla(${r(0,360)},90%,60%,${r(.04,.12)})`;
+    c.fillRect(0,0,W,H);
+    div.appendChild(canvas);
+  });
+
+  function addCrackLine(x1,y1,x2,y2,w){
+    const d = Math.hypot(x2-x1,y2-y1);
+    const a = Math.atan2(y2-y1,x2-x1);
+    const el = document.createElement('div');
+    el.className = 'crack';
+    el.style.left = x1 + 'px';
+    el.style.top = y1 + 'px';
+    el.style.width = d + 'px';
+    el.style.height = w + 'px';
+    el.style.transform = `translateY(-50%) rotate(${a}rad)`;
+    crackContainer.appendChild(el);
+  }
+
+  for(let i=0;i<centers.length;i++){
+    for(let j=i+1;j<centers.length;j++){
+      const [x1,y1] = centers[i], [x2,y2] = centers[j];
+      const d = Math.hypot(x2-x1,y2-y1);
+      if(d < 380){
+        const mx=(x1+x2)/2, my=(y1+y2)/2;
+        const ang = Math.atan2(y2-y1,x2-x1) + Math.PI/2;
+        const len = d*0.5;
+        const ex1 = mx + Math.cos(ang)*len*0.55;
+        const ey1 = my + Math.sin(ang)*len*0.55;
+        const ex2 = mx - Math.cos(ang)*len*0.55;
+        const ey2 = my - Math.sin(ang)*len*0.55;
+        addCrackLine(ex1,ey1,ex2,ey2,r(2.3,5.5));
+        if(rand()<.5){
+          addCrackLine(mx,my, mx + Math.cos(ang+0.55)*len*0.35, my + Math.sin(ang+0.55)*len*0.35, r(1.8,3.5));
+        }
+        if(rand()<.45){
+          addCrackLine(mx,my, mx + Math.cos(ang-0.62)*len*0.28, my + Math.sin(ang-0.62)*len*0.28, r(1.4,2.8));
+        }
+      }
+    }
+  }
+
+  for(let i=0;i<18;i++){
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    const x = r(130,950), y = r(180,1740), s = r(12,38);
+    chip.style.left = x+'px';
+    chip.style.top = y+'px';
+    chip.style.width = s+'px';
+    chip.style.height = s*0.8+'px';
+    chip.style.clipPath = `polygon(${r(10,30)}% 0%, 100% ${r(15,40)}%, ${r(60,90)}% 100%, 0% ${r(55,85)}%)`;
+    chip.style.transform = `rotate(${r(0,360)}deg)`;
+    crackContainer.appendChild(chip);
+  }
+
+  const rays = document.getElementById('rays');
+  const rayCount = 28;
+  for(let i=0;i<rayCount;i++){
+    const a0 = i*(360/rayCount);
+    const w = 360/rayCount * r(.5,.88);
+    const col = i%2===0 ? "#ff7e1f" : "#14325f";
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const r1 = 170, r2 = 1260;
+    const x1 = cx + Math.cos((a0-w/2)*Math.PI/180)*r1;
+    const y1 = cy + Math.sin((a0-w/2)*Math.PI/180)*r1;
+    const x2 = cx + Math.cos((a0+w/2)*Math.PI/180)*r1;
+    const y2 = cy + Math.sin((a0+w/2)*Math.PI/180)*r1;
+    const x3 = cx + Math.cos((a0+w/2)*Math.PI/180)*r2;
+    const y3 = cy + Math.sin((a0+w/2)*Math.PI/180)*r2;
+    const x4 = cx + Math.cos((a0-w/2)*Math.PI/180)*r2;
+    const y4 = cy + Math.sin((a0-w/2)*Math.PI/180)*r2;
+    path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`);
+    path.setAttribute('fill', col);
+    path.setAttribute('fill-opacity', i%2===0 ? '.16' : '.11');
+    rays.appendChild(path);
+  }
+
+  for(let i=0;i<8;i++){
+    const f = document.createElement('div');
+    f.className = 'field';
+    const size = r(180,520);
+    f.style.width = size+'px';
+    f.style.height = size*1.1+'px';
+    f.style.left = r(-60,900)+'px';
+    f.style.top = r(-40,1600)+'px';
+    f.style.background = `radial-gradient(circle at 45% 40%, ${pick(["rgba(255,245,215,.55)","rgba(239,43,123,.42)","rgba(0,167,157,.38)","rgba(244,208,31,.42)"])}, rgba(255,255,255,0) 68%)`;
+    f.style.setProperty('--dx', `${r(-16,16).toFixed(1)}px`);
+    f.style.setProperty('--dy', `${r(-22,22).toFixed(1)}px`);
+    f.style.setProperty('--bd', `${r(16,30).toFixed(2)}s`);
+    fields.appendChild(f);
+  }
+
+  function paintTexture(){
+    tctx.clearRect(0,0,W,H);
+    tctx.globalAlpha = 0.08;
+    for(let i=0;i<2600;i++){
+      const x = rand()*W, y = rand()*H;
+      const s = rand()*4+1;
+      tctx.fillStyle = rand() > .5 ? "#fff6da" : "#10203a";
+      tctx.fillRect(x,y,s,s);
+    }
+    tctx.globalAlpha = 0.06;
+    for(let i=0;i<240;i++){
+      tctx.fillStyle = pick(palette);
+      tctx.fillRect(r(0,W), r(0,H), r(18,90), r(6,24));
+    }
+    tctx.globalAlpha = 0.12;
+    for(let y=0;y<H;y+=6){
+      tctx.fillStyle = y%12===0 ? "rgba(255,245,215,.08)" : "rgba(16,32,58,.05)";
+      tctx.fillRect(0,y,W,2);
+    }
+  }
+  paintTexture();
+
+  function drawGlass(time){
+    gctx.clearRect(0,0,W,H);
+
+    const grd = gctx.createRadialGradient(cx,cy,130,cx,cy,1000);
+    grd.addColorStop(0,'rgba(255,250,235,0.20)');
+    grd.addColorStop(.55,'rgba(255,250,235,0.03)');
+    grd.addColorStop(1,'rgba(20,12,20,0.18)');
+    gctx.fillStyle = grd;
+    gctx.fillRect(0,0,W,H);
+
+    gctx.save();
+    gctx.strokeStyle = "rgba(255,247,228,0.28)";
+    gctx.lineWidth = 2;
+    for(let i=0;i<shardPolys.length;i++){
+      const pts = shardPolys[i];
+      gctx.beginPath();
+      gctx.moveTo(pts[0][0],pts[0][1]);
+      for(let j=1;j<pts.length;j++) gctx.lineTo(pts[j][0],pts[j][1]);
+      gctx.closePath();
+      gctx.stroke();
+    }
+    gctx.restore();
+
+    gctx.save();
+    gctx.globalAlpha = 0.18;
+    for(let i=0;i<18;i++){
+      const x = (i/18)*W + Math.sin(time*0.00012 + i)*30;
+      const lg = gctx.createLinearGradient(x,0,x+120,H);
+      lg.addColorStop(0,'rgba(255,255,255,0)');
+      lg.addColorStop(.5,'rgba(255,248,220,0.26)');
+      lg.addColorStop(1,'rgba(255,255,255,0)');
+      gctx.fillStyle = lg;
+      gctx.fillRect(x-30,0,120,H);
+    }
+    gctx.restore();
+  }
+
+  let last = 0;
+  function animate(ts){
+    if(ts - last > 32){
+      drawPaintScene(ts);
+      shardPolys.forEach((pts, idx) => {
+        const div = shardContainer.children[idx];
+        const c = div.firstChild.getContext('2d');
+        c.clearRect(0,0,W,H);
+        c.drawImage(paint,0,0);
+        c.globalCompositeOperation = 'source-atop';
+        c.fillStyle = `hsla(${(idx*27 + Math.sin(ts*0.0001+idx)*24 + 360)%360},90%,58%,${0.05 + idx*0.002})`;
+        c.fillRect(0,0,W,H);
+      });
+      drawGlass(ts);
+      last = ts;
+    }
+    requestAnimationFrame(animate);
+  }
+  drawGlass(0);
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ac.createGain();
+      master.gain.value = 0.026;
+      master.connect(ac.destination);
+
+      const freqs = [146.83, 220, 293.66, 369.99];
+      freqs.forEach((f, i) => {
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        const lfo = ac.createOscillator();
+        const lg = ac.createGain();
+        o.type = i % 2 ? "triangle" : "sine";
+        o.frequency.value = f;
+        g.gain.value = 0.002 + i*0.0015;
+        lfo.frequency.value = 0.02 + i*0.008;
+        lg.gain.value = 0.003 + i*0.001;
+        lfo.connect(lg);
+        lg.connect(g.gain);
+        o.connect(g);
+        g.connect(master);
+        o.start();
+        lfo.start();
+      });
+
+      const noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.18;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+      const bp = ac.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 900;
+      bp.Q.value = 0.8;
+      const ng = ac.createGain();
+      ng.gain.value = 0.0035;
+      noise.connect(bp);
+      bp.connect(ng);
+      ng.connect(master);
+      noise.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
