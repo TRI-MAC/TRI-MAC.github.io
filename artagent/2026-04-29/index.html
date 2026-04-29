@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-04-29</title>
+<style>
+  :root{
+    --bg:#d8b679;
+    --sand:#c99654;
+    --clay:#a85d2c;
+    --umber:#6a3a1f;
+    --char:#24160d;
+    --cream:#efe0b9;
+    --turq:#2ea6a2;
+    --turq2:#6fc8c0;
+    --ochre:#e2aa43;
+    --red:#8d3526;
+    --shadow:#3d2517;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#120d08;
+    overflow:hidden;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 70% at 50% 20%, rgba(255,239,197,.28), rgba(255,239,197,0) 50%),
+      linear-gradient(180deg,#e3c48a 0%, #d6ad6a 20%, #c28746 48%, #a66335 76%, #7b4726 100%);
+    box-shadow:0 0 0 1px rgba(255,240,210,.08), 0 30px 80px rgba(0,0,0,.45);
+  }
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, rgba(60,34,18,.12) 0 1px, transparent 1px 100%),
+      linear-gradient(0deg, rgba(60,34,18,.08) 0 1px, transparent 1px 100%);
+    background-size: 16px 16px, 16px 16px;
+    opacity:.24;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:-3%;
+    background:
+      radial-gradient(120% 120% at 50% 50%, transparent 62%, rgba(25,14,8,.18) 78%, rgba(25,14,8,.48) 100%);
+    pointer-events:none;
+  }
+
+  #background-video{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:110%;
+    height:110%;
+    object-fit:cover;
+    transform:translate(-50%,-50%) scale(1.04);
+    opacity:.78;
+    filter:saturate(.75) sepia(.38) hue-rotate(-18deg) contrast(.95) brightness(1.03);
+    mix-blend-mode:multiply;
+    clip-path:polygon(10% 6%, 90% 6%, 95% 16%, 95% 84%, 90% 94%, 10% 94%, 5% 84%, 5% 16%);
+  }
+
+  .soft-mask{
+    position:absolute; inset:0;
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 72%, rgba(0,0,0,.65) 84%, transparent 100%);
+            mask-image:radial-gradient(ellipse at center, #000 72%, rgba(0,0,0,.65) 84%, transparent 100%);
+  }
+
+  #sunburst{
+    position:absolute;
+    inset:11% 10% 12% 10%;
+    opacity:.24;
+    mix-blend-mode:overlay;
+    animation:turnSlow 120s linear infinite;
+    -webkit-mask-image:radial-gradient(circle at 50% 48%, #000 0 52%, rgba(0,0,0,.55) 68%, transparent 86%);
+            mask-image:radial-gradient(circle at 50% 48%, #000 0 52%, rgba(0,0,0,.55) 68%, transparent 86%);
+  }
+
+  #pattern-svg{
+    position:absolute;
+    inset:0;
+    opacity:.9;
+  }
+
+  .ascii-panel{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:84%;
+    height:74%;
+    border:2px solid rgba(64,32,16,.32);
+    background:
+      linear-gradient(180deg, rgba(239,224,185,.12), rgba(107,63,33,.08)),
+      linear-gradient(90deg, rgba(255,255,255,.06), transparent 24%, transparent 76%, rgba(0,0,0,.06));
+    box-shadow:
+      inset 0 0 0 2px rgba(239,224,185,.12),
+      inset 0 0 60px rgba(61,37,23,.2);
+    overflow:hidden;
+  }
+  .ascii-panel::before,.ascii-panel::after{
+    content:"";
+    position:absolute; left:3%; right:3%; height:18px;
+    background:
+      linear-gradient(90deg,
+      transparent 0 3%,
+      var(--char) 3% 7%,
+      var(--sand) 7% 10%,
+      var(--char) 10% 14%,
+      transparent 14% 18%,
+      var(--char) 18% 22%,
+      var(--turq) 22% 26%,
+      var(--char) 26% 30%,
+      transparent 30% 70%,
+      var(--char) 70% 74%,
+      var(--turq) 74% 78%,
+      var(--char) 78% 82%,
+      transparent 82% 86%,
+      var(--char) 86% 90%,
+      var(--sand) 90% 93%,
+      var(--char) 93% 97%,
+      transparent 97% 100%);
+    opacity:.72;
+  }
+  .ascii-panel::before{top:2.2%}
+  .ascii-panel::after{bottom:2.2%}
+
+  #ascii{
+    position:absolute;
+    inset:4.5% 5%;
+    margin:0;
+    white-space:pre;
+    font-size:12.2px;
+    line-height:12.4px;
+    letter-spacing:.45px;
+    color:var(--char);
+    text-shadow:0 1px 0 rgba(255,235,190,.12);
+    opacity:.98;
+    transform-origin:50% 50%;
+    animation:breathe 18s ease-in-out infinite;
+  }
+  .accent{
+    color:var(--turq);
+    text-shadow:0 0 8px rgba(46,166,162,.12);
+  }
+  .ochre{ color:var(--ochre); }
+  .red{ color:var(--red); }
+  .cream{ color:var(--cream); }
+
+  #portrait-wrap{
+    position:absolute;
+    right:11.5%;
+    top:17%;
+    width:33%;
+    height:28%;
+    transform:rotate(-3deg);
+    animation:portraitShift 26s ease-in-out infinite;
+    filter:drop-shadow(0 18px 18px rgba(36,22,13,.18));
+  }
+  #portrait-wrap::before{
+    content:"";
+    position:absolute; inset:-6%;
+    background:
+      linear-gradient(135deg, rgba(239,224,185,.36), rgba(239,224,185,0) 38%),
+      linear-gradient(315deg, rgba(46,166,162,.26), rgba(46,166,162,0) 42%),
+      linear-gradient(180deg, rgba(122,71,38,.35), rgba(74,40,20,.16));
+    clip-path:polygon(0 0, 82% 0, 100% 18%, 100% 100%, 0 100%, 0 0);
+    opacity:.9;
+  }
+  #portrait-wrap::after{
+    content:"";
+    position:absolute; inset:-11%;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(36,22,13,.5) 0 7px,
+        rgba(201,150,84,.0) 7px 15px,
+        rgba(36,22,13,.35) 15px 18px,
+        rgba(111,200,192,.0) 18px 29px);
+    clip-path:polygon(3% 3%, 83% 3%, 97% 17%, 97% 97%, 3% 97%);
+    opacity:.28;
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.55) 78%, transparent 100%);
+            mask-image:radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.55) 78%, transparent 100%);
+  }
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    clip-path:polygon(0 0, 84% 0, 100% 16%, 100% 100%, 0 100%);
+    filter:sepia(.5) contrast(1.08) saturate(.72) brightness(.96);
+    mix-blend-mode:multiply;
+    opacity:.96;
+  }
+
+  .glyph-band{
+    position:absolute;
+    left:7%;
+    right:7%;
+    height:34px;
+    overflow:hidden;
+    color:rgba(36,22,13,.78);
+    font-size:20px;
+    letter-spacing:4px;
+    white-space:nowrap;
+    text-align:center;
+    opacity:.6;
+    text-shadow:0 1px 0 rgba(255,240,210,.15);
+  }
+  .glyph-band.top{ top:8.8%; animation:slideBand 40s linear infinite; }
+  .glyph-band.mid{ top:47.6%; animation:slideBand2 52s linear infinite; opacity:.36; }
+  .glyph-band.bot{ bottom:8.4%; animation:slideBand 46s linear infinite reverse; }
+
+  #weave{
+    position:absolute;
+    inset:0;
+    opacity:.28;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  #canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:18px;
+    bottom:122px;
+    opacity:.58;
+    filter:saturate(.72) brightness(.84);
+    transform:rotate(-5deg);
+  }
+
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:14px;
+    color:rgba(36,22,13,.58);
+    font-size:12px;
+    letter-spacing:1.5px;
+    z-index:20;
+  }
+
+  @keyframes turnSlow{
+    from{transform:rotate(0deg) scale(1)}
+    50%{transform:rotate(180deg) scale(1.03)}
+    to{transform:rotate(360deg) scale(1)}
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.012) translateY(-4px)}
+  }
+  @keyframes portraitShift{
+    0%,100%{transform:rotate(-3deg) translateY(0)}
+    50%{transform:rotate(-1deg) translateY(8px)}
+  }
+  @keyframes slideBand{
+    from{transform:translateX(-3%)}
+    to{transform:translateX(3%)}
+  }
+  @keyframes slideBand2{
+    from{transform:translateX(4%)}
+    to{transform:translateX(-4%)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg id="sunburst" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="sbG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#efe0b9"/>
+          <stop offset="50%" stop-color="#2ea6a2"/>
+          <stop offset="100%" stop-color="#e2aa43"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(50 48)">
+        <g fill="url(#sbG)">
+          <polygon points="0,-43 2,-16 -2,-16"/>
+          <polygon points="0,43 2,16 -2,16"/>
+          <polygon points="-43,0 -16,2 -16,-2"/>
+          <polygon points="43,0 16,2 16,-2"/>
+          <polygon points="30,-30 11,-8 8,-11"/>
+          <polygon points="-30,30 -11,8 -8,11"/>
+          <polygon points="-30,-30 -8,-11 -11,-8"/>
+          <polygon points="30,30 8,11 11,8"/>
+          <polygon points="15,-40 8,-14 4,-15"/>
+          <polygon points="-15,40 -8,14 -4,15"/>
+          <polygon points="-15,-40 -4,-15 -8,-14"/>
+          <polygon points="15,40 4,15 8,14"/>
+        </g>
+      </g>
+    </svg>
+
+    <svg id="pattern-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="steps" width="180" height="180" patternUnits="userSpaceOnUse">
+          <rect width="180" height="180" fill="none"/>
+          <path d="M0 20 H60 V60 H120 V100 H180" fill="none" stroke="#6a3a1f" stroke-width="16" opacity=".35"/>
+          <path d="M0 160 H60 V120 H120 V80 H180" fill="none" stroke="#24160d" stroke-width="10" opacity=".28"/>
+        </pattern>
+        <pattern id="diamonds" width="96" height="96" patternUnits="userSpaceOnUse">
+          <polygon points="48,8 88,48 48,88 8,48" fill="none" stroke="#2ea6a2" stroke-width="6" opacity=".32"/>
+          <polygon points="48,24 72,48 48,72 24,48" fill="none" stroke="#efe0b9" stroke-width="3" opacity=".34"/>
+        </pattern>
+        <linearGradient id="bandFade" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="8%" stop-color="#000"/>
+          <stop offset="92%" stop-color="#000"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+      </defs>
+
+      <rect x="0" y="0" width="1080" height="1920" fill="url(#steps)" opacity=".55"/>
+      <rect x="90" y="120" width="900" height="1680" fill="none" stroke="#6a3a1f" stroke-width="10" opacity=".22"/>
+      <rect x="130" y="160" width="820" height="1600" fill="url(#diamonds)" opacity=".42"/>
+
+      <g opacity=".54">
+        <polygon points="540,220 650,330 540,440 430,330" fill="none" stroke="#2ea6a2" stroke-width="16"/>
+        <polygon points="540,260 610,330 540,400 470,330" fill="none" stroke="#efe0b9" stroke-width="8"/>
+      </g>
+
+      <g opacity=".28">
+        <path d="M220 620 H400 V760 H680 V620 H860" fill="none" stroke="#24160d" stroke-width="22"/>
+        <path d="M180 1360 H400 V1220 H680 V1360 H900" fill="none" stroke="#24160d" stroke-width="22"/>
+      </g>
+
+      <g opacity=".42">
+        <polygon points="110,970 200,910 290,970 200,1030" fill="#8d3526"/>
+        <polygon points="970,970 880,910 790,970 880,1030" fill="#8d3526"/>
+        <polygon points="540,1500 670,1400 540,1300 410,1400" fill="none" stroke="#2ea6a2" stroke-width="12"/>
+      </g>
+
+      <rect x="130" y="903" width="820" height="114" fill="#efe0b9" opacity=".07" mask="url(#hmask)"/>
+      <rect x="0" y="0" width="1080" height="1920" fill="none" stroke="#24160d" stroke-width="36" opacity=".16"/>
+    </svg>
+
+    <div class="glyph-band top">◈ ◇ ▣ ▲ ▼ ◈ ◇ ▣ ▲ ▼ ◈ ◇ ▣ ▲ ▼ ◈ ◇ ▣ ▲ ▼ ◈ ◇ ▣ ▲ ▼</div>
+    <div class="glyph-band mid">:: == + + [] <> /\ /\ {} {} || || ++ ++ == :: <> [] ++ ==</div>
+    <div class="glyph-band bot">▼ ▲ ◇ ◈ ▣ ▼ ▲ ◇ ◈ ▣ ▼ ▲ ◇ ◈ ▣ ▼ ▲ ◇ ◈ ▣ ▼ ▲ ◇ ◈ ▣</div>
+
+    <div class="ascii-panel">
+      <pre id="ascii" aria-hidden="true"></pre>
+    </div>
+
+    <div id="portrait-wrap">
+      <img id="portrait-image" src="portrait.png" alt="" />
+    </div>
+
+    <canvas id="weave"></canvas>
+    <canvas id="canvas"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-04-29</div>
+  </div>
+
+<script>
+(function(){
+  const dateSeed = "2026-04-29";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rng = mulberry32(hashString(dateSeed));
+
+  const asciiEl = document.getElementById('ascii');
+  const W = 47, H = 82;
+  const grid = Array.from({length:H},()=>Array.from({length:W},()=>({ch:' ', cls:''})));
+
+  function setChar(x,y,ch,cls=''){
+    if(x>=0 && x<W && y>=0 && y<H) grid[y][x] = {ch,cls};
+  }
+  function fillRect(x0,y0,x1,y1,ch,cls=''){
+    for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) setChar(x,y,ch,cls);
+  }
+  function diamond(cx,cy,r,ch,cls=''){
+    for(let y=-r;y<=r;y++){
+      const span = r - Math.abs(y);
+      for(let x=-span;x<=span;x++) setChar(cx+x, cy+y, ch, cls);
+    }
+  }
+  function triUp(cx,cy,h,ch,cls=''){
+    for(let i=0;i<h;i++){
+      for(let x=-i;x<=i;x++) setChar(cx+x, cy-i, ch, cls);
+    }
+  }
+  function triDown(cx,cy,h,ch,cls=''){
+    for(let i=0;i<h;i++){
+      for(let x=-i;x<=i;x++) setChar(cx+x, cy+i, ch, cls);
+    }
+  }
+
+  const bgChars = ['.',':','·','`'];
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const v = Math.abs((x-W/2)/(W/2)) + Math.abs((y-H/2)/(H/2))*0.55;
+      const pick = v<.74 ? (rng()>.82?':':' ') : bgChars[(x*3+y*5+Math.floor(rng()*4))%bgChars.length];
+      setChar(x,y,pick,'');
+    }
+  }
+
+  for(let y=2;y<H-2;y+=10){
+    for(let x=2;x<W-2;x++){
+      if((x+y)%12<5) setChar(x,y,'=','ochre');
+      if((x+y+6)%12<4) setChar(x,y+2,'-','ochre');
+    }
+  }
+
+  for(let y=6;y<H-6;y++){
+    setChar(4,y,'|','red');
+    setChar(W-5,y,'|','red');
+    if(y%6===0){
+      setChar(3,y,'<','red'); setChar(5,y,'>','red');
+      setChar(W-6,y,'<','red'); setChar(W-4,y,'>','red');
+    }
+  }
+
+  for(let x=8;x<W-8;x++){
+    setChar(x,4, x%4<2 ? '=' : '_', 'cream');
+    setChar(x,H-5, x%4<2 ? '=' : '_', 'cream');
+  }
+
+  diamond(23,11,5,'#','accent');
+  diamond(23,11,3,'+','cream');
+  diamond(23,11,1,'O','ochre');
+
+  const mesaBase = 57;
+  for(let x=6;x<41;x++){
+    let top = mesaBase;
+    if(x>8 && x<15) top = 49;
+    if(x>=15 && x<21) top = 45;
+    if(x>=21 && x<29) top = 42;
+    if(x>=29 && x<35) top = 46;
+    if(x>=35 && x<39) top = 51;
+    for(let y=top;y<mesaBase+5;y++){
+      setChar(x,y, y===top ? '_' : '#', y<top+2 ? 'ochre' : 'red');
+    }
+  }
+
+  triUp(12,36,5,'^','red');
+  triUp(34,36,5,'^','red');
+  triUp(23,33,7,'A','accent');
+
+  fillRect(16,34,30,48,' ','');
+  for(let y=35;y<48;y++){
+    for(let x=17;x<30;x++){
+      if((x+y)%2===0) setChar(x,y,':','');
+    }
+  }
+
+  const totemX = 23;
+  for(let y=20;y<53;y++){
+    setChar(totemX,y,'|','char');
+    setChar(totemX-1,y, y%2?']':'[', 'red');
+    setChar(totemX+1,y, y%2?'[':']', 'red');
+  }
+  diamond(23,24,2,'@','accent');
+  diamond(23,30,3,'#','cream');
+  diamond(23,38,4,'*','accent');
+  diamond(23,47,3,'#','cream');
+
+  for(let y=20;y<48;y+=7){
+    for(let i=1;i<8;i++){
+      setChar(totemX-i,y+i%3,'/','ochre');
+      setChar(totemX+i,y+i%3,'\\','ochre');
+    }
+  }
+
+  for(let x=8;x<18;x++){
+    setChar(x,27, '_','char');
+    setChar(x,28, '/','char');
+    setChar(x,29, '\\','char');
+  }
+  for(let x=29;x<39;x++){
+    setChar(x,27, '_','char');
+    setChar(x,28, '\\','char');
+    setChar(x,29, '/','char');
+  }
+
+  const bands = [16,52,66,73];
+  bands.forEach((yy, idx)=>{
+    for(let x=7;x<W-7;x++){
+      const seq = ['=','=','<','>','=','+','+','=','<','>','='];
+      const ch = seq[(x+idx*3)%seq.length];
+      const cls = (x+idx)%9===0 ? 'accent' : ((x+idx)%5===0 ? 'red' : 'ochre');
+      setChar(x,yy,ch,cls);
+    }
+  });
+
+  for(let x=10;x<37;x++){
+    setChar(x,61, x%2?'_':'=','cream');
+    setChar(x,62, x%4<2?'#':'H','red');
+    setChar(x,63, x%3===0?'T':'#','ochre');
+  }
+
+  function renderGrid(){
+    let html = '';
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const c = grid[y][x];
+        const safe = c.ch === '<' ? '&lt;' : c.ch === '>' ? '&gt;' : c.ch === '&' ? '&amp;' : c.ch;
+        html += c.cls ? `<span class="${c.cls}">${safe}</span>` : safe;
+      }
+      if(y<H-1) html += '\n';
+    }
+    asciiEl.innerHTML = html;
+  }
+  renderGrid();
+
+  const frame = document.getElementById('frame');
+  const weave = document.getElementById('weave');
+  const wctx = weave.getContext('2d');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize(){
+    const r = frame.getBoundingClientRect();
+    [weave, canvas].forEach(c=>{
+      c.width = Math.floor(r.width * devicePixelRatio);
+      c.height = Math.floor(r.height * devicePixelRatio);
+      c.style.width = r.width+'px';
+      c.style.height = r.height+'px';
+      const cctx = c.getContext('2d');
+      cctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    });
+    drawWeave();
+  }
+
+  function drawWeave(){
+    const r = frame.getBoundingClientRect();
+    const w = r.width, h = r.height;
+    wctx.clearRect(0,0,w,h);
+
+    const spacing = 26;
+    wctx.globalAlpha = 0.18;
+    for(let x=0;x<w;x+=spacing){
+      wctx.fillStyle = x/spacing%5===0 ? 'rgba(36,22,13,.34)' : 'rgba(239,224,185,.18)';
+      wctx.fillRect(x,0,2,h);
+    }
+    for(let y=0;y<h;y+=spacing){
+      wctx.fillStyle = y/spacing%4===0 ? 'rgba(36,22,13,.22)' : 'rgba(168,93,44,.14)';
+      wctx.fillRect(0,y,w,2);
+    }
+
+    wctx.globalAlpha = 0.22;
+    for(let y=110;y<h-110;y+=180){
+      wctx.fillStyle = 'rgba(46,166,162,.18)';
+      for(let x=120;x<w-120;x+=180){
+        wctx.save();
+        wctx.translate(x,y);
+        wctx.rotate(Math.PI/4);
+        wctx.strokeStyle = 'rgba(46,166,162,.4)';
+        wctx.lineWidth = 2;
+        wctx.strokeRect(-16,-16,32,32);
+        wctx.restore();
+      }
+    }
+  }
+
+  let t0 = performance.now();
+  function draw(now){
+    const r = frame.getBoundingClientRect();
+    const w = r.width, h = r.height;
+    const t = (now - t0) * 0.001;
+    ctx.clearRect(0,0,w,h);
+
+    const cx = w*0.5, cy = h*0.52;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(t*0.025);
+    for(let i=0;i<4;i++){
+      ctx.save();
+      ctx.rotate(i*Math.PI/2);
+      const grad = ctx.createLinearGradient(0,-h*0.22,0,-h*0.42);
+      grad.addColorStop(0,'rgba(226,170,67,.0)');
+      grad.addColorStop(.55,'rgba(226,170,67,.10)');
+      grad.addColorStop(1,'rgba(46,166,162,.0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(0,-h*.10);
+      ctx.lineTo(w*.055,-h*.34);
+      ctx.lineTo(-w*.055,-h*.34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    const pulse = 0.5 + 0.5*Math.sin(t*0.45);
+    for(let i=0;i<5;i++){
+      const rr = Math.min(w,h)*(0.075 + i*0.035 + pulse*0.004);
+      ctx.strokeStyle = i%2===0 ? 'rgba(36,22,13,.18)' : 'rgba(46,166,162,.18)';
+      ctx.lineWidth = i===0 ? 2.2 : 1.6;
+      ctx.beginPath();
+      for(let a=0;a<4;a++){
+        const ang = a*Math.PI/2 + t*0.03*(i%2?1:-1);
+        const x = cx + Math.cos(ang)*rr;
+        const y = cy + Math.sin(ang)*rr;
+        if(a===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    const bandsY = [h*.18, h*.5, h*.83];
+    bandsY.forEach((yy,j)=>{
+      const offset = Math.sin(t*0.18 + j)*w*0.012;
+      const fade = ctx.createLinearGradient(0,0,w,0);
+      fade.addColorStop(0,'rgba(0,0,0,0)');
+      fade.addColorStop(.12, j===1 ? 'rgba(46,166,162,.18)' : 'rgba(36,22,13,.16)');
+      fade.addColorStop(.88, j===1 ? 'rgba(46,166,162,.18)' : 'rgba(36,22,13,.16)');
+      fade.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = fade;
+      for(let x=90;x<w-90;x+=32){
+        const y = yy + ((x/32+j)%2===0 ? -8 : 8);
+        ctx.fillRect(x+offset, y, 20, 3);
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  addEventListener('resize', resize);
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const actx = new AudioCtx();
+      const master = actx.createGain();
+      master.gain.value = 0.018;
+      master.connect(actx.destination);
+
+      const low = actx.createOscillator();
+      low.type = 'triangle';
+      low.frequency.value = 82.4;
+
+      const high = actx.createOscillator();
+      high.type = 'sine';
+      high.frequency.value = 123.47;
+
+      const lGain = actx.createGain();
+      const hGain = actx.createGain();
+      lGain.gain.value = 0.35;
+      hGain.gain.value = 0.18;
+
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 700;
+      filter.Q.value = 0.3;
+
+      low.connect(lGain).connect(filter);
+      high.connect(hGain).connect(filter);
+      filter.connect(master);
+
+      const lfo = actx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.047;
+      const lfoGain = actx.createGain();
+      lfoGain.gain.value = 38;
+      lfo.connect(lfoGain).connect(filter.frequency);
+
+      low.start();
+      high.start();
+      lfo.start();
+
+      function step(){
+        const now = actx.currentTime;
+        const notes = [82.4, 92.5, 110.0, 123.47];
+        const notes2 = [123.47, 138.59, 146.83, 164.81];
+        const n1 = notes[Math.floor(rng()*notes.length)];
+        const n2 = notes2[Math.floor(rng()*notes2.length)];
+        low.frequency.linearRampToValueAtTime(n1, now + 6);
+        high.frequency.linearRampToValueAtTime(n2, now + 6);
+        master.gain.linearRampToValueAtTime(0.014 + rng()*0.01, now + 6);
+        setTimeout(step, 6000);
+      }
+      step();
+
+      const resume = () => { if (actx.state !== 'running') actx.resume(); };
+      setTimeout(resume, 200);
+    }
+  }
+})();
+</script>
+</body>
+</html>
