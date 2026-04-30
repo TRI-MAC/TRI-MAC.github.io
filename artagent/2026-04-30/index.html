@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-04-30</title>
+<style>
+  :root{
+    --bg1:#0a0c18;
+    --bg2:#211236;
+    --ink:#06070b;
+    --gold:#f1ba51;
+    --amber:#ff8f3d;
+    --rose:#ef5da8;
+    --violet:#6a49ff;
+    --cyan:#72d8ff;
+    --pale:#f6edd7;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#05060a;
+    overflow:hidden;
+    font-family: Georgia, serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 8%, rgba(255,205,112,.18), transparent 45%),
+      radial-gradient(70% 60% at 22% 28%, rgba(131,71,255,.22), transparent 60%),
+      radial-gradient(60% 55% at 76% 34%, rgba(255,93,164,.16), transparent 60%),
+      linear-gradient(180deg, #20122a 0%, #100d19 38%, #090b12 70%, #040507 100%);
+    box-shadow:0 0 70px rgba(0,0,0,.6), inset 0 0 100px rgba(255,221,160,.05);
+  }
+  #frame::before{
+    content:"";
+    position:absolute; inset:-10%;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 56%, rgba(0,0,0,.24) 84%, rgba(0,0,0,.7) 100%);
+    pointer-events:none;
+    mix-blend-mode:multiply;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 10%, rgba(255,255,255,.02) 50%, rgba(0,0,0,.12)),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.018) 0 2px, rgba(0,0,0,0) 2px 6px);
+    opacity:.35;
+    pointer-events:none;
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+  canvas, svg{display:block; width:100%; height:100%}
+
+  #chamber{
+    position:absolute; inset:0;
+    animation: chamberBreath 24s ease-in-out infinite;
+    transform-origin:50% 46%;
+  }
+  @keyframes chamberBreath{
+    0%,100%{transform:scale(1) rotate(0deg)}
+    50%{transform:scale(1.018) rotate(-.35deg)}
+  }
+
+  .vault{
+    position:absolute;
+    left:6%; right:6%; top:5%; bottom:5%;
+    border-radius:48% 48% 10% 10% / 28% 28% 8% 8%;
+    background:
+      radial-gradient(130% 92% at 50% 8%, rgba(252,225,164,.18), transparent 34%),
+      radial-gradient(72% 48% at 50% 24%, rgba(255,126,61,.12), transparent 60%),
+      linear-gradient(180deg, rgba(255,238,190,.05), rgba(255,255,255,0) 18%, rgba(0,0,0,0) 80%, rgba(0,0,0,.24)),
+      linear-gradient(180deg, rgba(49,24,61,.36), rgba(14,15,24,.15));
+    box-shadow:
+      inset 0 0 0 1px rgba(255,223,156,.08),
+      inset 0 0 80px rgba(255,186,81,.08);
+    filter:blur(.2px);
+    opacity:.95;
+    mask-image:radial-gradient(ellipse at center, #000 74%, rgba(0,0,0,.85) 82%, transparent 100%);
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 74%, rgba(0,0,0,.85) 82%, transparent 100%);
+  }
+
+  .halo{
+    position:absolute;
+    left:11%; right:11%; top:10%; height:40%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,236,163,.28), rgba(255,170,70,.18) 18%, rgba(154,94,255,.12) 35%, rgba(0,0,0,0) 68%);
+    filter:blur(20px);
+    opacity:.7;
+    animation: haloShift 18s ease-in-out infinite;
+    mask-image:radial-gradient(circle at center, #000 48%, rgba(0,0,0,.6) 68%, transparent 92%);
+    -webkit-mask-image:radial-gradient(circle at center, #000 48%, rgba(0,0,0,.6) 68%, transparent 92%);
+  }
+  @keyframes haloShift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(1.2%) scale(1.04)}
+  }
+
+  .floor{
+    position:absolute;
+    left:-8%; right:-8%; bottom:-6%;
+    height:36%;
+    background:
+      radial-gradient(140% 130% at 50% 0%, rgba(255,221,166,.09), transparent 26%),
+      linear-gradient(180deg, rgba(24,16,36,.05), rgba(4,5,8,.9) 58%),
+      linear-gradient(90deg, rgba(0,0,0,.0), rgba(255,197,95,.08) 50%, rgba(0,0,0,0));
+    transform:perspective(700px) rotateX(74deg);
+    transform-origin:center top;
+    opacity:.95;
+    filter:blur(.2px);
+  }
+
+  .clockface{
+    position:absolute;
+    left:16%;
+    top:12%;
+    width:68%;
+    height:31%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,234,190,.15), rgba(255,189,86,.08) 28%, rgba(0,0,0,0) 60%),
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 52%, rgba(255,226,165,.15) 52.7%, rgba(255,226,165,.02) 55%, rgba(0,0,0,0) 62%);
+    filter:blur(.15px);
+    opacity:.9;
+    animation: faceWarp 21s ease-in-out infinite;
+    mask-image:radial-gradient(circle at center, #000 56%, rgba(0,0,0,.72) 72%, transparent 95%);
+    -webkit-mask-image:radial-gradient(circle at center, #000 56%, rgba(0,0,0,.72) 72%, transparent 95%);
+  }
+  @keyframes faceWarp{
+    0%,100%{transform:scaleX(1) scaleY(1) rotate(0deg)}
+    33%{transform:scaleX(1.03) scaleY(.97) rotate(.3deg)}
+    66%{transform:scaleX(.985) scaleY(1.025) rotate(-.25deg)}
+  }
+
+  .melt{
+    position:absolute;
+    top:30.3%;
+    width:11%;
+    height:22%;
+    border-radius:45% 45% 50% 50% / 8% 8% 92% 92%;
+    background:linear-gradient(180deg, rgba(255,212,123,.28), rgba(255,124,62,.12) 48%, rgba(83,42,113,.0));
+    filter:blur(7px);
+    opacity:.55;
+    animation: drip 12s ease-in-out infinite;
+  }
+  .m1{left:25%; animation-delay:-2s}
+  .m2{left:44%; width:14%; animation-delay:-5s}
+  .m3{left:62%; width:9%; animation-delay:-8s}
+  @keyframes drip{
+    0%,100%{transform:translateY(0) scaleY(1)}
+    50%{transform:translateY(2.8%) scaleY(1.09)}
+  }
+
+  .pendulum-glow{
+    position:absolute;
+    left:34%;
+    top:24%;
+    width:32%;
+    height:56%;
+    background:radial-gradient(ellipse at 50% 32%, rgba(255,211,118,.18), rgba(255,149,68,.08) 28%, rgba(0,0,0,0) 65%);
+    filter:blur(18px);
+    opacity:.7;
+    animation: pendSwing 9s ease-in-out infinite;
+    transform-origin:50% 8%;
+    mask-image:radial-gradient(ellipse at center, #000 42%, rgba(0,0,0,.65) 70%, transparent 94%);
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 42%, rgba(0,0,0,.65) 70%, transparent 94%);
+  }
+
+  #date{
+    position:absolute;
+    right:2.2%;
+    bottom:1.3%;
+    font-size:13px;
+    letter-spacing:.08em;
+    color:rgba(255,240,210,.42);
+    text-shadow:0 0 8px rgba(0,0,0,.55);
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:83.2%;
+    top:87.7%;
+    opacity:.62;
+    transform:rotate(-5deg);
+    filter:sepia(.3) hue-rotate(310deg) saturate(.7) brightness(.9);
+    z-index:8;
+    pointer-events:none;
+  }
+
+  .fog{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(40% 30% at 16% 73%, rgba(113,204,255,.10), transparent 80%),
+      radial-gradient(48% 35% at 76% 63%, rgba(255,97,171,.08), transparent 76%),
+      radial-gradient(36% 24% at 48% 23%, rgba(255,197,98,.06), transparent 80%);
+    filter:blur(32px);
+    opacity:.8;
+    animation:fogSlide 34s ease-in-out infinite;
+    mask-image:radial-gradient(ellipse at center, rgba(0,0,0,.95) 55%, rgba(0,0,0,.55) 78%, transparent 100%);
+    -webkit-mask-image:radial-gradient(ellipse at center, rgba(0,0,0,.95) 55%, rgba(0,0,0,.55) 78%, transparent 100%);
+  }
+  @keyframes fogSlide{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(-1%,1.2%) scale(1.04)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="chamber" class="layer">
+      <div class="vault"></div>
+      <div class="halo"></div>
+      <div class="clockface"></div>
+      <div class="melt m1"></div>
+      <div class="melt m2"></div>
+      <div class="melt m3"></div>
+      <div class="pendulum-glow"></div>
+      <div class="floor"></div>
+    </div>
+
+    <canvas id="bgCanvas" class="layer"></canvas>
+    <svg id="svgLayer" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffe3a4" stop-opacity="0.95"/>
+          <stop offset="22%" stop-color="#ffb45e" stop-opacity="0.45"/>
+          <stop offset="55%" stop-color="#8e54ff" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="rodGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f8dda7" stop-opacity=".9"/>
+          <stop offset="45%" stop-color="#cf7f45" stop-opacity=".8"/>
+          <stop offset="100%" stop-color="#2a1637" stop-opacity=".55"/>
+        </linearGradient>
+        <linearGradient id="rimGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fff0c7" stop-opacity=".85"/>
+          <stop offset="35%" stop-color="#f2b157" stop-opacity=".78"/>
+          <stop offset="100%" stop-color="#5f3687" stop-opacity=".58"/>
+        </linearGradient>
+        <filter id="soft">
+          <feGaussianBlur stdDeviation="3.2"/>
+        </filter>
+        <filter id="softer">
+          <feGaussianBlur stdDeviation="11"/>
+        </filter>
+        <filter id="grainy">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="430"/>
+          <feColorMatrix type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncA type="table" tableValues="0 0 .08 .16"/>
+          </feComponentTransfer>
+        </filter>
+      </defs>
+
+      <g opacity=".85">
+        <ellipse cx="540" cy="340" rx="270" ry="175" fill="url(#goldGlow)" filter="url(#softer)"/>
+      </g>
+
+      <g id="pendulumGroup" transform="translate(540 510)">
+        <g id="pendulumSwing">
+          <rect x="-8" y="-110" width="16" height="620" rx="8" fill="url(#rodGrad)" opacity=".86"/>
+          <ellipse cx="0" cy="522" rx="114" ry="126" fill="url(#goldGlow)" opacity=".6" filter="url(#soft)"/>
+          <path d="M -92 485
+                   C -124 516 -110 592 -52 624
+                   C 5 656 76 618 94 554
+                   C 112 490 70 428 10 420
+                   C -28 415 -67 438 -92 485 Z"
+                fill="url(#rimGrad)" opacity=".88"/>
+          <ellipse cx="0" cy="532" rx="58" ry="73" fill="rgba(35,19,48,.72)"/>
+          <ellipse cx="-22" cy="505" rx="30" ry="18" fill="rgba(255,236,188,.18)" transform="rotate(-28)"/>
+        </g>
+      </g>
+
+      <g opacity=".35" filter="url(#grainy)">
+        <rect x="0" y="0" width="1080" height="1920" fill="#ffffff"/>
+      </g>
+    </svg>
+
+    <canvas id="gearCanvas" class="layer"></canvas>
+    <div class="fog"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div id="date">2026-04-30</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-04-30";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function sfc32(a,b,c,d){
+    return function(){
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
+      let t = (a + b) | 0;
+      a = b ^ b >>> 9;
+      b = c + (c << 3) | 0;
+      c = (c << 21 | c >>> 11);
+      d = d + 1 | 0;
+      t = t + d | 0;
+      c = c + t | 0;
+      return (t >>> 0) / 4294967296;
+    }
+  }
+  const seed = xmur3(seedStr);
+  const rand = sfc32(seed(), seed(), seed(), seed());
+  const frame = document.getElementById('frame');
+  const bgCanvas = document.getElementById('bgCanvas');
+  const gearCanvas = document.getElementById('gearCanvas');
+  const bg = bgCanvas.getContext('2d');
+  const gx = gearCanvas.getContext('2d');
+
+  let W=1080, H=1920, DPR=1;
+
+  function resize(){
+    const rect = frame.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.round(rect.width);
+    H = Math.round(rect.height);
+    [bgCanvas, gearCanvas].forEach(c=>{
+      c.width = Math.round(W * DPR);
+      c.height = Math.round(H * DPR);
+      c.style.width = W + 'px';
+      c.style.height = H + 'px';
+    });
+    bg.setTransform(DPR,0,0,DPR,0,0);
+    gx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  const palette = {
+    dark:'#090a0f',
+    deep:'#1f1231',
+    violet:'#6a49ff',
+    rose:'#ef5da8',
+    amber:'#ff8f3d',
+    gold:'#f1ba51',
+    pale:'#f6edd7',
+    cyan:'#72d8ff'
+  };
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function drawBackground(t){
+    bg.clearRect(0,0,W,H);
+
+    const grad = bg.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#211236');
+    grad.addColorStop(.35,'#130f22');
+    grad.addColorStop(.7,'#090b12');
+    grad.addColorStop(1,'#040507');
+    bg.fillStyle = grad;
+    bg.fillRect(0,0,W,H);
+
+    // impossible architecture
+    bg.save();
+    bg.translate(W/2, H*0.58);
+    const skew = Math.sin(t*0.00013)*0.1;
+    bg.transform(1,0,skew,1,0,0);
+
+    for(let i=0;i<8;i++){
+      const yy = -H*0.28 + i*H*0.047;
+      const ww = W*(0.12 + i*0.06);
+      const hh = H*0.011;
+      bg.fillStyle = `rgba(246,237,215,${0.025 + i*0.005})`;
+      bg.fillRect(-ww/2, yy, ww, hh);
+    }
+    for(let i=0;i<6;i++){
+      const off = (i-2.5)*W*0.12;
+      bg.fillStyle = `rgba(255,186,81,${0.028 + i*0.004})`;
+      bg.fillRect(off, -H*0.16, W*0.012, H*0.34);
+      bg.fillStyle = `rgba(0,0,0,.13)`;
+      bg.fillRect(off+W*0.012, -H*0.16, W*0.008, H*0.34);
+    }
+    bg.restore();
+
+    // floor reflections
+    bg.save();
+    bg.translate(W/2,H*0.79);
+    bg.scale(1,0.28);
+    for(let i=0;i<14;i++){
+      const r = W*(0.06 + i*0.035);
+      bg.beginPath();
+      bg.arc(0,0,r,0,Math.PI*2);
+      bg.strokeStyle = i%2===0 ? `rgba(255,186,81,${0.016-i*0.0005})` : `rgba(114,216,255,${0.011-i*0.0004})`;
+      bg.lineWidth = Math.max(1, W*0.0015);
+      bg.stroke();
+    }
+    bg.restore();
+
+    // starburst ceiling motif
+    bg.save();
+    bg.translate(W/2,H*0.11);
+    bg.rotate(Math.sin(t*0.00009)*0.12);
+    for(let i=0;i<24;i++){
+      bg.rotate(Math.PI*2/24);
+      bg.beginPath();
+      bg.moveTo(-W*0.008, H*0.02);
+      bg.lineTo(W*0.008, H*0.02);
+      bg.lineTo(W*0.042, H*0.12);
+      bg.lineTo(-W*0.042, H*0.12);
+      bg.closePath();
+      bg.fillStyle = i%3===0 ? 'rgba(255,197,95,.10)' : i%3===1 ? 'rgba(239,93,168,.065)' : 'rgba(114,216,255,.05)';
+      bg.fill();
+    }
+    bg.restore();
+
+    // subtle dream haze
+    const blobs = [
+      [W*0.21,H*0.26,W*0.22,'rgba(114,216,255,.08)'],
+      [W*0.76,H*0.22,W*0.17,'rgba(239,93,168,.08)'],
+      [W*0.50,H*0.15,W*0.19,'rgba(255,193,99,.07)']
+    ];
+    blobs.forEach(([x,y,r,c],i)=>{
+      const dx = Math.sin(t*0.0002 + i)*W*0.01;
+      const dy = Math.cos(t*0.00017 + i*2)*H*0.008;
+      const rg = bg.createRadialGradient(x+dx,y+dy,0,x+dx,y+dy,r);
+      rg.addColorStop(0,c);
+      rg.addColorStop(1,'rgba(0,0,0,0)');
+      bg.fillStyle = rg;
+      bg.beginPath();
+      bg.arc(x+dx,y+dy,r,0,Math.PI*2);
+      bg.fill();
+    });
+  }
+
+  function gearPath(ctx, teeth, rOuter, rInner, hole, toothDepth, phase){
+    const step = Math.PI * 2 / teeth;
+    ctx.beginPath();
+    for(let i=0;i<teeth;i++){
+      const a = phase + i*step;
+      const a0 = a;
+      const a1 = a + step*0.32;
+      const a2 = a + step*0.68;
+      const a3 = a + step;
+      ctx.lineTo(Math.cos(a0)*rInner, Math.sin(a0)*rInner);
+      ctx.lineTo(Math.cos(a1)*rOuter, Math.sin(a1)*rOuter);
+      ctx.lineTo(Math.cos(a2)*rOuter, Math.sin(a2)*rOuter);
+      ctx.lineTo(Math.cos(a3)*rInner, Math.sin(a3)*rInner);
+    }
+    ctx.closePath();
+    ctx.moveTo(hole,0);
+    ctx.arc(0,0,hole,0,Math.PI*2,true);
+  }
+
+  const gears = [
+    {x:.29,y:.29,r:.13, teeth:15, speed:0.00013, color:'gold', inner:.106, hole:.026, phase:0},
+    {x:.48,y:.37,r:.085, teeth:11, speed:-0.000177, color:'rose', inner:.069, hole:.018, phase:0.5},
+    {x:.66,y:.29,r:.11, teeth:13, speed:0.00015, color:'cyan', inner:.09, hole:.024, phase:1.1},
+    {x:.39,y:.58,r:.16, teeth:18, speed:-0.00009, color:'gold', inner:.133, hole:.034, phase:0.7},
+    {x:.67,y:.61,r:.12, teeth:14, speed:0.00012, color:'violet', inner:.1, hole:.022, phase:1.7},
+    {x:.18,y:.71,r:.065, teeth:10, speed:0.00019, color:'amber', inner:.052, hole:.014, phase:0.2},
+    {x:.82,y:.76,r:.075, teeth:10, speed:-0.00016, color:'rose', inner:.061, hole:.016, phase:0.4}
+  ];
+
+  const springs = [
+    {x1:.17,y1:.44,x2:.33,y2:.51,loops:7,amp:.018,thick:10,col:'rgba(255,209,131,.32)'},
+    {x1:.61,y1:.47,x2:.79,y2:.54,loops:8,amp:.016,thick:9,col:'rgba(114,216,255,.28)'},
+    {x1:.26,y1:.74,x2:.45,y2:.82,loops:6,amp:.014,thick:8,col:'rgba(239,93,168,.26)'}
+  ];
+
+  function drawSpring(s, t){
+    const x1 = s.x1*W, y1 = s.y1*H, x2 = s.x2*W, y2 = s.y2*H;
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.hypot(dx,dy);
+    const ang = Math.atan2(dy,dx);
+    gx.save();
+    gx.translate(x1,y1);
+    gx.rotate(ang);
+    gx.lineCap = 'round';
+    gx.lineJoin = 'round';
+    gx.strokeStyle = s.col;
+    gx.lineWidth = s.thick * (W/1080);
+    gx.beginPath();
+    const pts = 100;
+    for(let i=0;i<=pts;i++){
+      const p = i/pts;
+      const x = p*len;
+      const wave = Math.sin(p*Math.PI*s.loops*2 + t*0.0012) * s.amp*H * Math.sin(p*Math.PI);
+      if(i===0) gx.moveTo(x,wave);
+      else gx.lineTo(x,wave);
+    }
+    gx.stroke();
+    gx.strokeStyle = 'rgba(246,237,215,.16)';
+    gx.lineWidth = Math.max(1, s.thick*0.22*(W/1080));
+    gx.stroke();
+    gx.restore();
+  }
+
+  function drawGear(g, t){
+    const x = g.x*W, y = g.y*H;
+    const rOuter = g.r*W;
+    const rInner = g.inner*W;
+    const hole = g.hole*W;
+    const rot = g.phase + t*g.speed;
+
+    gx.save();
+    gx.translate(x,y);
+    gx.rotate(rot + Math.sin(t*0.00022 + g.phase)*0.03);
+
+    const glow = gx.createRadialGradient(0,0,0,0,0,rOuter*1.4);
+    const gc = g.color==='gold' ? '241,186,81' : g.color==='rose' ? '239,93,168' : g.color==='cyan' ? '114,216,255' : '106,73,255';
+    glow.addColorStop(0,`rgba(${gc},.18)`);
+    glow.addColorStop(.4,`rgba(${gc},.08)`);
+    glow.addColorStop(1,'rgba(0,0,0,0)');
+    gx.fillStyle = glow;
+    gx.beginPath();
+    gx.arc(0,0,rOuter*1.45,0,Math.PI*2);
+    gx.fill();
+
+    gearPath(gx, g.teeth, rOuter, rInner, hole, rOuter-rInner, rot);
+    gx.fillStyle = g.color==='gold'
+      ? 'rgba(255,194,99,.24)'
+      : g.color==='rose'
+      ? 'rgba(239,93,168,.19)'
+      : g.color==='cyan'
+      ? 'rgba(114,216,255,.19)'
+      : 'rgba(143,104,255,.18)';
+    gx.shadowColor = 'rgba(0,0,0,.35)';
+    gx.shadowBlur = 16;
+    gx.fill('evenodd');
+
+    gx.lineWidth = Math.max(1.5, W*0.0022);
+    gx.strokeStyle = 'rgba(255,239,209,.35)';
+    gx.stroke('evenodd');
+
+    gx.beginPath();
+    gx.arc(0,0,rInner*0.78,0,Math.PI*2);
+    gx.strokeStyle = 'rgba(255,233,184,.22)';
+    gx.lineWidth = Math.max(1, W*0.0014);
+    gx.stroke();
+
+    for(let i=0;i<g.teeth;i++){
+      const a = i*Math.PI*2/g.teeth + rot;
+      gx.beginPath();
+      gx.arc(Math.cos(a)*rInner*0.82, Math.sin(a)*rInner*0.82, W*0.0042, 0, Math.PI*2);
+      gx.fillStyle = 'rgba(246,237,215,.28)';
+      gx.fill();
+    }
+
+    gx.beginPath();
+    gx.arc(0,0,hole,0,Math.PI*2);
+    gx.fillStyle = 'rgba(12,10,18,.75)';
+    gx.fill();
+    gx.restore();
+  }
+
+  const slabs = [
+    {x:.11,y:.18,w:.24,h:.08,c:'rgba(255,203,113,.12)',a:-.24},
+    {x:.65,y:.17,w:.21,h:.06,c:'rgba(114,216,255,.10)',a:.21},
+    {x:.55,y:.73,w:.29,h:.1,c:'rgba(239,93,168,.10)',a:-.16}
+  ];
+
+  function drawSlabs(t){
+    slabs.forEach((s,i)=>{
+      const x=s.x*W, y=s.y*H, w=s.w*W, h=s.h*H;
+      gx.save();
+      gx.translate(x + Math.sin(t*0.00015+i)*W*0.008, y + Math.cos(t*0.00011+i)*H*0.006);
+      gx.rotate(s.a + Math.sin(t*0.00009+i)*0.05);
+      gx.fillStyle = s.c;
+      gx.beginPath();
+      gx.moveTo(-w*.48,-h*.5);
+      gx.lineTo(w*.5,-h*.44);
+      gx.lineTo(w*.42,h*.5);
+      gx.lineTo(-w*.54,h*.38);
+      gx.closePath();
+      gx.fill();
+      gx.strokeStyle = 'rgba(246,237,215,.13)';
+      gx.lineWidth = Math.max(1,W*0.0015);
+      gx.stroke();
+      gx.restore();
+    });
+  }
+
+  function animate(ts){
+    drawBackground(ts);
+    gx.clearRect(0,0,W,H);
+
+    drawSlabs(ts);
+    springs.forEach(s=>drawSpring(s,ts));
+    gears.forEach(g=>drawGear(g,ts));
+
+    // floating clock numerals as fragments, not text labels
+    gx.save();
+    gx.globalAlpha = .18;
+    gx.translate(W*0.5,H*0.26);
+    gx.rotate(Math.sin(ts*0.00008)*0.08);
+    for(let i=0;i<12;i++){
+      const a = -Math.PI/2 + i*Math.PI*2/12 + Math.sin(ts*0.00013+i)*0.015;
+      const r = W*0.25 + Math.sin(ts*0.0002+i)*W*0.004;
+      gx.save();
+      gx.translate(Math.cos(a)*r, Math.sin(a)*r*0.78);
+      gx.rotate(a+Math.PI/2);
+      gx.fillStyle = i%2===0 ? 'rgba(255,228,170,.26)' : 'rgba(114,216,255,.12)';
+      gx.fillRect(-W*0.008,-H*0.015,W*0.016,H*0.03);
+      gx.restore();
+    }
+    gx.restore();
+
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  const pend = document.getElementById('pendulumSwing');
+  function pendAnim(t){
+    const ang = Math.sin(t*0.0007) * 11;
+    pend.setAttribute('transform', `rotate(${ang})`);
+    requestAnimationFrame(pendAnim);
+  }
+  requestAnimationFrame(pendAnim);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+      const freqs = [55, 82.5, 123.47];
+      freqs.forEach((f,i)=>{
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        o.type = i===0 ? 'sine' : i===1 ? 'triangle' : 'sawtooth';
+        o.frequency.value = f;
+        g.gain.value = 0.0;
+        lfo.frequency.value = 0.035 + i*0.012;
+        lfoG.gain.value = 1.8 + i*0.5;
+        lfo.connect(lfoG).connect(o.frequency);
+        o.connect(g).connect(master);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(0.006/(i+1), now+6+i*2);
+        o.start();
+        lfo.start();
+      });
+
+      const tickOsc = ctx.createOscillator();
+      const tickGain = ctx.createGain();
+      const tickFilter = ctx.createBiquadFilter();
+      tickOsc.type = 'square';
+      tickOsc.frequency.value = 440;
+      tickGain.gain.value = 0.00001;
+      tickFilter.type = 'bandpass';
+      tickFilter.frequency.value = 900;
+      tickFilter.Q.value = 6;
+      tickOsc.connect(tickFilter).connect(tickGain).connect(master);
+      tickOsc.start();
+
+      let beat = 0;
+      function scheduleTick(){
+        const t = ctx.currentTime + 0.02;
+        const dur = beat % 2 === 0 ? 0.018 : 0.012;
+        tickGain.gain.cancelScheduledValues(t);
+        tickGain.gain.setValueAtTime(0.00001,t);
+        tickGain.gain.linearRampToValueAtTime(0.018, t+0.002);
+        tickGain.gain.exponentialRampToValueAtTime(0.00001, t+dur);
+        beat++;
+        setTimeout(scheduleTick, beat % 8 === 0 ? 1300 : 920);
+      }
+      setTimeout(scheduleTick,1200);
+
+      const resume = () => { if(ctx.state!=='running') ctx.resume(); };
+      document.addEventListener('visibilitychange', resume, {passive:true});
+      window.addEventListener('load', resume, {passive:true});
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
