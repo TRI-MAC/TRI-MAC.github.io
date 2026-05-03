@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-05-03</title>
+<style>
+  :root{
+    --bg:#02030a;
+    --cyan:#5ffcff;
+    --aqua:#1fd6ff;
+    --blue:#2a66ff;
+    --violet:#7a38ff;
+    --magenta:#ff2fcf;
+    --hot:#ff5ea8;
+    --acid:#9dff00;
+    --grid:rgba(95,252,255,.12);
+    --line:rgba(120,220,255,.28);
+    --soft:rgba(255,255,255,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 50%, #061220 0%, #030813 55%, #010206 100%);
+    overflow:hidden;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    aspect-ratio:1080 / 1920;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(34,88,255,.15), transparent 34%),
+      radial-gradient(circle at 70% 58%, rgba(255,47,207,.13), transparent 28%),
+      radial-gradient(circle at 30% 68%, rgba(31,214,255,.12), transparent 25%),
+      linear-gradient(180deg, #04060d 0%, #02050c 45%, #03040a 100%);
+    overflow:hidden;
+    box-shadow:
+      0 0 0 1px rgba(130,220,255,.12),
+      0 0 60px rgba(0,0,0,.55),
+      0 0 160px rgba(0,80,160,.22);
+  }
+
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.035) 0px,
+        rgba(255,255,255,.035) 1px,
+        rgba(0,0,0,0) 2px,
+        rgba(0,0,0,0) 6px
+      );
+    mix-blend-mode:screen;
+    opacity:.28;
+    pointer-events:none;
+    animation: scan 14s linear infinite;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, rgba(0,255,255,.03), transparent 14%, transparent 86%, rgba(255,0,200,.03)),
+      radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,.3) 100%);
+    pointer-events:none;
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+  #background-video{
+    position:absolute;
+    inset:7% 8% 7% 8%;
+    width:84%;
+    height:86%;
+    object-fit:cover;
+    opacity:.84;
+    filter:saturate(1.35) contrast(1.12) brightness(.85) hue-rotate(8deg);
+    mix-blend-mode:screen;
+    border-radius:40px;
+    box-shadow:
+      0 0 0 1px rgba(95,252,255,.18),
+      inset 0 0 55px rgba(0,0,0,.38),
+      0 0 55px rgba(31,214,255,.18),
+      0 0 100px rgba(122,56,255,.14);
+    -webkit-mask-image:
+      radial-gradient(circle at 50% 50%, black 0 63%, transparent 86%),
+      linear-gradient(black,black);
+    -webkit-mask-composite: source-over;
+            mask-image:
+      radial-gradient(circle at 50% 50%, black 0 63%, transparent 86%),
+      linear-gradient(black,black);
+            mask-composite: add;
+    animation: driftZoom 40s ease-in-out infinite alternate;
+  }
+
+  #videoShell{
+    position:absolute;
+    inset:5.5% 6% 5.5% 6%;
+    border-radius:60px;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(20,240,255,.08), transparent 58%),
+      linear-gradient(180deg, rgba(95,252,255,.08), rgba(255,47,207,.06));
+    box-shadow:
+      inset 0 0 0 1px rgba(95,252,255,.16),
+      inset 0 0 90px rgba(255,47,207,.08),
+      0 0 0 1px rgba(0,0,0,.45);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 0 73%, transparent 96%);
+            mask-image: radial-gradient(circle at 50% 50%, black 0 73%, transparent 96%);
+    animation: shellPulse 18s ease-in-out infinite;
+  }
+
+  #hudSvg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    overflow:visible;
+  }
+
+  #fluidCanvas, #noiseCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+  }
+  #fluidCanvas{ mix-blend-mode:screen; opacity:.9; }
+  #noiseCanvas{ opacity:.18; mix-blend-mode:screen; }
+
+  .vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 42%, rgba(2,3,10,0) 54%, rgba(2,3,10,.34) 74%, rgba(1,2,6,.82) 100%);
+  }
+
+  .topFog, .bottomFog{
+    position:absolute; left:0; width:100%; height:24%;
+    background:
+      linear-gradient(180deg, rgba(2,3,10,.82), rgba(2,3,10,0));
+    opacity:.65;
+  }
+  .bottomFog{
+    bottom:0;
+    top:auto;
+    transform:rotate(180deg);
+  }
+  .topFog{ top:0; }
+
+  .dataBand{
+    position:absolute;
+    left:8%;
+    width:84%;
+    height:2px;
+    background:linear-gradient(90deg, transparent, rgba(95,252,255,.55), transparent);
+    box-shadow:0 0 12px rgba(95,252,255,.35);
+    opacity:.34;
+  }
+  .dataBand.b1{ top:18%; animation: bandShift 24s ease-in-out infinite; }
+  .dataBand.b2{ top:51%; animation: bandShift 27s ease-in-out infinite reverse; }
+  .dataBand.b3{ top:79%; animation: bandShift 23s ease-in-out infinite; }
+
+  .sideCode{
+    position:absolute;
+    top:11%;
+    bottom:11%;
+    width:8%;
+    opacity:.2;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(95,252,255,.18) 0 8px,
+        transparent 8px 18px,
+        rgba(255,47,207,.12) 18px 20px,
+        transparent 20px 36px
+      );
+    filter:blur(.2px);
+  }
+  .sideCode.left{ left:2%; }
+  .sideCode.right{ right:2%; transform:scaleX(-1); }
+
+  .coreGlow{
+    position:absolute;
+    left:50%; top:50%;
+    width:64%;
+    height:64%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,47,207,.16), rgba(31,214,255,.12) 32%, rgba(42,102,255,.08) 48%, transparent 70%);
+    filter:blur(18px);
+    opacity:.9;
+    animation: breathe 18s ease-in-out infinite;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 0 65%, transparent 88%);
+            mask-image: radial-gradient(circle at 50% 50%, black 0 65%, transparent 88%);
+  }
+
+  #date{
+    position:absolute;
+    right:18px; bottom:14px;
+    font-size:15px;
+    letter-spacing:.22em;
+    color:rgba(180,245,255,.52);
+    text-shadow:0 0 10px rgba(95,252,255,.16);
+    user-select:none;
+    z-index:20;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:12px;
+    bottom:118px;
+    opacity:.58;
+    filter:saturate(.9) hue-rotate(175deg) brightness(.85);
+    z-index:5;
+  }
+
+  @keyframes scan {
+    0%{ transform:translateY(-8px); }
+    100%{ transform:translateY(8px); }
+  }
+  @keyframes driftZoom{
+    0%{ transform:scale(1.03) translateY(-1.2%) rotate(-0.35deg); }
+    100%{ transform:scale(1.09) translateY(1.4%) rotate(0.35deg); }
+  }
+  @keyframes shellPulse{
+    0%,100%{ transform:scale(1); opacity:.95; }
+    50%{ transform:scale(1.018); opacity:1; }
+  }
+  @keyframes breathe{
+    0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:.8; }
+    50%{ transform:translate(-50%,-50%) scale(1.05); opacity:1; }
+  }
+  @keyframes bandShift{
+    0%,100%{ transform:translateX(-2%); opacity:.2; }
+    50%{ transform:translateX(2%); opacity:.42; }
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="videoShell" class="layer"></div>
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <canvas id="fluidCanvas" width="1080" height="1920" class="layer"></canvas>
+    <canvas id="noiseCanvas" width="1080" height="1920" class="layer"></canvas>
+
+    <svg id="hudSvg" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#5ffcff" stop-opacity=".9"/>
+          <stop offset="50%" stop-color="#2a66ff" stop-opacity=".45"/>
+          <stop offset="100%" stop-color="#ff2fcf" stop-opacity=".85"/>
+        </linearGradient>
+        <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(95,252,255,0)"/>
+          <stop offset="50%" stop-color="#5ffcff"/>
+          <stop offset="100%" stop-color="rgba(255,47,207,0)"/>
+        </linearGradient>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <radialGradient id="fadeCore" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="70%" stop-color="white"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+        <mask id="edgeFeather">
+          <rect width="1080" height="1920" fill="url(#fadeCore)"/>
+        </mask>
+      </defs>
+
+      <g mask="url(#edgeFeather)">
+        <circle cx="540" cy="960" r="410" fill="none" stroke="url(#ringGrad)" stroke-width="2.2" opacity=".45" filter="url(#softGlow)">
+          <animateTransform attributeName="transform" type="rotate" from="0 540 960" to="360 540 960" dur="90s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="540" cy="960" r="320" fill="none" stroke="#5ffcff" stroke-width="1.2" opacity=".28">
+          <animate attributeName="r" values="314;328;314" dur="24s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="540" cy="960" r="218" fill="none" stroke="#ff2fcf" stroke-width="1.6" opacity=".22">
+          <animateTransform attributeName="transform" type="rotate" from="360 540 960" to="0 540 960" dur="65s" repeatCount="indefinite"/>
+        </circle>
+
+        <path d="M150 960 H930" stroke="url(#lineGrad)" stroke-width="2" opacity=".35"/>
+        <path d="M540 260 V1660" stroke="url(#lineGrad)" stroke-width="2" opacity=".22"/>
+
+        <g opacity=".22" stroke="#5ffcff" fill="none">
+          <polygon points="540,370 602,462 540,554 478,462" stroke-width="2">
+            <animateTransform attributeName="transform" type="rotate" from="0 540 462" to="360 540 462" dur="70s" repeatCount="indefinite"/>
+          </polygon>
+          <polygon points="540,1366 622,1488 540,1610 458,1488" stroke="#ff2fcf" stroke-width="2">
+            <animateTransform attributeName="transform" type="rotate" from="360 540 1488" to="0 540 1488" dur="78s" repeatCount="indefinite"/>
+          </polygon>
+        </g>
+
+        <g opacity=".32" filter="url(#softGlow)">
+          <rect x="198" y="250" width="88" height="10" fill="#5ffcff"/>
+          <rect x="794" y="250" width="88" height="10" fill="#ff2fcf"/>
+          <rect x="170" y="1660" width="120" height="10" fill="#2a66ff"/>
+          <rect x="790" y="1660" width="120" height="10" fill="#5ffcff"/>
+        </g>
+
+        <g opacity=".22" fill="#5ffcff">
+          <circle cx="230" cy="420" r="4"/>
+          <circle cx="850" cy="520" r="4"/>
+          <circle cx="770" cy="1420" r="4"/>
+          <circle cx="310" cy="1510" r="4"/>
+        </g>
+
+        <g opacity=".17" stroke="#9dff00" stroke-width="1">
+          <path d="M220 320 L320 320"/>
+          <path d="M760 1600 L860 1600"/>
+          <path d="M220 324 L220 424"/>
+          <path d="M860 1500 L860 1600"/>
+        </g>
+      </g>
+    </svg>
+
+    <div class="layer coreGlow"></div>
+    <div class="layer sideCode left"></div>
+    <div class="layer sideCode right"></div>
+    <div class="layer dataBand b1"></div>
+    <div class="layer dataBand b2"></div>
+    <div class="layer dataBand b3"></div>
+    <div class="layer topFog"></div>
+    <div class="layer bottomFog"></div>
+    <div class="layer vignette"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-05-03</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-05-03";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function sfc32(a,b,c,d){
+    return function(){
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
+      let t = (a + b) | 0;
+      a = b ^ b >>> 9;
+      b = c + (c << 3) | 0;
+      c = (c << 21 | c >>> 11);
+      d = d + 1 | 0;
+      t = t + d | 0;
+      c = c + t | 0;
+      return (t >>> 0) / 4294967296;
+    }
+  }
+  const seed = xmur3(seedStr);
+  const rand = sfc32(seed(), seed(), seed(), seed());
+
+  const frame = document.getElementById('frame');
+  const fluidCanvas = document.getElementById('fluidCanvas');
+  const noiseCanvas = document.getElementById('noiseCanvas');
+  const ctx = fluidCanvas.getContext('2d');
+  const nctx = noiseCanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+
+  let blobs = [];
+  const palette = [
+    [95,252,255],
+    [31,214,255],
+    [42,102,255],
+    [122,56,255],
+    [255,47,207],
+    [255,94,168],
+    [157,255,0]
+  ];
+
+  function makeBlob(i){
+    const angle = rand() * Math.PI * 2;
+    const radius = 120 + rand() * 290;
+    return {
+      x: W/2 + Math.cos(angle) * radius * (0.85 + rand()*0.4),
+      y: H/2 + Math.sin(angle) * radius * (0.95 + rand()*0.5),
+      r: 130 + rand()*250,
+      vx: (rand()-0.5) * 0.12,
+      vy: (rand()-0.5) * 0.12,
+      phase: rand() * Math.PI * 2,
+      speed: 0.0008 + rand()*0.0014,
+      color: palette[i % palette.length],
+      wobble: 0.75 + rand()*1.6,
+      driftA: rand()*Math.PI*2,
+      driftB: rand()*Math.PI*2
+    };
+  }
+
+  for(let i=0;i<9;i++) blobs.push(makeBlob(i));
+
+  function drawNoise(t){
+    nctx.clearRect(0,0,W,H);
+    const img = nctx.createImageData(W,H);
+    const data = img.data;
+    const step = 4;
+    for(let y=0;y<H;y+=step){
+      for(let x=0;x<W;x+=step){
+        const v = Math.floor((0.5 + 0.5*Math.sin(x*0.018 + t*0.0008) * Math.cos(y*0.013 - t*0.0005) + rand()*0.12) * 255);
+        const a = 10 + ((x+y)%12);
+        for(let yy=0; yy<step; yy++){
+          for(let xx=0; xx<step; xx++){
+            const px = x+xx, py = y+yy;
+            if(px>=W || py>=H) continue;
+            const idx = (py*W + px)*4;
+            data[idx] = v;
+            data[idx+1] = v + 8;
+            data[idx+2] = v + 16;
+            data[idx+3] = a;
+          }
+        }
+      }
+    }
+    nctx.putImageData(img,0,0);
+  }
+
+  function drawFluid(t){
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation = 'source-over';
+
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'rgba(3,8,20,0.08)');
+    bg.addColorStop(.5,'rgba(0,0,0,0)');
+    bg.addColorStop(1,'rgba(10,0,18,0.10)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    for(let i=0;i<blobs.length;i++){
+      const b = blobs[i];
+      const tt = t * b.speed;
+      const x = b.x + Math.sin(tt*1.8 + b.driftA) * (70*b.wobble) + Math.cos(tt*0.7 + b.phase)*35;
+      const y = b.y + Math.cos(tt*1.2 + b.driftB) * (95*b.wobble) + Math.sin(tt*0.9 + b.phase)*30;
+      const rr = b.r * (0.92 + 0.12*Math.sin(tt*2.1 + b.phase));
+
+      const rg = ctx.createRadialGradient(x,y,0,x,y,rr);
+      rg.addColorStop(0, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0.18)`);
+      rg.addColorStop(0.18, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0.13)`);
+      rg.addColorStop(0.46, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0.07)`);
+      rg.addColorStop(0.72, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0.03)`);
+      rg.addColorStop(1, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0)`);
+
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(x,y,rr,0,Math.PI*2);
+      ctx.fill();
+
+      const ring = ctx.createRadialGradient(x,y,rr*0.35,x,y,rr*1.15);
+      ring.addColorStop(0,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},0)`);
+      ring.addColorStop(.55,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},0.055)`);
+      ring.addColorStop(1,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},0)`);
+      ctx.fillStyle = ring;
+      ctx.beginPath();
+      ctx.arc(x,y,rr*1.16,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = 'screen';
+
+    for(let i=0;i<4;i++){
+      const y = H*(0.22 + i*0.18) + Math.sin(t*0.00025 + i)*28;
+      const lg = ctx.createLinearGradient(120,y,960,y+80);
+      lg.addColorStop(0,'rgba(31,214,255,0)');
+      lg.addColorStop(.25,'rgba(31,214,255,0.08)');
+      lg.addColorStop(.5,'rgba(255,47,207,0.09)');
+      lg.addColorStop(.75,'rgba(42,102,255,0.08)');
+      lg.addColorStop(1,'rgba(42,102,255,0)');
+      ctx.fillStyle = lg;
+      ctx.fillRect(130,y-85,820,170);
+    }
+
+    ctx.globalCompositeOperation = 'overlay';
+    const g = ctx.createRadialGradient(W/2,H/2,120,W/2,H/2,760);
+    g.addColorStop(0,'rgba(255,255,255,0.06)');
+    g.addColorStop(.5,'rgba(122,56,255,0.07)');
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function animate(now){
+    drawFluid(now);
+    drawNoise(now);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AC();
+
+      const master = audioCtx.createGain();
+      master.gain.value = 0.028;
+      master.connect(audioCtx.destination);
+
+      const hp = audioCtx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 120;
+      hp.Q.value = 0.3;
+
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1800;
+      lp.Q.value = 0.5;
+
+      hp.connect(lp);
+      lp.connect(master);
+
+      const freqs = [46.3, 69.4, 92.5];
+      freqs.forEach((f, i) => {
+        const osc = audioCtx.createOscillator();
+        osc.type = i === 0 ? 'sine' : 'triangle';
+        osc.frequency.value = f;
+        const gain = audioCtx.createGain();
+        gain.gain.value = i === 0 ? 0.17 : 0.05;
+
+        const lfo = audioCtx.createOscillator();
+        lfo.frequency.value = 0.011 + i*0.007;
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.value = f * (0.002 + i*0.0015);
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.connect(gain);
+        gain.connect(hp);
+
+        osc.start();
+        lfo.start();
+      });
+
+      const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+      const ch = noiseBuf.getChannelData(0);
+      for(let i=0;i<ch.length;i++) ch[i] = (rand()*2-1) * 0.22;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+
+      const nFilter = audioCtx.createBiquadFilter();
+      nFilter.type = 'bandpass';
+      nFilter.frequency.value = 740;
+      nFilter.Q.value = 0.6;
+
+      const nGain = audioCtx.createGain();
+      nGain.gain.value = 0.012;
+
+      const nLfo = audioCtx.createOscillator();
+      nLfo.frequency.value = 0.021;
+      const nLfoGain = audioCtx.createGain();
+      nLfoGain.gain.value = 220;
+      nLfo.connect(nLfoGain);
+      nLfoGain.connect(nFilter.frequency);
+
+      noise.connect(nFilter);
+      nFilter.connect(nGain);
+      nGain.connect(master);
+
+      noise.start();
+      nLfo.start();
+
+      const resume = () => {
+        if(audioCtx.state !== 'running') audioCtx.resume();
+      };
+      document.addEventListener('visibilitychange', resume);
+      window.addEventListener('load', resume);
+      setTimeout(resume, 300);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
