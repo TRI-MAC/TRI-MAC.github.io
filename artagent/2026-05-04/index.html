@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-04</title>
+<style>
+  :root{
+    --bg:#12080a;
+    --gold1:#f8e6a3;
+    --gold2:#caa347;
+    --gold3:#8f6820;
+    --ruby:#7d1128;
+    --lapis:#183a7a;
+    --emerald:#0f6d56;
+    --violet:#4b2f6f;
+    --ivory:#efe6cb;
+    --ink:#170d0d;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 15%, #3a1d09 0%, #1a0d07 35%, #090506 100%);
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  .frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #341708 0%, #1b0b08 20%, #14080a 100%);
+    box-shadow:0 0 80px rgba(0,0,0,.55), inset 0 0 100px rgba(0,0,0,.3);
+  }
+
+  .layer{position:absolute; inset:0}
+
+  /* Gold mosaic ground */
+  #mosaic{
+    opacity:.98;
+    mix-blend-mode:screen;
+    filter:saturate(1.1) contrast(1.08);
+  }
+
+  .gold-fog{
+    position:absolute; inset:-5%;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(255,223,140,.55), rgba(255,223,140,0) 28%),
+      radial-gradient(circle at 50% 45%, rgba(222,170,74,.13), rgba(222,170,74,0) 45%),
+      linear-gradient(180deg, rgba(255,231,158,.08), rgba(0,0,0,0) 30%, rgba(0,0,0,.12) 100%);
+    animation: breatheFog 18s ease-in-out infinite alternate;
+  }
+
+  /* Ornamental geometry */
+  .mandorla{
+    position:absolute;
+    left:50%; top:46%;
+    width:82%;
+    height:58%;
+    transform:translate(-50%,-50%);
+    border-radius:50%/58%;
+    background:
+      radial-gradient(ellipse at center,
+        rgba(255,239,185,.18) 0%,
+        rgba(208,154,48,.15) 22%,
+        rgba(62,27,8,.08) 47%,
+        rgba(0,0,0,0) 70%);
+    box-shadow:
+      0 0 0 1px rgba(240,213,141,.18) inset,
+      0 0 60px rgba(227,173,68,.18);
+    filter:blur(.2px);
+    animation: haloPulse 16s ease-in-out infinite;
+    mask-image: radial-gradient(ellipse at center, #000 0 63%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 0 63%, transparent 78%);
+  }
+  .mandorla::before,
+  .mandorla::after{
+    content:"";
+    position:absolute; inset:7%;
+    border-radius:50%/58%;
+    border:1px solid rgba(247,223,150,.28);
+    opacity:.6;
+  }
+  .mandorla::after{ inset:14%; opacity:.38; }
+
+  .cross-grid{
+    position:absolute; inset:0;
+    opacity:.26;
+    background:
+      linear-gradient(90deg, transparent 0 47.8%, rgba(255,230,162,.26) 48%, rgba(255,230,162,.26) 52%, transparent 52.2%),
+      linear-gradient(180deg, transparent 0 30%, rgba(255,230,162,.18) 30.3%, rgba(255,230,162,.18) 31.1%, transparent 31.4%),
+      linear-gradient(180deg, transparent 0 66%, rgba(255,230,162,.12) 66.2%, rgba(255,230,162,.12) 66.9%, transparent 67.2%);
+    mix-blend-mode:screen;
+  }
+
+  .arch{
+    position:absolute;
+    left:50%;
+    top:4%;
+    width:88%;
+    height:92%;
+    transform:translateX(-50%);
+    border-radius:42% 42% 4% 4% / 18% 18% 2% 2%;
+    border:1px solid rgba(244,222,160,.15);
+    box-shadow:
+      inset 0 0 0 1px rgba(121,66,23,.22),
+      inset 0 0 40px rgba(255,220,128,.05);
+    opacity:.55;
+    mask-image: linear-gradient(180deg,#000 0 88%, transparent 98%);
+    -webkit-mask-image: linear-gradient(180deg,#000 0 88%, transparent 98%);
+  }
+
+  .tessellation{
+    position:absolute; inset:0;
+    opacity:.16;
+    background-size:120px 120px;
+    background-image:
+      linear-gradient(30deg, rgba(245,224,171,.12) 12%, transparent 12.5%, transparent 87%, rgba(245,224,171,.12) 87.5%, rgba(245,224,171,.12)),
+      linear-gradient(150deg, rgba(245,224,171,.12) 12%, transparent 12.5%, transparent 87%, rgba(245,224,171,.12) 87.5%, rgba(245,224,171,.12)),
+      linear-gradient(90deg, rgba(113,49,18,.14) 2%, transparent 2.5%, transparent 97%, rgba(113,49,18,.14) 97.5%);
+    animation: driftPattern 45s linear infinite;
+  }
+
+  /* Art image prominence */
+  #art-image{
+    position:absolute;
+    left:50%;
+    top:19%;
+    width:72%;
+    height:26%;
+    object-fit:cover;
+    transform:translateX(-50%);
+    opacity:.96;
+    border:8px solid rgba(227,194,113,.9);
+    box-shadow:
+      0 0 0 2px rgba(111,63,21,.9),
+      0 14px 45px rgba(0,0,0,.34),
+      0 0 24px rgba(231,184,78,.22);
+    filter:saturate(.92) contrast(1.08) sepia(.18) hue-rotate(-6deg);
+    clip-path:polygon(0 0, 90% 0, 100% 14%, 100% 100%, 0 100%);
+    animation: artFloat 20s ease-in-out infinite;
+  }
+
+  .art-aureole{
+    position:absolute;
+    left:50%;
+    top:19%;
+    width:81%;
+    height:33%;
+    transform:translateX(-50%);
+    background:
+      radial-gradient(ellipse at center, rgba(247,225,160,.28), rgba(247,225,160,.08) 40%, rgba(247,225,160,0) 68%);
+    filter:blur(14px);
+    opacity:.6;
+    animation: auraShift 15s ease-in-out infinite alternate;
+    mask-image: radial-gradient(ellipse at center, #000 0 56%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 0 56%, transparent 78%);
+  }
+
+  /* Portrait integration */
+  .portrait-wrap{
+    position:absolute;
+    left:50%;
+    top:56%;
+    width:44%;
+    height:33%;
+    transform:translate(-50%,-50%) rotate(-3deg);
+    animation: portraitSway 22s ease-in-out infinite;
+    filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));
+  }
+  #portrait-image{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:.9;
+    clip-path:polygon(0 0, 84% 0, 100% 14%, 100% 100%, 0 100%);
+    filter:
+      sepia(.5)
+      saturate(.82)
+      contrast(1.05)
+      brightness(.98)
+      hue-rotate(-8deg);
+    mix-blend-mode:screen;
+    box-shadow:
+      0 0 0 2px rgba(109,55,18,.95),
+      0 0 0 11px rgba(220,185,104,.94);
+  }
+  .portrait-wrap::before{
+    content:"";
+    position:absolute;
+    inset:-22px -22px -22px -22px;
+    clip-path:polygon(0 0, 86% 0, 100% 12%, 100% 100%, 0 100%);
+    border:2px solid rgba(246,225,163,.5);
+    opacity:.75;
+  }
+  .portrait-wrap::after{
+    content:"";
+    position:absolute;
+    inset:-65px;
+    background:
+      radial-gradient(circle at 50% 46%, rgba(246,223,155,.6), rgba(246,223,155,.18) 24%, rgba(246,223,155,0) 50%);
+    filter:blur(10px);
+    z-index:-1;
+    mask-image: radial-gradient(circle at center, #000 0 40%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle at center, #000 0 40%, transparent 70%);
+    animation: haloPulse 14s ease-in-out infinite;
+  }
+
+  .gem-bands{
+    position:absolute; inset:0;
+    opacity:.8;
+    pointer-events:none;
+  }
+  .band{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    height:18px;
+    border-radius:18px;
+    filter:blur(.3px);
+    box-shadow:0 0 20px rgba(0,0,0,.18);
+  }
+  .band.b1{ top:49%; width:88%; background:linear-gradient(90deg, rgba(0,0,0,0), rgba(125,17,40,.8) 16%, rgba(239,230,203,.24) 50%, rgba(24,58,122,.78) 84%, rgba(0,0,0,0)); animation: bandShift 17s ease-in-out infinite;}
+  .band.b2{ top:61%; width:94%; background:linear-gradient(90deg, rgba(0,0,0,0), rgba(15,109,86,.7) 18%, rgba(201,163,71,.35) 50%, rgba(75,47,111,.78) 82%, rgba(0,0,0,0)); animation: bandShift 21s ease-in-out infinite reverse;}
+  .band.b3{ top:73%; width:76%; background:linear-gradient(90deg, rgba(0,0,0,0), rgba(24,58,122,.7) 16%, rgba(248,230,163,.28) 50%, rgba(125,17,40,.72) 84%, rgba(0,0,0,0)); animation: bandShift 19s ease-in-out infinite;}
+
+  /* Mosaic jewel medallions */
+  #svgOrnament{
+    position:absolute; inset:0;
+    opacity:.88;
+  }
+
+  /* Vignette */
+  .vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 54%, rgba(0,0,0,.18) 74%, rgba(0,0,0,.48) 100%);
+    pointer-events:none;
+  }
+
+  .date{
+    position:absolute;
+    right:18px; bottom:12px;
+    color:rgba(248,230,163,.68);
+    font-size:14px;
+    letter-spacing:.12em;
+    text-shadow:0 1px 3px rgba(0,0,0,.5);
+    z-index:30;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:18px;
+    right:84px;
+    bottom:163px;
+    opacity:.58;
+    filter:saturate(.8) brightness(.74) sepia(.18);
+    transform:rotate(-7deg);
+    z-index:5;
+  }
+
+  @keyframes haloPulse{
+    0%{transform:translate(-50%,-50%) scale(.985)}
+    100%{transform:translate(-50%,-50%) scale(1.02)}
+  }
+  @keyframes artFloat{
+    0%,100%{transform:translateX(-50%) translateY(0) scale(1)}
+    50%{transform:translateX(-50%) translateY(-14px) scale(1.012)}
+  }
+  @keyframes portraitSway{
+    0%,100%{transform:translate(-50%,-50%) rotate(-3deg) translateY(0)}
+    50%{transform:translate(-50%,-50%) rotate(-1deg) translateY(-10px)}
+  }
+  @keyframes auraShift{
+    0%{transform:translateX(-50%) scale(1)}
+    100%{transform:translateX(-50%) scale(1.04)}
+  }
+  @keyframes bandShift{
+    0%,100%{transform:translateX(-50%) scaleX(.98)}
+    50%{transform:translateX(-50%) scaleX(1.02)}
+  }
+  @keyframes breatheFog{
+    0%{transform:scale(1) translateY(0)}
+    100%{transform:scale(1.03) translateY(12px)}
+  }
+  @keyframes driftPattern{
+    from{background-position:0 0,0 0,0 0}
+    to{background-position:120px 0,-120px 0,0 120px}
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <canvas id="mosaic" class="layer" width="1080" height="1920"></canvas>
+    <div class="layer tessellation"></div>
+    <div class="layer gold-fog"></div>
+    <div class="layer cross-grid"></div>
+    <div class="arch"></div>
+    <div class="mandorla"></div>
+
+    <div class="art-aureole"></div>
+    <img id="art-image" src="art.png" alt="" />
+
+    <div class="portrait-wrap">
+      <img id="portrait-image" src="portrait.png" alt="" />
+    </div>
+
+    <div class="gem-bands">
+      <div class="band b1"></div>
+      <div class="band b2"></div>
+      <div class="band b3"></div>
+    </div>
+
+    <svg id="svgOrnament" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="goldGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff0b8"/>
+          <stop offset="55%" stop-color="#d6ab4b"/>
+          <stop offset="100%" stop-color="#7b561b"/>
+        </radialGradient>
+        <linearGradient id="rubyGrad" x1="0" x2="1">
+          <stop offset="0%" stop-color="#53111f"/>
+          <stop offset="50%" stop-color="#a71935"/>
+          <stop offset="100%" stop-color="#4c0d1b"/>
+        </linearGradient>
+        <linearGradient id="lapisGrad" x1="0" x2="1">
+          <stop offset="0%" stop-color="#112755"/>
+          <stop offset="50%" stop-color="#2855a8"/>
+          <stop offset="100%" stop-color="#102347"/>
+        </linearGradient>
+        <linearGradient id="emeraldGrad" x1="0" x2="1">
+          <stop offset="0%" stop-color="#0a4d3d"/>
+          <stop offset="50%" stop-color="#11906d"/>
+          <stop offset="100%" stop-color="#093d31"/>
+        </linearGradient>
+      </defs>
+
+      <g opacity="0.86">
+        <circle cx="540" cy="470" r="100" fill="none" stroke="url(#goldGrad)" stroke-width="12"/>
+        <circle cx="540" cy="470" r="70" fill="none" stroke="rgba(244,225,162,0.55)" stroke-width="2"/>
+        <g fill="url(#goldGrad)" opacity="0.8">
+          <polygon points="540,330 552,390 540,408 528,390"/>
+          <polygon points="540,532 552,550 540,610 528,550"/>
+          <polygon points="400,470 460,482 478,470 460,458"/>
+          <polygon points="602,470 620,482 680,470 620,458"/>
+        </g>
+      </g>
+
+      <g opacity="0.75">
+        <circle cx="300" cy="1030" r="58" fill="url(#rubyGrad)" stroke="url(#goldGrad)" stroke-width="7"/>
+        <circle cx="780" cy="1030" r="58" fill="url(#lapisGrad)" stroke="url(#goldGrad)" stroke-width="7"/>
+        <circle cx="540" cy="1435" r="72" fill="url(#emeraldGrad)" stroke="url(#goldGrad)" stroke-width="8"/>
+      </g>
+
+      <g stroke="rgba(247,228,170,0.35)" stroke-width="3" fill="none" opacity="0.5">
+        <path d="M130 1540 L950 1540"/>
+        <path d="M180 1610 L900 1610"/>
+        <path d="M230 1680 L850 1680"/>
+      </g>
+
+      <g opacity="0.55">
+        <polygon points="540,835 595,910 540,985 485,910" fill="url(#goldGrad)"/>
+        <polygon points="540,850 578,910 540,970 502,910" fill="#5e0f20"/>
+        <polygon points="540,873 562,910 540,947 518,910" fill="#f1d78d"/>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div class="vignette"></div>
+    <div class="date">2026-05-04</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-05-04";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const canvas = document.getElementById('mosaic');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+
+  const colors = [
+    "#f5dfa2","#c79635","#8d631b","#6e0f28",
+    "#18407d","#135d4c","#41265f","#ead9ac"
+  ];
+
+  const tileSize = 26;
+  const tiles = [];
+
+  for(let y = 0; y < h + tileSize; y += tileSize){
+    for(let x = 0; x < w + tileSize; x += tileSize){
+      const dx = x - w/2;
+      const dy = y - h*0.45;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const goldBias = Math.max(0, 1 - dist / 950);
+      let c;
+      const r = rand();
+      if (r < 0.58 + goldBias*0.22) c = colors[Math.floor(rand()*3)];
+      else c = colors[3 + Math.floor(rand()*5)];
+      tiles.push({
+        x: x + (rand()-0.5)*3,
+        y: y + (rand()-0.5)*3,
+        s: tileSize * (0.82 + rand()*0.36),
+        rot: (Math.floor(rand()*4) * Math.PI/2) + (rand()-0.5)*0.12,
+        color: c,
+        shade: 0.75 + rand()*0.45
+      });
+    }
+  }
+
+  function drawTile(t, time){
+    const pulse = Math.sin(time*0.00022 + (t.x+t.y)*0.01)*0.06;
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.rot + pulse*0.15);
+    const s = t.s;
+
+    ctx.fillStyle = t.color;
+    ctx.globalAlpha = 0.88;
+    ctx.fillRect(-s/2, -s/2, s*0.92, s*0.92);
+
+    ctx.fillStyle = "rgba(255,245,210,0.16)";
+    ctx.fillRect(-s/2, -s/2, s*0.92, s*0.18);
+
+    ctx.fillStyle = "rgba(60,22,10,0.18)";
+    ctx.fillRect(-s/2, s*0.28, s*0.92, s*0.14);
+
+    ctx.strokeStyle = "rgba(48,20,8,0.22)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-s/2, -s/2, s*0.92, s*0.92);
+    ctx.restore();
+  }
+
+  function draw(){
+    const time = performance.now();
+    ctx.clearRect(0,0,w,h);
+
+    const bg = ctx.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,"rgba(92,43,9,0.2)");
+    bg.addColorStop(0.4,"rgba(0,0,0,0)");
+    bg.addColorStop(1,"rgba(0,0,0,0.18)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,w,h);
+
+    for(let i=0;i<tiles.length;i++) drawTile(tiles[i], time);
+
+    // central golden field
+    const rg = ctx.createRadialGradient(w/2,h*0.44,40,w/2,h*0.44,620);
+    rg.addColorStop(0,"rgba(255,236,176,0.18)");
+    rg.addColorStop(0.3,"rgba(218,170,68,0.12)");
+    rg.addColorStop(0.7,"rgba(80,33,9,0.05)");
+    rg.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle = rg;
+    ctx.fillRect(0,0,w,h);
+
+    // medallion lozenges
+    const t = time*0.001;
+    const lozenges = [
+      {x:w/2,y:h*0.2,s:90,c:"#f0d38a"},
+      {x:w*0.28,y:h*0.535,s:46,c:"#8d1632"},
+      {x:w*0.72,y:h*0.535,s:46,c:"#2957ac"},
+      {x:w/2,y:h*0.748,s:58,c:"#14936c"}
+    ];
+    lozenges.forEach((g,idx)=>{
+      const p = Math.sin(t*0.7+idx)*4;
+      ctx.save();
+      ctx.translate(g.x, g.y+p);
+      ctx.rotate(Math.PI/4);
+      ctx.fillStyle = g.c;
+      ctx.globalAlpha = 0.52;
+      ctx.fillRect(-g.s/2,-g.s/2,g.s,g.s);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "rgba(242,216,140,0.55)";
+      ctx.strokeRect(-g.s/2,-g.s/2,g.s,g.s);
+      ctx.restore();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  if (window.self === window.top) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
+      const audio = new AC();
+      const master = audio.createGain();
+      master.gain.value = 0.018;
+      master.connect(audio.destination);
+
+      const now = audio.currentTime;
+
+      const freqs = [146.83, 220, 293.66];
+      freqs.forEach((f, i) => {
+        const o = audio.createOscillator();
+        const g = audio.createGain();
+        const lfo = audio.createOscillator();
+        const lfoG = audio.createGain();
+
+        o.type = i === 1 ? "triangle" : "sine";
+        o.frequency.value = f;
+
+        lfo.type = "sine";
+        lfo.frequency.value = 0.03 + i * 0.011;
+        lfoG.gain.value = 2.5 + i * 0.8;
+        lfo.connect(lfoG).connect(o.frequency);
+
+        g.gain.value = 0.0001;
+        g.gain.linearRampToValueAtTime(0.008 / (i+1), now + 4 + i);
+        g.gain.setTargetAtTime(0.005 / (i+1), now + 8, 8);
+
+        o.connect(g).connect(master);
+        o.start();
+        lfo.start();
+      });
+
+      const noiseBuffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i=0;i<data.length;i++) data[i] = (rand()*2-1)*0.12;
+      const noise = audio.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const band = audio.createBiquadFilter();
+      band.type = "bandpass";
+      band.frequency.value = 1200;
+      band.Q.value = 0.8;
+
+      const ng = audio.createGain();
+      ng.gain.value = 0.0015;
+
+      noise.connect(band).connect(ng).connect(master);
+      noise.start();
+    }
+  }
+})();
+</script>
+</body>
+</html>
