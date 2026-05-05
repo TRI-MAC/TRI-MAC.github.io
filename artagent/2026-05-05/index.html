@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-05</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --deep:#07111f;
+    --cyan:#33f0ff;
+    --cyan2:#8af7ff;
+    --blue:#2e5bff;
+    --violet:#8b4dff;
+    --magenta:#ff3fd1;
+    --lime:#9dff4f;
+    --amber:#ffb347;
+    --red:#ff4b5c;
+    --white:#eafcff;
+    --grid:rgba(70,230,255,.16);
+    --line:rgba(120,250,255,.7);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    height:min(100vh, calc(100vw * 16 / 9));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 10%, rgba(46,91,255,.16), transparent 28%),
+      radial-gradient(circle at 80% 24%, rgba(255,63,209,.11), transparent 22%),
+      radial-gradient(circle at 20% 74%, rgba(51,240,255,.08), transparent 26%),
+      linear-gradient(180deg, #04070f 0%, #050814 36%, #02040a 100%);
+    box-shadow:
+      0 0 0 1px rgba(100,240,255,.15),
+      0 0 45px rgba(37,145,255,.18),
+      inset 0 0 100px rgba(0,0,0,.5);
+  }
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 4px);
+    background-size:100% 4px;
+    opacity:.32;
+    mix-blend-mode:screen;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at center, transparent 55%, rgba(0,0,0,.18) 78%, rgba(0,0,0,.42) 100%);
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none}
+  canvas, svg{display:block}
+
+  #gridCanvas{
+    position:absolute; inset:0;
+    opacity:.95;
+  }
+
+  #gameCanvas{
+    position:absolute; left:50%; top:50%;
+    width:84%;
+    height:70%;
+    transform:translate(-50%,-48%);
+    image-rendering:pixelated;
+    border-radius:22px;
+    box-shadow:
+      0 0 0 1px rgba(110,240,255,.28),
+      0 0 22px rgba(50,220,255,.18),
+      inset 0 0 35px rgba(0,0,0,.45);
+    filter:saturate(1.15) contrast(1.08);
+    clip-path:inset(0 round 22px);
+  }
+
+  #hud{
+    position:absolute; inset:0;
+    opacity:.98;
+  }
+
+  #art-image{
+    position:absolute;
+    right:7%;
+    top:14%;
+    width:39%;
+    height:auto;
+    opacity:.94;
+    object-fit:cover;
+    filter:
+      saturate(1.25)
+      contrast(1.18)
+      hue-rotate(190deg)
+      brightness(.95)
+      drop-shadow(0 0 18px rgba(80,220,255,.35))
+      drop-shadow(0 0 40px rgba(255,40,220,.18));
+    mix-blend-mode:screen;
+    clip-path:polygon(14% 0%, 86% 0%, 100% 14%, 100% 86%, 86% 100%, 14% 100%, 0% 86%, 0% 14%);
+    animation: artDrift 24s ease-in-out infinite, artPulse 10s ease-in-out infinite;
+  }
+
+  .art-frame{
+    position:absolute;
+    right:4.7%;
+    top:11.5%;
+    width:43.8%;
+    height:22%;
+    border:1px solid rgba(90,240,255,.42);
+    clip-path:polygon(12% 0%, 88% 0%, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0% 88%, 0% 12%);
+    box-shadow:
+      0 0 20px rgba(63,240,255,.18),
+      inset 0 0 25px rgba(63,240,255,.08);
+    opacity:.95;
+    animation: frameBreath 14s ease-in-out infinite;
+    -webkit-mask-image: radial-gradient(circle at center, black 72%, transparent 100%);
+            mask-image: radial-gradient(circle at center, black 72%, transparent 100%);
+  }
+  .art-frame::before,.art-frame::after{
+    content:"";
+    position:absolute; inset:10px;
+    clip-path:inherit;
+    border:1px solid rgba(255,63,209,.18);
+  }
+  .art-frame::after{
+    inset:-18px;
+    border-color:rgba(80,180,255,.18);
+    filter:blur(1px);
+  }
+
+  .panel{
+    position:absolute;
+    left:7%;
+    bottom:9.4%;
+    width:28%;
+    height:12%;
+    border:1px solid rgba(97,236,255,.38);
+    background:
+      linear-gradient(180deg, rgba(10,24,40,.68), rgba(4,10,20,.36)),
+      linear-gradient(90deg, rgba(59,240,255,.06), transparent 50%, rgba(255,63,209,.06));
+    box-shadow: inset 0 0 24px rgba(38,176,255,.1), 0 0 18px rgba(60,210,255,.08);
+    backdrop-filter: blur(1px);
+    clip-path:polygon(0 10%, 10% 0, 100% 0, 100% 88%, 90% 100%, 0 100%);
+    opacity:.9;
+  }
+
+  .radar{
+    position:absolute;
+    left:8.2%;
+    bottom:11.1%;
+    width:15%;
+    aspect-ratio:1;
+    border-radius:50%;
+    border:1px solid rgba(90,240,255,.42);
+    box-shadow:0 0 18px rgba(50,220,255,.15), inset 0 0 22px rgba(0,255,255,.06);
+    overflow:hidden;
+    opacity:.86;
+  }
+  .radar::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at center, transparent 0 26%, rgba(100,240,255,.22) 26.5% 27.3%, transparent 27.8% 49%, rgba(100,240,255,.2) 49.5% 50.3%, transparent 50.8% 73%, rgba(100,240,255,.18) 73.5% 74.3%, transparent 74.8%),
+      linear-gradient(90deg, transparent 49.4%, rgba(100,240,255,.18) 50%, transparent 50.6%),
+      linear-gradient(0deg, transparent 49.4%, rgba(100,240,255,.18) 50%, transparent 50.6%);
+  }
+  .radar::after{
+    content:"";
+    position:absolute; inset:-4%;
+    background:conic-gradient(from 220deg, transparent 0 77%, rgba(98,255,160,.42) 84%, rgba(98,255,160,.02) 92%, transparent 100%);
+    animation: radarSweep 5.2s linear infinite;
+    transform-origin:50% 50%;
+  }
+
+  .status{
+    position:absolute;
+    left:24.2%;
+    bottom:11.4%;
+    width:9%;
+    height:7%;
+    border-left:1px solid rgba(90,240,255,.26);
+    display:grid;
+    grid-template-rows:repeat(5,1fr);
+    gap:5px;
+    padding-left:12px;
+    opacity:.9;
+  }
+  .status span{
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg, rgba(85,255,175,.75), rgba(45,210,255,.45));
+    transform-origin:left center;
+    animation: barMove 4s ease-in-out infinite;
+  }
+  .status span:nth-child(2){animation-delay:-.8s}
+  .status span:nth-child(3){animation-delay:-1.6s}
+  .status span:nth-child(4){animation-delay:-2.4s}
+  .status span:nth-child(5){animation-delay:-3.2s}
+
+  .target-ring{
+    position:absolute;
+    right:6.5%;
+    top:38%;
+    width:22%;
+    aspect-ratio:1;
+    border-radius:50%;
+    opacity:.78;
+    -webkit-mask-image: radial-gradient(circle at center, transparent 0 18%, black 24%, black 64%, transparent 92%);
+            mask-image: radial-gradient(circle at center, transparent 0 18%, black 24%, black 64%, transparent 92%);
+  }
+  .target-ring::before{
+    content:"";
+    position:absolute; inset:0; border-radius:50%;
+    background:
+      radial-gradient(circle at center, transparent 0 22%, rgba(70,240,255,.58) 22.8% 23.8%, transparent 24.5% 42%, rgba(255,63,209,.45) 42.7% 43.7%, transparent 44.4% 61%, rgba(70,240,255,.35) 61.7% 62.5%, transparent 63.2%),
+      conic-gradient(from 0deg, rgba(70,240,255,.18), transparent 22%, rgba(255,63,209,.16) 38%, transparent 56%, rgba(70,240,255,.18) 70%, transparent 100%);
+    filter:drop-shadow(0 0 16px rgba(60,220,255,.18));
+    animation: ringTurn 30s linear infinite;
+  }
+  .target-ring::after{
+    content:"";
+    position:absolute; inset:18%;
+    border-radius:50%;
+    border:1px solid rgba(118,250,255,.35);
+    box-shadow:0 0 14px rgba(63,240,255,.12), inset 0 0 18px rgba(255,63,209,.08);
+  }
+
+  .bracket{
+    position:absolute;
+    width:20%;
+    height:11%;
+    border:1px solid rgba(80,240,255,.18);
+    opacity:.7;
+  }
+  .bracket::before,.bracket::after{
+    content:"";
+    position:absolute;
+    width:24px; height:24px;
+    border-color:rgba(110,250,255,.7);
+    border-style:solid;
+  }
+  .b1{left:4.5%; top:5%; clip-path:polygon(0 14%, 14% 0, 100% 0, 100% 100%, 0 100%)}
+  .b1::before{left:-1px; top:-1px; border-width:2px 0 0 2px}
+  .b1::after{right:-1px; bottom:-1px; border-width:0 2px 2px 0}
+  .b2{right:4.5%; bottom:4.7%; clip-path:polygon(0 0, 100% 0, 100% 86%, 86% 100%, 0 100%)}
+  .b2::before{left:-1px; bottom:-1px; border-width:0 0 2px 2px}
+  .b2::after{right:-1px; top:-1px; border-width:2px 2px 0 0}
+
+  .scanA,.scanB{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent, rgba(100,255,255,.06), transparent);
+    mix-blend-mode:screen;
+    opacity:.28;
+    filter:blur(5px);
+  }
+  .scanA{animation: scanDrop 11s linear infinite}
+  .scanB{animation: scanDrop 17s linear infinite reverse; opacity:.18}
+
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:10px;
+    color:rgba(190,240,255,.55);
+    font-size:12px;
+    letter-spacing:.2em;
+    text-transform:none;
+    text-shadow:0 0 10px rgba(80,220,255,.22);
+    z-index:10;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:11px;
+    bottom:235px;
+    opacity:.58;
+    filter:hue-rotate(170deg) saturate(.9) brightness(.82);
+    transform:rotate(-6deg);
+    z-index:3;
+  }
+
+  @keyframes artDrift{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    50%{transform:translate3d(-8px,10px,0) scale(1.018)}
+  }
+  @keyframes artPulse{
+    0%,100%{filter:saturate(1.25) contrast(1.18) hue-rotate(190deg) brightness(.95) drop-shadow(0 0 18px rgba(80,220,255,.35)) drop-shadow(0 0 40px rgba(255,40,220,.18))}
+    50%{filter:saturate(1.34) contrast(1.24) hue-rotate(205deg) brightness(1.02) drop-shadow(0 0 26px rgba(80,220,255,.42)) drop-shadow(0 0 48px rgba(255,40,220,.22))}
+  }
+  @keyframes frameBreath{
+    0%,100%{transform:scale(1); opacity:.88}
+    50%{transform:scale(1.012); opacity:.98}
+  }
+  @keyframes radarSweep{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes barMove{
+    0%,100%{transform:scaleX(.35); opacity:.55}
+    50%{transform:scaleX(1); opacity:.95}
+  }
+  @keyframes ringTurn{
+    from{transform:rotate(0deg) scale(1)}
+    50%{transform:rotate(180deg) scale(1.03)}
+    to{transform:rotate(360deg) scale(1)}
+  }
+  @keyframes scanDrop{
+    0%{transform:translateY(-100%)}
+    100%{transform:translateY(100%)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="gridCanvas" width="1080" height="1920" class="layer"></canvas>
+    <canvas id="gameCanvas" width="288" height="512"></canvas>
+
+    <img id="art-image" src="art.png" alt="">
+    <div class="art-frame"></div>
+
+    <div class="panel"></div>
+    <div class="radar"></div>
+    <div class="status"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="target-ring"></div>
+    <div class="bracket b1"></div>
+    <div class="bracket b2"></div>
+
+    <svg id="hud" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="hudGlow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(60,230,255,.0)"/>
+          <stop offset="45%" stop-color="#4cf1ff"/>
+          <stop offset="100%" stop-color="rgba(255,63,209,.0)"/>
+        </linearGradient>
+        <linearGradient id="diag" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#39edff" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#ff3fd1" stop-opacity=".18"/>
+        </linearGradient>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g opacity=".75" filter="url(#softGlow)">
+        <path d="M94 362 L286 362 L336 412 L462 412" fill="none" stroke="url(#diag)" stroke-width="3"/>
+        <path d="M616 1472 L756 1472 L824 1404 L960 1404" fill="none" stroke="url(#diag)" stroke-width="3"/>
+        <path d="M148 1220 L216 1152 L216 984 L298 902" fill="none" stroke="#45efff" stroke-opacity=".35" stroke-width="2"/>
+        <path d="M936 652 L854 734 L854 896 L792 958" fill="none" stroke="#ff3fd1" stroke-opacity=".25" stroke-width="2"/>
+      </g>
+
+      <g opacity=".52">
+        <circle cx="540" cy="970" r="420" fill="none" stroke="#4bf1ff" stroke-opacity=".08" stroke-width="1"/>
+        <circle cx="540" cy="970" r="520" fill="none" stroke="#4bf1ff" stroke-opacity=".05" stroke-width="1"/>
+      </g>
+
+      <g opacity=".8">
+        <rect x="82" y="160" width="130" height="18" fill="#4bf1ff" fill-opacity=".18"/>
+        <rect x="216" y="160" width="42" height="18" fill="#ff3fd1" fill-opacity=".26"/>
+        <rect x="822" y="1686" width="150" height="18" fill="#4bf1ff" fill-opacity=".16"/>
+        <rect x="976" y="1686" width="28" height="18" fill="#9dff4f" fill-opacity=".28"/>
+      </g>
+    </svg>
+
+    <div class="scanA layer"></div>
+    <div class="scanB layer"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div id="date">2026-05-05</div>
+  </div>
+
+<script>
+(() => {
+  const seedString = "2026-05-05";
+  let s = 0;
+  for (let i = 0; i < seedString.length; i++) s = ((s * 131) + seedString.charCodeAt(i)) >>> 0;
+  function rand() {
+    s ^= s << 13; s ^= s >>> 17; s ^= s << 5;
+    return ((s >>> 0) / 4294967296);
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const gridCanvas = document.getElementById('gridCanvas');
+  const gtx = gridCanvas.getContext('2d');
+
+  function drawGrid(t){
+    const w = gridCanvas.width, h = gridCanvas.height;
+    gtx.clearRect(0,0,w,h);
+
+    const horizon = 980;
+    gtx.save();
+
+    const bgGrad = gtx.createLinearGradient(0,0,0,h);
+    bgGrad.addColorStop(0,'rgba(7,16,32,.15)');
+    bgGrad.addColorStop(.45,'rgba(4,12,24,.04)');
+    bgGrad.addColorStop(1,'rgba(0,0,0,0)');
+    gtx.fillStyle = bgGrad;
+    gtx.fillRect(0,0,w,h);
+
+    gtx.translate(w/2, horizon);
+
+    const speed = t * 0.000045;
+    for(let i=1;i<22;i++){
+      const z = ((i + speed*120) % 22) / 22;
+      const y = lerp(30, 900, z*z);
+      const half = lerp(36, 620, z);
+      const alpha = lerp(.18, .02, z);
+      gtx.strokeStyle = `rgba(70,240,255,${alpha})`;
+      gtx.lineWidth = 1;
+      gtx.beginPath();
+      gtx.moveTo(-half, y);
+      gtx.lineTo(half, y);
+      gtx.stroke();
+    }
+
+    const cols = 13;
+    for(let i=-cols;i<=cols;i++){
+      const xTop = i*22;
+      const xBottom = i*64;
+      gtx.strokeStyle = `rgba(${i===0?255:85}, ${i===0?63:235}, 255, ${i===0?.18:.14})`;
+      gtx.beginPath();
+      gtx.moveTo(xTop, 20);
+      gtx.lineTo(xBottom, 920);
+      gtx.stroke();
+    }
+
+    gtx.restore();
+
+    const sideGlow = gtx.createLinearGradient(0,0,w,0);
+    sideGlow.addColorStop(0,'rgba(255,63,209,.08)');
+    sideGlow.addColorStop(.18,'rgba(0,0,0,0)');
+    sideGlow.addColorStop(.82,'rgba(0,0,0,0)');
+    sideGlow.addColorStop(1,'rgba(76,241,255,.08)');
+    gtx.fillStyle = sideGlow;
+    gtx.fillRect(0,0,w,h);
+
+    // top HUD blocks
+    for(let i=0;i<9;i++){
+      const x = 100 + i*90;
+      const hh = 8 + (i%3)*6;
+      gtx.fillStyle = i%4===0 ? 'rgba(255,63,209,.18)' : 'rgba(76,241,255,.14)';
+      gtx.fillRect(x, 112 + (i%2)*10, 52 + (i%3)*18, hh);
+    }
+
+    // lower horizon pulse bars
+    for(let i=0;i<12;i++){
+      const x = 130 + i*66;
+      const pulse = 0.5 + 0.5*Math.sin(t*0.0012 + i*0.65);
+      gtx.fillStyle = `rgba(157,255,79,${0.04 + pulse*0.07})`;
+      gtx.fillRect(x, 1015 + i%2*8, 36, 4);
+    }
+  }
+
+  const gameCanvas = document.getElementById('gameCanvas');
+  const ctx = gameCanvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  const W = gameCanvas.width, H = gameCanvas.height;
+  const world = {
+    tile: 16,
+    gravity: 0.22,
+    time: 0,
+    camX: 0,
+    levelLength: 3200,
+    platforms: [],
+    towers: [],
+    hazards: [],
+    coins: [],
+    stars: [],
+    player: {x:32,y:120,vx:0,vy:0,w:14,h:16,onGround:false,dir:1},
+    enemies: [],
+    score: 0
+  };
+
+  function buildLevel(){
+    world.platforms = [];
+    world.hazards = [];
+    world.coins = [];
+    world.towers = [];
+    world.enemies = [];
+    world.stars = [];
+
+    for(let i=0;i<70;i++){
+      world.stars.push({
+        x: rand()*W,
+        y: rand()*H*0.55,
+        s: 1 + Math.floor(rand()*3),
+        c: rand() > .8 ? '#ff3fd1' : '#4cf1ff'
+      });
+    }
+
+    world.platforms.push({x:0,y:460,w:560,h:28,kind:'ground'});
+    let x = 380;
+    for(let i=0;i<22;i++){
+      const gap = 60 + Math.floor(rand()*60);
+      const w = 70 + Math.floor(rand()*100);
+      const y = 360 + Math.floor(rand()*82) - 40;
+      world.platforms.push({x,y,w,h:16,kind:'plat'});
+      if (rand() > .42) world.coins.push({x:x+w*0.5,y:y-28,collected:false});
+      if (rand() > .68) world.enemies.push({x:x+w*0.5,y:y-14,w:14,h:14,dir:rand()>.5?1:-1,min:x+8,max:x+w-22});
+      if (rand() > .76) world.hazards.push({x:x+w+12,y:460,w:40+Math.floor(rand()*30),h:16});
+      x += w + gap;
+    }
+    world.platforms.push({x:x+40,y:420,w:360,h:28,kind:'goal'});
+
+    for(let i=0;i<14;i++){
+      world.towers.push({
+        x: 100 + i*220 + Math.floor(rand()*80),
+        w: 40 + Math.floor(rand()*60),
+        h: 120 + Math.floor(rand()*240),
+        lights: 4 + Math.floor(rand()*6)
+      });
+    }
+
+    // ensure ground continuity with breaks for hazards
+    for(let i=1;i<7;i++){
+      world.platforms.push({x:i*520,y:460,w:520,h:28,kind:'ground'});
+    }
+    world.player.x = 60;
+    world.player.y = 240;
+    world.player.vx = 0;
+    world.player.vy = 0;
+    world.score = 0;
+  }
+
+  buildLevel();
+
+  function rectsOverlap(a,b){
+    return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+  }
+
+  function updateGame(dt){
+    world.time += dt;
+    const p = world.player;
+
+    // autonomous runner logic
+    let lookAhead = null;
+    for(const plat of world.platforms){
+      if(plat.x + plat.w > p.x && plat.x > p.x + 8){
+        if(!lookAhead || plat.x < lookAhead.x) lookAhead = plat;
+      }
+    }
+    let needJump = false;
+    if (lookAhead){
+      const dx = lookAhead.x - (p.x + p.w);
+      const dy = (p.y + p.h) - lookAhead.y;
+      if (dx < 42 && dx > -6 && dy > -38 && dy < 90) needJump = true;
+    }
+    for(const hz of world.hazards){
+      const dx = hz.x - (p.x + p.w);
+      if(dx < 48 && dx > -10 && p.onGround) needJump = true;
+    }
+    for(const e of world.enemies){
+      const dx = e.x - p.x;
+      if(dx > 10 && dx < 34 && Math.abs((e.y+e.h) - (p.y+p.h)) < 10 && p.onGround) needJump = true;
+    }
+
+    p.vx = 1.45 + 0.18*Math.sin(world.time*0.002);
+    if(needJump && p.onGround){
+      p.vy = -5.6;
+      p.onGround = false;
+    }
+
+    p.vy += world.gravity;
+    p.x += p.vx * dt * 0.06;
+    p.y += p.vy * dt * 0.06;
+
+    p.onGround = false;
+    for(const plat of world.platforms){
+      if(p.x+p.w > plat.x && p.x < plat.x+plat.w){
+        const prevBottom = p.y + p.h - p.vy * dt * 0.06;
+        const curBottom = p.y + p.h;
+        if(prevBottom <= plat.y && curBottom >= plat.y && p.vy >= 0){
+          p.y = plat.y - p.h;
+          p.vy = 0;
+          p.onGround = true;
+        }
+      }
+    }
+
+    for(const e of world.enemies){
+      e.x += e.dir * 0.48 * dt * 0.06;
+      if(e.x < e.min || e.x > e.max) e.dir *= -1;
+      if(rectsOverlap(p,e)){
+        if(p.vy > 0 && p.y + p.h - e.y < 12){
+          e.dead = true;
+          p.vy = -3.7;
+          world.score += 50;
+        }else{
+          p.x -= 28;
+          p.vy = -2.5;
+        }
+      }
+    }
+    world.enemies = world.enemies.filter(e=>!e.dead);
+
+    for(const c of world.coins){
+      if(!c.collected){
+        const box = {x:c.x-5,y:c.y-5,w:10,h:10};
+        if(rectsOverlap(p,box)){ c.collected = true; world.score += 10; }
+      }
+    }
+
+    for(const hz of world.hazards){
+      if(rectsOverlap(p,hz)){
+        p.x -= 36;
+        p.vy = -3.2;
+      }
+    }
+
+    if(p.y > H+80){
+      p.x = Math.max(40, p.x - 120);
+      p.y = 120;
+      p.vx = 0;
+      p.vy = 0;
+    }
+
+    world.camX = Math.max(0, p.x - 92);
+    if (world.camX > world.levelLength - W) world.camX = world.levelLength - W;
+  }
+
+  function pixelRect(x,y,w,h,c,alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = c;
+    ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));
+    ctx.globalAlpha = 1;
+  }
+
+  function drawGame(t){
+    ctx.clearRect(0,0,W,H);
+
+    const camX = world.camX;
+
+    // background sky
+    const sky = ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,'#060913');
+    sky.addColorStop(.6,'#081427');
+    sky.addColorStop(1,'#06070c');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
+
+    // stars
+    for(const s of world.stars){
+      pixelRect((s.x + (camX*0.05))%W, s.y, s.s, s.s, s.c, .85);
+    }
+
+    // skyline
+    for(const tw of world.towers){
+      const x = Math.round(tw.x - camX*0.42);
+      if(x > -120 && x < W+50){
+        const baseY = 320 - tw.h*0.28;
+        pixelRect(x, baseY, tw.w, tw.h, '#091325', 1);
+        pixelRect(x+2, baseY+2, tw.w-4, tw.h-4, '#0d1d36', 1);
+        for(let i=0;i<tw.lights;i++){
+          for(let j=0;j<4;j++){
+            const lx = x + 5 + j*8;
+            const ly = baseY + 10 + i*14;
+            pixelRect(lx, ly, 3, 5, (i+j)%3===0 ? '#ff3fd1' : '#4cf1ff', .65);
+          }
+        }
+      }
+    }
+
+    // horizon rails
+    for(let i=0;i<9;i++){
+      const yy = 350 + i*12;
+      ctx.strokeStyle = i%2 ? 'rgba(76,241,255,.08)' : 'rgba(255,63,209,.05)';
+      ctx.beginPath();
+      ctx.moveTo(0,yy);
+      ctx.lineTo(W,yy);
+      ctx.stroke();
+    }
+
+    // platforms and ground
+    for(const plat of world.platforms){
+      const x = plat.x - camX;
+      if(x + plat.w < 0 || x > W) continue;
+
+      if(plat.kind === 'goal'){
+        pixelRect(x, plat.y, plat.w, plat.h, '#0f2440');
+        pixelRect(x, plat.y, plat.w, 4, '#4cf1ff');
+        for(let i=0;i<plat.w;i+=22){
+          pixelRect(x+i, plat.y-20, 4, 20, i%44===0 ? '#ff3fd1' : '#4cf1ff');
+        }
+      } else {
+        pixelRect(x, plat.y, plat.w, plat.h, plat.kind==='ground' ? '#10213a' : '#122846');
+        pixelRect(x, plat.y, plat.w, 3, '#4cf1ff');
+        for(let i=0;i<plat.w;i+=16){
+          pixelRect(x+i, plat.y+5, 7, 3, i%32===0 ? '#ff3fd1' : '#224e7e', .8);
+        }
+      }
+    }
+
+    // hazards
+    for(const hz of world.hazards){
+      const x = hz.x - camX;
+      if(x + hz.w < 0 || x > W) continue;
+      for(let i=0;i<hz.w;i+=10){
+        ctx.fillStyle = i%20===0 ? '#ff3fd1' : '#ff6b5f';
+        ctx.beginPath();
+        ctx.moveTo(Math.round(x+i), hz.y+hz.h);
+        ctx.lineTo(Math.round(x+i+5), hz.y);
+        ctx.lineTo(Math.round(x+i+10), hz.y+hz.h);
+        ctx.fill();
+      }
+    }
+
+    // coins
+    for(const c of world.coins){
+      if(c.collected) continue;
+      const x = c.x - camX;
+      const bob = Math.sin(t*0.004 + c.x*0.04)*2;
+      pixelRect(x-4, c.y-6+bob, 8, 12, '#ffb347');
+      pixelRect(x-2, c.y-4+bob, 4, 8, '#fff3a0');
+    }
+
+    // enemies
+    for(const e of world.enemies){
+      const x = e.x - camX;
+      pixelRect(x, e.y, e.w, e.h, '#ff3fd1');
+      pixelRect(x+3, e.y+4, 3, 3, '#05060a');
+      pixelRect(x+8, e.y+4, 3, 3, '#05060a');
+      pixelRect(x+2, e.y+e.h, 4, 3, '#4cf1ff');
+      pixelRect(x+8, e.y+e.h, 4, 3, '#4cf1ff');
+    }
+
+    // player
+    const p = world.player;
+    const px = p.x - camX;
+    const runPhase = Math.floor((t*0.02)%2);
+    pixelRect(px+4, p.y, 6, 4, '#eafcff');
+    pixelRect(px+2, p.y+4, 10, 7, '#4cf1ff');
+    pixelRect(px, p.y+11, 14, 5, '#16375d');
+    pixelRect(px+2, p.y+16, 4, runPhase ? 4 : 2, '#ff3fd1');
+    pixelRect(px+8, p.y+16, 4, runPhase ? 2 : 4, '#ff3fd1');
+    pixelRect(px+1, p.y+6, 2, 2, '#05060a');
+    pixelRect(px+11, p.y+6, 2, 2, '#05060a');
+
+    // player glow echo
+    pixelRect(px-1, p.y-1, 16, 18, '#4cf1ff', .08);
+    pixelRect(px-2, p.y-2, 18, 20, '#ff3fd1', .04);
+
+    // UI inside game
+    pixelRect(8, 8, 92, 18, '#091325', .9);
+    pixelRect(10, 10, 88, 2, '#4cf1ff', .8);
+    for(let i=0;i<6;i++){
+      pixelRect(14+i*10, 16, 6, 4, i<3 ? '#9dff4f' : '#25496e', .9);
+    }
+    pixelRect(196, 8, 84, 18, '#091325', .9);
+    pixelRect(198, 10, 80, 2, '#ff3fd1', .75);
+
+    // screen vignette in game
+    const vg = ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,300);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(1,'rgba(0,0,0,.3)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,W,H);
+
+    // soft scanlines in game
+    ctx.fillStyle = 'rgba(255,255,255,.03)';
+    for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,1);
+  }
+
+  let last = performance.now();
+  function frame(now){
+    const dt = Math.min(40, now - last);
+    last = now;
+    updateGame(dt);
+    drawGrid(now);
+    drawGame(now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ac = new AudioCtx();
+      const master = ac.createGain();
+      master.gain.value = 0.022;
+      master.connect(ac.destination);
+
+      const hp = ac.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 140;
+      hp.Q.value = 0.7;
+      hp.connect(master);
+
+      const lp = ac.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1600;
+      lp.Q.value = 0.4;
+      lp.connect(hp);
+
+      const drone1 = ac.createOscillator();
+      const drone2 = ac.createOscillator();
+      const pulse = ac.createOscillator();
+      const lfo = ac.createOscillator();
+
+      drone1.type = 'sawtooth';
+      drone2.type = 'triangle';
+      pulse.type = 'square';
+      lfo.type = 'sine';
+
+      drone1.frequency.value = 55;
+      drone2.frequency.value = 82.5;
+      pulse.frequency.value = 2.2;
+      lfo.frequency.value = 0.07;
+
+      const g1 = ac.createGain();
+      const g2 = ac.createGain();
+      const g3 = ac.createGain();
+      const lfoGain = ac.createGain();
+
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.12;
+      g3.gain.value = 0.012;
+      lfoGain.gain.value = 180;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      drone1.connect(g1); drone2.connect(g2); pulse.connect(g3);
+      g1.connect(lp); g2.connect(lp); g3.connect(lp);
+
+      drone1.start();
+      drone2.start();
+      pulse.start();
+      lfo.start();
+
+      const melody = [220, 246.94, 277.18, 329.63, 277.18, 246.94];
+      let idx = 0;
+      setInterval(() => {
+        const t = ac.currentTime;
+        pulse.frequency.setValueAtTime(melody[idx % melody.length], t);
+        g3.gain.cancelScheduledValues(t);
+        g3.gain.setValueAtTime(0.004, t);
+        g3.gain.linearRampToValueAtTime(0.018, t + 0.08);
+        g3.gain.linearRampToValueAtTime(0.004, t + 0.34);
+        idx++;
+      }, 700);
+    } catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
