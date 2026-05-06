@@ -486,6 +486,7 @@
     time: 0,
     camX: 0,
     levelLength: 3200,
+    loopEndX: 3200,
     platforms: [],
     towers: [],
     hazards: [],
@@ -526,6 +527,7 @@
       x += w + gap;
     }
     world.platforms.push({x:x+40,y:420,w:360,h:28,kind:'goal'});
+    world.loopEndX = x + 420;
 
     for(let i=0;i<14;i++){
       world.towers.push({
@@ -637,6 +639,12 @@
       p.y = 120;
       p.vx = 0;
       p.vy = 0;
+    }
+
+    // Keep the sequence on an endless loop for unattended/public playback.
+    if (p.x > world.loopEndX) {
+      buildLevel();
+      return;
     }
 
     world.camX = Math.max(0, p.x - 92);
