@@ -528,6 +528,7 @@
     }
     world.platforms.push({x:x+40,y:420,w:360,h:28,kind:'goal'});
     world.loopEndX = x + 420;
+    world.levelLength = world.loopEndX + 160;
 
     for(let i=0;i<14;i++){
       world.towers.push({
