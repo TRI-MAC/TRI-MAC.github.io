@@ -643,7 +643,7 @@
     }
 
     // Keep the sequence on an endless loop for unattended/public playback.
-    if (p.x > world.loopEndX) {
+    if (p.x > world.loopEndX || p.x > (world.levelLength - 120)) {
       buildLevel();
       return;
     }
