@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative Art 2026-05-07</title>
+<style>
+  :root{
+    --w:1080;
+    --h:1920;
+    --bg0:#f4d14a;
+    --bg1:#ef4c2f;
+    --bg2:#2e5bff;
+    --bg3:#111111;
+    --paper:#f7f0dc;
+    --ink:#111111;
+    --red:#d7261e;
+    --blue:#2049ff;
+    --acid:#d9ff4a;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family: "Arial Black", Impact, Haettenschweiler, "Segoe UI", sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:#f2e7cf;
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 24px 80px rgba(0,0,0,.45);
+  }
+  #art{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.06), rgba(0,0,0,.06));
+    isolation:isolate;
+  }
+
+  /* primary colour field */
+  #gradientField{
+    position:absolute; inset:-10%;
+    background:
+      radial-gradient(120% 95% at 18% 22%, rgba(255,226,89,.95), rgba(255,226,89,0) 42%),
+      radial-gradient(100% 90% at 79% 24%, rgba(44,88,255,.96), rgba(44,88,255,0) 46%),
+      radial-gradient(110% 95% at 44% 79%, rgba(239,76,47,.98), rgba(239,76,47,0) 49%),
+      radial-gradient(95% 95% at 72% 72%, rgba(9,9,9,.82), rgba(9,9,9,0) 37%),
+      linear-gradient(145deg, #f5e5b8 0%, #f2cf47 22%, #ea5a31 47%, #2e58ff 74%, #121212 100%);
+    filter:saturate(1.22) contrast(1.1);
+    animation: fieldShift 42s ease-in-out infinite alternate;
+    transform-origin:center;
+  }
+
+  /* video integrated as printed moving substrate */
+  #background-video{
+    position:absolute;
+    inset:-8%;
+    width:116%;
+    height:116%;
+    object-fit:cover;
+    opacity:.76;
+    filter: saturate(1.3) contrast(1.15) hue-rotate(-8deg) sepia(.12);
+    mix-blend-mode:multiply;
+    transform:scale(1.03) rotate(-0.9deg);
+    animation: vidDrift 46s ease-in-out infinite alternate;
+  }
+
+  /* collage paper veil */
+  #paperVeil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(140% 90% at 50% -10%, rgba(255,255,255,.35), rgba(255,255,255,0) 55%),
+      radial-gradient(120% 90% at 50% 110%, rgba(0,0,0,.16), rgba(0,0,0,0) 56%),
+      linear-gradient(0deg, rgba(247,240,220,.10), rgba(247,240,220,.14));
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+
+  /* Dada poster scraps but integrated as masks and typographic ghosts */
+  .scrap{
+    position:absolute;
+    background:var(--paper);
+    color:var(--ink);
+    text-transform:uppercase;
+    letter-spacing:.22em;
+    white-space:nowrap;
+    transform-origin:center;
+    box-shadow:0 0 0 1px rgba(0,0,0,.08);
+    opacity:.92;
+    mix-blend-mode:multiply;
+    animation: scrapWobble 18s ease-in-out infinite;
+  }
+  .scrap span{
+    display:block;
+    padding:.22em .36em;
+    font-size:clamp(18px, 2vw, 24px);
+    line-height:1;
+  }
+  #s1{left:6%; top:10%; transform:rotate(-7deg); background:#f5efdd;}
+  #s2{right:10%; top:15%; transform:rotate(9deg); background:#ffef7a;}
+  #s3{left:13%; bottom:18%; transform:rotate(5deg); background:#dfe6ff;}
+  #s4{right:8%; bottom:24%; transform:rotate(-11deg); background:#ffd9ca;}
+
+  .ringMask{
+    position:absolute;
+    inset:9% 10%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at center,
+        rgba(255,255,255,0) 0 36%,
+        rgba(247,240,220,.78) 41%,
+        rgba(247,240,220,.15) 49%,
+        rgba(247,240,220,0) 66%);
+    mix-blend-mode:screen;
+    filter:blur(2px);
+    opacity:.72;
+    transform:rotate(0deg) scale(1.08,1.2);
+    animation:ringTurn 52s linear infinite;
+    mask-image: radial-gradient(circle at center, black 0 58%, transparent 83%);
+    -webkit-mask-image: radial-gradient(circle at center, black 0 58%, transparent 83%);
+  }
+
+  .maskText{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+    opacity:.12;
+    mix-blend-mode:multiply;
+    filter: blur(.2px);
+    animation: textRotate 60s linear infinite;
+  }
+  .maskText div{
+    font-size:17vw;
+    font-weight:900;
+    letter-spacing:.08em;
+    transform:rotate(-90deg) scaleY(1.5);
+    color:#000;
+  }
+
+  /* print texture */
+  canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  /* halftone SVG overlay */
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    opacity:.42;
+    mix-blend-mode:multiply;
+  }
+
+  /* edge feather so nothing cuts abruptly */
+  #edgeFade{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to right, rgba(17,17,17,.28), rgba(17,17,17,0) 10%, rgba(17,17,17,0) 90%, rgba(17,17,17,.28)),
+      linear-gradient(to bottom, rgba(17,17,17,.24), rgba(17,17,17,0) 8%, rgba(17,17,17,0) 92%, rgba(17,17,17,.28));
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    font-size:15px;
+    letter-spacing:.14em;
+    color:rgba(20,20,20,.55);
+    z-index:20;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:8px;
+    bottom:148px;
+    opacity:.58;
+    filter:saturate(.9) contrast(.95);
+    z-index:3;
+  }
+
+  @keyframes fieldShift{
+    0%{
+      transform:translate3d(-1.5%, -1%, 0) scale(1.03) rotate(-1.2deg);
+      filter:saturate(1.18) contrast(1.08) hue-rotate(0deg);
+    }
+    25%{
+      transform:translate3d(1.2%, -0.6%, 0) scale(1.06) rotate(.4deg);
+      filter:saturate(1.28) contrast(1.1) hue-rotate(8deg);
+    }
+    50%{
+      transform:translate3d(.8%, 1.2%, 0) scale(1.08) rotate(1.1deg);
+      filter:saturate(1.36) contrast(1.12) hue-rotate(15deg);
+    }
+    75%{
+      transform:translate3d(-1.2%, .5%, 0) scale(1.05) rotate(-.6deg);
+      filter:saturate(1.24) contrast(1.09) hue-rotate(4deg);
+    }
+    100%{
+      transform:translate3d(1.4%, -1.2%, 0) scale(1.09) rotate(.7deg);
+      filter:saturate(1.32) contrast(1.12) hue-rotate(-10deg);
+    }
+  }
+  @keyframes vidDrift{
+    0%{transform:scale(1.03) translate(-1.2%, -1.1%) rotate(-1.2deg)}
+    100%{transform:scale(1.08) translate(1.4%, 1.1%) rotate(1deg)}
+  }
+  @keyframes scrapWobble{
+    0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
+    50%{transform:translateY(8px) rotate(calc(var(--r,0deg) + 1.2deg))}
+  }
+  @keyframes ringTurn{
+    from{transform:rotate(0deg) scale(1.08,1.2)}
+    to{transform:rotate(360deg) scale(1.08,1.2)}
+  }
+  @keyframes textRotate{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(-360deg)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="art">
+      <div id="gradientField"></div>
+      <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+      <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <pattern id="dotsA" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="6" cy="6" r="2.2" fill="#111"/>
+          </pattern>
+          <pattern id="dotsB" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(17)">
+            <circle cx="10" cy="10" r="2.6" fill="#111"/>
+          </pattern>
+          <linearGradient id="fadeVertical" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="white" stop-opacity="0"/>
+            <stop offset="18%" stop-color="white" stop-opacity=".8"/>
+            <stop offset="82%" stop-color="white" stop-opacity=".8"/>
+            <stop offset="100%" stop-color="white" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="softMask">
+            <rect width="1080" height="1920" fill="url(#fadeVertical)"/>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#dotsA)" opacity=".12" mask="url(#softMask)"/>
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#dotsB)" opacity=".07" mask="url(#softMask)"/>
+        <rect x="82" y="122" width="916" height="1676" fill="none" stroke="rgba(20,20,20,.18)" stroke-width="3" rx="28" />
+        <rect x="128" y="168" width="824" height="1584" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2" rx="24" />
+      </svg>
+
+      <div class="maskText"><div>NO&nbsp;NO&nbsp;YES</div></div>
+
+      <div class="ringMask"></div>
+
+      <div id="s1" class="scrap" style="--r:-7deg;"><span>CUT / KEEP / MOVE</span></div>
+      <div id="s2" class="scrap" style="--r:9deg;"><span>VOID BECOMES INK</span></div>
+      <div id="s3" class="scrap" style="--r:5deg;"><span>CHROMA ARGUMENT</span></div>
+      <div id="s4" class="scrap" style="--r:-11deg;"><span>NOTHING, LOUDLY</span></div>
+
+      <div id="paperVeil"></div>
+      <canvas id="paint"></canvas>
+      <div id="edgeFade"></div>
+
+      <img id="guinea-pig" src="guineapig.png" alt="" />
+      <div id="date">2026-05-07</div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const dateSeed = "2026-05-07";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(hashString(dateSeed + "|dada-colorfield-video"));
+
+  const frame = document.getElementById('frame');
+  const canvas = document.getElementById('paint');
+  const ctx = canvas.getContext('2d');
+  let w = 1080, h = 1920, dpr = Math.min(2, window.devicePixelRatio || 1);
+
+  const scraps = [...document.querySelectorAll('.scrap')];
+  scraps.forEach((el, i) => {
+    el.style.fontVariationSettings = '"wght" 900';
+    el.style.left = el.style.left || '';
+  });
+
+  function resize(){
+    const rect = frame.getBoundingClientRect();
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    w = rect.width;
+    h = rect.height;
+    initPaper();
+  }
+
+  let paperNoise;
+  function initPaper(){
+    paperNoise = ctx.createImageData(Math.max(1, Math.floor(w/2)), Math.max(1, Math.floor(h/2)));
+    const data = paperNoise.data;
+    for(let i=0;i<data.length;i+=4){
+      const n = 230 + Math.floor(rand()*25);
+      data[i] = n;
+      data[i+1] = n - Math.floor(rand()*7);
+      data[i+2] = n - Math.floor(rand()*14);
+      data[i+3] = 18 + Math.floor(rand()*18);
+    }
+  }
+
+  function drawPaperTexture(t){
+    ctx.save();
+    const pw = paperNoise.width, ph = paperNoise.height;
+    const off = document.createElement('canvas');
+    off.width = pw; off.height = ph;
+    off.getContext('2d').putImageData(paperNoise,0,0);
+    ctx.globalAlpha = .22;
+    ctx.drawImage(off, 0, 0, w, h);
+    ctx.globalAlpha = .08;
+    for(let y=0; y<h; y+=4){
+      const a = 0.015 + 0.01 * Math.sin(y*0.03 + t*0.00015);
+      ctx.fillStyle = `rgba(70,45,18,${a})`;
+      ctx.fillRect(0,y,w,1);
+    }
+    ctx.restore();
+  }
+
+  function drawTornBands(t){
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    const bands = [
+      {y:h*0.28, hh:h*0.1, c:'rgba(255,239,122,0.17)', ang:-0.08},
+      {y:h*0.56, hh:h*0.12, c:'rgba(38,84,255,0.11)', ang:0.06},
+      {y:h*0.76, hh:h*0.09, c:'rgba(215,38,30,0.12)', ang:-0.04}
+    ];
+    bands.forEach((b, i)=>{
+      ctx.save();
+      ctx.translate(w*0.5, b.y);
+      ctx.rotate(b.ang + Math.sin(t*0.00012 + i)*0.01);
+      const grad = ctx.createLinearGradient(-w*0.6,0,w*0.6,0);
+      grad.addColorStop(0,'rgba(0,0,0,0)');
+      grad.addColorStop(0.15,b.c);
+      grad.addColorStop(0.5,b.c);
+      grad.addColorStop(0.85,b.c);
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(-w*0.65,-b.hh*0.5,w*1.3,b.hh);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  function drawTypeSmears(t){
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const phrases = ['CUT','PASTE','MAYBE','VOID','NO','YES'];
+    const ys = [h*0.18,h*0.34,h*0.5,h*0.66,h*0.82];
+    ys.forEach((yy, row)=>{
+      const word = phrases[(row + 2) % phrases.length];
+      ctx.save();
+      ctx.translate(w/2, yy);
+      ctx.rotate((row%2?1:-1) * (0.04 + 0.01*Math.sin(t*0.00015+row)));
+      ctx.font = `900 ${Math.floor(w*0.14)}px Impact, Arial Black, sans-serif`;
+      const grd = ctx.createLinearGradient(-w*0.35,0,w*0.35,0);
+      grd.addColorStop(0,'rgba(0,0,0,0)');
+      grd.addColorStop(0.22,'rgba(0,0,0,0.035)');
+      grd.addColorStop(0.5,'rgba(0,0,0,0.09)');
+      grd.addColorStop(0.78,'rgba(0,0,0,0.035)');
+      grd.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.fillText(word,0,0);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  function drawVignette(){
+    const g = ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.2,w/2,h/2,Math.max(w,h)*0.72);
+    g.addColorStop(0,'rgba(0,0,0,0)');
+    g.addColorStop(0.72,'rgba(0,0,0,0)');
+    g.addColorStop(1,'rgba(0,0,0,0.18)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+  }
+
+  function frameLoop(t){
+    ctx.clearRect(0,0,w,h);
+    drawPaperTexture(t);
+    drawTornBands(t);
+    drawTypeSmears(t);
+    drawVignette();
+    requestAnimationFrame(frameLoop);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(frameLoop);
+
+  if (window.self === window.top) {
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const now = ac.currentTime;
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      const filter = ac.createBiquadFilter();
+      const slow = ac.createGain();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sawtooth';
+      osc1.frequency.value = 98;
+      osc2.frequency.value = 147;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 480;
+      filter.Q.value = 0.4;
+
+      slow.gain.value = 0.6;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.031;
+      lfoGain.gain.value = 90;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      osc1.connect(slow);
+      osc2.connect(slow);
+      slow.connect(filter);
+      filter.connect(master);
+
+      osc1.start(now);
+      osc2.start(now);
+      lfo.start(now);
+
+      function modulate(){
+        const t = ac.currentTime;
+        osc1.frequency.linearRampToValueAtTime(92 + 18*Math.sin(t/11), t + 6);
+        osc2.frequency.linearRampToValueAtTime(138 + 22*Math.cos(t/13), t + 6);
+        master.gain.linearRampToValueAtTime(0.014 + 0.008*(0.5+0.5*Math.sin(t/17)), t + 6);
+        setTimeout(modulate, 5000);
+      }
+      setTimeout(modulate, 1200);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
