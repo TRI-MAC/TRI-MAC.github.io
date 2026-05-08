@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Artwork</title>
+<style>
+  :root{
+    --bg0:#09060b;
+    --bg1:#1a0e14;
+    --wine:#5b1224;
+    --carmine:#a71f32;
+    --gold:#d9a94d;
+    --amber:#f1c56b;
+    --bone:#f4ead7;
+    --ink:#140d11;
+    --violet:#3a1639;
+    --crimson:#c92a36;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 20%, #2a1218 0%, #120b10 34%, #070609 70%, #000 100%);
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 50% 18%, rgba(206,149,66,.16), transparent 33%),
+      radial-gradient(ellipse at 20% 35%, rgba(167,31,50,.15), transparent 28%),
+      radial-gradient(ellipse at 80% 70%, rgba(105,28,49,.18), transparent 30%),
+      linear-gradient(180deg, #140d12 0%, #09070a 45%, #140c10 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,220,160,.08),
+      0 30px 70px rgba(0,0,0,.6);
+  }
+
+  .fade-edge{
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.18) 75%, rgba(0,0,0,.45) 100%),
+      linear-gradient(90deg, rgba(0,0,0,.5), transparent 10%, transparent 90%, rgba(0,0,0,.5)),
+      linear-gradient(180deg, rgba(0,0,0,.45), transparent 10%, transparent 90%, rgba(0,0,0,.45));
+    mix-blend-mode:multiply;
+  }
+
+  #backTexture, #paintTexture, #filmCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  #backTexture{ opacity:.92; }
+  #paintTexture{ opacity:.62; mix-blend-mode:screen; }
+  #filmCanvas{ z-index:5; }
+
+  .glow-field{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(circle at 47% 18%, rgba(255,220,140,.16), transparent 18%),
+      radial-gradient(circle at 50% 50%, rgba(190,45,55,.10), transparent 24%),
+      radial-gradient(circle at 52% 81%, rgba(255,198,107,.12), transparent 16%);
+    filter:blur(30px);
+    animation: breathe 28s ease-in-out infinite;
+    z-index:1;
+    pointer-events:none;
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.05) translateY(-1.5%)}
+  }
+
+  #filmStrip{
+    position:absolute;
+    left:50%;
+    top:-20%;
+    width:68%;
+    height:140%;
+    transform:translateX(-50%) rotate(-5.8deg);
+    z-index:6;
+    animation: scrollStrip 42s linear infinite;
+    filter:
+      drop-shadow(0 25px 35px rgba(0,0,0,.55))
+      drop-shadow(0 0 18px rgba(217,169,77,.08));
+    mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.9) 10%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 82%, rgba(0,0,0,.9) 90%, transparent 100%);
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.9) 10%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 82%, rgba(0,0,0,.9) 90%, transparent 100%);
+  }
+  @keyframes scrollStrip{
+    from{ transform:translateX(-50%) rotate(-5.8deg) translateY(0); }
+    to{ transform:translateX(-50%) rotate(-5.8deg) translateY(-25%); }
+  }
+
+  .strip-core{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg,
+        rgba(16,12,14,.98) 0%,
+        rgba(34,24,26,.98) 8%,
+        rgba(74,53,43,.96) 15%,
+        rgba(37,28,24,.95) 23%,
+        rgba(35,27,23,.95) 77%,
+        rgba(78,54,41,.96) 85%,
+        rgba(29,23,24,.98) 92%,
+        rgba(11,9,11,.98) 100%);
+    border-radius:28px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,236,186,.12),
+      inset 0 0 50px rgba(0,0,0,.5);
+  }
+
+  .perfs{
+    position:absolute; top:2%; bottom:2%; width:10%;
+    display:grid;
+    grid-template-rows:repeat(14, 1fr);
+    gap:1.2%;
+    padding:1.4% 1%;
+  }
+  .perfs.left{left:1.8%}
+  .perfs.right{right:1.8%}
+  .perf{
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255,222,168,.08), transparent 50%),
+      linear-gradient(180deg, #090708, #221719 35%, #130f10 100%);
+    border-radius:6px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,235,190,.06),
+      inset 0 -2px 5px rgba(255,220,130,.05),
+      0 0 0 1px rgba(0,0,0,.18);
+  }
+
+  .frames{
+    position:absolute;
+    left:14%;
+    width:72%;
+    top:2%;
+    display:grid;
+    grid-template-rows:repeat(7, 1fr);
+    gap:1.55%;
+    height:96%;
+  }
+  .frame{
+    position:relative;
+    overflow:hidden;
+    border-radius:8px;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(250,214,136,.2), transparent 18%),
+      linear-gradient(180deg, rgba(33,17,18,.96), rgba(16,10,12,.99));
+    border:1px solid rgba(255,221,170,.14);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,245,215,.03),
+      inset 0 -40px 55px rgba(0,0,0,.35);
+  }
+
+  .frame .innerGold{
+    position:absolute; inset:3.5%;
+    border:1px solid rgba(231,187,94,.18);
+    border-radius:6px;
+    pointer-events:none;
+  }
+
+  .frame .swatch{
+    position:absolute; inset:0;
+    opacity:.9;
+    mix-blend-mode:screen;
+  }
+
+  .frame .arch{
+    position:absolute;
+    left:50%;
+    top:7%;
+    width:68%;
+    height:72%;
+    transform:translateX(-50%);
+    border-radius:50% 50% 16% 16% / 26% 26% 10% 10%;
+    background:
+      radial-gradient(ellipse at 50% 22%, rgba(255,225,162,.22), transparent 28%),
+      linear-gradient(180deg, rgba(58,22,57,.7), rgba(118,20,37,.42) 55%, rgba(17,10,13,.12));
+    filter:blur(.2px);
+    opacity:.92;
+    mask-image:radial-gradient(ellipse at 50% 42%, rgba(0,0,0,1) 0 57%, rgba(0,0,0,.55) 73%, transparent 100%);
+    -webkit-mask-image:radial-gradient(ellipse at 50% 42%, rgba(0,0,0,1) 0 57%, rgba(0,0,0,.55) 73%, transparent 100%);
+  }
+
+  .frame .slash{
+    position:absolute;
+    left:-8%;
+    top:45%;
+    width:118%;
+    height:18%;
+    transform-origin:center;
+    background:
+      linear-gradient(90deg, transparent 0%, rgba(255,225,166,.06) 10%, rgba(188,41,53,.7) 38%, rgba(255,202,118,.28) 50%, rgba(120,18,44,.62) 67%, transparent 100%);
+    filter:blur(2px);
+    opacity:.8;
+  }
+
+  .frame .slash.s2{
+    top:58%;
+    height:12%;
+    opacity:.55;
+  }
+
+  .frame .halo{
+    position:absolute;
+    width:36%;
+    aspect-ratio:1;
+    left:50%;
+    top:18%;
+    transform:translateX(-50%);
+    border-radius:50%;
+    border:2px solid rgba(229,180,82,.26);
+    box-shadow:0 0 22px rgba(229,180,82,.12), inset 0 0 22px rgba(229,180,82,.08);
+    opacity:.7;
+    mask-image:radial-gradient(circle, rgba(0,0,0,1) 0 70%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle, rgba(0,0,0,1) 0 70%, transparent 100%);
+  }
+
+  #art-image{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:58%;
+    height:56%;
+    object-fit:cover;
+    transform:translate(-50%,-50%);
+    opacity:.96;
+    z-index:4;
+    filter:
+      saturate(1.1)
+      contrast(1.06)
+      sepia(.12)
+      hue-rotate(-8deg)
+      drop-shadow(0 18px 30px rgba(0,0,0,.45));
+    clip-path:ellipse(34% 40% at 50% 49%);
+    mix-blend-mode:normal;
+    animation: imagePulse 23s ease-in-out infinite;
+    mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0 56%, rgba(0,0,0,.92) 66%, rgba(0,0,0,.45) 77%, transparent 94%);
+    -webkit-mask-image:
+      radial-gradient(ellipse at center, rgba(0,0,0,1) 0 56%, rgba(0,0,0,.92) 66%, rgba(0,0,0,.45) 77%, transparent 94%);
+  }
+
+  @keyframes imagePulse{
+    0%,100%{transform:translate(-50%,-50%) scale(1) rotate(-1.2deg)}
+    50%{transform:translate(-50%,-50%) scale(1.035) rotate(1deg)}
+  }
+
+  .central-vignette{
+    position:absolute; inset:8% 9%;
+    z-index:3;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 52%, transparent 0 28%, rgba(18,10,13,.08) 42%, rgba(11,8,10,.26) 62%, transparent 78%);
+    filter:blur(5px);
+  }
+
+  .gilded-rays{
+    position:absolute;
+    inset:-10%;
+    z-index:2;
+    pointer-events:none;
+    opacity:.34;
+    background:
+      conic-gradient(from 0deg at 50% 50%,
+      transparent 0 8deg,
+      rgba(224,183,93,.16) 8deg 9deg,
+      transparent 9deg 24deg,
+      rgba(224,183,93,.11) 24deg 25deg,
+      transparent 25deg 41deg,
+      rgba(224,183,93,.12) 41deg 42deg,
+      transparent 42deg 60deg,
+      rgba(224,183,93,.09) 60deg 61deg,
+      transparent 61deg 360deg);
+    mask-image:radial-gradient(circle at center, transparent 0 24%, rgba(0,0,0,.95) 42%, transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at center, transparent 0 24%, rgba(0,0,0,.95) 42%, transparent 78%);
+    animation: slowRotate 80s linear infinite;
+  }
+
+  @keyframes slowRotate{
+    from{transform:rotate(0deg) scale(1)}
+    to{transform:rotate(360deg) scale(1)}
+  }
+
+  .date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    color:rgba(244,234,215,.6);
+    font-size:14px;
+    letter-spacing:.12em;
+    z-index:20;
+    text-shadow:0 1px 0 rgba(0,0,0,.45);
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    right:78px;
+    bottom:108px;
+    opacity:.58;
+    z-index:7;
+    filter:sepia(.35) saturate(.75) brightness(.82);
+    transform:rotate(-8deg);
+  }
+
+  .veil{
+    position:absolute; inset:0; z-index:8; pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,215,155,.03), transparent 18%, transparent 82%, rgba(255,215,155,.04)),
+      linear-gradient(90deg, rgba(0,0,0,.24), transparent 12%, transparent 88%, rgba(0,0,0,.26));
+    mix-blend-mode:screen;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="backTexture" width="1080" height="1920"></canvas>
+    <div class="glow-field"></div>
+    <div class="gilded-rays"></div>
+    <img id="art-image" src="art.png" alt="">
+    <div class="central-vignette"></div>
+
+    <div id="filmStrip" aria-hidden="true">
+      <div class="strip-core"></div>
+      <div class="perfs left">
+        <div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div>
+      </div>
+      <div class="perfs right">
+        <div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div><div class="perf"></div>
+      </div>
+      <div class="frames" id="frames"></div>
+    </div>
+
+    <canvas id="filmCanvas" width="1080" height="1920"></canvas>
+    <canvas id="paintTexture" width="1080" height="1920"></canvas>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div class="veil"></div>
+    <div class="fade-edge"></div>
+    <div class="date">2026-05-08</div>
+  </div>
+
+<script>
+(function(){
+  const seedStr = "2026-05-08";
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand(){ seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; }
+  function r(a,b){ return a + (b-a)*rand(); }
+
+  const framesEl = document.getElementById('frames');
+  for(let i=0;i<7;i++){
+    const f = document.createElement('div');
+    f.className = 'frame';
+    const gold = document.createElement('div'); gold.className = 'innerGold';
+    const sw = document.createElement('div'); sw.className = 'swatch';
+    const arch = document.createElement('div'); arch.className = 'arch';
+    const halo = document.createElement('div'); halo.className = 'halo';
+    const s1 = document.createElement('div'); s1.className = 'slash';
+    const s2 = document.createElement('div'); s2.className = 'slash s2';
+
+    const hue = 350 + i*3;
+    const angle = -20 + i*6;
+    sw.style.background = `
+      radial-gradient(circle at ${50 + (i-3)*2}% ${20 + i*4}%, rgba(245,211,131,.22), transparent 19%),
+      linear-gradient(${angle}deg, rgba(185,32,52,.75), rgba(87,18,35,.08) 28%, rgba(244,204,112,.20) 51%, rgba(43,18,39,.14) 66%, rgba(130,19,39,.62) 100%)
+    `;
+    s1.style.transform = `rotate(${(-15 + i*3)}deg) scaleX(${0.93 + i*0.03})`;
+    s2.style.transform = `rotate(${(8 - i*2)}deg) scaleX(${1.02 - i*0.025})`;
+    arch.style.opacity = 0.76 + i*0.025;
+    halo.style.transform = `translateX(-50%) scale(${0.85 + i*0.055})`;
+    f.appendChild(sw); f.appendChild(arch); f.appendChild(halo); f.appendChild(s1); f.appendChild(s2); f.appendChild(gold);
+    framesEl.appendChild(f);
+  }
+
+  function paintBackground(){
+    const c = document.getElementById('backTexture');
+    const ctx = c.getContext('2d');
+    const w=c.width,h=c.height;
+
+    ctx.clearRect(0,0,w,h);
+
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#120b10');
+    g.addColorStop(.45,'#1a0d13');
+    g.addColorStop(1,'#09060a');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,w,h);
+
+    for(let i=0;i<12;i++){
+      const rg = ctx.createRadialGradient(r(200,880), r(160,1700), 10, r(200,880), r(160,1700), r(180,440));
+      const hue = i%3===0 ? 'rgba(212,165,82,' : i%3===1 ? 'rgba(163,28,49,' : 'rgba(84,19,52,';
+      rg.addColorStop(0, hue + (0.08 + rand()*0.06) + ')');
+      rg.addColorStop(1, hue + '0)');
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(r(150,930), r(120,1800), r(160,420), 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    for(let i=0;i<24;i++){
+      const x=r(60,1020), y=r(80,1840), rw=r(140,420), rh=r(50,180), rot=r(-1.2,1.2);
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(rot);
+      const lg=ctx.createLinearGradient(-rw/2,0,rw/2,0);
+      lg.addColorStop(0,'rgba(255,212,130,0)');
+      lg.addColorStop(.5, i%2 ? 'rgba(165,35,50,0.12)' : 'rgba(228,181,90,0.10)');
+      lg.addColorStop(1,'rgba(255,212,130,0)');
+      ctx.fillStyle=lg;
+      ctx.fillRect(-rw/2,-rh/2,rw,rh);
+      ctx.restore();
+    }
+
+    ctx.globalAlpha=.08;
+    for(let i=0;i<4500;i++){
+      const x=rand()*w, y=rand()*h;
+      const a=rand()*0.5+0.2;
+      ctx.fillStyle = rand()>.82 ? `rgba(248,228,191,${a})` : `rgba(0,0,0,${a*0.7})`;
+      ctx.fillRect(x,y,1,1);
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function drawPainterlyOverlay(t){
+    const c = document.getElementById('paintTexture');
+    const ctx = c.getContext('2d');
+    const w=c.width,h=c.height;
+    ctx.clearRect(0,0,w,h);
+
+    ctx.globalCompositeOperation='source-over';
+
+    const bands = [
+      {x:w*0.16, y:h*(0.18+0.01*Math.sin(t*0.00014)), rot:-0.75, len:w*0.5, thick:120, col:'rgba(207,43,58,0.16)'},
+      {x:w*0.72, y:h*(0.31+0.01*Math.cos(t*0.00011)), rot:0.58, len:w*0.46, thick:92, col:'rgba(238,191,92,0.14)'},
+      {x:w*0.52, y:h*(0.64+0.01*Math.sin(t*0.00013+2)), rot:-0.24, len:w*0.62, thick:135, col:'rgba(112,24,62,0.17)'},
+      {x:w*0.36, y:h*(0.84+0.008*Math.cos(t*0.00015)), rot:0.92, len:w*0.42, thick:88, col:'rgba(244,220,160,0.11)'}
+    ];
+
+    bands.forEach((b,idx)=>{
+      ctx.save();
+      ctx.translate(b.x,b.y);
+      ctx.rotate(b.rot + 0.05*Math.sin(t*0.0001+idx));
+      const lg = ctx.createLinearGradient(-b.len/2,0,b.len/2,0);
+      lg.addColorStop(0,'rgba(0,0,0,0)');
+      lg.addColorStop(.18,b.col);
+      lg.addColorStop(.5,b.col.replace(/0\.\d+\)/, (0.22 + idx*0.02)+')'));
+      lg.addColorStop(.82,b.col);
+      lg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=lg;
+      ctx.beginPath();
+      ctx.rect(-b.len/2,-b.thick/2,b.len,b.thick);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    ctx.globalCompositeOperation='screen';
+    for(let i=0;i<8;i++){
+      const x=w*(0.17 + i*0.095 + 0.01*Math.sin(t*0.0001+i));
+      const y=h*(0.18 + i*0.09);
+      const rr=95 + i*9 + 10*Math.sin(t*0.00012+i);
+      const rg = ctx.createRadialGradient(x,y,0,x,y,rr);
+      rg.addColorStop(0, i%2 ? 'rgba(255,223,160,0.085)' : 'rgba(194,38,48,0.07)');
+      rg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=rg;
+      ctx.beginPath();
+      ctx.arc(x,y,rr,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation='source-over';
+  }
+
+  function drawFilmScene(t){
+    const c=document.getElementById('filmCanvas');
+    const ctx=c.getContext('2d');
+    const w=c.width,h=c.height;
+    ctx.clearRect(0,0,w,h);
+
+    const centerX = w*0.5;
+    const centerY = h*0.53;
+    const drift = Math.sin(t*0.00008)*18;
+
+    const layers = 7;
+    for(let i=0;i<layers;i++){
+      const phase = i*0.55 + t*0.00011;
+      const y = centerY - 450 + i*150 + Math.sin(phase)*14;
+      const x = centerX + Math.sin(phase*0.7)*38 - i*8;
+      const rw = 560 - i*38;
+      const rh = 185 - i*12;
+      const rot = -0.28 + i*0.08 + Math.sin(phase)*0.018;
+
+      ctx.save();
+      ctx.translate(x+drift*0.15, y);
+      ctx.rotate(rot);
+      const lg = ctx.createLinearGradient(-rw/2,0,rw/2,0);
+      if(i%2===0){
+        lg.addColorStop(0,'rgba(42,16,29,0)');
+        lg.addColorStop(.18,'rgba(126,20,43,0.20)');
+        lg.addColorStop(.48,'rgba(218,171,81,0.10)');
+        lg.addColorStop(.82,'rgba(112,18,35,0.22)');
+        lg.addColorStop(1,'rgba(42,16,29,0)');
+      }else{
+        lg.addColorStop(0,'rgba(41,17,39,0)');
+        lg.addColorStop(.2,'rgba(221,182,91,0.13)');
+        lg.addColorStop(.54,'rgba(158,26,53,0.19)');
+        lg.addColorStop(.86,'rgba(73,19,50,0.18)');
+        lg.addColorStop(1,'rgba(41,17,39,0)');
+      }
+      ctx.fillStyle=lg;
+      ctx.fillRect(-rw/2,-rh/2,rw,rh);
+      ctx.restore();
+    }
+
+    const beamRot = -0.72 + Math.sin(t*0.00015)*0.03;
+    ctx.save();
+    ctx.translate(centerX-120, centerY+80);
+    ctx.rotate(beamRot);
+    const beam = ctx.createLinearGradient(-320,0,320,0);
+    beam.addColorStop(0,'rgba(0,0,0,0)');
+    beam.addColorStop(.25,'rgba(170,28,44,0.26)');
+    beam.addColorStop(.52,'rgba(255,221,142,0.18)');
+    beam.addColorStop(.78,'rgba(110,18,52,0.24)');
+    beam.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=beam;
+    ctx.fillRect(-320,-86,640,172);
+    ctx.restore();
+
+    for(let i=0;i<5;i++){
+      const radius = 84 + i*34 + 6*Math.sin(t*0.00014+i);
+      ctx.beginPath();
+      ctx.strokeStyle = i%2 ? 'rgba(224,179,88,0.12)' : 'rgba(122,23,54,0.14)';
+      ctx.lineWidth = i===0 ? 10 : 6;
+      ctx.arc(centerX + Math.sin(t*0.00008+i)*18, centerY - 120 + i*6, radius, 0, Math.PI*2);
+      ctx.stroke();
+    }
+
+    const shards = 18;
+    for(let i=0;i<shards;i++){
+      const ang = -1.12 + i*(2.18/(shards-1)) + Math.sin(t*0.00006+i)*0.02;
+      const len = 220 + (i%5)*55;
+      const wid = 26 + (i%4)*7;
+      ctx.save();
+      ctx.translate(centerX + Math.cos(ang)*55, centerY + Math.sin(ang)*55 - 80);
+      ctx.rotate(ang);
+      const lg = ctx.createLinearGradient(0,-wid/2,0,wid/2);
+      lg.addColorStop(0,'rgba(255,219,136,0)');
+      lg.addColorStop(.5, i%2 ? 'rgba(205,35,50,0.22)' : 'rgba(234,187,92,0.18)');
+      lg.addColorStop(1,'rgba(255,219,136,0)');
+      ctx.fillStyle = lg;
+      ctx.beginPath();
+      ctx.moveTo(0,-wid/2);
+      ctx.lineTo(len,-wid*0.22);
+      ctx.lineTo(len,wid*0.22);
+      ctx.lineTo(0,wid/2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    const rg = ctx.createRadialGradient(centerX, centerY-120, 0, centerX, centerY-120, 320);
+    rg.addColorStop(0,'rgba(255,226,157,0.16)');
+    rg.addColorStop(.25,'rgba(212,164,79,0.11)');
+    rg.addColorStop(.55,'rgba(153,30,45,0.09)');
+    rg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rg;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY-120, 320, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  paintBackground();
+  let last = 0;
+  function animate(ts){
+    drawFilmScene(ts);
+    drawPainterlyOverlay(ts);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.016;
+      master.connect(ac.destination);
+
+      const now = ac.currentTime;
+      const tones = [110, 164.81, 220, 329.63];
+      tones.forEach((freq, i)=>{
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        const lfo = ac.createOscillator();
+        const lfoG = ac.createGain();
+        o.type = i%2 ? 'triangle' : 'sine';
+        o.frequency.value = freq;
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.018 + i*0.006;
+        lfoG.gain.value = 1.6 + i*0.4;
+        lfo.connect(lfoG);
+        lfoG.connect(o.frequency);
+        g.gain.value = 0.001 + i*0.0006;
+        o.connect(g);
+        g.connect(master);
+        o.start(now);
+        lfo.start(now);
+      });
+
+      const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.16;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+      const bp = ac.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 640;
+      bp.Q.value = 0.9;
+      const ng = ac.createGain();
+      ng.gain.value = 0.0035;
+      noise.connect(bp); bp.connect(ng); ng.connect(master);
+      noise.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
