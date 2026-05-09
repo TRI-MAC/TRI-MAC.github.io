@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative Art 2026-05-09</title>
+<style>
+  :root{
+    --bg1:#ff6a00;
+    --bg2:#f20c7a;
+    --bg3:#16b8a8;
+    --bg4:#ffe34d;
+    --ink:#101010;
+    --paper:#fbe9c7;
+    --blue:#1d56d8;
+    --green:#1fa85f;
+    --red:#e71f34;
+    --purple:#7d2ae8;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(130% 95% at 50% 28%, rgba(255,241,185,.95) 0%, rgba(255,208,73,.84) 18%, rgba(255,113,37,.78) 44%, rgba(233,30,99,.8) 69%, rgba(110,39,180,.82) 100%),
+      linear-gradient(180deg,var(--bg2),var(--bg1));
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 30px 80px rgba(0,0,0,.45);
+    isolation:isolate;
+  }
+
+  #screenGlow{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(80% 55% at 50% 40%, rgba(255,250,220,.78), rgba(255,233,145,.55) 28%, rgba(255,124,43,.18) 53%, rgba(0,0,0,0) 73%),
+      radial-gradient(110% 90% at 50% 48%, rgba(255,204,70,.18), rgba(0,0,0,0) 72%);
+    mix-blend-mode:screen;
+    opacity:.95;
+    animation: breatheGlow 18s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  #background-video{
+    position:absolute;
+    left:6%;
+    top:7%;
+    width:88%;
+    height:86%;
+    object-fit:cover;
+    opacity:.8;
+    filter:saturate(1.35) contrast(1.1) sepia(.15) hue-rotate(-8deg);
+    mix-blend-mode:multiply;
+    clip-path:ellipse(40% 46% at 50% 42%);
+    transform-origin:center center;
+    animation: videoDrift 34s ease-in-out infinite;
+  }
+
+  #paintCanvas, #shadowCanvas, #grainCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #paperMask{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(95% 80% at 50% 42%, rgba(255,243,215,.75) 0%, rgba(255,232,186,.28) 28%, rgba(0,0,0,0) 66%);
+    mix-blend-mode:screen;
+    opacity:.75;
+    pointer-events:none;
+  }
+
+  .proscenium{
+    position:absolute;
+    inset:2.5%;
+    border-radius:44% 44% 8% 8% / 22% 22% 5% 5%;
+    overflow:hidden;
+    -webkit-mask-image: radial-gradient(135% 110% at 50% 38%, #000 0 74%, transparent 90%);
+            mask-image: radial-gradient(135% 110% at 50% 38%, #000 0 74%, transparent 90%);
+    pointer-events:none;
+  }
+
+  .curtain{
+    position:absolute;
+    top:-3%;
+    width:31%;
+    height:72%;
+    background:
+      linear-gradient(90deg, rgba(115,0,20,.95), rgba(195,20,44,.96) 16%, rgba(136,0,28,.96) 34%, rgba(217,45,66,.95) 52%, rgba(127,0,35,.96) 70%, rgba(216,56,71,.94) 84%, rgba(96,0,19,.97)),
+      repeating-linear-gradient(90deg, rgba(255,190,160,.12) 0 14px, rgba(0,0,0,0) 14px 34px);
+    filter:saturate(1.25) contrast(1.12);
+    box-shadow: inset -18px 0 28px rgba(0,0,0,.22), inset 18px 0 28px rgba(255,180,140,.12);
+    opacity:.92;
+  }
+  .curtain.left{
+    left:-8%;
+    border-radius:0 0 62% 18% / 0 0 48% 15%;
+    transform-origin:left top;
+    animation: curtainSwayL 20s ease-in-out infinite;
+  }
+  .curtain.right{
+    right:-8%;
+    border-radius:0 0 18% 62% / 0 0 15% 48%;
+    transform-origin:right top;
+    animation: curtainSwayR 20s ease-in-out infinite;
+  }
+  .topValance{
+    position:absolute;
+    left:-5%; right:-5%; top:-3%;
+    height:20%;
+    background:
+      radial-gradient(circle at 8% 82%, rgba(255,176,120,.28) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 21% 84%, rgba(255,176,120,.28) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 34% 85%, rgba(255,176,120,.24) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 47% 86%, rgba(255,176,120,.24) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 60% 84%, rgba(255,176,120,.25) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 73% 82%, rgba(255,176,120,.26) 0 10%, rgba(0,0,0,0) 11%),
+      radial-gradient(circle at 86% 84%, rgba(255,176,120,.24) 0 10%, rgba(0,0,0,0) 11%),
+      linear-gradient(180deg, rgba(120,3,18,.96), rgba(193,22,38,.96) 55%, rgba(134,7,24,.98));
+    border-radius:0 0 52% 52% / 0 0 48% 48%;
+    box-shadow: inset 0 -16px 25px rgba(0,0,0,.26);
+    animation: valancePulse 22s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  .footlights{
+    position:absolute;
+    left:9%;
+    right:9%;
+    bottom:8%;
+    height:7%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 8% 50%, rgba(255,230,140,.9) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 20% 54%, rgba(255,230,140,.9) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 32% 52%, rgba(255,230,140,.88) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 44% 55%, rgba(255,230,140,.86) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 56% 52%, rgba(255,230,140,.88) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 68% 54%, rgba(255,230,140,.88) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(circle at 80% 52%, rgba(255,230,140,.9) 0 8px, rgba(255,140,0,.28) 9px, rgba(0,0,0,0) 26px),
+      radial-gradient(100% 170% at 50% 40%, rgba(0,0,0,.22), rgba(0,0,0,0));
+    opacity:.7;
+    filter:blur(.2px);
+    animation: footlightWarmth 16s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  .paintField{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.9;
+    mix-blend-mode:multiply;
+  }
+  .paintField::before,
+  .paintField::after{
+    content:"";
+    position:absolute;
+    inset:-5%;
+    background:
+      radial-gradient(45% 18% at 38% 26%, rgba(36,139,255,.52), rgba(0,0,0,0) 70%),
+      radial-gradient(54% 22% at 70% 24%, rgba(18,195,140,.48), rgba(0,0,0,0) 74%),
+      radial-gradient(56% 26% at 42% 69%, rgba(230,32,60,.4), rgba(0,0,0,0) 72%),
+      radial-gradient(38% 16% at 68% 61%, rgba(255,235,70,.42), rgba(0,0,0,0) 68%);
+    filter:blur(18px) saturate(1.15);
+    animation: smearMoveA 24s ease-in-out infinite;
+  }
+  .paintField::after{
+    background:
+      radial-gradient(40% 18% at 30% 42%, rgba(255,92,0,.36), rgba(0,0,0,0) 72%),
+      radial-gradient(30% 16% at 76% 42%, rgba(111,42,232,.32), rgba(0,0,0,0) 72%),
+      radial-gradient(34% 14% at 54% 82%, rgba(0,122,255,.28), rgba(0,0,0,0) 70%);
+    filter:blur(24px);
+    animation: smearMoveB 30s ease-in-out infinite reverse;
+  }
+
+  #portraitWrap{
+    position:absolute;
+    left:50%;
+    top:44%;
+    width:42%;
+    height:35%;
+    transform:translate(-50%,-50%) rotate(-5deg);
+    pointer-events:none;
+    opacity:.98;
+    animation: cameoFloat 26s ease-in-out infinite;
+  }
+  .cameo-shadow{
+    position:absolute;
+    inset:2%;
+    border-radius:50% / 58%;
+    background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,.42), rgba(0,0,0,.12) 58%, rgba(0,0,0,0) 72%);
+    filter:blur(10px);
+    transform:translateY(4%) scale(1.04,1.02);
+  }
+  .ring{
+    position:absolute;
+    border-radius:50% / 58%;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .ring.r1{
+    width:100%; height:100%;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 56%, rgba(255,215,64,.95) 60%, rgba(255,129,0,.88) 66%, rgba(129,34,179,.65) 73%, rgba(0,0,0,0) 79%);
+    filter:blur(.2px) saturate(1.4);
+    opacity:.9;
+  }
+  .ring.r2{
+    width:88%; height:88%;
+    box-shadow:
+      0 0 0 3px rgba(255,241,190,.6) inset,
+      0 0 0 10px rgba(223,35,92,.28) inset,
+      0 0 38px rgba(255,140,40,.2);
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 69%, rgba(28,18,14,.35) 72%, rgba(0,0,0,0) 77%);
+    mix-blend-mode:multiply;
+  }
+  .ring.r3{
+    width:108%; height:108%;
+    background:
+      conic-gradient(from 0deg, rgba(255,239,110,.0), rgba(255,239,110,.3), rgba(255,104,0,.0), rgba(50,140,255,.22), rgba(255,239,110,.0));
+    filter:blur(10px);
+    opacity:.55;
+    animation: haloTurn 50s linear infinite;
+  }
+  #portrait-image{
+    position:absolute;
+    inset:10% 13%;
+    width:74%;
+    height:80%;
+    object-fit:cover;
+    border-radius:50% / 58%;
+    filter:saturate(1.55) contrast(1.1) hue-rotate(-6deg) sepia(.16);
+    mix-blend-mode:multiply;
+    opacity:.95;
+    box-shadow:0 0 0 2px rgba(253,227,160,.42);
+  }
+  .cameo-mask{
+    position:absolute;
+    inset:8% 11%;
+    border-radius:50% / 58%;
+    overflow:hidden;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 0 63%, rgba(0,0,0,.92) 73%, rgba(0,0,0,.32) 88%, transparent 100%);
+            mask-image: radial-gradient(ellipse at center, #000 0 63%, rgba(0,0,0,.92) 73%, rgba(0,0,0,.32) 88%, transparent 100%);
+  }
+  .cameo-grain{
+    position:absolute;
+    inset:9% 12%;
+    border-radius:50% / 58%;
+    overflow:hidden;
+    mix-blend-mode:overlay;
+    opacity:.3;
+  }
+  .cameo-grain::before{
+    content:"";
+    position:absolute; inset:-20%;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 2px, rgba(0,0,0,0) 2px 5px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 1px, rgba(0,0,0,0) 1px 4px);
+    filter:blur(.2px);
+    transform:rotate(8deg) scale(1.1);
+  }
+
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    overflow:visible;
+  }
+  .fauve-patch{
+    mix-blend-mode:multiply;
+    opacity:.78;
+    animation: patchShift 18s ease-in-out infinite;
+  }
+  .fauve-patch.alt{
+    mix-blend-mode:screen;
+    opacity:.48;
+    animation-duration:24s;
+  }
+  .symbol{
+    fill:#141414;
+    opacity:.88;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:17px;
+    left:18px;
+    bottom:144px;
+    opacity:.58;
+    filter:saturate(.95) contrast(1.02);
+    transform:rotate(-9deg);
+    z-index:8;
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(255,245,220,.58);
+    font-size:12px;
+    letter-spacing:.18em;
+    z-index:20;
+    user-select:none;
+    pointer-events:none;
+  }
+
+  @keyframes videoDrift{
+    0%,100%{transform:scale(1.04) rotate(-1.2deg) translateY(0)}
+    50%{transform:scale(1.09) rotate(1.1deg) translateY(1.2%)}
+  }
+  @keyframes breatheGlow{
+    0%,100%{transform:scale(1); opacity:.92}
+    50%{transform:scale(1.03); opacity:1}
+  }
+  @keyframes curtainSwayL{
+    0%,100%{transform:rotate(1deg) translateX(0)}
+    50%{transform:rotate(-2deg) translateX(1.5%)}
+  }
+  @keyframes curtainSwayR{
+    0%,100%{transform:rotate(-1deg) translateX(0)}
+    50%{transform:rotate(2deg) translateX(-1.5%)}
+  }
+  @keyframes valancePulse{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(.8%)}
+  }
+  @keyframes footlightWarmth{
+    0%,100%{opacity:.62}
+    50%{opacity:.8}
+  }
+  @keyframes smearMoveA{
+    0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+    50%{transform:translate(1.5%,-1%) rotate(2deg) scale(1.04)}
+  }
+  @keyframes smearMoveB{
+    0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+    50%{transform:translate(-1%,1.2%) rotate(-2deg) scale(1.05)}
+  }
+  @keyframes cameoFloat{
+    0%,100%{transform:translate(-50%,-50%) rotate(-5deg) scale(1)}
+    50%{transform:translate(-50%,-49.2%) rotate(-2deg) scale(1.025)}
+  }
+  @keyframes haloTurn{
+    from{transform:translate(-50%,-50%) rotate(0deg)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+  }
+  @keyframes patchShift{
+    0%,100%{transform:translate(0,0) rotate(0deg)}
+    50%{transform:translate(0,-8px) rotate(1.4deg)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <div class="paintField"></div>
+    <div id="screenGlow"></div>
+    <div id="paperMask"></div>
+
+    <div class="proscenium">
+      <div class="topValance"></div>
+      <div class="curtain left"></div>
+      <div class="curtain right"></div>
+    </div>
+
+    <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="soften" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="5"/>
+        </filter>
+        <filter id="grainy" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="20260509" result="t"/>
+          <feColorMatrix in="t" type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncA type="table" tableValues="0 0 .07 .12"/>
+          </feComponentTransfer>
+        </filter>
+        <radialGradient id="patchYellow" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#fff1a6"/>
+          <stop offset="70%" stop-color="#ffc72e"/>
+          <stop offset="100%" stop-color="rgba(255,199,46,0)"/>
+        </radialGradient>
+        <radialGradient id="patchBlue" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#39a1ff"/>
+          <stop offset="100%" stop-color="rgba(57,161,255,0)"/>
+        </radialGradient>
+        <radialGradient id="patchRed" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#ff4b54"/>
+          <stop offset="100%" stop-color="rgba(255,75,84,0)"/>
+        </radialGradient>
+        <radialGradient id="patchGreen" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#16c67c"/>
+          <stop offset="100%" stop-color="rgba(22,198,124,0)"/>
+        </radialGradient>
+        <mask id="edgeFade">
+          <rect width="1080" height="1920" fill="url(#fadeRect)"/>
+        </mask>
+        <radialGradient id="fadeRect" cx="50%" cy="50%" r="75%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="78%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+      </defs>
+
+      <ellipse class="fauve-patch" cx="286" cy="356" rx="230" ry="110" fill="url(#patchBlue)" filter="url(#soften)"/>
+      <ellipse class="fauve-patch alt" cx="820" cy="420" rx="260" ry="120" fill="url(#patchGreen)" filter="url(#soften)"/>
+      <ellipse class="fauve-patch" cx="742" cy="1220" rx="250" ry="130" fill="url(#patchRed)" filter="url(#soften)"/>
+      <ellipse class="fauve-patch alt" cx="386" cy="1410" rx="290" ry="150" fill="url(#patchYellow)" filter="url(#soften)"/>
+
+      <g opacity=".15" filter="url(#grainy)">
+        <rect x="0" y="0" width="1080" height="1920" fill="#fff"/>
+      </g>
+
+      <g opacity=".78" mask="url(#edgeFade)">
+        <ellipse cx="540" cy="1770" rx="360" ry="90" fill="#101010" opacity=".16"/>
+        <ellipse cx="540" cy="1726" rx="300" ry="55" fill="#101010" opacity=".12"/>
+      </g>
+
+      <g opacity=".66">
+        <path d="M132 1388 C320 1322, 750 1328, 944 1412 L944 1498 C760 1448, 320 1440, 132 1496 Z" fill="#1742d0" opacity=".55"/>
+        <path d="M166 1448 C328 1398, 742 1408, 902 1468 L902 1528 C718 1490, 338 1490, 166 1538 Z" fill="#ffc92f" opacity=".62"/>
+      </g>
+    </svg>
+
+    <canvas id="paintCanvas" width="1080" height="1920"></canvas>
+    <canvas id="shadowCanvas" width="1080" height="1920"></canvas>
+
+    <div id="portraitWrap" aria-hidden="true">
+      <div class="cameo-shadow"></div>
+      <div class="ring r3"></div>
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="cameo-mask">
+        <img id="portrait-image" src="portrait.png" alt="" />
+      </div>
+      <div class="cameo-grain"></div>
+    </div>
+
+    <div class="footlights"></div>
+    <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-05-09</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-05-09";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const paint = document.getElementById('paintCanvas');
+  const pctx = paint.getContext('2d');
+  const shadow = document.getElementById('shadowCanvas');
+  const sctx = shadow.getContext('2d');
+  const grain = document.getElementById('grainCanvas');
+  const gctx = grain.getContext('2d');
+
+  const W = 1080, H = 1920, CX = W/2, CY = H*0.48;
+
+  const palette = ["#ff5a1f","#1658d6","#f2c230","#e61f43","#1ca76f","#7a34df","#ffea8a","#111111"];
+
+  const patches = [];
+  for(let i=0;i<18;i++){
+    patches.push({
+      x:rnd()*W,
+      y:rnd()*H,
+      rx:90+rnd()*240,
+      ry:30+rnd()*120,
+      rot:rnd()*Math.PI,
+      color:palette[(i + Math.floor(rnd()*4)) % palette.length],
+      alpha:0.11 + rnd()*0.12,
+      phase:rnd()*Math.PI*2
+    });
+  }
+
+  function blob(ctx,x,y,rx,ry,rot,color,alpha,t){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot + Math.sin(t*0.00018 + x*0.002)*0.08);
+    ctx.scale(1 + Math.sin(t*0.00025 + y*0.003)*0.025, 1 + Math.cos(t*0.00023 + x*0.002)*0.03);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    const steps = 18;
+    for(let i=0;i<=steps;i++){
+      const a = (i/steps) * Math.PI*2;
+      const mod = 1 + 0.13*Math.sin(a*3 + t*0.0005) + 0.08*Math.cos(a*5 + t*0.0004);
+      const px = Math.cos(a) * rx * mod;
+      const py = Math.sin(a) * ry * (1 + 0.1*Math.sin(a*4 + 1.2));
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPaint(t){
+    pctx.clearRect(0,0,W,H);
+
+    pctx.globalCompositeOperation = 'multiply';
+    for(const p of patches){
+      blob(
+        pctx,
+        p.x + Math.sin(t*0.00012 + p.phase)*18,
+        p.y + Math.cos(t*0.0001 + p.phase)*12,
+        p.rx,p.ry,p.rot,p.color,p.alpha,t
+      );
+    }
+
+    pctx.globalCompositeOperation = 'source-over';
+    for(let i=0;i<34;i++){
+      const y = 150 + i*45 + Math.sin(i*0.7 + t*0.00035)*8;
+      const x = 80 + Math.sin(i*0.6)*90;
+      const w = 880 + Math.cos(i*0.41)*80;
+      const h = 28 + (i%4)*8;
+      pctx.save();
+      pctx.translate(x + (i%3)*20, y);
+      pctx.rotate((Math.sin(i+t*0.00018)*0.03));
+      pctx.fillStyle = i%3===0 ? "rgba(255,231,140,.08)" : i%3===1 ? "rgba(20,40,120,.05)" : "rgba(190,20,40,.05)";
+      pctx.fillRect(0,0,w,h);
+      pctx.restore();
+    }
+
+    const grad = pctx.createRadialGradient(CX, CY-140, 80, CX, CY, 610);
+    grad.addColorStop(0, "rgba(255,255,230,.18)");
+    grad.addColorStop(0.35, "rgba(255,214,100,.12)");
+    grad.addColorStop(0.75, "rgba(255,80,0,.03)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    pctx.fillStyle = grad;
+    pctx.beginPath();
+    pctx.ellipse(CX, CY, 520, 720, 0, 0, Math.PI*2);
+    pctx.fill();
+  }
+
+  const puppets = [
+    { offset:-250, scale:1.0, sway:0.8, arm:0.4, head:48, body:230 },
+    { offset:170, scale:0.92, sway:1.1, arm:1.3, head:42, body:210 },
+    { offset:0, scale:0.5, sway:1.7, arm:2.2, head:26, body:118, bird:true }
+  ];
+
+  function drawFigure(ctx, x, y, sc, phase, variant){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(sc,sc);
+
+    const torsoLean = Math.sin(phase)*0.22;
+    const armA = -0.9 + Math.sin(phase*1.1)*0.5;
+    const armB = 0.7 + Math.cos(phase*1.1)*0.55;
+    const kneeA = 0.35 + Math.sin(phase*0.9)*0.25;
+    const kneeB = -0.28 + Math.cos(phase*0.95)*0.22;
+
+    ctx.fillStyle = "rgba(10,10,10,.92)";
+    ctx.strokeStyle = "rgba(10,10,10,.92)";
+    ctx.lineCap = "round";
+
+    ctx.save();
+    ctx.rotate(torsoLean);
+    ctx.beginPath();
+    ctx.ellipse(0,-variant.body*0.65, variant.head, variant.head*1.15, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-48,-variant.body*0.38);
+    ctx.lineTo(52,-variant.body*0.42);
+    ctx.lineTo(82,0);
+    ctx.lineTo(0,variant.body*0.1);
+    ctx.lineTo(-70,0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.lineWidth = 34;
+    ctx.beginPath();
+    ctx.moveTo(-18,40);
+    ctx.lineTo(-24,variant.body*0.62);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(-24,variant.body*0.62);
+    ctx.rotate(kneeA);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-10,variant.body*0.46);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(26,40);
+    ctx.lineTo(30,variant.body*0.58);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(30,variant.body*0.58);
+    ctx.rotate(kneeB);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(8,variant.body*0.48);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.lineWidth = 26;
+    ctx.beginPath();
+    ctx.moveTo(-42,-variant.body*0.22);
+    ctx.lineTo(-112,-variant.body*0.04);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(-112,-variant.body*0.04);
+    ctx.rotate(armA);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-88,14);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(44,-variant.body*0.2);
+    ctx.lineTo(110,-variant.body*0.08);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(110,-variant.body*0.08);
+    ctx.rotate(armB);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(96,-4);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+
+    ctx.globalAlpha = 0.34;
+    ctx.fillStyle = "rgba(0,0,0,.4)";
+    ctx.beginPath();
+    ctx.ellipse(0,variant.body*1.15, 100, 28, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBird(ctx, x, y, sc, phase){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(sc,sc);
+    ctx.rotate(Math.sin(phase*0.7)*0.12);
+    ctx.fillStyle = "rgba(12,12,12,.9)";
+
+    ctx.beginPath();
+    ctx.ellipse(0,0,62,38,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(42,-8);
+    ctx.lineTo(104,-34);
+    ctx.lineTo(70,6);
+    ctx.closePath();
+    ctx.fill();
+
+    const wing = 1 + Math.sin(phase*2.1)*0.24;
+    ctx.save();
+    ctx.translate(-6,-8);
+    ctx.rotate(-0.75 + Math.sin(phase*2.1)*0.23);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-122,-86*wing);
+    ctx.lineTo(-48,10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(2,-6);
+    ctx.rotate(0.45 - Math.sin(phase*2.1)*0.18);
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-92,68*wing);
+    ctx.lineTo(-42,16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(-52,8);
+    ctx.lineTo(-108,42);
+    ctx.lineTo(-78,-6);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawShadowScene(t){
+    sctx.clearRect(0,0,W,H);
+
+    const screen = sctx.createRadialGradient(CX, CY-180, 70, CX, CY+20, 620);
+    screen.addColorStop(0, "rgba(255,252,238,.48)");
+    screen.addColorStop(0.32, "rgba(255,232,170,.28)");
+    screen.addColorStop(0.68, "rgba(255,114,48,.08)");
+    screen.addColorStop(1, "rgba(0,0,0,0)");
+    sctx.fillStyle = screen;
+    sctx.beginPath();
+    sctx.ellipse(CX, CY+10, 430, 670, 0, 0, Math.PI*2);
+    sctx.fill();
+
+    sctx.save();
+    sctx.globalCompositeOperation = "source-over";
+
+    const baseX = CX;
+    const stageY = 1180;
+
+    puppets.forEach((p, i) => {
+      if(p.bird){
+        drawBird(
+          sctx,
+          baseX + p.offset + Math.sin(t*0.00044 + p.sway)*170,
+          920 + Math.sin(t*0.00052 + p.sway)*90,
+          p.scale,
+          t*0.002 + p.arm
+        );
+      } else {
+        drawFigure(
+          sctx,
+          baseX + p.offset + Math.sin(t*0.00028 + p.sway)*65,
+          stageY + Math.sin(t*0.00037 + p.sway)*22,
+          p.scale,
+          t*0.0014 + p.arm,
+          p
+        );
+      }
+    });
+
+    for(let i=0;i<4;i++){
+      const px = 190 + i*220 + Math.sin(t*0.0002 + i)*20;
+      sctx.fillStyle = "rgba(15,15,15,.76)";
+      sctx.beginPath();
+      sctx.moveTo(px, 1370);
+      sctx.lineTo(px+28, 1370);
+      sctx.lineTo(px+44, 1730);
+      sctx.lineTo(px-16, 1730);
+      sctx.closePath();
+      sctx.fill();
+    }
+
+    sctx.beginPath();
+    sctx.moveTo(96, 1410);
+    sctx.lineTo(984, 1410);
+    sctx.lineTo(1022, 1490);
+    sctx.lineTo(58, 1490);
+    sctx.closePath();
+    sctx.fillStyle = "rgba(15,15,15,.88)";
+    sctx.fill();
+
+    sctx.beginPath();
+    sctx.moveTo(138, 1490);
+    sctx.lineTo(942, 1490);
+    sctx.lineTo(1020, 1700);
+    sctx.lineTo(60, 1700);
+    sctx.closePath();
+    sctx.fillStyle = "rgba(17,17,17,.84)";
+    sctx.fill();
+
+    sctx.restore();
+  }
+
+  function drawGrain(t){
+    const img = gctx.createImageData(W, H);
+    const d = img.data;
+    for(let i=0;i<d.length;i+=4){
+      const n = (rnd()*255)|0;
+      d[i]=n; d[i+1]=n; d[i+2]=n; d[i+3]=18;
+    }
+    gctx.putImageData(img,0,0);
+    gctx.globalCompositeOperation = "multiply";
+    gctx.fillStyle = "rgba(255,120,20,.04)";
+    gctx.fillRect(0,0,W,H);
+    gctx.globalCompositeOperation = "source-over";
+
+    gctx.fillStyle = "rgba(255,250,230,.035)";
+    for(let i=0;i<18;i++){
+      gctx.fillRect(0, (i*120 + ((t*0.02)%120)), W, 2);
+    }
+
+    const fade = gctx.createRadialGradient(CX, CY, 520, CX, CY, 980);
+    fade.addColorStop(0,"rgba(0,0,0,0)");
+    fade.addColorStop(0.82,"rgba(0,0,0,.08)");
+    fade.addColorStop(1,"rgba(0,0,0,.25)");
+    gctx.fillStyle = fade;
+    gctx.fillRect(0,0,W,H);
+  }
+
+  function frameMask(){
+    [pctx,sctx,gctx].forEach(ctx=>{
+      ctx.save();
+      const grad = ctx.createRadialGradient(CX, CY, 600, CX, CY, 950);
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(0.84, "rgba(0,0,0,0)");
+      grad.addColorStop(1, "rgba(0,0,0,.26)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+      ctx.restore();
+    });
+  }
+
+  function animate(ts){
+    drawPaint(ts);
+    drawShadowScene(ts);
+    gctx.clearRect(0,0,W,H);
+    drawGrain(ts);
+    frameMask();
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audioCtx = new AudioCtx();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.018;
+      master.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      const drone1 = audioCtx.createOscillator();
+      drone1.type = "sine";
+      drone1.frequency.value = 146.83;
+
+      const drone2 = audioCtx.createOscillator();
+      drone2.type = "triangle";
+      drone2.frequency.value = 220.0;
+
+      const trem = audioCtx.createOscillator();
+      trem.type = "sine";
+      trem.frequency.value = 0.07;
+
+      const tremGain = audioCtx.createGain();
+      tremGain.gain.value = 0.4;
+
+      const g1 = audioCtx.createGain();
+      const g2 = audioCtx.createGain();
+      g1.gain.value = 0.32;
+      g2.gain.value = 0.16;
+
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 720;
+      lp.Q.value = 0.4;
+
+      trem.connect(tremGain);
+      tremGain.connect(g1.gain);
+
+      drone1.connect(g1);
+      drone2.connect(g2);
+      g1.connect(lp);
+      g2.connect(lp);
+      lp.connect(master);
+
+      drone1.start(now);
+      drone2.start(now);
+      trem.start(now);
+
+      setInterval(() => {
+        const t = audioCtx.currentTime;
+        const f1 = 138 + Math.floor(rnd()*5)*9;
+        const f2 = f1 * (1.48 + rnd()*0.08);
+        drone1.frequency.linearRampToValueAtTime(f1, t + 8);
+        drone2.frequency.linearRampToValueAtTime(f2, t + 8);
+        lp.frequency.linearRampToValueAtTime(520 + rnd()*420, t + 10);
+      }, 8000);
+
+      const resume = () => { if (audioCtx.state === "suspended") audioCtx.resume(); };
+      window.addEventListener("load", resume, {once:true});
+      document.addEventListener("visibilitychange", resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
