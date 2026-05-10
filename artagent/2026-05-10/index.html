@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-05-10</title>
+<style>
+  :root{
+    --bg:#f1e7d2;
+    --ink:#0c0c0b;
+    --red:#b61e1a;
+    --bone:#f7f0e1;
+    --deepred:#7e1512;
+  }
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family:system-ui,sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:var(--bg);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.45);
+  }
+
+  .layer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  #bg{
+    background:
+      radial-gradient(circle at 50% 35%, rgba(247,240,225,.95) 0 18%, rgba(247,240,225,.55) 18% 24%, rgba(0,0,0,0) 25%),
+      linear-gradient(180deg, #efe4ce 0%, #eadcc2 48%, #e0d0b3 100%);
+  }
+
+  #bg::before{
+    content:"";
+    position:absolute;
+    inset:-8%;
+    background:
+      radial-gradient(circle at 50% 34%, rgba(255,255,255,.12), rgba(255,255,255,0) 42%),
+      repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,.018) 0 2px,
+        rgba(255,255,255,.02) 2px 5px,
+        rgba(0,0,0,0) 5px 11px
+      );
+    mix-blend-mode:multiply;
+    opacity:.55;
+    animation: paperShift 28s ease-in-out infinite;
+  }
+
+  @keyframes paperShift{
+    0%,100%{ transform:translateY(0) scale(1); }
+    50%{ transform:translateY(-1.2%) scale(1.015); }
+  }
+
+  #halo{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:86%;
+    height:86%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:
+      radial-gradient(circle, rgba(255,255,255,0) 54%, rgba(255,255,255,.22) 64%, rgba(255,255,255,0) 78%),
+      radial-gradient(circle, rgba(182,30,26,.08) 0 24%, rgba(0,0,0,0) 60%);
+    filter:blur(2px);
+    opacity:.85;
+    mask-image:radial-gradient(circle, black 0 68%, rgba(0,0,0,.75) 78%, transparent 92%);
+    -webkit-mask-image:radial-gradient(circle, black 0 68%, rgba(0,0,0,.75) 78%, transparent 92%);
+    animation: haloBreath 18s ease-in-out infinite;
+  }
+
+  @keyframes haloBreath{
+    0%,100%{ transform:translate(-50%,-50%) scale(.98) rotate(0deg); opacity:.8; }
+    50%{ transform:translate(-50%,-50%) scale(1.03) rotate(6deg); opacity:.96; }
+  }
+
+  svg{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #overlay{
+    mix-blend-mode:multiply;
+    opacity:.9;
+  }
+
+  #canvas{
+    opacity:.96;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    font-size:12px;
+    letter-spacing:.14em;
+    color:rgba(0,0,0,.42);
+    z-index:30;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:14px;
+    bottom:96px;
+    opacity:.58;
+    z-index:18;
+    filter:contrast(.95) saturate(.8);
+    transform:rotate(-4deg);
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="bg" class="layer"></div>
+  <div id="halo" class="layer"></div>
+
+  <svg id="overlay" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="soften">
+        <feGaussianBlur stdDeviation="0.6"/>
+      </filter>
+      <pattern id="bonePattern" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="26" height="26" fill="none"/>
+        <rect x="0" y="0" width="13" height="26" fill="rgba(255,255,255,0.04)"/>
+      </pattern>
+      <mask id="edgeFade">
+        <rect width="1080" height="1920" fill="url(#edgeGrad)"/>
+      </mask>
+      <radialGradient id="edgeGrad" cx="50%" cy="50%" r="65%">
+        <stop offset="0%" stop-color="white"/>
+        <stop offset="78%" stop-color="white"/>
+        <stop offset="100%" stop-color="black"/>
+      </radialGradient>
+    </defs>
+
+    <g opacity="0.92">
+      <ellipse cx="540" cy="960" rx="435" ry="720" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="14"/>
+      <ellipse cx="540" cy="960" rx="380" ry="648" fill="none" stroke="rgba(182,30,26,0.28)" stroke-width="10"/>
+      <ellipse cx="540" cy="960" rx="308" ry="534" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="8"/>
+    </g>
+
+    <g opacity="0.7">
+      <path d="M540 146 C335 214 205 375 168 588 C142 739 181 902 273 1025 C338 1111 430 1178 540 1218 C650 1178 742 1111 807 1025 C899 902 938 739 912 588 C875 375 745 214 540 146Z"
+            fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="26" filter="url(#soften)"/>
+    </g>
+
+    <g opacity="0.55" mask="url(#edgeFade)">
+      <path d="M540 270 L580 372 L694 390 L606 455 L632 570 L540 508 L448 570 L474 455 L386 390 L500 372 Z" fill="rgba(182,30,26,0.12)"/>
+      <path d="M540 1410 L580 1512 L694 1530 L606 1595 L632 1710 L540 1648 L448 1710 L474 1595 L386 1530 L500 1512 Z" fill="rgba(0,0,0,0.08)"/>
+    </g>
+
+    <g opacity="0.33">
+      <ellipse cx="540" cy="960" rx="250" ry="410" fill="url(#bonePattern)"/>
+    </g>
+  </svg>
+
+  <canvas id="canvas" class="layer" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+
+  <div id="date">2026-05-10</div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const W = canvas.width, H = canvas.height;
+  const seedString = "2026-05-10";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = ((seed * 131) + seedString.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function easeInOutSine(t){ return -(Math.cos(Math.PI * t) - 1) / 2; }
+
+  const palette = {
+    bg: '#efe4ce',
+    black: '#0b0b0a',
+    red: '#b61e1a',
+    red2: '#871612',
+    white: '#f7f0e1'
+  };
+
+  function drawOvoid(x,y,w,h,fill,stroke,line=0,rot=0){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.ellipse(0,0,w*0.5,h*0.58,0,0,Math.PI*2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if(line>0){
+      ctx.lineWidth = line;
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function crescent(x,y,r,thick,rot,color){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.arc(0,0,r,Math.PI*0.18,Math.PI*1.82,false);
+    ctx.arc(thick*0.68,0,r-thick,Math.PI*1.82,Math.PI*0.18,true);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function pointedOval(x,y,w,h,fill,rot=0){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.moveTo(0,-h*0.56);
+    ctx.lineTo(w*0.42,-h*0.12);
+    ctx.lineTo(w*0.24,h*0.52);
+    ctx.lineTo(0,h*0.64);
+    ctx.lineTo(-w*0.24,h*0.52);
+    ctx.lineTo(-w*0.42,-h*0.12);
+    ctx.closePath();
+    ctx.fillStyle=fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function butterflyMotif(type, flap){
+    const s = 1;
+    ctx.save();
+    const wingOpen = 0.54 + flap * 0.22;
+    const wingLift = flap * 0.24;
+    const line = 6 * s;
+
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    // body
+    ctx.fillStyle = palette.black;
+    pointedOval(0, 5*s, 24*s, 92*s, palette.black, 0);
+    drawOvoid(0,-28*s,24*s,28*s,palette.black,palette.black,0,0);
+
+    // top wings
+    ctx.save();
+    ctx.translate(-58*s, -22*s);
+    ctx.rotate(-0.55 - wingLift);
+    drawOvoid(0,0,122*s*wingOpen,138*s,palette.black,palette.black,0);
+    drawOvoid(-4*s,-2*s,70*s*wingOpen,88*s,palette.red,palette.black,line);
+    if(type % 3 === 0){
+      drawOvoid(18*s,-10*s,26*s,30*s,palette.white,palette.black,line*0.65);
+      crescent(-10*s,18*s,28*s,12*s,1.0,palette.white);
+    } else if(type % 3 === 1){
+      crescent(-6*s,-6*s,34*s,14*s,-0.4,palette.white);
+      drawOvoid(12*s,24*s,32*s,26*s,palette.red2,palette.black,line*0.55);
+    } else {
+      drawOvoid(12*s,-6*s,30*s,42*s,palette.white,palette.black,line*0.65);
+      drawOvoid(-18*s,22*s,24*s,22*s,palette.white,palette.black,line*0.55);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(58*s, -22*s);
+    ctx.scale(-1,1);
+    ctx.rotate(-0.55 - wingLift);
+    drawOvoid(0,0,122*s*wingOpen,138*s,palette.black,palette.black,0);
+    drawOvoid(-4*s,-2*s,70*s*wingOpen,88*s,palette.red,palette.black,line);
+    if(type % 3 === 0){
+      drawOvoid(18*s,-10*s,26*s,30*s,palette.white,palette.black,line*0.65);
+      crescent(-10*s,18*s,28*s,12*s,1.0,palette.white);
+    } else if(type % 3 === 1){
+      crescent(-6*s,-6*s,34*s,14*s,-0.4,palette.white);
+      drawOvoid(12*s,24*s,32*s,26*s,palette.red2,palette.black,line*0.55);
+    } else {
+      drawOvoid(12*s,-6*s,30*s,42*s,palette.white,palette.black,line*0.65);
+      drawOvoid(-18*s,22*s,24*s,22*s,palette.white,palette.black,line*0.55);
+    }
+    ctx.restore();
+
+    // lower wings
+    ctx.save();
+    ctx.translate(-46*s, 62*s);
+    ctx.rotate(0.42 + wingLift*0.6);
+    drawOvoid(0,0,92*s*(0.78+flap*0.12),82*s,palette.black,palette.black,0);
+    drawOvoid(2*s,-2*s,52*s,46*s,palette.white,palette.black,line*0.8);
+    if(type % 2 === 0){
+      crescent(-10*s,10*s,20*s,8*s,0.2,palette.red);
+    } else {
+      drawOvoid(14*s,8*s,20*s,18*s,palette.red,palette.black,line*0.45);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(46*s, 62*s);
+    ctx.scale(-1,1);
+    ctx.rotate(0.42 + wingLift*0.6);
+    drawOvoid(0,0,92*s*(0.78+flap*0.12),82*s,palette.black,palette.black,0);
+    drawOvoid(2*s,-2*s,52*s,46*s,palette.white,palette.black,line*0.8);
+    if(type % 2 === 0){
+      crescent(-10*s,10*s,20*s,8*s,0.2,palette.red);
+    } else {
+      drawOvoid(14*s,8*s,20*s,18*s,palette.red,palette.black,line*0.45);
+    }
+    ctx.restore();
+
+    // antennae as thick arcs
+    ctx.strokeStyle = palette.black;
+    ctx.lineWidth = 5.5*s;
+    ctx.beginPath();
+    ctx.arc(-10*s,-36*s,22*s,Math.PI*1.08,Math.PI*1.62,false);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(10*s,-36*s,22*s,Math.PI*1.38,Math.PI*1.92,false);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  const butterflies = [];
+  const groups = 5;
+  let idx = 0;
+  for(let g=0; g<groups; g++){
+    const count = 8 + Math.floor(rand()*7);
+    const bandY = 280 + g*280 + rand()*90;
+    const speed = 18 + g*4 + rand()*9;
+    for(let i=0; i<count; i++){
+      const phase = rand()*Math.PI*2;
+      const scale = 0.5 + rand()*0.72;
+      const type = Math.floor(rand()*6);
+      const direction = g % 2 === 0 ? 1 : -1;
+      butterflies.push({
+        id: idx++,
+        group:g,
+        type,
+        xBase: direction>0 ? -180 - rand()*800 : W + 180 + rand()*800,
+        yBase: bandY + (rand()-0.5)*120,
+        direction,
+        speed,
+        phase,
+        flapOffset: rand()*Math.PI*2,
+        scale,
+        landSeed: rand(),
+        driftAmp: 35 + rand()*90,
+        rotAmp: 0.08 + rand()*0.18
+      });
+    }
+  }
+
+  function drawBackdrop(t){
+    ctx.save();
+
+    // central crest / transformation figure
+    ctx.translate(W/2, H/2+20);
+    const breathing = Math.sin(t*0.18)*0.02;
+    ctx.scale(1+breathing, 1-breathing*0.4);
+
+    // black shield
+    ctx.beginPath();
+    ctx.moveTo(0,-760);
+    ctx.lineTo(150,-700);
+    ctx.lineTo(275,-600);
+    ctx.lineTo(345,-470);
+    ctx.lineTo(360,-320);
+    ctx.lineTo(318,-190);
+    ctx.lineTo(234,-70);
+    ctx.lineTo(142,22);
+    ctx.lineTo(110,104);
+    ctx.lineTo(150,178);
+    ctx.lineTo(204,278);
+    ctx.lineTo(182,424);
+    ctx.lineTo(98,552);
+    ctx.lineTo(0,650);
+    ctx.lineTo(-98,552);
+    ctx.lineTo(-182,424);
+    ctx.lineTo(-204,278);
+    ctx.lineTo(-150,178);
+    ctx.lineTo(-110,104);
+    ctx.lineTo(-142,22);
+    ctx.lineTo(-234,-70);
+    ctx.lineTo(-318,-190);
+    ctx.lineTo(-360,-320);
+    ctx.lineTo(-345,-470);
+    ctx.lineTo(-275,-600);
+    ctx.lineTo(-150,-700);
+    ctx.closePath();
+    ctx.fillStyle = palette.black;
+    ctx.fill();
+
+    // white interior form
+    ctx.beginPath();
+    ctx.moveTo(0,-650);
+    ctx.lineTo(108,-600);
+    ctx.lineTo(186,-520);
+    ctx.lineTo(228,-420);
+    ctx.lineTo(232,-308);
+    ctx.lineTo(198,-208);
+    ctx.lineTo(136,-126);
+    ctx.lineTo(78,-60);
+    ctx.lineTo(64,18);
+    ctx.lineTo(92,98);
+    ctx.lineTo(128,184);
+    ctx.lineTo(116,308);
+    ctx.lineTo(60,418);
+    ctx.lineTo(0,486);
+    ctx.lineTo(-60,418);
+    ctx.lineTo(-116,308);
+    ctx.lineTo(-128,184);
+    ctx.lineTo(-92,98);
+    ctx.lineTo(-64,18);
+    ctx.lineTo(-78,-60);
+    ctx.lineTo(-136,-126);
+    ctx.lineTo(-198,-208);
+    ctx.lineTo(-232,-308);
+    ctx.lineTo(-228,-420);
+    ctx.lineTo(-186,-520);
+    ctx.lineTo(-108,-600);
+    ctx.closePath();
+    ctx.fillStyle = palette.white;
+    ctx.fill();
+
+    // red key ovoids and eyes
+    drawOvoid(0,-430,240,168,palette.red,palette.black,18);
+    drawOvoid(-108,-432,64,76,palette.black,palette.black,0);
+    drawOvoid(108,-432,64,76,palette.black,palette.black,0);
+    drawOvoid(-108,-432,28,32,palette.white,palette.black,10);
+    drawOvoid(108,-432,28,32,palette.white,palette.black,10);
+
+    drawOvoid(0,-196,190,124,palette.red,palette.black,16);
+    drawOvoid(0,-196,72,44,palette.black,palette.black,0);
+
+    crescent(-136,-242,58,22,-0.24,palette.black);
+    crescent(136,-242,58,22,Math.PI+0.24,palette.black);
+
+    drawOvoid(-138,-26,126,188,palette.red,palette.black,16, -0.22);
+    drawOvoid(138,-26,126,188,palette.red,palette.black,16, 0.22);
+    drawOvoid(-138,-18,62,90,palette.white,palette.black,12,-0.22);
+    drawOvoid(138,-18,62,90,palette.white,palette.black,12,0.22);
+
+    drawOvoid(0,124,250,124,palette.red,palette.black,18);
+    drawOvoid(0,124,82,38,palette.white,palette.black,12);
+
+    drawOvoid(-104,304,118,164,palette.red,palette.black,16,-0.14);
+    drawOvoid(104,304,118,164,palette.red,palette.black,16,0.14);
+    drawOvoid(-104,306,42,58,palette.black,palette.black,0,-0.14);
+    drawOvoid(104,306,42,58,palette.black,palette.black,0,0.14);
+
+    drawOvoid(0,516,188,116,palette.red,palette.black,16);
+    drawOvoid(0,516,62,38,palette.white,palette.black,10);
+
+    ctx.restore();
+  }
+
+  function drawButterflies(t){
+    const cycle = 48;
+    for(const b of butterflies){
+      const prog = ((t * b.speed * 0.015) + b.phase/(Math.PI*2)) % 1;
+      const x = b.direction > 0
+        ? lerp(-220, W+220, prog)
+        : lerp(W+220, -220, prog);
+      const wave = Math.sin(prog*Math.PI*2 + b.phase);
+      const y = b.yBase + Math.sin(t*0.7 + b.phase)*16 + wave * b.driftAmp;
+      const landingWindow = 0.10 + (b.landSeed*0.08);
+      const landingCenter = 0.38 + (b.landSeed*0.35);
+      let landAmount = 0;
+      const d = Math.abs(prog - landingCenter);
+      if(d < landingWindow){
+        landAmount = 1 - d/landingWindow;
+        landAmount = easeInOutSine(landAmount);
+      }
+
+      const flap = landAmount > 0.15
+        ? 0.08 + 0.06*Math.sin(t*2 + b.flapOffset)
+        : 0.55 + 0.45*Math.sin(t*4.2 + b.flapOffset);
+
+      const perchY = y + 90 + Math.sin(b.phase)*30;
+      const yy = lerp(y, perchY, landAmount*0.92);
+      const rot = b.direction > 0
+        ? 0.14 + Math.sin(t*0.9 + b.phase)*b.rotAmp*(1-landAmount)
+        : -0.14 + Math.sin(t*0.9 + b.phase)*b.rotAmp*(1-landAmount);
+
+      ctx.save();
+      ctx.translate(x, yy);
+      ctx.rotate(rot);
+      const sc = b.scale * (1 - landAmount*0.1);
+      ctx.scale(sc, sc);
+      butterflyMotif(b.type, flap);
+      ctx.restore();
+
+      if(landAmount > 0.06){
+        ctx.save();
+        ctx.translate(x, perchY + 78*b.scale);
+        ctx.strokeStyle = 'rgba(0,0,0,0.20)';
+        ctx.lineWidth = 6*b.scale;
+        ctx.beginPath();
+        ctx.arc(0,0,14*b.scale,0,Math.PI,true);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawPerches(t){
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+
+    const ys = [480, 810, 1120, 1450];
+    ys.forEach((y, i) => {
+      const sway = Math.sin(t*0.22 + i)*8;
+      ctx.beginPath();
+      ctx.moveTo(180, y+sway);
+      ctx.lineTo(420, y-20+sway);
+      ctx.lineTo(660, y+14+sway);
+      ctx.lineTo(910, y-10+sway);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function vignette(){
+    const g = ctx.createRadialGradient(W/2,H/2,520,W/2,H/2,990);
+    g.addColorStop(0,'rgba(0,0,0,0)');
+    g.addColorStop(0.72,'rgba(0,0,0,0.02)');
+    g.addColorStop(1,'rgba(0,0,0,0.15)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  let start = performance.now();
+  function frame(now){
+    const t = (now - start) / 1000;
+
+    ctx.clearRect(0,0,W,H);
+
+    drawBackdrop(t);
+    drawPerches(t);
+    drawButterflies(t);
+
+    // foreground emblematic top and bottom masks
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = palette.red;
+    for(let i=0;i<7;i++){
+      const a = i/6;
+      drawOvoid(540, 170 + i*18, 360 - i*32, 120 - i*8, palette.red, palette.red, 0);
+      drawOvoid(540, 1750 - i*18, 360 - i*32, 120 - i*8, palette.red, palette.red, 0);
+    }
+    ctx.restore();
+
+    vignette();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audio = new AudioCtx();
+      const master = audio.createGain();
+      master.gain.value = 0.018;
+      master.connect(audio.destination);
+
+      const osc1 = audio.createOscillator();
+      const osc2 = audio.createOscillator();
+      const osc3 = audio.createOscillator();
+      const g1 = audio.createGain();
+      const g2 = audio.createGain();
+      const g3 = audio.createGain();
+      const lfo = audio.createOscillator();
+      const lfoGain = audio.createGain();
+      const filter = audio.createBiquadFilter();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc3.type = 'sine';
+      osc1.frequency.value = 146.83;
+      osc2.frequency.value = 220.0;
+      osc3.frequency.value = 293.66;
+
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.12;
+      g3.gain.value = 0.08;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 680;
+      filter.Q.value = 0.4;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.055;
+      lfoGain.gain.value = 70;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(filter); g2.connect(filter); g3.connect(filter);
+      filter.connect(master);
+
+      const nowA = audio.currentTime;
+      master.gain.setValueAtTime(0.0001, nowA);
+      master.gain.linearRampToValueAtTime(0.018, nowA + 4.5);
+
+      [osc1,osc2,osc3,lfo].forEach(o => o.start());
+
+      setInterval(() => {
+        const t0 = audio.currentTime;
+        const chord = [
+          [146.83, 220.0, 293.66],
+          [164.81, 246.94, 329.63],
+          [130.81, 196.00, 261.63]
+        ][Math.floor((Date.now()/16000)%3)];
+        osc1.frequency.linearRampToValueAtTime(chord[0], t0 + 6);
+        osc2.frequency.linearRampToValueAtTime(chord[1], t0 + 6);
+        osc3.frequency.linearRampToValueAtTime(chord[2], t0 + 6);
+      }, 8000);
+    }
+  }
+})();
+</script>
+</body>
+</html>
