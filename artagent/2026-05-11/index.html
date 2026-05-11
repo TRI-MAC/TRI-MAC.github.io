@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-11</title>
+<style>
+  :root{
+    --bg1:#1c130d;
+    --bg2:#3a2415;
+    --stone:#6d4a2b;
+    --ochre:#c9882b;
+    --sand:#d9b071;
+    --char:#17110d;
+    --coal:#0d0907;
+    --gold:#efb64e;
+    --teal:#19b8a8;
+    --cyan:#74e4d7;
+    --magenta:#c55377;
+    --red:#9d3529;
+    --cream:#ead8b7;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0a0807;
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(140% 90% at 50% 12%, rgba(239,182,78,.08), transparent 40%),
+      radial-gradient(80% 50% at 50% 82%, rgba(25,184,168,.12), transparent 52%),
+      linear-gradient(180deg,var(--bg2),#2a1b12 22%, #412717 57%, #1b120d 100%);
+    box-shadow:0 0 0 1px rgba(255,220,160,.08), 0 30px 80px rgba(0,0,0,.6);
+  }
+
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,215,120,.07), transparent 16%),
+      radial-gradient(circle at 75% 34%, rgba(255,190,90,.04), transparent 15%),
+      radial-gradient(circle at 50% 70%, rgba(255,210,100,.05), transparent 24%);
+    mix-blend-mode:screen;
+    opacity:.9;
+    animation:breatheGlow 18s ease-in-out infinite;
+    pointer-events:none;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(0,0,0,.22) 84%, rgba(0,0,0,.5) 100%);
+    pointer-events:none;
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+
+  #stoneCanvas, #glyphCanvas, #textCanvas{
+    width:100%; height:100%; display:block; position:absolute; inset:0;
+  }
+
+  #svgLayer{
+    position:absolute; inset:0; width:100%; height:100%;
+    overflow:visible;
+  }
+
+  .masked-zone{
+    position:absolute;
+    left:13%;
+    top:14%;
+    width:74%;
+    height:62%;
+    filter: drop-shadow(0 14px 34px rgba(0,0,0,.42));
+    mask-image: radial-gradient(circle at 50% 48%, black 0%, black 58%, transparent 86%);
+    -webkit-mask-image: radial-gradient(circle at 50% 48%, black 0%, black 58%, transparent 86%);
+  }
+
+  #artWrap{
+    position:absolute;
+    left:10%;
+    right:10%;
+    top:10%;
+    height:43%;
+    z-index:5;
+    opacity:.98;
+    transform:translateY(0);
+    animation:artDrift 22s ease-in-out infinite;
+    mask-image: radial-gradient(circle at 50% 45%, rgba(0,0,0,1) 0 54%, rgba(0,0,0,.86) 68%, transparent 92%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, rgba(0,0,0,1) 0 54%, rgba(0,0,0,.86) 68%, transparent 92%);
+  }
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.96;
+    filter: sepia(.45) saturate(1.2) contrast(1.1) brightness(.92);
+    mix-blend-mode:screen;
+    clip-path:polygon(10% 7%, 90% 7%, 96% 15%, 96% 76%, 78% 92%, 20% 92%, 4% 76%, 4% 15%);
+    border-radius:8%/10%;
+  }
+  #artWrap::before{
+    content:"";
+    position:absolute; inset:-4%;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(25,184,168,.16), transparent 44%),
+      radial-gradient(circle at 50% 48%, rgba(239,182,78,.18), transparent 65%);
+    filter:blur(10px);
+    opacity:.8;
+  }
+
+  #portraitShell{
+    position:absolute;
+    left:17%;
+    top:23%;
+    width:66%;
+    height:42%;
+    z-index:7;
+    transform:translateY(0);
+    animation:portraitFloat 16s ease-in-out infinite;
+    mask-image: radial-gradient(circle at 50% 45%, black 0 60%, rgba(0,0,0,.7) 76%, transparent 96%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, black 0 60%, rgba(0,0,0,.7) 76%, transparent 96%);
+  }
+
+  #portraitGlow{
+    position:absolute; inset:-4%;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(116,228,215,.16), transparent 34%),
+      radial-gradient(circle at 50% 46%, rgba(239,182,78,.22), transparent 54%),
+      radial-gradient(circle at 50% 48%, rgba(0,0,0,0), rgba(0,0,0,.0) 62%, rgba(0,0,0,.28) 90%);
+    filter:blur(8px);
+  }
+
+  #portraitSlats{
+    position:absolute; inset:0;
+    overflow:hidden;
+    clip-path:polygon(12% 6%, 88% 6%, 94% 14%, 94% 86%, 78% 94%, 22% 94%, 6% 86%, 6% 14%);
+  }
+
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.9;
+    filter: grayscale(.55) sepia(.55) contrast(1.22) saturate(1.15) brightness(.88);
+    mix-blend-mode:screen;
+    transform:scale(1.05);
+  }
+
+  .slat{
+    position:absolute;
+    left:0; right:0;
+    height:10.3%;
+    overflow:hidden;
+    border-top:1px solid rgba(245,196,120,.16);
+    border-bottom:1px solid rgba(10,8,7,.45);
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,220,150,.02) 18%, rgba(0,0,0,.08) 50%, rgba(255,210,120,.03) 82%, rgba(0,0,0,.22));
+    backdrop-filter: blur(.3px);
+  }
+  .slat img{
+    position:absolute;
+    left:0; top:calc(var(--offset)*-1);
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transform:scale(1.06);
+  }
+  .slat:nth-child(odd){
+    transform:translateX(-1.2%);
+  }
+  .slat:nth-child(even){
+    transform:translateX(1.2%);
+  }
+
+  .slat::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, transparent, rgba(116,228,215,.05) 35%, rgba(239,182,78,.06) 62%, transparent);
+    mix-blend-mode:screen;
+    opacity:.7;
+  }
+
+  #portraitMaskDust{
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(180deg,
+        rgba(0,0,0,.0) 0 7.8%,
+        rgba(255,225,160,.06) 7.8% 8.1%,
+        rgba(0,0,0,.12) 8.1% 9.8%);
+    opacity:.75;
+    mix-blend-mode:overlay;
+  }
+
+  #poetryOverlay{
+    position:absolute;
+    inset:0;
+    z-index:10;
+    mix-blend-mode:screen;
+  }
+  .word{
+    position:absolute;
+    white-space:nowrap;
+    color:var(--sand);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-weight:700;
+    user-select:none;
+    opacity:.86;
+    text-shadow:
+      0 0 1px rgba(0,0,0,.9),
+      0 2px 7px rgba(0,0,0,.4);
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,.25));
+  }
+  .word.ochre{ color:var(--ochre); }
+  .word.gold{ color:var(--gold); }
+  .word.teal{ color:var(--cyan); }
+  .word.char{ color:#2a1a10; mix-blend-mode:multiply; opacity:.72; }
+  .word.rune{
+    font-size:11px;
+    letter-spacing:.28em;
+    opacity:.4;
+  }
+
+  #date{
+    position:absolute;
+    right:14px;
+    bottom:10px;
+    z-index:30;
+    color:rgba(234,216,183,.58);
+    font-size:12px;
+    letter-spacing:.16em;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:18px;
+    bottom:214px;
+    opacity:.56;
+    z-index:12;
+    filter: sepia(.45) saturate(.8) brightness(.82) contrast(1.05);
+    transform:rotate(-7deg);
+  }
+
+  @keyframes breatheGlow{
+    0%,100%{transform:scale(1); opacity:.8}
+    50%{transform:scale(1.03); opacity:1}
+  }
+  @keyframes artDrift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(1.2%) scale(1.015)}
+  }
+  @keyframes portraitFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-1.1%)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="stoneCanvas" class="layer"></canvas>
+
+  <div id="artWrap">
+    <img id="art-image" src="art.png" alt="" />
+  </div>
+
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <radialGradient id="haloA" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#efb64e" stop-opacity=".38"/>
+        <stop offset="45%" stop-color="#19b8a8" stop-opacity=".14"/>
+        <stop offset="78%" stop-color="#000000" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="haloB" cx="50%" cy="45%" r="50%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".18"/>
+        <stop offset="26%" stop-color="#d9b071" stop-opacity=".15"/>
+        <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#efb64e" stop-opacity=".56"/>
+        <stop offset="50%" stop-color="#19b8a8" stop-opacity=".3"/>
+        <stop offset="100%" stop-color="#efb64e" stop-opacity="0"/>
+      </linearGradient>
+      <mask id="featherMask">
+        <rect width="1080" height="1920" fill="black"/>
+        <circle cx="540" cy="830" r="500" fill="white"/>
+        <circle cx="540" cy="830" r="620" fill="white" fill-opacity=".35"/>
+      </mask>
+    </defs>
+
+    <g mask="url(#featherMask)">
+      <circle cx="540" cy="830" r="420" fill="url(#haloA)" opacity=".9">
+        <animateTransform attributeName="transform" type="scale" values="1;1.04;1" dur="26s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="540" cy="830" r="280" fill="url(#haloB)" opacity=".8">
+        <animateTransform attributeName="transform" type="scale" values="1;1.07;1" dur="19s" repeatCount="indefinite"/>
+      </circle>
+
+      <polygon points="540,340 573,788 507,788" fill="url(#beam)" opacity=".6">
+        <animateTransform attributeName="transform" type="rotate" values="-6 540 830;6 540 830;-6 540 830" dur="32s" repeatCount="indefinite"/>
+      </polygon>
+      <polygon points="540,356 900,920 852,950" fill="url(#beam)" opacity=".34">
+        <animateTransform attributeName="transform" type="rotate" values="0 540 830;7 540 830;0 540 830" dur="28s" repeatCount="indefinite"/>
+      </polygon>
+      <polygon points="540,356 180,920 228,950" fill="url(#beam)" opacity=".34">
+        <animateTransform attributeName="transform" type="rotate" values="0 540 830;-7 540 830;0 540 830" dur="28s" repeatCount="indefinite"/>
+      </polygon>
+    </g>
+
+    <g opacity=".9">
+      <path d="M160 1210 L540 1040 L920 1210 L540 1388 Z" fill="none" stroke="#efb64e" stroke-opacity=".34" stroke-width="8"/>
+      <path d="M250 1195 L540 1065 L830 1195 L540 1325 Z" fill="none" stroke="#19b8a8" stroke-opacity=".25" stroke-width="5"/>
+      <path d="M375 1177 L540 1105 L705 1177 L540 1250 Z" fill="none" stroke="#d9b071" stroke-opacity=".24" stroke-width="4"/>
+    </g>
+
+    <g id="animalForms" opacity=".78">
+      <path d="M177 1375
+               C235 1338, 332 1324, 399 1348
+               L447 1312
+               L497 1316
+               L488 1366
+               C522 1387, 545 1427, 539 1464
+               C527 1526, 470 1555, 402 1550
+               L329 1546
+               C263 1537, 200 1512, 171 1457
+               C153 1422, 154 1393, 177 1375 Z"
+            fill="#17110d"/>
+      <rect x="234" y="1532" width="27" height="118" fill="#17110d"/>
+      <rect x="338" y="1538" width="26" height="126" fill="#17110d"/>
+      <rect x="432" y="1529" width="24" height="120" fill="#17110d"/>
+      <polygon points="502,1360 579,1337 518,1407" fill="#17110d"/>
+      <polygon points="567,1330 630,1331 582,1387" fill="#17110d"/>
+
+      <path d="M668 1430
+               C718 1404, 805 1401, 868 1430
+               C915 1453, 947 1491, 942 1530
+               C936 1573, 900 1611, 845 1627
+               L786 1645
+               L728 1615
+               C687 1595, 664 1550, 663 1504
+               C661 1477, 660 1452, 668 1430 Z"
+            fill="#17110d" opacity=".95"/>
+      <rect x="733" y="1620" width="22" height="98" fill="#17110d"/>
+      <rect x="831" y="1618" width="21" height="96" fill="#17110d"/>
+      <polygon points="662,1445 609,1408 646,1486" fill="#17110d"/>
+      <polygon points="875,1430 920,1390 899,1464" fill="#17110d"/>
+    </g>
+  </svg>
+
+  <div id="portraitShell">
+    <div id="portraitGlow"></div>
+    <div id="portraitSlats">
+      <img id="portrait-image" src="portrait.png" alt="" />
+      <div class="slat" style="top:0%;--offset:0%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:11%;--offset:11%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:22%;--offset:22%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:33%;--offset:33%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:44%;--offset:44%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:55%;--offset:55%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:66%;--offset:66%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:77%;--offset:77%"><img src="portrait.png" alt=""></div>
+      <div class="slat" style="top:88%;height:12%;--offset:88%"><img src="portrait.png" alt=""></div>
+      <div id="portraitMaskDust"></div>
+    </div>
+  </div>
+
+  <canvas id="glyphCanvas" class="layer"></canvas>
+  <div id="poetryOverlay" class="layer"></div>
+  <canvas id="textCanvas" class="layer"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date">2026-05-11</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-05-11";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function pick(arr){ return arr[Math.floor(rand()*arr.length)]; }
+
+  const frame = document.getElementById('frame');
+  const stoneCanvas = document.getElementById('stoneCanvas');
+  const glyphCanvas = document.getElementById('glyphCanvas');
+  const textCanvas = document.getElementById('textCanvas');
+  const poetryOverlay = document.getElementById('poetryOverlay');
+
+  const wordsA = [
+    "EMBER","DUST","OCHRE","RIB","ECHO","BONE","HUSH","MARK","HAND","ASH",
+    "TRACK","NIGHT","CINDER","HEARTH","STONE","WALL","BREATH","HOOF","MASK","CAVE"
+  ];
+  const wordsB = [
+    "STAR-MOTHER","FUTURE","ORBIT","DRUM","SIGNAL","CONSTELLATION","SEED","COSMIC","ANCESTOR","AURORA",
+    "KIN","COPPER-SUN","RITUAL","NEBULA","PORTAL","VIBRANT","RHYTHM","HALO","SYMBOL","PULSE"
+  ];
+  const wordsC = [
+    "we remember tomorrow","the wall learns light","charcoal dreams in orbit",
+    "hands become antennas","hoofprints map the sky","ochre speaks in pulses",
+    "ancestral code awakens","dust arranges a constellation","the portrait is a doorway",
+    "stone keeps the signal","we enter through the animal","future painted by fire",
+    "a drum beneath the stars","the cave opens upward","bones hum turquoise"
+  ];
+
+  function sizeCanvases(){
+    [stoneCanvas, glyphCanvas, textCanvas].forEach(c => {
+      c.width = frame.clientWidth * devicePixelRatio;
+      c.height = frame.clientHeight * devicePixelRatio;
+      c.style.width = frame.clientWidth + "px";
+      c.style.height = frame.clientHeight + "px";
+      const ctx = c.getContext('2d');
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    });
+    buildWords();
+    paintStone();
+    buildGlyphField();
+  }
+  window.addEventListener('resize', sizeCanvases);
+
+  function noiseVal(x,y){
+    const n = Math.sin(x*12.9898 + y*78.233 + 43.13) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  function paintStone(){
+    const ctx = stoneCanvas.getContext('2d');
+    const w = frame.clientWidth, h = frame.clientHeight;
+    ctx.clearRect(0,0,w,h);
+
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0,"#4a2d1b");
+    grad.addColorStop(0.25,"#6b4528");
+    grad.addColorStop(0.6,"#54311b");
+    grad.addColorStop(1,"#241710");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,w,h);
+
+    for(let y=0;y<h;y+=4){
+      for(let x=0;x<w;x+=4){
+        const n = noiseVal(x*0.017,y*0.013);
+        const c = 38 + n*58;
+        ctx.fillStyle = `rgba(${c+40},${c+18},${c-8},0.06)`;
+        ctx.fillRect(x,y,4,4);
+      }
+    }
+
+    for(let i=0;i<180;i++){
+      const x = rand()*w, y = rand()*h;
+      const rw = 20 + rand()*110;
+      const rh = 10 + rand()*56;
+      const a = rand()*Math.PI;
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(a);
+      const g = ctx.createRadialGradient(0,0,0,0,0,rw);
+      g.addColorStop(0,`rgba(255,220,160,${0.022+rand()*0.03})`);
+      g.addColorStop(1,`rgba(0,0,0,0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(0,0,rw,rh,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    for(let i=0;i<90;i++){
+      const x1 = rand()*w, y1 = rand()*h;
+      const x2 = x1 + (rand()-.5)*90;
+      const y2 = y1 + (rand()-.5)*34;
+      ctx.strokeStyle = `rgba(20,12,8,${0.05+rand()*0.06})`;
+      ctx.lineWidth = 1 + rand()*2;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    }
+
+    ctx.globalCompositeOperation = 'multiply';
+    const vign = ctx.createRadialGradient(w/2,h/2,w*0.2,w/2,h/2,w*0.9);
+    vign.addColorStop(0,'rgba(0,0,0,0)');
+    vign.addColorStop(1,'rgba(0,0,0,0.34)');
+    ctx.fillStyle = vign;
+    ctx.fillRect(0,0,w,h);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  let glyphs = [];
+  function buildGlyphField(){
+    glyphs = [];
+    const w = frame.clientWidth, h = frame.clientHeight;
+    for(let ring=0; ring<4; ring++){
+      const count = 18 + ring*8;
+      const r = 100 + ring*80;
+      for(let i=0;i<count;i++){
+        const ang = (i/count)*Math.PI*2 + ring*0.2;
+        glyphs.push({
+          x: w*0.5 + Math.cos(ang)*r*(w/1080),
+          y: h*0.44 + Math.sin(ang)*r*(h/1920),
+          size: 9 + ring*1.8 + rand()*6,
+          hue: ring%2 ? 'teal' : 'gold',
+          phase: rand()*Math.PI*2,
+          t: rand()*1000
+        });
+      }
+    }
+  }
+
+  let wordObjs = [];
+  function buildWords(){
+    poetryOverlay.innerHTML = '';
+    wordObjs = [];
+    const w = frame.clientWidth, h = frame.clientHeight;
+    const centerX = w*0.5, centerY = h*0.52;
+    const phrases = [];
+
+    for(let i=0;i<22;i++) phrases.push(pick(wordsA));
+    for(let i=0;i<20;i++) phrases.push(pick(wordsB));
+    for(let i=0;i<10;i++) phrases.push(pick(wordsC));
+
+    phrases.forEach((txt, i) => {
+      const el = document.createElement('div');
+      const tone = i%5===0 ? 'teal' : (i%3===0 ? 'gold' : (i%4===0 ? 'char' : 'ochre'));
+      el.className = 'word ' + tone + (rand() < 0.17 ? ' rune' : '');
+      el.textContent = txt;
+      poetryOverlay.appendChild(el);
+
+      const angle = rand()*Math.PI*2;
+      const radius = lerp(90, 560, Math.pow(rand(),0.7)) * (w/1080);
+      const tx = centerX + Math.cos(angle)*radius;
+      const ty = centerY + Math.sin(angle)*radius*(1.28);
+      wordObjs.push({
+        el, txt,
+        baseX: tx,
+        baseY: ty,
+        x: tx, y: ty,
+        angle,
+        radius,
+        size: txt.length > 12 ? lerp(13,22,rand()) : lerp(16,34,rand()),
+        drift: .15 + rand()*.4,
+        phase: rand()*Math.PI*2,
+        rot: (rand()-.5)*0.55,
+        targetX: tx,
+        targetY: ty,
+        targetRot: (rand()-.5)*0.5
+      });
+    });
+  }
+
+  let lastRearrange = 0;
+
+  function drawGlyphs(t){
+    const ctx = glyphCanvas.getContext('2d');
+    const w = frame.clientWidth, h = frame.clientHeight;
+    ctx.clearRect(0,0,w,h);
+
+    ctx.save();
+    ctx.globalAlpha = .72;
+    glyphs.forEach((g,i) => {
+      const pulse = 0.5 + 0.5*Math.sin(t*0.00045 + g.phase);
+      const s = g.size*(0.85 + pulse*0.35);
+      const x = g.x + Math.cos(t*0.0003 + i)*8;
+      const y = g.y + Math.sin(t*0.00037 + i*0.7)*8;
+
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(t*0.00008 + i*0.12);
+      ctx.strokeStyle = g.hue === 'teal' ? `rgba(116,228,215,${0.15 + pulse*0.28})` : `rgba(239,182,78,${0.14 + pulse*0.32})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.rect(-s,-s,s*2,s*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0,-s*1.25); ctx.lineTo(0,s*1.25);
+      ctx.moveTo(-s*1.25,0); ctx.lineTo(s*1.25,0);
+      ctx.stroke();
+      ctx.restore();
+    });
+    ctx.restore();
+
+    // hand stencils
+    const handY = h*0.14;
+    for(let i=0;i<5;i++){
+      const x = w*(0.12 + i*0.17) + Math.sin(t*0.00018+i)*6;
+      drawHandStencil(ctx, x, handY + (i%2)*8, 48 + i*3, i%2===0 ? 'rgba(230,170,90,.09)' : 'rgba(116,228,215,.07)');
+    }
+    for(let i=0;i<4;i++){
+      const x = w*(0.18 + i*0.2) + Math.cos(t*0.00017+i)*5;
+      drawHandStencil(ctx, x, h*0.84 + (i%2)*10, 44 + i*2, i%2===0 ? 'rgba(230,170,90,.07)' : 'rgba(116,228,215,.06)');
+    }
+  }
+
+  function drawHandStencil(ctx, x, y, s, color){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-s*0.18,s*0.12);
+    ctx.lineTo(-s*0.29,-s*0.12);
+    ctx.lineTo(-s*0.24,-s*0.55);
+    ctx.lineTo(-s*0.11,-s*0.6);
+    ctx.lineTo(-s*0.04,-s*0.18);
+    ctx.lineTo(s*0.02,-s*0.72);
+    ctx.lineTo(s*0.14,-s*0.72);
+    ctx.lineTo(s*0.17,-s*0.14);
+    ctx.lineTo(s*0.23,-s*0.78);
+    ctx.lineTo(s*0.35,-s*0.78);
+    ctx.lineTo(s*0.38,-s*0.13);
+    ctx.lineTo(s*0.45,-s*0.66);
+    ctx.lineTo(s*0.56,-s*0.62);
+    ctx.lineTo(s*0.52,-s*0.05);
+    ctx.lineTo(s*0.46,s*0.22);
+    ctx.lineTo(s*0.16,s*0.45);
+    ctx.lineTo(-s*0.06,s*0.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTextAura(t){
+    const ctx = textCanvas.getContext('2d');
+    const w = frame.clientWidth, h = frame.clientHeight;
+    ctx.clearRect(0,0,w,h);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for(let i=0;i<8;i++){
+      const a = i/8*Math.PI*2 + t*0.00009;
+      const x = w*0.5 + Math.cos(a)*w*0.16;
+      const y = h*0.49 + Math.sin(a)*h*0.11;
+      const g = ctx.createRadialGradient(x,y,0,x,y,w*0.12);
+      g.addColorStop(0, i%2 ? 'rgba(25,184,168,0.06)' : 'rgba(239,182,78,0.065)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x,y,w*0.12,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(234,216,183,0.08)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<6;i++){
+      const yy = h*(0.2 + i*0.1);
+      ctx.beginPath();
+      ctx.moveTo(w*0.18, yy);
+      ctx.lineTo(w*0.82, yy);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function updateWords(t){
+    const w = frame.clientWidth, h = frame.clientHeight;
+    if (t - lastRearrange > 9000) {
+      lastRearrange = t;
+      const mode = Math.floor((t/9000)%3);
+      wordObjs.forEach((obj, i) => {
+        if(mode === 0){
+          const col = i % 7;
+          const row = Math.floor(i / 7);
+          obj.targetX = w*0.15 + col * (w*0.1);
+          obj.targetY = h*0.24 + row * (h*0.055);
+          obj.targetRot = (col%2===0?-0.09:0.09);
+        }else if(mode === 1){
+          const a = (i/wordObjs.length)*Math.PI*2;
+          const r = w*0.14 + (i%6)*(w*0.04);
+          obj.targetX = w*0.5 + Math.cos(a + i*0.15)*r;
+          obj.targetY = h*0.52 + Math.sin(a + i*0.15)*r*1.5;
+          obj.targetRot = a + Math.PI/2;
+        }else{
+          obj.targetX = obj.baseX;
+          obj.targetY = obj.baseY;
+          obj.targetRot = obj.rot;
+        }
+      });
+    }
+
+    wordObjs.forEach((obj, i) => {
+      const swayX = Math.cos(t*0.0003*obj.drift + obj.phase) * 11;
+      const swayY = Math.sin(t*0.00035*obj.drift + obj.phase*1.3) * 8;
+      obj.x += (obj.targetX - obj.x) * 0.018;
+      obj.y += (obj.targetY - obj.y) * 0.018;
+      obj.rot += (obj.targetRot - obj.rot) * 0.014;
+
+      const scale = 1 + Math.sin(t*0.0004 + i*0.4) * 0.04;
+      obj.el.style.left = (obj.x + swayX) + 'px';
+      obj.el.style.top = (obj.y + swayY) + 'px';
+      obj.el.style.fontSize = obj.size + 'px';
+      obj.el.style.transform = `translate(-50%,-50%) rotate(${obj.rot}rad) scale(${scale})`;
+      obj.el.style.opacity = (obj.txt.length > 14 ? 0.76 : 0.84 - (i%5)*0.04);
+    });
+  }
+
+  function animate(t){
+    drawGlyphs(t);
+    drawTextAura(t);
+    updateWords(t);
+    requestAnimationFrame(animate);
+  }
+
+  sizeCanvases();
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const low = ac.createOscillator();
+      const lowGain = ac.createGain();
+      low.type = 'sine';
+      low.frequency.value = 54;
+      lowGain.gain.value = 0.22;
+      low.connect(lowGain).connect(master);
+
+      const high = ac.createOscillator();
+      const highGain = ac.createGain();
+      high.type = 'triangle';
+      high.frequency.value = 161.8;
+      highGain.gain.value = 0.06;
+      high.connect(highGain).connect(master);
+
+      const noise = ac.createBufferSource();
+      const buffer = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.26;
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const bp = ac.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 740;
+      bp.Q.value = 1.1;
+
+      const noiseGain = ac.createGain();
+      noiseGain.gain.value = 0.012;
+      noise.connect(bp).connect(noiseGain).connect(master);
+
+      low.start();
+      high.start();
+      noise.start();
+
+      function audioMod(){
+        const now = ac.currentTime;
+        low.frequency.linearRampToValueAtTime(50 + rand()*16, now + 9);
+        high.frequency.linearRampToValueAtTime(150 + rand()*60, now + 9);
+        bp.frequency.linearRampToValueAtTime(520 + rand()*520, now + 9);
+        noiseGain.gain.linearRampToValueAtTime(0.008 + rand()*0.01, now + 9);
+      }
+      setInterval(audioMod, 9000);
+      const resume = () => ac.resume().catch(()=>{});
+      document.addEventListener('visibilitychange', resume);
+      resume();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
