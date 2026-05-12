@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-12</title>
+<style>
+  :root{
+    --bg0:#f4f0e6;
+    --bg1:#e1d7c4;
+    --ink:#121212;
+    --red:#d53a2b;
+    --blue:#1d56c8;
+    --yellow:#f0be1b;
+    --off:#f8f6ef;
+    --grey:#c6bda8;
+    --darkgrey:#655f57;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#121212;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg,var(--bg0) 0%, #ede6d7 18%, #e0d3bb 55%, #d6c6ab 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.06),0 20px 80px rgba(0,0,0,.45);
+  }
+  #paper{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,.45), transparent 28%),
+      radial-gradient(circle at 80% 85%, rgba(0,0,0,.06), transparent 25%),
+      linear-gradient(90deg, rgba(0,0,0,.03) 0 1px, transparent 1px 120px),
+      linear-gradient(0deg, rgba(0,0,0,.025) 0 1px, transparent 1px 120px);
+    opacity:.9;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+  #art-image{
+    position:absolute;
+    width:58%;
+    left:21%;
+    top:24%;
+    opacity:.96;
+    z-index:3;
+    filter:saturate(1.05) contrast(1.1) sepia(.08) drop-shadow(0 26px 30px rgba(0,0,0,.18));
+    transform:translateZ(0);
+    animation: imageDrift 24s ease-in-out infinite;
+  }
+  @keyframes imageDrift{
+    0%,100%{transform:translateY(0px) scale(1) rotate(-1deg)}
+    50%{transform:translateY(-16px) scale(1.025) rotate(1deg)}
+  }
+
+  .hud,.glyphs,.bands,.veil{
+    position:absolute; inset:0; pointer-events:none;
+  }
+
+  .ui{
+    position:absolute;
+    z-index:4;
+    color:var(--ink);
+    transform-origin:center;
+    filter:drop-shadow(0 2px 0 rgba(255,255,255,.18));
+  }
+
+  fieldset.ui{
+    border:3px solid var(--ink);
+    padding:18px 18px 16px 18px;
+    background:rgba(248,245,237,.74);
+  }
+  fieldset.ui legend{
+    padding:0 10px;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .panelA{
+    left:8%; top:10%;
+    width:34%; height:18%;
+    animation: slowTilt 19s ease-in-out infinite;
+  }
+  .panelB{
+    right:7%; top:15%;
+    width:28%; height:14%;
+    background:rgba(240,190,27,.28);
+    border:3px solid var(--ink);
+    padding:14px;
+    animation: slowTilt2 21s ease-in-out infinite;
+  }
+  .panelC{
+    left:10%; bottom:18%;
+    width:31%; height:17%;
+    background:rgba(29,86,200,.1);
+    border:3px solid var(--ink);
+    padding:14px;
+    animation: slowTilt3 23s ease-in-out infinite;
+  }
+  .panelD{
+    right:8%; bottom:12%;
+    width:36%; height:19%;
+    animation: slowTilt 26s ease-in-out infinite reverse;
+  }
+
+  @keyframes slowTilt{
+    0%,100%{transform:rotate(-2deg) translateY(0)}
+    50%{transform:rotate(2deg) translateY(-8px)}
+  }
+  @keyframes slowTilt2{
+    0%,100%{transform:rotate(2deg) translateY(0)}
+    50%{transform:rotate(-2deg) translateY(10px)}
+  }
+  @keyframes slowTilt3{
+    0%,100%{transform:rotate(-1deg) translateX(0)}
+    50%{transform:rotate(1.5deg) translateX(6px)}
+  }
+
+  .row{display:flex; align-items:center; gap:10px; margin:10px 0}
+  .col{display:flex; flex-direction:column; gap:8px}
+  .label, label, .mini{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  input, textarea, select, button, progress{
+    appearance:none;
+    -webkit-appearance:none;
+    border-radius:0;
+    border:3px solid var(--ink);
+    background:var(--off);
+    color:var(--ink);
+    pointer-events:none;
+    outline:none;
+  }
+  input[type="text"]{
+    width:100%;
+    height:42px;
+    padding:8px 12px;
+    font-size:17px;
+    background:
+      linear-gradient(90deg, rgba(29,86,200,.0) 0 70%, rgba(29,86,200,.1) 70% 100%),
+      var(--off);
+  }
+  textarea{
+    width:100%;
+    height:82px;
+    padding:10px 12px;
+    resize:none;
+    font-size:15px;
+    line-height:1.1;
+    background:
+      linear-gradient(180deg, rgba(213,58,43,.06), rgba(213,58,43,.0) 60%),
+      var(--off);
+  }
+  select{
+    width:100%;
+    height:42px;
+    padding:0 12px;
+    background:
+      linear-gradient(135deg, transparent 0 80%, var(--ink) 80% 84%, transparent 84%),
+      linear-gradient(180deg, rgba(240,190,27,.18), rgba(240,190,27,0)),
+      var(--off);
+  }
+  button{
+    height:42px;
+    padding:0 14px;
+    font-weight:800;
+    background:var(--yellow);
+  }
+  .ghost{
+    background:transparent;
+  }
+
+  .checkbox, .radio{
+    width:25px; height:25px; position:relative; flex:0 0 auto;
+    background:var(--off);
+  }
+  .checkbox.checked::after{
+    content:"";
+    position:absolute;
+    left:5px; top:2px;
+    width:10px; height:15px;
+    border-right:4px solid var(--red);
+    border-bottom:4px solid var(--red);
+    transform:rotate(40deg);
+  }
+  .checkbox.indeterminate::after{
+    content:"";
+    position:absolute;
+    left:4px; right:4px; top:8px; height:5px;
+    background:var(--blue);
+  }
+  .radio{border-radius:50%}
+  .radio.on::after{
+    content:"";
+    position:absolute; inset:5px;
+    background:var(--blue);
+    border-radius:50%;
+  }
+
+  .sliderWrap{
+    position:relative;
+    height:28px;
+    width:100%;
+    display:flex;
+    align-items:center;
+  }
+  .track{
+    height:8px;
+    width:100%;
+    border:3px solid var(--ink);
+    background:
+      linear-gradient(90deg, var(--red) 0 35%, var(--off) 35% 100%);
+  }
+  .thumb{
+    position:absolute;
+    width:24px; height:24px;
+    background:var(--off);
+    border:3px solid var(--ink);
+    left:35%;
+    transform:translateX(-50%);
+    animation: thumbPulse 8s ease-in-out infinite;
+  }
+  @keyframes thumbPulse{
+    0%,100%{left:18%; background:var(--off)}
+    50%{left:78%; background:#fff5c7}
+  }
+
+  progress{
+    width:100%;
+    height:28px;
+    background:var(--off);
+  }
+  progress::-webkit-progress-bar{background:var(--off)}
+  progress::-webkit-progress-value{background:var(--blue)}
+  progress::-moz-progress-bar{background:var(--blue)}
+
+  .disabled{
+    opacity:.45;
+    filter:grayscale(.2);
+  }
+
+  .gridBlocks{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+  }
+  .block{
+    position:absolute;
+    border:4px solid var(--ink);
+    background:rgba(248,246,239,.5);
+  }
+  .b1{left:-8%; top:33%; width:28%; height:19%; background:rgba(213,58,43,.8); animation:blockA 28s ease-in-out infinite;}
+  .b2{right:-10%; top:36%; width:32%; height:17%; background:rgba(29,86,200,.78); animation:blockB 31s ease-in-out infinite;}
+  .b3{left:36%; top:-4%; width:24%; height:10%; background:rgba(240,190,27,.9); animation:blockC 26s ease-in-out infinite;}
+  .b4{left:28%; bottom:-5%; width:36%; height:13%; background:rgba(18,18,18,.12); animation:blockD 33s ease-in-out infinite;}
+  @keyframes blockA{0%,100%{transform:translateX(0)}50%{transform:translateX(6%)}}
+  @keyframes blockB{0%,100%{transform:translateX(0)}50%{transform:translateX(-7%)}}
+  @keyframes blockC{0%,100%{transform:translateY(0)}50%{transform:translateY(4%)}}
+  @keyframes blockD{0%,100%{transform:translateY(0)}50%{transform:translateY(-3%)}}
+
+  #lineCanvas{
+    position:absolute; inset:0;
+    z-index:5;
+    pointer-events:none;
+  }
+
+  .scan{
+    position:absolute; inset:0; z-index:6; pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.08) 50%, rgba(255,255,255,0) 100%);
+    mix-blend-mode:screen;
+    opacity:.25;
+    animation: scanMove 18s linear infinite;
+  }
+  @keyframes scanMove{
+    0%{transform:translateY(-22%)}
+    100%{transform:translateY(122%)}
+  }
+
+  .date{
+    position:absolute;
+    right:18px; bottom:14px;
+    z-index:20;
+    font-size:13px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(18,18,18,.42);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    right:6px;
+    bottom:96px;
+    z-index:4;
+    opacity:.56;
+    filter:saturate(.8) contrast(.95);
+    transform:rotate(-8deg);
+  }
+
+  .maskfade{
+    position:absolute; inset:-1px;
+    pointer-events:none; z-index:30;
+    box-shadow:
+      inset 0 0 120px rgba(244,240,230,.2),
+      inset 0 0 200px rgba(244,240,230,.12);
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="paper"></div>
+
+    <div class="gridBlocks">
+      <div class="block b1"></div>
+      <div class="block b2"></div>
+      <div class="block b3"></div>
+      <div class="block b4"></div>
+    </div>
+
+    <img id="art-image" src="art.png" alt="">
+
+    <fieldset class="ui panelA">
+      <legend>fieldset</legend>
+      <div class="row">
+        <div class="checkbox checked"></div><div class="label">checked</div>
+      </div>
+      <div class="row">
+        <div class="checkbox indeterminate"></div><div class="label">mixed</div>
+      </div>
+      <div class="row">
+        <div class="radio on"></div><div class="label">selected</div>
+      </div>
+    </fieldset>
+
+    <div class="ui panelB">
+      <div class="mini" style="margin-bottom:10px;">input / label</div>
+      <label class="mini">text</label>
+      <input type="text" value="div span label">
+      <div style="height:10px"></div>
+      <label class="mini">range</label>
+      <div class="sliderWrap">
+        <div class="track"></div>
+        <div class="thumb"></div>
+      </div>
+    </div>
+
+    <div class="ui panelC disabled">
+      <div class="mini" style="margin-bottom:10px;">textarea</div>
+      <textarea>placeholder filled disabled blurred focused</textarea>
+      <div style="height:12px"></div>
+      <progress value="61" max="100"></progress>
+    </div>
+
+    <fieldset class="ui panelD">
+      <legend>controls</legend>
+      <div class="col">
+        <select>
+          <option>select menu</option>
+        </select>
+        <div class="row">
+          <button>button</button>
+          <button class="ghost">button</button>
+        </div>
+        <div class="row">
+          <div class="checkbox"></div><div class="label">empty</div>
+        </div>
+      </div>
+    </fieldset>
+
+    <canvas id="lineCanvas" width="1080" height="1920"></canvas>
+    <div class="scan"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div class="date">2026-05-12</div>
+    <div class="maskfade"></div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-05-12";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967295;
+  }
+
+  const canvas = document.getElementById('lineCanvas');
+  const ctx = canvas.getContext('2d');
+  const stage = document.getElementById('stage');
+
+  const W = 1080, H = 1920;
+
+  // Deterministically choose style from date: Bauhaus × philosophical DOM architecture
+  const nodes = [
+    {x:90,y:210},{x:290,y:210},{x:290,y:120},{x:440,y:120},{x:440,y:330},{x:120,y:330},
+    {x:120,y:620},{x:440,y:620},{x:440,y:520},{x:620,y:520},{x:620,y:180},{x:905,y:180},
+    {x:905,y:480},{x:760,y:480},{x:760,y:760},{x:980,y:760},{x:980,y:1010},{x:650,y:1010},
+    {x:650,y:860},{x:350,y:860},{x:350,y:1120},{x:120,y:1120},{x:120,y:1480},{x:360,y:1480},
+    {x:360,y:1320},{x:580,y:1320},{x:580,y:1540},{x:930,y:1540},{x:930,y:1760},{x:660,y:1760},
+    {x:660,y:1650},{x:480,y:1650},{x:480,y:1840},{x:170,y:1840},{x:170,y:1650},{x:890,y:1650},
+    {x:890,y:1360},{x:730,y:1360},{x:730,y:1220},{x:980,y:1220},{x:980,y:950},{x:820,y:950},
+    {x:820,y:320},{x:600,y:320},{x:600,y:680},{x:280,y:680},{x:280,y:440},{x:520,y:440},
+    {x:520,y:980},{x:250,y:980},{x:250,y:1260},{x:500,y:1260},{x:500,y:1450},{x:760,y:1450},
+    {x:760,y:1160},{x:600,y:1160},{x:600,y:190},{x:150,y:190}
+  ];
+
+  // Add small orthogonal detours to evoke HTML primitives.
+  const path = [];
+  function addPoint(x,y,t=0){ path.push({x,y,t}); }
+  for(let i=0;i<nodes.length-1;i++){
+    const a = nodes[i], b = nodes[i+1];
+    addPoint(a.x,a.y,0);
+
+    const dx = b.x-a.x, dy=b.y-a.y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      const dir = Math.sign(dx);
+      const midx = a.x + dx*0.5;
+      if(rand()>.35){
+        addPoint(midx, a.y, 0);
+        const h = 24 + Math.floor(rand()*40);
+        addPoint(midx, a.y - h, 1);
+        addPoint(midx + dir*(28+Math.floor(rand()*34)), a.y - h, 1);
+        addPoint(midx + dir*(28+Math.floor(rand()*34)), a.y, 1);
+      }
+    } else {
+      const dir = Math.sign(dy);
+      const midy = a.y + dy*0.5;
+      if(rand()>.35){
+        addPoint(a.x, midy, 0);
+        const w = 24 + Math.floor(rand()*40);
+        addPoint(a.x + w, midy, 1);
+        addPoint(a.x + w, midy + dir*(28+Math.floor(rand()*34)), 1);
+        addPoint(a.x, midy + dir*(28+Math.floor(rand()*34)), 1);
+      }
+    }
+  }
+  addPoint(nodes[nodes.length-1].x, nodes[nodes.length-1].y, 0);
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function pointAt(progress){
+    const total = path.length - 1;
+    const f = progress * total;
+    let i = Math.floor(f);
+    if (i >= total) i = total - 1;
+    const t = f - i;
+    const p0 = path[i], p1 = path[i+1];
+    return {x:lerp(p0.x,p1.x,t), y:lerp(p0.y,p1.y,t)};
+  }
+
+  function drawPrimitiveMarks(p, idx, time){
+    const k = idx % 12;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#121212';
+    ctx.fillStyle = idx % 3 === 0 ? '#d53a2b' : idx % 3 === 1 ? '#1d56c8' : '#f0be1b';
+    const pulse = 0.5 + 0.5*Math.sin(time*0.001 + idx*0.3);
+
+    if(k===0){ // checkbox
+      ctx.fillStyle = 'rgba(248,246,239,.8)';
+      ctx.fillRect(-18,-18,36,36);
+      ctx.strokeRect(-18,-18,36,36);
+      ctx.strokeStyle = '#d53a2b';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(-8,0); ctx.lineTo(-1,9); ctx.lineTo(12,-9); ctx.stroke();
+    } else if(k===1){ // radio
+      ctx.fillStyle='rgba(248,246,239,.86)';
+      ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#1d56c8';
+      ctx.beginPath(); ctx.arc(0,0,7+3*pulse,0,Math.PI*2); ctx.fill();
+    } else if(k===2){ // button
+      ctx.fillRect(-34,-16,68,32);
+      ctx.strokeRect(-34,-16,68,32);
+      ctx.fillStyle='#121212';
+      ctx.fillRect(-14,-3,28,6);
+    } else if(k===3){ // slider
+      ctx.fillStyle='rgba(248,246,239,.82)';
+      ctx.fillRect(-40,-7,80,14);
+      ctx.strokeRect(-40,-7,80,14);
+      ctx.fillStyle='#121212';
+      ctx.fillRect(-40,-7,32+36*pulse,14);
+      ctx.fillStyle='#f8f6ef';
+      ctx.fillRect(-8+36*(pulse-.5),-14,16,28);
+      ctx.strokeRect(-8+36*(pulse-.5),-14,16,28);
+    } else if(k===4){ // text input
+      ctx.fillStyle='rgba(248,246,239,.86)';
+      ctx.fillRect(-44,-16,88,32);
+      ctx.strokeRect(-44,-16,88,32);
+      ctx.fillStyle='#1d56c8';
+      ctx.fillRect(-30,-3,38,6);
+      ctx.fillStyle='#121212';
+      ctx.fillRect(14,-10,3,20);
+    } else if(k===5){ // textarea
+      ctx.fillStyle='rgba(248,246,239,.84)';
+      ctx.fillRect(-42,-28,84,56);
+      ctx.strokeRect(-42,-28,84,56);
+      for(let j=0;j<3;j++) ctx.fillRect(-28,-15+j*14,48-10*j,4);
+    } else if(k===6){ // progress
+      ctx.fillStyle='rgba(248,246,239,.86)';
+      ctx.fillRect(-44,-12,88,24);
+      ctx.strokeRect(-44,-12,88,24);
+      ctx.fillStyle='#1d56c8';
+      ctx.fillRect(-44,-12,30+44*pulse,24);
+    } else if(k===7){ // select
+      ctx.fillStyle='rgba(248,246,239,.86)';
+      ctx.fillRect(-44,-16,88,32);
+      ctx.strokeRect(-44,-16,88,32);
+      ctx.fillStyle='#121212';
+      ctx.beginPath();
+      ctx.moveTo(22,-4); ctx.lineTo(34,-4); ctx.lineTo(28,8); ctx.closePath(); ctx.fill();
+    } else if(k===8){ // fieldset corner
+      ctx.strokeRect(-48,-30,96,60);
+      ctx.fillStyle='#ede6d7';
+      ctx.fillRect(-20,-37,40,10);
+      ctx.strokeRect(-20,-37,40,10);
+    } else if(k===9){ // label span
+      ctx.fillStyle='#121212';
+      ctx.fillRect(-34,-5,68,10);
+      ctx.fillStyle='#d53a2b';
+      ctx.fillRect(-50,-5,10,10);
+    } else if(k===10){ // disabled block
+      ctx.globalAlpha=.5;
+      ctx.fillStyle='rgba(198,189,168,.9)';
+      ctx.fillRect(-36,-22,72,44);
+      ctx.strokeRect(-36,-22,72,44);
+      ctx.globalAlpha=1;
+      ctx.strokeStyle='#655f57';
+      ctx.beginPath(); ctx.moveTo(-28,-14); ctx.lineTo(28,14); ctx.stroke();
+    } else { // div/span architecture
+      ctx.fillStyle='rgba(248,246,239,.86)';
+      ctx.fillRect(-34,-24,68,18);
+      ctx.fillRect(-34,6,68,18);
+      ctx.strokeRect(-34,-24,68,18);
+      ctx.strokeRect(-34,6,68,18);
+      ctx.fillStyle='#f0be1b';
+      ctx.fillRect(-10,-5,20,10);
+      ctx.strokeRect(-10,-5,20,10);
+    }
+    ctx.restore();
+  }
+
+  function render(t){
+    ctx.clearRect(0,0,W,H);
+
+    // single continuous line
+    const loopMs = 42000;
+    const phase = (t % loopMs) / loopMs;
+
+    ctx.lineCap='square';
+    ctx.lineJoin='miter';
+
+    // ghost architecture
+    ctx.globalAlpha = 0.26;
+    ctx.lineWidth = 16;
+    ctx.strokeStyle = '#1d56c8';
+    ctx.beginPath();
+    for(let i=0;i<path.length;i++){
+      const p = path[i];
+      if(i===0) ctx.moveTo(p.x,p.y);
+      else ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.22;
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = '#d53a2b';
+    ctx.beginPath();
+    for(let i=0;i<path.length;i++){
+      const p = path[i];
+      if(i===0) ctx.moveTo(p.x+8,p.y+8);
+      else ctx.lineTo(p.x+8,p.y+8);
+    }
+    ctx.stroke();
+
+    // active single line segment
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 22;
+    ctx.strokeStyle = '#121212';
+    ctx.beginPath();
+
+    const count = path.length - 1;
+    const head = phase * count;
+    const tail = Math.max(0, head - count * 0.28);
+
+    let started = false;
+    for(let s=Math.floor(tail); s<=Math.ceil(head); s++){
+      if(s < 0 || s >= count) continue;
+      const segStart = Math.max(s, tail);
+      const segEnd = Math.min(s+1, head);
+      const pA = pointAt(segStart / count);
+      const pB = pointAt(segEnd / count);
+      if(!started){ ctx.moveTo(pA.x,pA.y); started=true; }
+      ctx.lineTo(pB.x,pB.y);
+    }
+    ctx.stroke();
+
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = '#f8f6ef';
+    ctx.beginPath();
+    started = false;
+    for(let s=Math.floor(tail); s<=Math.ceil(head); s++){
+      if(s < 0 || s >= count) continue;
+      const segStart = Math.max(s, tail);
+      const segEnd = Math.min(s+1, head);
+      const pA = pointAt(segStart / count);
+      const pB = pointAt(segEnd / count);
+      if(!started){ ctx.moveTo(pA.x,pA.y); started=true; }
+      ctx.lineTo(pB.x,pB.y);
+    }
+    ctx.stroke();
+
+    // markers along the path
+    const markerCount = 14;
+    for(let i=0;i<markerCount;i++){
+      const pr = (phase - 0.015*i + 1) % 1;
+      const p = pointAt(pr);
+      drawPrimitiveMarks(p, i, t);
+    }
+
+    // head cursor
+    const hp = pointAt(phase);
+    ctx.save();
+    ctx.translate(hp.x,hp.y);
+    ctx.fillStyle = '#f0be1b';
+    ctx.strokeStyle = '#121212';
+    ctx.lineWidth = 5;
+    ctx.fillRect(-18,-18,36,36);
+    ctx.strokeRect(-18,-18,36,36);
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(-3,-14,6,28);
+    ctx.restore();
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audioCtx = new AudioCtx();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.024;
+      master.connect(audioCtx.destination);
+
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'triangle';
+      osc1.frequency.value = 87.31;
+      osc2.frequency.value = 131.0;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 620;
+      filter.Q.value = 0.8;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.07;
+      lfoGain.gain.value = 22;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(master);
+
+      const now = audioCtx.currentTime;
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(0.024, now + 2.5);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+
+      setInterval(() => {
+        const t = audioCtx.currentTime;
+        const notes = [87.31, 98.0, 110.0, 130.81, 146.83];
+        const n1 = notes[Math.floor((t/7)%notes.length)];
+        const n2 = notes[(Math.floor((t/11)%notes.length)+2)%notes.length];
+        osc1.frequency.linearRampToValueAtTime(n1, t + 3.5);
+        osc2.frequency.linearRampToValueAtTime(n2, t + 4.2);
+      }, 4000);
+
+      const resume = () => {
+        if (audioCtx.state !== 'running') audioCtx.resume();
+      };
+      document.addEventListener('visibilitychange', resume);
+      window.addEventListener('load', resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
