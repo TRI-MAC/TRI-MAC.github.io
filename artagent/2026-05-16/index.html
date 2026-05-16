@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative Art</title>
+<style>
+  :root{
+    --bg:#0f0b0a;
+    --ink:#241713;
+    --gold:#e1b85a;
+    --champ:#f5e6b7;
+    --bronze:#8a5a2b;
+    --copper:#c67a36;
+    --onyx:#120d0b;
+    --cream:#f2dfb2;
+    --ruby:#8d1f1f;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 15%, rgba(225,184,90,.15), transparent 28%),
+      linear-gradient(180deg, #24150d 0%, #120d0b 28%, #080607 100%);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(245,230,183,.16), transparent 24%),
+      linear-gradient(180deg, #2e1d15 0%, #120d0b 32%, #090607 100%);
+    box-shadow:0 0 0 1px rgba(255,220,150,.12), 0 0 90px rgba(0,0,0,.45) inset;
+  }
+
+  /* integrated deco background */
+  .bg-layer{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  #sunburst{
+    position:absolute;
+    inset:-8% -8% auto -8%;
+    height:64%;
+    opacity:.9;
+    filter:drop-shadow(0 0 24px rgba(227,191,103,.18));
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,.95) 72%, rgba(0,0,0,0));
+    -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,.95) 72%, rgba(0,0,0,0));
+    animation: slowRotate 36s ease-in-out infinite alternate;
+    transform-origin:50% 16%;
+  }
+  #sunburst svg{width:100%;height:100%;display:block}
+
+  #arches{
+    position:absolute; inset:0;
+    opacity:.95;
+    mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 74%, rgba(0,0,0,.7) 84%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 74%, rgba(0,0,0,.7) 84%, rgba(0,0,0,0) 100%);
+  }
+  #arches svg{width:100%;height:100%;display:block}
+
+  #columns{
+    position:absolute; inset:0;
+    opacity:.55;
+    background:
+      linear-gradient(90deg,
+        transparent 0 10%,
+        rgba(245,230,183,.06) 10.3% 10.8%,
+        transparent 11.1% 20%,
+        rgba(245,230,183,.06) 20.4% 20.7%,
+        transparent 21% 79%,
+        rgba(245,230,183,.06) 79.3% 79.6%,
+        transparent 80% 89%,
+        rgba(245,230,183,.06) 89.2% 89.7%,
+        transparent 90% 100%);
+  }
+
+  #decoOrnament{
+    position:absolute;
+    inset:0;
+    opacity:.55;
+    mix-blend-mode:screen;
+  }
+  #decoOrnament svg{width:100%;height:100%;display:block}
+
+  /* pendulums */
+  #pendulum-wrap{
+    position:absolute;
+    left:5.5%;
+    top:12.4%;
+    width:89%;
+    height:47%;
+    pointer-events:none;
+    filter:drop-shadow(0 10px 24px rgba(0,0,0,.4));
+  }
+  #pendulumCanvas{
+    width:100%; height:100%; display:block;
+  }
+
+  /* portrait scene integration */
+  #portrait-back-glow{
+    position:absolute;
+    left:17%;
+    bottom:18%;
+    width:48%;
+    height:30%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 52%, rgba(236,196,103,.34), rgba(197,122,54,.14) 35%, rgba(109,42,16,.06) 55%, transparent 74%);
+    filter:blur(18px);
+    opacity:.95;
+    animation:breath 9s ease-in-out infinite;
+  }
+
+  #portrait-shadow{
+    position:absolute;
+    left:19%;
+    bottom:12%;
+    width:39%;
+    height:7%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(0,0,0,.48), rgba(0,0,0,.18) 50%, transparent 76%);
+    filter:blur(14px);
+    transform:skewX(-18deg);
+    opacity:.75;
+  }
+
+  #portrait-image{
+    position:absolute;
+    left:15%;
+    bottom:13%;
+    width:42%;
+    height:auto;
+    z-index:8;
+    filter:
+      saturate(0.9)
+      contrast(1.05)
+      sepia(.22)
+      hue-rotate(-8deg)
+      drop-shadow(0 16px 24px rgba(0,0,0,.38))
+      drop-shadow(0 0 18px rgba(238,197,109,.18));
+    transform-origin:50% 100%;
+    animation:portraitFloat 10s ease-in-out infinite;
+  }
+
+  #portrait-rim{
+    position:absolute;
+    left:13%;
+    bottom:12.6%;
+    width:45%;
+    height:40%;
+    z-index:7;
+    background:
+      radial-gradient(circle at 54% 36%, rgba(245,223,178,.22), transparent 36%),
+      conic-gradient(from 180deg at 50% 55%,
+        transparent 0deg, rgba(245,223,178,.0) 28deg,
+        rgba(245,223,178,.14) 48deg,
+        rgba(225,184,90,.0) 84deg,
+        transparent 360deg);
+    filter:blur(16px);
+    opacity:.8;
+    mix-blend-mode:screen;
+    mask-image:radial-gradient(circle at 50% 55%, rgba(0,0,0,.9), rgba(0,0,0,.48) 52%, transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 55%, rgba(0,0,0,.9), rgba(0,0,0,.48) 52%, transparent 78%);
+  }
+
+  #dripCanvas, #frontCanvas{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  #dripCanvas{ z-index:9; }
+  #frontCanvas{ z-index:10; }
+
+  /* lower deco fan in front of portrait */
+  #lower-fan{
+    position:absolute;
+    left:-4%;
+    right:-4%;
+    bottom:-2%;
+    height:29%;
+    z-index:11;
+    opacity:.82;
+    mask-image:linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,.94) 75%, rgba(0,0,0,0));
+    -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,.94) 75%, rgba(0,0,0,0));
+  }
+  #lower-fan svg{width:100%;height:100%;display:block}
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(245,223,178,.62);
+    font-size:15px;
+    letter-spacing:.12em;
+    z-index:20;
+    text-shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:77px;
+    bottom:108px;
+    z-index:12;
+    opacity:.58;
+    filter:saturate(.9) sepia(.22) hue-rotate(-12deg) brightness(.84) drop-shadow(0 0 2px rgba(0,0,0,.35));
+    transform:rotate(-6deg);
+  }
+
+  .grain{
+    position:absolute; inset:0;
+    z-index:30;
+    opacity:.08;
+    mix-blend-mode:soft-light;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.4) 0 0.6px, transparent 1px),
+      radial-gradient(circle at 70% 50%, rgba(255,255,255,.28) 0 0.7px, transparent 1.1px),
+      radial-gradient(circle at 40% 80%, rgba(255,255,255,.25) 0 0.6px, transparent 1px);
+    background-size:5px 5px, 7px 7px, 9px 9px;
+    animation:grainShift 8s steps(6) infinite;
+    pointer-events:none;
+  }
+
+  @keyframes slowRotate{
+    0%{transform:rotate(-3deg) scale(1)}
+    100%{transform:rotate(3deg) scale(1.03)}
+  }
+  @keyframes portraitFloat{
+    0%,100%{transform:translateY(0px) rotate(-0.5deg)}
+    50%{transform:translateY(-10px) rotate(0.8deg)}
+  }
+  @keyframes breath{
+    0%,100%{transform:scale(1); opacity:.88}
+    50%{transform:scale(1.06); opacity:1}
+  }
+  @keyframes grainShift{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(-1%,.6%)}
+    50%{transform:translate(.6%,-.8%)}
+    75%{transform:translate(-.5%,-.4%)}
+    100%{transform:translate(0,0)}
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="columns" class="bg-layer"></div>
+
+    <div id="sunburst" class="bg-layer">
+      <svg viewBox="0 0 1080 900" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f4dd9c" stop-opacity="0.95"/>
+            <stop offset="35%" stop-color="#d49a45" stop-opacity="0.72"/>
+            <stop offset="100%" stop-color="#5e381e" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="sunCore" cx="50%" cy="18%" r="28%">
+            <stop offset="0%" stop-color="#fff3ce" stop-opacity="0.95"/>
+            <stop offset="24%" stop-color="#f0ca72" stop-opacity="0.74"/>
+            <stop offset="56%" stop-color="#bb7936" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#bb7936" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <g transform="translate(540,130)">
+          <circle r="160" fill="url(#sunCore)"/>
+          <g id="rays"></g>
+        </g>
+      </svg>
+    </div>
+
+    <div id="arches" class="bg-layer">
+      <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="archGold" x1="0" x2="1">
+            <stop offset="0%" stop-color="#73461f"/>
+            <stop offset="28%" stop-color="#f0d58e"/>
+            <stop offset="52%" stop-color="#8a5a2b"/>
+            <stop offset="74%" stop-color="#f2dfa8"/>
+            <stop offset="100%" stop-color="#6f431e"/>
+          </linearGradient>
+        </defs>
+        <path d="M170 1670 L170 810 Q170 320 540 320 Q910 320 910 810 L910 1670"
+              fill="none" stroke="url(#archGold)" stroke-width="8" opacity=".55"/>
+        <path d="M235 1670 L235 870 Q235 430 540 430 Q845 430 845 870 L845 1670"
+              fill="none" stroke="url(#archGold)" stroke-width="4" opacity=".35"/>
+        <path d="M85 1770 L85 760 Q85 180 540 180 Q995 180 995 760 L995 1770"
+              fill="none" stroke="url(#archGold)" stroke-width="2" opacity=".18"/>
+        <path d="M120 1550 H960" stroke="url(#archGold)" stroke-width="3" opacity=".22"/>
+      </svg>
+    </div>
+
+    <div id="decoOrnament" class="bg-layer">
+      <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="thinGold" x1="0" x2="1">
+            <stop offset="0%" stop-color="#7a4a20"/>
+            <stop offset="50%" stop-color="#f4dfaa"/>
+            <stop offset="100%" stop-color="#7a4a20"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#thinGold)" stroke-linecap="square">
+          <path d="M540 116 L615 190 L540 264 L465 190 Z" stroke-width="2.5" opacity=".34"/>
+          <path d="M540 108 L645 212 L540 316 L435 212 Z" stroke-width="1.5" opacity=".22"/>
+          <path d="M205 1450 L300 1545 L205 1640 L110 1545 Z" stroke-width="2" opacity=".17"/>
+          <path d="M875 1450 L970 1545 L875 1640 L780 1545 Z" stroke-width="2" opacity=".17"/>
+          <path d="M290 275 H790" stroke-width="1.5" opacity=".15"/>
+          <path d="M260 300 H820" stroke-width="1" opacity=".12"/>
+        </g>
+      </svg>
+    </div>
+
+    <div id="pendulum-wrap">
+      <canvas id="pendulumCanvas" width="960" height="740"></canvas>
+    </div>
+
+    <div id="portrait-back-glow"></div>
+    <div id="portrait-rim"></div>
+    <div id="portrait-shadow"></div>
+    <img id="portrait-image" src="portrait.png" alt="" />
+    <canvas id="dripCanvas" width="1080" height="1920"></canvas>
+
+    <div id="lower-fan">
+      <svg viewBox="0 0 1080 460" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="fanGold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#412412"/>
+            <stop offset="14%" stop-color="#a86a31"/>
+            <stop offset="34%" stop-color="#f0d690"/>
+            <stop offset="50%" stop-color="#7e4b23"/>
+            <stop offset="66%" stop-color="#f0d690"/>
+            <stop offset="86%" stop-color="#a86a31"/>
+            <stop offset="100%" stop-color="#412412"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(540,410)">
+          <path d="M-540 40 L-360 -240 L-250 40 Z" fill="url(#fanGold)" opacity=".36"/>
+          <path d="M-340 40 L-170 -310 L-10 40 Z" fill="url(#fanGold)" opacity=".44"/>
+          <path d="M-110 40 L0 -360 L110 40 Z" fill="url(#fanGold)" opacity=".64"/>
+          <path d="M10 40 L170 -310 L340 40 Z" fill="url(#fanGold)" opacity=".44"/>
+          <path d="M250 40 L360 -240 L540 40 Z" fill="url(#fanGold)" opacity=".36"/>
+          <rect x="-540" y="30" width="1080" height="18" fill="#100b09" opacity=".9"/>
+          <rect x="-540" y="54" width="1080" height="4" fill="#d3a95d" opacity=".4"/>
+        </g>
+      </svg>
+    </div>
+
+    <canvas id="frontCanvas" width="1080" height="1920"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="date">2026-05-16</div>
+    <div class="grain"></div>
+  </div>
+
+<script>
+(() => {
+  const dateSeedStr = "2026-05-16";
+  let seed = 0;
+  for (let i = 0; i < dateSeedStr.length; i++) seed = ((seed * 131) + dateSeedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  /* Build sunburst rays deterministically */
+  const raysGroup = document.getElementById('rays');
+  const NS = "http://www.w3.org/2000/svg";
+  const rayCount = 32;
+  for (let i = 0; i < rayCount; i++) {
+    const a0 = (-78 + i * (156 / rayCount)) * Math.PI / 180;
+    const a1 = (-78 + (i + 0.52) * (156 / rayCount)) * Math.PI / 180;
+    const r0 = 120;
+    const r1 = 710 + (i % 3) * 36;
+    const p = document.createElementNS(NS, 'path');
+    const x0 = Math.cos(a0) * r0, y0 = Math.sin(a0) * r0;
+    const x1 = Math.cos(a1) * r0, y1 = Math.sin(a1) * r0;
+    const x2 = Math.cos((a0+a1)/2) * r1, y2 = Math.sin((a0+a1)/2) * r1;
+    p.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)} L ${x1.toFixed(1)} ${y1.toFixed(1)} Z`);
+    p.setAttribute('fill', 'url(#rayGrad)');
+    p.setAttribute('opacity', (0.18 + (i % 4) * 0.06).toFixed(2));
+    raysGroup.appendChild(p);
+  }
+
+  const pCanvas = document.getElementById('pendulumCanvas');
+  const pctx = pCanvas.getContext('2d');
+
+  const dripCanvas = document.getElementById('dripCanvas');
+  const dctx = dripCanvas.getContext('2d');
+
+  const frontCanvas = document.getElementById('frontCanvas');
+  const fctx = frontCanvas.getContext('2d');
+
+  const portrait = document.getElementById('portrait-image');
+
+  const pendulums = [];
+  const n = 15;
+  const topY = 78;
+  const leftX = 62;
+  const span = pCanvas.width - 124;
+  const spacing = span / (n - 1);
+
+  const baseL = 246;
+  for (let i = 0; i < n; i++) {
+    pendulums.push({
+      x: leftX + i * spacing,
+      L: baseL + i * 19.5,
+      phase: i * 0.19,
+      amp: 0.38 + (i / n) * 0.02,
+      bobR: 18 + (i % 3),
+      hue: i / (n - 1)
+    });
+  }
+
+  const drips = [];
+  const splats = [];
+  function rebuildPortraitEffects() {
+    drips.length = 0;
+    splats.length = 0;
+    const rect = portrait.getBoundingClientRect();
+    const stageRect = document.getElementById('stage').getBoundingClientRect();
+    const x = rect.left - stageRect.left;
+    const y = rect.top - stageRect.top;
+    const w = rect.width;
+    const h = rect.height;
+
+    for (let i = 0; i < 28; i++) {
+      const side = rand() < 0.58 ? 'right' : 'left';
+      const sx = side === 'right' ? x + w * (0.78 + rand() * 0.18) : x + w * (0.06 + rand() * 0.14);
+      const sy = y + h * (0.18 + rand() * 0.56);
+      drips.push({
+        x: sx,
+        y: sy,
+        len: 34 + rand() * 140,
+        width: 5 + rand() * 18,
+        bulb: 8 + rand() * 16,
+        speed: 0.3 + rand() * 0.7,
+        offset: rand() * Math.PI * 2,
+        side
+      });
+    }
+    for (let i = 0; i < 46; i++) {
+      const ang = rand() * Math.PI * 2;
+      const rr = 24 + rand() * Math.min(w, h) * 0.42;
+      const sx = x + w * 0.52 + Math.cos(ang) * rr * (0.7 + rand() * 0.8);
+      const sy = y + h * 0.42 + Math.sin(ang) * rr * (0.5 + rand() * 0.9);
+      splats.push({
+        x: sx, y: sy, r: 3 + rand() * 13, alpha: 0.06 + rand() * 0.22
+      });
+    }
+  }
+
+  function goldGradient(ctx, x0, y0, x1, y1) {
+    const g = ctx.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, '#5f3517');
+    g.addColorStop(0.25, '#d39a46');
+    g.addColorStop(0.5, '#fff0bf');
+    g.addColorStop(0.75, '#a86a31');
+    g.addColorStop(1, '#4f2d14');
+    return g;
+  }
+
+  function drawPendulums(t) {
+    pctx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+    // canopy / beam
+    const beamGrad = goldGradient(pctx, 0, 0, pCanvas.width, 0);
+    pctx.fillStyle = '#140d0b';
+    pctx.fillRect(0, 20, pCanvas.width, 16);
+    pctx.fillStyle = beamGrad;
+    pctx.fillRect(0, 32, pCanvas.width, 12);
+    pctx.fillStyle = '#261813';
+    pctx.fillRect(0, 44, pCanvas.width, 24);
+
+    // top jewel markers
+    for (let i = 0; i < n; i++) {
+      const x = pendulums[i].x;
+      pctx.fillStyle = i % 2 ? 'rgba(240,214,144,.8)' : 'rgba(168,106,49,.9)';
+      pctx.beginPath();
+      pctx.moveTo(x, 56);
+      pctx.lineTo(x + 9, 65);
+      pctx.lineTo(x, 74);
+      pctx.lineTo(x - 9, 65);
+      pctx.closePath();
+      pctx.fill();
+    }
+
+    // central sweep highlight
+    const g = pctx.createRadialGradient(pCanvas.width * 0.5, 120, 10, pCanvas.width * 0.5, 140, 540);
+    g.addColorStop(0, 'rgba(255,243,201,.12)');
+    g.addColorStop(0.4, 'rgba(211,169,93,.06)');
+    g.addColorStop(1, 'rgba(211,169,93,0)');
+    pctx.fillStyle = g;
+    pctx.fillRect(0, 70, pCanvas.width, pCanvas.height);
+
+    const omega = 0.00118 * Math.PI * 2; // glacial and looping enough
+    const bobPts = [];
+
+    for (let i = 0; i < n; i++) {
+      const p = pendulums[i];
+      const theta = p.amp * Math.sin(t * omega * Math.sqrt(700 / p.L) + p.phase);
+      const bx = p.x + Math.sin(theta) * p.L;
+      const by = topY + Math.cos(theta) * p.L;
+      bobPts.push({x: bx, y: by, r: p.bobR});
+
+      // rod highlight
+      pctx.lineWidth = 4;
+      pctx.strokeStyle = 'rgba(58,33,17,.95)';
+      pctx.beginPath();
+      pctx.moveTo(p.x, topY);
+      pctx.lineTo(bx, by);
+      pctx.stroke();
+
+      pctx.lineWidth = 1.4;
+      pctx.strokeStyle = 'rgba(248,231,184,.7)';
+      pctx.beginPath();
+      pctx.moveTo(p.x + 0.7, topY);
+      pctx.lineTo(bx + 0.7, by);
+      pctx.stroke();
+
+      // bob outer
+      const rg = pctx.createRadialGradient(bx - p.bobR * 0.25, by - p.bobR * 0.35, 2, bx, by, p.bobR * 1.3);
+      rg.addColorStop(0, '#fff1c8');
+      rg.addColorStop(0.28, '#e7bd60');
+      rg.addColorStop(0.58, '#9a5e2b');
+      rg.addColorStop(1, '#3e2312');
+      pctx.fillStyle = rg;
+      pctx.beginPath();
+      pctx.arc(bx, by, p.bobR, 0, Math.PI * 2);
+      pctx.fill();
+
+      // deco ring
+      pctx.lineWidth = 2;
+      pctx.strokeStyle = 'rgba(247,230,184,.58)';
+      pctx.beginPath();
+      pctx.arc(bx, by, p.bobR * 0.65, 0, Math.PI * 2);
+      pctx.stroke();
+
+      // reflected lozenge under bob
+      pctx.fillStyle = 'rgba(255,232,180,.12)';
+      pctx.beginPath();
+      pctx.moveTo(bx, by + p.bobR * 0.2);
+      pctx.lineTo(bx + p.bobR * 0.38, by + p.bobR * 0.55);
+      pctx.lineTo(bx, by + p.bobR * 0.9);
+      pctx.lineTo(bx - p.bobR * 0.38, by + p.bobR * 0.55);
+      pctx.closePath();
+      pctx.fill();
+    }
+
+    // Wave envelope using thick deco diamonds, not lines
+    for (let i = 0; i < bobPts.length - 1; i++) {
+      const a = bobPts[i];
+      const b = bobPts[i + 1];
+      const mx = (a.x + b.x) * 0.5;
+      const my = (a.y + b.y) * 0.5;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      const ang = Math.atan2(dy, dx);
+      const thick = Math.max(9, Math.min(24, len * 0.11));
+
+      pctx.save();
+      pctx.translate(mx, my);
+      pctx.rotate(ang);
+      const lg = pctx.createLinearGradient(-len/2, 0, len/2, 0);
+      lg.addColorStop(0, 'rgba(112,63,28,.04)');
+      lg.addColorStop(0.2, 'rgba(214,169,88,.18)');
+      lg.addColorStop(0.5, 'rgba(255,240,191,.28)');
+      lg.addColorStop(0.8, 'rgba(214,169,88,.18)');
+      lg.addColorStop(1, 'rgba(112,63,28,.04)');
+      pctx.fillStyle = lg;
+      pctx.beginPath();
+      pctx.moveTo(-len/2, 0);
+      pctx.lineTo(0, -thick);
+      pctx.lineTo(len/2, 0);
+      pctx.lineTo(0, thick);
+      pctx.closePath();
+      pctx.fill();
+      pctx.restore();
+    }
+  }
+
+  function drawDrips(t) {
+    dctx.clearRect(0,0,dripCanvas.width,dripCanvas.height);
+    dctx.globalCompositeOperation = 'source-over';
+
+    for (const s of splats) {
+      const rg = dctx.createRadialGradient(s.x, s.y, 1, s.x, s.y, s.r);
+      rg.addColorStop(0, `rgba(244,220,155,${s.alpha})`);
+      rg.addColorStop(0.5, `rgba(198,122,54,${s.alpha * 0.82})`);
+      rg.addColorStop(1, 'rgba(90,48,22,0)');
+      dctx.fillStyle = rg;
+      dctx.beginPath();
+      dctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      dctx.fill();
+    }
+
+    for (const d of drips) {
+      const yy = d.y + Math.sin(t * 0.0006 * d.speed + d.offset) * 10;
+      const ext = Math.sin(t * 0.00075 * d.speed + d.offset) * 12;
+      const len = d.len + ext;
+      const grad = dctx.createLinearGradient(d.x, yy, d.x, yy + len);
+      grad.addColorStop(0, 'rgba(244,219,150,.0)');
+      grad.addColorStop(0.12, 'rgba(233,191,102,.18)');
+      grad.addColorStop(0.62, 'rgba(183,104,38,.34)');
+      grad.addColorStop(1, 'rgba(71,32,15,.0)');
+      dctx.fillStyle = grad;
+
+      dctx.beginPath();
+      dctx.moveTo(d.x - d.width * 0.38, yy);
+      dctx.lineTo(d.x + d.width * 0.38, yy);
+      dctx.lineTo(d.x + d.width * 0.22, yy + len * 0.78);
+      dctx.arc(d.x, yy + len, d.bulb, Math.PI*1.1, Math.PI*1.9, false);
+      dctx.lineTo(d.x - d.width * 0.22, yy + len * 0.78);
+      dctx.closePath();
+      dctx.fill();
+
+      dctx.fillStyle = 'rgba(255,236,185,.08)';
+      dctx.fillRect(d.x - 1.2, yy + 6, 1.8, len * 0.72);
+    }
+  }
+
+  function drawFront(t){
+    fctx.clearRect(0,0,frontCanvas.width,frontCanvas.height);
+
+    // stepped deco veil passing in front of portrait and lower scene
+    const baseY = 1180;
+    const pulse = Math.sin(t * 0.00032) * 8;
+
+    for(let i=0;i<7;i++){
+      const inset = 64 + i * 42;
+      const y = baseY + i * 62 + pulse * (i % 2 ? 1 : -1);
+      const h = 42;
+      const grad = fctx.createLinearGradient(inset, y, 1080 - inset, y);
+      grad.addColorStop(0, 'rgba(94,55,25,0)');
+      grad.addColorStop(0.12, 'rgba(177,117,54,.24)');
+      grad.addColorStop(0.5, i===2 ? 'rgba(250,234,182,.24)' : 'rgba(214,169,88,.14)');
+      grad.addColorStop(0.88, 'rgba(177,117,54,.24)');
+      grad.addColorStop(1, 'rgba(94,55,25,0)');
+      fctx.fillStyle = grad;
+      fctx.beginPath();
+      fctx.moveTo(inset, y);
+      fctx.lineTo(540, y - h);
+      fctx.lineTo(1080 - inset, y);
+      fctx.lineTo(540, y + h);
+      fctx.closePath();
+      fctx.fill();
+    }
+
+    // foreground vertical decorative bars
+    fctx.fillStyle = 'rgba(244,220,155,.06)';
+    fctx.fillRect(132, 1080, 4, 560);
+    fctx.fillRect(944, 1080, 4, 560);
+
+    // subtle fan of diamonds in front of lower body area
+    for(let i=0;i<5;i++){
+      const cx = 395 + i * 70;
+      const cy = 1360 + Math.sin(t*0.00035 + i) * 4;
+      const s = 18 + i * 10;
+      fctx.strokeStyle = i % 2 ? 'rgba(244,220,155,.22)' : 'rgba(180,114,51,.22)';
+      fctx.lineWidth = 1.2;
+      fctx.beginPath();
+      fctx.moveTo(cx, cy - s);
+      fctx.lineTo(cx + s, cy);
+      fctx.lineTo(cx, cy + s);
+      fctx.lineTo(cx - s, cy);
+      fctx.closePath();
+      fctx.stroke();
+    }
+
+    // soft vignette edge feathering
+    const vg = fctx.createRadialGradient(540, 960, 720, 540, 960, 1120);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(0.82, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,.22)');
+    fctx.fillStyle = vg;
+    fctx.fillRect(0,0,1080,1920);
+  }
+
+  function frame(ts){
+    drawPendulums(ts);
+    drawDrips(ts);
+    drawFront(ts);
+    requestAnimationFrame(frame);
+  }
+
+  function init() {
+    rebuildPortraitEffects();
+    requestAnimationFrame(frame);
+
+    if (window.self === window.top) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const master = ctx.createGain();
+        master.gain.value = 0.012;
+        master.connect(ctx.destination);
+
+        const o1 = ctx.createOscillator();
+        const o2 = ctx.createOscillator();
+        const o3 = ctx.createOscillator();
+        const g1 = ctx.createGain();
+        const g2 = ctx.createGain();
+        const g3 = ctx.createGain();
+        const lp = ctx.createBiquadFilter();
+
+        o1.type = 'triangle'; o2.type = 'sine'; o3.type = 'sine';
+        o1.frequency.value = 110;
+        o2.frequency.value = 164.81;
+        o3.frequency.value = 220;
+
+        g1.gain.value = 0.18;
+        g2.gain.value = 0.09;
+        g3.gain.value = 0.05;
+
+        lp.type = 'lowpass';
+        lp.frequency.value = 950;
+        lp.Q.value = 0.8;
+
+        o1.connect(g1); o2.connect(g2); o3.connect(g3);
+        g1.connect(lp); g2.connect(lp); g3.connect(lp);
+        lp.connect(master);
+
+        const now = ctx.currentTime;
+        master.gain.setValueAtTime(0.0001, now);
+        master.gain.linearRampToValueAtTime(0.012, now + 4);
+
+        o1.start(); o2.start(); o3.start();
+
+        function schedule() {
+          const t = ctx.currentTime;
+          g2.gain.cancelScheduledValues(t);
+          g3.gain.cancelScheduledValues(t);
+          lp.frequency.cancelScheduledValues(t);
+
+          g2.gain.setValueAtTime(0.05, t);
+          g2.gain.linearRampToValueAtTime(0.1, t + 6);
+          g2.gain.linearRampToValueAtTime(0.05, t + 12);
+
+          g3.gain.setValueAtTime(0.03, t);
+          g3.gain.linearRampToValueAtTime(0.06, t + 8);
+          g3.gain.linearRampToValueAtTime(0.03, t + 16);
+
+          lp.frequency.setValueAtTime(780, t);
+          lp.frequency.linearRampToValueAtTime(1200, t + 10);
+          lp.frequency.linearRampToValueAtTime(820, t + 20);
+        }
+        schedule();
+        setInterval(schedule, 12000);
+      } catch(e){}
+    }
+  }
+
+  window.addEventListener('load', init);
+  window.addEventListener('resize', rebuildPortraitEffects);
+})();
+</script>
+</body>
+</html>
