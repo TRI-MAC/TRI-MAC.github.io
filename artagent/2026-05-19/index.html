@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-05-19</title>
+<style>
+  :root{
+    --bg:#f2e3b6;
+    --paper:#ead7a2;
+    --ochre:#c8822a;
+    --rust:#9d4c16;
+    --red:#8f231c;
+    --char:#111111;
+    --ink:#050505;
+    --bone:#f4ecd1;
+    --tan:#d2b27a;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#1a1209;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:9/16;
+    background:linear-gradient(180deg,#f0dfae 0%, #e2c98f 55%, #c48a44 100%);
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,.2), 0 18px 60px rgba(0,0,0,.45);
+  }
+
+  /* background texture and stage */
+  #bgSvg, #panelSvg, #overlaySvg, #maskSvg, #symbolsSvg, #frontSvg, #textureCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block;
+    pointer-events:none;
+  }
+
+  #background-video{
+    position:absolute;
+    inset:7% 5% 7% 5%;
+    width:90%;
+    height:86%;
+    object-fit:cover;
+    opacity:.8;
+    filter:saturate(.85) sepia(.35) contrast(1.1) brightness(.92) hue-rotate(-10deg);
+    transform:scale(1.05);
+    mask-image:linear-gradient(180deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    z-index:1;
+  }
+
+  #videoTint{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(244,236,209,.08), rgba(244,236,209,0) 34%),
+      linear-gradient(180deg, rgba(255,230,170,.15), rgba(130,55,16,.12));
+    mix-blend-mode:multiply;
+    z-index:2;
+    pointer-events:none;
+  }
+
+  /* comic panel structure */
+  .panel-grid{
+    position:absolute;
+    inset:4.5%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1.1fr .9fr 1.05fr;
+    gap:20px;
+    z-index:4;
+    pointer-events:none;
+  }
+  .panel{
+    position:relative;
+    overflow:hidden;
+    border-radius:20px;
+    background:rgba(244,236,209,.05);
+    box-shadow:
+      inset 0 0 0 10px var(--ink),
+      inset 0 0 0 15px rgba(244,236,209,.25);
+    mask-image:radial-gradient(circle at center, black 78%, rgba(0,0,0,.85) 88%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at center, black 78%, rgba(0,0,0,.85) 88%, transparent 100%);
+  }
+  .panel::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(135deg, rgba(255,240,200,.08), transparent 35%),
+      radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,.1) 100%);
+    z-index:0;
+  }
+  .panel svg{
+    position:absolute; inset:0; width:100%; height:100%;
+  }
+  .panel video{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit:cover;
+  }
+  .p1{grid-column:1;grid-row:1;}
+  .p2{grid-column:2;grid-row:1;}
+  .p3{grid-column:1;grid-row:2;}
+  .p4{grid-column:2;grid-row:2;}
+  .p5{grid-column:1 / span 2;grid-row:3;}
+
+  #date{
+    position:absolute;
+    right:22px;
+    bottom:18px;
+    z-index:20;
+    color:rgba(0,0,0,.46);
+    font-size:15px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    mix-blend-mode:multiply;
+    user-select:none;
+  }
+
+  .driftSlow{ animation:driftSlow 24s ease-in-out infinite; transform-origin:center; }
+  .driftSlow2{ animation:driftSlow2 31s ease-in-out infinite; transform-origin:center; }
+  .pulseSlow{ animation:pulseSlow 14s ease-in-out infinite; transform-origin:center; }
+  .rotateSlow{ animation:rotateSlow 34s linear infinite; transform-origin:center; }
+  .rotateReverse{ animation:rotateReverse 42s linear infinite; transform-origin:center; }
+  .bob{ animation:bob 11s ease-in-out infinite; transform-origin:center; }
+  .shimmer{ animation:shimmer 9s ease-in-out infinite; }
+  .panelBreath{ animation:panelBreath 18s ease-in-out infinite; }
+
+  @keyframes driftSlow{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(0,-14px) scale(1.025)}
+  }
+  @keyframes driftSlow2{
+    0%,100%{transform:translate(0,0) rotate(0deg)}
+    50%{transform:translate(8px,10px) rotate(1.6deg)}
+  }
+  @keyframes pulseSlow{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.04)}
+  }
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes rotateReverse{
+    from{transform:rotate(360deg)}
+    to{transform:rotate(0deg)}
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-10px)}
+  }
+  @keyframes shimmer{
+    0%,100%{opacity:.3}
+    50%{opacity:.52}
+  }
+  @keyframes panelBreath{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.012)}
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:59px;
+    bottom:111px;
+    opacity:.58;
+    z-index:8;
+    filter:saturate(.8) sepia(.2) contrast(1.05) brightness(.86);
+    transform:rotate(-8deg);
+  }
+
+  #frontHaze{
+    position:absolute; inset:-5%;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255,241,200,.18), transparent 24%),
+      radial-gradient(circle at 20% 76%, rgba(157,76,22,.12), transparent 24%),
+      radial-gradient(circle at 81% 68%, rgba(143,35,28,.1), transparent 20%);
+    z-index:12;
+    pointer-events:none;
+    mix-blend-mode:soft-light;
+    animation:driftSlow2 40s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <canvas id="textureCanvas" width="1080" height="1920"></canvas>
+  <div id="videoTint"></div>
+
+  <svg id="bgSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f1e1af"/>
+        <stop offset="52%" stop-color="#ddb770"/>
+        <stop offset="100%" stop-color="#9e5a20"/>
+      </linearGradient>
+      <radialGradient id="sunWash" cx="50%" cy="18%" r="50%">
+        <stop offset="0%" stop-color="#f4ecd1" stop-opacity=".72"/>
+        <stop offset="55%" stop-color="#f4ecd1" stop-opacity=".1"/>
+        <stop offset="100%" stop-color="#f4ecd1" stop-opacity="0"/>
+      </radialGradient>
+      <pattern id="carvePattern" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="120" height="120" fill="none"/>
+        <rect x="0" y="0" width="30" height="120" fill="rgba(0,0,0,.03)"/>
+        <rect x="60" y="0" width="12" height="120" fill="rgba(255,255,255,.03)"/>
+      </pattern>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#bgGrad)"/>
+    <rect width="1080" height="1920" fill="url(#carvePattern)" opacity=".45"/>
+    <ellipse cx="540" cy="360" rx="380" ry="250" fill="url(#sunWash)" class="pulseSlow"/>
+    <g opacity=".15">
+      <rect x="90" y="80" width="900" height="1760" rx="70" fill="none" stroke="#2d1105" stroke-width="22"/>
+      <rect x="120" y="110" width="840" height="1700" rx="56" fill="none" stroke="#f6e7b6" stroke-width="6" opacity=".4"/>
+    </g>
+  </svg>
+
+  <div class="panel-grid">
+    <div class="panel p1 panelBreath">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect width="100" height="100" fill="rgba(244,236,209,.14)"/>
+        <g class="driftSlow">
+          <circle cx="50" cy="48" r="31" fill="#0d0d0d"/>
+          <circle cx="50" cy="48" r="21" fill="#f1dfae"/>
+          <path d="M50 18
+                   C67 18 79 31 79 48
+                   C79 65 66 78 50 78
+                   C39 78 29 73 23 64
+                   C35 70 48 65 55 55
+                   C63 45 61 32 50 18Z" fill="#0d0d0d"/>
+          <circle cx="50" cy="48" r="9.6" fill="#9d4c16"/>
+          <circle cx="50" cy="48" r="4.7" fill="#f4ecd1"/>
+          <rect x="44" y="6" width="12" height="16" fill="#0d0d0d"/>
+          <rect x="44" y="78" width="12" height="16" fill="#0d0d0d"/>
+          <rect x="6" y="42" width="16" height="12" fill="#0d0d0d"/>
+          <rect x="78" y="42" width="16" height="12" fill="#0d0d0d"/>
+        </g>
+        <g opacity=".82">
+          <rect x="0" y="86" width="100" height="14" fill="#0d0d0d"/>
+          <path d="M8 92 h18 v-4 h8 v4 h18 v-4 h8 v4 h18 v-4 h8 v4 h14 v8 h-92z" fill="#c8822a"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel p2 panelBreath">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect width="100" height="100" fill="rgba(244,236,209,.1)"/>
+        <g class="rotateReverse">
+          <circle cx="50" cy="52" r="32" fill="#0b0b0b"/>
+          <circle cx="50" cy="52" r="23" fill="#f0dfae"/>
+          <path d="M47 27
+                   C62 27 74 40 74 55
+                   C74 67 66 77 55 81
+                   C62 73 62 61 54 52
+                   C46 43 34 43 26 50
+                   C29 37 37 27 47 27Z" fill="#0b0b0b"/>
+          <path d="M53 27
+                   C38 27 26 40 26 55
+                   C26 67 34 77 45 81
+                   C38 73 38 61 46 52
+                   C54 43 66 43 74 50
+                   C71 37 63 27 53 27Z" fill="#8f231c" opacity=".92"/>
+          <circle cx="50" cy="52" r="8" fill="#111"/>
+          <circle cx="50" cy="52" r="4" fill="#ead7a2"/>
+        </g>
+        <g class="bob" opacity=".9">
+          <polygon points="50,10 58,24 42,24" fill="#111"/>
+          <polygon points="50,90 58,76 42,76" fill="#111"/>
+          <polygon points="10,52 24,44 24,60" fill="#111"/>
+          <polygon points="90,52 76,44 76,60" fill="#111"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel p3 panelBreath">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect width="100" height="100" fill="rgba(244,236,209,.08)"/>
+        <g class="driftSlow2">
+          <rect x="12" y="18" width="76" height="64" rx="4" fill="#0c0c0c"/>
+          <rect x="22" y="28" width="56" height="44" fill="#f4ecd1"/>
+          <circle cx="50" cy="50" r="17" fill="#0c0c0c"/>
+          <circle cx="50" cy="50" r="11.5" fill="#c8822a"/>
+          <path d="M50 39
+                   C58 39 64 45 64 53
+                   C64 61 58 67 50 67
+                   C45 67 40 65 37 61
+                   C43 64 49 61 52 56
+                   C56 51 55 44 50 39Z" fill="#0c0c0c"/>
+          <rect x="8" y="45" width="12" height="10" fill="#0c0c0c"/>
+          <rect x="80" y="45" width="12" height="10" fill="#0c0c0c"/>
+        </g>
+        <g opacity=".75">
+          <rect x="0" y="0" width="100" height="8" fill="#8f231c"/>
+          <rect x="0" y="92" width="100" height="8" fill="#8f231c"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel p4 panelBreath">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect width="100" height="100" fill="rgba(244,236,209,.08)"/>
+        <g class="pulseSlow">
+          <path d="M50 13 L58 26 L73 26 L63 38 L69 53 L50 44 L31 53 L37 38 L27 26 L42 26 Z" fill="#111"/>
+          <circle cx="50" cy="56" r="26" fill="#111"/>
+          <circle cx="50" cy="56" r="18" fill="#f1dfae"/>
+          <path d="M50 38
+                   C61 38 68 46 68 57
+                   C68 67 61 74 50 74
+                   C43 74 36 71 32 65
+                   C41 70 49 67 55 59
+                   C61 51 60 43 50 38Z" fill="#8f231c"/>
+          <circle cx="50" cy="56" r="5" fill="#111"/>
+        </g>
+        <g opacity=".85">
+          <rect x="14" y="82" width="72" height="8" fill="#111"/>
+          <rect x="22" y="88" width="56" height="6" fill="#c8822a"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="panel p5 panelBreath">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="p5g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f0dfae"/>
+            <stop offset="100%" stop-color="#c8822a"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="100" fill="rgba(244,236,209,.06)"/>
+        <rect x="4" y="8" width="92" height="84" rx="5" fill="#0d0d0d"/>
+        <g class="rotateSlow">
+          <circle cx="50" cy="50" r="27" fill="url(#p5g)"/>
+          <circle cx="50" cy="50" r="22" fill="#111"/>
+          <circle cx="50" cy="50" r="15" fill="#ead7a2"/>
+          <path d="M50 35
+                   C60 35 67 42 67 52
+                   C67 62 60 69 50 69
+                   C44 69 38 66 34 61
+                   C42 64 49 61 54 55
+                   C59 49 58 40 50 35Z" fill="#111"/>
+          <path d="M50 23 L54 31 L63 31 L57 37 L60 46 L50 41 L40 46 L43 37 L37 31 L46 31 Z" fill="#8f231c"/>
+          <path d="M50 77 L54 69 L63 69 L57 63 L60 54 L50 59 L40 54 L43 63 L37 69 L46 69 Z" fill="#8f231c"/>
+          <path d="M23 50 L31 46 L31 37 L37 43 L46 40 L41 50 L46 60 L37 57 L31 63 L31 54 Z" fill="#8f231c"/>
+          <path d="M77 50 L69 46 L69 37 L63 43 L54 40 L59 50 L54 60 L63 57 L69 63 L69 54 Z" fill="#8f231c"/>
+        </g>
+        <g class="driftSlow" opacity=".88">
+          <rect x="12" y="45.5" width="18" height="9" fill="#f1dfae"/>
+          <rect x="70" y="45.5" width="18" height="9" fill="#f1dfae"/>
+          <rect x="45.5" y="12" width="9" height="18" fill="#f1dfae"/>
+          <rect x="45.5" y="70" width="9" height="18" fill="#f1dfae"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <svg id="panelSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true" style="z-index:5">
+    <defs>
+      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000" flood-opacity=".18"/>
+      </filter>
+      <radialGradient id="fadeEdge" cx="50%" cy="50%" r="60%">
+        <stop offset="70%" stop-color="#000" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- large narrative thread: central carved river / spine -->
+    <g filter="url(#softShadow)" opacity=".96">
+      <path d="M540 110
+               C650 180 680 300 638 430
+               C603 540 620 650 712 772
+               C789 874 787 1030 678 1138
+               C597 1218 565 1311 584 1418
+               C603 1523 555 1656 450 1760
+               L400 1714
+               C472 1633 515 1525 502 1424
+               C487 1304 525 1197 614 1102
+               C700 1010 693 902 624 805
+               C535 681 516 540 556 412
+               C590 302 568 217 490 152 Z"
+            fill="#111"/>
+      <path d="M540 174
+               C599 216 617 289 592 382
+               C569 465 582 579 656 684
+               C726 784 721 920 635 1008
+               C567 1078 542 1173 554 1264
+               C570 1380 537 1496 471 1595
+               C530 1490 521 1372 503 1287
+               C483 1188 510 1074 591 984
+               C673 894 675 786 609 697
+               C531 592 515 469 538 379
+               C562 285 557 221 540 174Z"
+            fill="#ead7a2"/>
+    </g>
+
+    <!-- comic gutters / carved dividers -->
+    <g opacity=".96">
+      <rect x="44" y="44" width="992" height="1832" rx="34" fill="none" stroke="#090909" stroke-width="22"/>
+      <rect x="64" y="64" width="952" height="1792" rx="26" fill="none" stroke="#f4ecd1" stroke-width="4" opacity=".55"/>
+
+      <path d="M530 116 L550 116 L550 1120 L530 1120 Z" fill="#090909"/>
+      <path d="M78 616 L1002 616 L1002 636 L78 636 Z" fill="#090909"/>
+      <path d="M78 1108 L1002 1108 L1002 1130 L78 1130 Z" fill="#090909"/>
+    </g>
+  </svg>
+
+  <svg id="symbolsSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true" style="z-index:6">
+    <!-- side whakairo columns -->
+    <g class="driftSlow2" opacity=".95">
+      <g transform="translate(84 150)">
+        <rect x="0" y="0" width="110" height="1600" rx="26" fill="#111"/>
+        <g fill="#ead7a2">
+          <path d="M55 55 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 198 h60 v24 h-60z"/><path d="M25 243 h60 v24 h-60z"/>
+          <path d="M55 320 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+          <path d="M22 480 h66 v22 h-66z"/><path d="M22 522 h66 v22 h-66z"/>
+          <path d="M55 598 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 740 h60 v24 h-60z"/><path d="M25 785 h60 v24 h-60z"/>
+          <path d="M55 865 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+          <path d="M22 1026 h66 v22 h-66z"/><path d="M22 1068 h66 v22 h-66z"/>
+          <path d="M55 1142 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 1288 h60 v24 h-60z"/><path d="M25 1332 h60 v24 h-60z"/>
+          <path d="M55 1410 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+        </g>
+        <g fill="#8f231c" opacity=".8">
+          <rect x="18" y="136" width="74" height="8"/><rect x="18" y="413" width="74" height="8"/>
+          <rect x="18" y="692" width="74" height="8"/><rect x="18" y="969" width="74" height="8"/>
+          <rect x="18" y="1247" width="74" height="8"/>
+        </g>
+      </g>
+
+      <g transform="translate(886 150)">
+        <rect x="0" y="0" width="110" height="1600" rx="26" fill="#111"/>
+        <g fill="#ead7a2" transform="translate(110 0) scale(-1 1)">
+          <path d="M55 55 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 198 h60 v24 h-60z"/><path d="M25 243 h60 v24 h-60z"/>
+          <path d="M55 320 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+          <path d="M22 480 h66 v22 h-66z"/><path d="M22 522 h66 v22 h-66z"/>
+          <path d="M55 598 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 740 h60 v24 h-60z"/><path d="M25 785 h60 v24 h-60z"/>
+          <path d="M55 865 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+          <path d="M22 1026 h66 v22 h-66z"/><path d="M22 1068 h66 v22 h-66z"/>
+          <path d="M55 1142 a36 36 0 1 1 0 72 a20 20 0 1 0 0 -40 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.1)"/>
+          <path d="M25 1288 h60 v24 h-60z"/><path d="M25 1332 h60 v24 h-60z"/>
+          <path d="M55 1410 a38 38 0 1 1 0 76 a22 22 0 1 0 0 -44 a8 8 0 1 1 0 16" transform="translate(-7 -17) scale(1.08)"/>
+        </g>
+        <g fill="#8f231c" opacity=".8">
+          <rect x="18" y="136" width="74" height="8"/><rect x="18" y="413" width="74" height="8"/>
+          <rect x="18" y="692" width="74" height="8"/><rect x="18" y="969" width="74" height="8"/>
+          <rect x="18" y="1247" width="74" height="8"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+
+  <div id="frontHaze"></div>
+
+  <svg id="frontSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true" style="z-index:14">
+    <defs>
+      <linearGradient id="featherTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f4ecd1" stop-opacity=".88"/>
+        <stop offset="80%" stop-color="#f4ecd1" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="featherBottom" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#8f231c" stop-opacity=".2"/>
+        <stop offset="70%" stop-color="#8f231c" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="1080" height="120" fill="url(#featherTop)"/>
+    <rect x="0" y="1760" width="1080" height="160" fill="url(#featherBottom)"/>
+    <g opacity=".25" class="shimmer">
+      <path d="M200 120
+               C290 160 330 250 310 355
+               C290 448 220 531 170 600"
+            stroke="#f7efcf" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M880 120
+               C790 160 750 250 770 355
+               C790 448 860 531 910 600"
+            stroke="#f7efcf" stroke-width="26" fill="none" stroke-linecap="round"/>
+      <path d="M210 1680
+               C285 1620 320 1520 305 1430
+               C291 1348 231 1274 180 1212"
+            stroke="#5d1d0d" stroke-width="34" fill="none" stroke-linecap="round"/>
+      <path d="M870 1680
+               C795 1620 760 1520 775 1430
+               C789 1348 849 1274 900 1212"
+            stroke="#5d1d0d" stroke-width="34" fill="none" stroke-linecap="round"/>
+    </g>
+  </svg>
+
+  <div id="date">2026-05-19</div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('textureCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // deterministic PRNG from date
+  let seed = 20260519 >>> 0;
+  function rnd(){
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  // painted paper grain
+  const img = ctx.createImageData(W, H);
+  for(let i=0;i<img.data.length;i+=4){
+    const n = 218 + Math.floor((rnd()-.5)*28);
+    img.data[i] = n + 10;
+    img.data[i+1] = n - 4;
+    img.data[i+2] = n - 28;
+    img.data[i+3] = 24;
+  }
+  ctx.putImageData(img,0,0);
+
+  // subtle carved chips and mottling
+  ctx.globalCompositeOperation = 'multiply';
+  for(let i=0;i<420;i++){
+    const x = rnd()*W, y = rnd()*H;
+    const w = 8 + rnd()*28, h = 2 + rnd()*10;
+    ctx.fillStyle = `rgba(70,35,12,${0.03 + rnd()*0.06})`;
+    ctx.fillRect(x,y,w,h);
+  }
+
+  // warm wash
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(255,235,180,0.10)');
+  g.addColorStop(.5,'rgba(190,110,35,0.05)');
+  g.addColorStop(1,'rgba(60,20,8,0.14)');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  // panel echoes in texture
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  ctx.lineWidth = 4;
+  [[49,49,982,1822],[78,616,924,20],[78,1108,924,22],[530,116,20,1014]].forEach(r=>{
+    ctx.strokeRect(r[0],r[1],r[2],r[3]);
+  });
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.015;
+      master.connect(ac.destination);
+
+      const now = ac.currentTime;
+
+      function tone(freq, type, gain, panVal){
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        const p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.value = gain;
+        o.connect(g);
+        if(p){ g.connect(p); p.pan.value = panVal; p.connect(master); }
+        else { g.connect(master); }
+        o.start();
+        return {o,g};
+      }
+
+      const a = tone(82.4,'sine',0.22,-0.15);
+      const b = tone(123.47,'triangle',0.12,0.18);
+      const c = tone(246.94,'sine',0.05,0);
+
+      function modulate(){
+        const t = ac.currentTime;
+        a.g.gain.cancelScheduledValues(t);
+        b.g.gain.cancelScheduledValues(t);
+        c.g.gain.cancelScheduledValues(t);
+
+        a.g.gain.linearRampToValueAtTime(0.018 + 0.006*Math.sin(t/7), t + 6);
+        b.g.gain.linearRampToValueAtTime(0.012 + 0.004*Math.cos(t/9), t + 6);
+        c.g.gain.linearRampToValueAtTime(0.004 + 0.002*Math.sin(t/5), t + 6);
+
+        a.o.frequency.linearRampToValueAtTime(82.4 + 1.2*Math.sin(t/11), t + 6);
+        b.o.frequency.linearRampToValueAtTime(123.47 + 1.6*Math.cos(t/13), t + 6);
+        c.o.frequency.linearRampToValueAtTime(246.94 + 2*Math.sin(t/8), t + 6);
+      }
+      modulate();
+      setInterval(modulate, 5000);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
