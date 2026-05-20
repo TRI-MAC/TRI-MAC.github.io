@@ -694,10 +694,16 @@
 
     for(const hz of world.hazards){
       if(rectsOverlap(p,hz)){
-        p.x -= 36;
-        p.vy = -3.2;
+        // Break the hazard on contact so the runner can never get stuck
+        // hopping the same triangle cluster. (The original bump-back
+        // distance was shorter than the jump arc could cover, which
+        // created an infinite hop-loop on wider spike strips.)
+        hz.dead = true;
+        p.x -= 22;
+        p.vy = -4.2;
       }
     }
+    world.hazards = world.hazards.filter(hz => !hz.dead);
 
     if(p.y > H+80){
       p.x = Math.max(40, p.x - 120);
