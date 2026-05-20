@@ -548,6 +548,70 @@
     world.player.vx = 0;
     world.player.vy = 0;
     world.score = 0;
+
+    if (!simulating) ensureGoodSpawn();
+  }
+
+  // When true, updateGame skips the loop-end rebuild so we can run physics
+  // headlessly to verify the spawn produces a clean run.
+  let simulating = false;
+
+  function snapshotWorld(){
+    return {
+      player: {...world.player},
+      enemies: world.enemies.map(e => ({...e})),
+      coins: world.coins.map(c => ({...c})),
+      hazards: world.hazards.map(h => ({...h})),
+      platforms: world.platforms.map(p => ({...p})),
+      score: world.score,
+      time: world.time,
+      camX: world.camX
+    };
+  }
+  function restoreWorld(snap){
+    world.player = snap.player;
+    world.enemies = snap.enemies;
+    world.coins = snap.coins;
+    world.hazards = snap.hazards;
+    world.platforms = snap.platforms;
+    world.score = snap.score;
+    world.time = snap.time;
+    world.camX = snap.camX;
+  }
+
+  // Simulate `frames` physics steps from current state, return forward progress
+  // achieved. State is restored before returning.
+  function simulateProgress(frames){
+    const snap = snapshotWorld();
+    const startX = world.player.x;
+    let maxX = startX;
+    simulating = true;
+    for (let i = 0; i < frames; i++){
+      updateGame(16);
+      if (world.player.x > maxX) maxX = world.player.x;
+    }
+    simulating = false;
+    restoreWorld(snap);
+    return maxX - startX;
+  }
+
+  // After buildLevel, verify the spawn produces forward motion. If the player
+  // gets hop-stuck on triangles/platforms, progressively widen the safe runway
+  // by clearing nearby hazards, enemies, and floating platforms, then retry.
+  function ensureGoodSpawn(){
+    // Expected forward distance over 240 frames at ~1.45 px/frame * dt(16) * 0.06
+    // is roughly 335 px. Anything under ~200 means the runner is stuck.
+    const minProgress = 220;
+    for (let attempt = 0; attempt < 6; attempt++){
+      const progress = simulateProgress(260);
+      if (progress >= minProgress) return;
+      const safeZone = world.player.x + 480 + attempt * 240;
+      world.hazards = world.hazards.filter(hz => hz.x > safeZone);
+      world.enemies = world.enemies.filter(e => e.x > safeZone);
+      world.platforms = world.platforms.filter(plat =>
+        plat.kind === 'ground' || plat.kind === 'goal' || plat.x > safeZone
+      );
+    }
   }
 
   buildLevel();
@@ -644,7 +708,7 @@
 
     // Keep the sequence on an endless loop for unattended/public playback.
     if (p.x > world.loopEndX || p.x > (world.levelLength - 120)) {
-      buildLevel();
+      if (!simulating) buildLevel();
       return;
     }
 
