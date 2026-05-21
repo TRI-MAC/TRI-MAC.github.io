@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-21</title>
+<style>
+  :root{
+    --bg0:#0a0d10;
+    --bg1:#11181d;
+    --bg2:#1a262c;
+    --steel:#4b5d63;
+    --teal:#3f8b8f;
+    --neon:#6dd2c4;
+    --amber:#c08a52;
+    --rust:#6c4a36;
+    --smog:#75848a;
+    --ink:#050708;
+    --panel:#223137;
+    --hazel:#8d745c;
+    --line:#8fb4ae33;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 20%, #203038 0%, #0c1013 48%, #050607 100%);
+    font-family: monospace;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.777vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #3a4b52 0%, #1f2a30 11%, #152026 28%, #0d1215 58%, #07090b 100%);
+    box-shadow:0 0 0 1px #7ca4a41c, 0 0 60px #000 inset, 0 0 40px #000;
+  }
+
+  /* background atmosphere */
+  #backGlow, #rainMist, #vignette, #scan, #grade, #edgeFade{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  #backGlow{
+    background:
+      radial-gradient(circle at 72% 18%, #65d6cb12 0%, #65d6cb08 18%, transparent 38%),
+      radial-gradient(circle at 28% 32%, #c08a5210 0%, transparent 32%),
+      radial-gradient(circle at 50% 78%, #4d78840f 0%, transparent 42%);
+    animation: breathe 18s ease-in-out infinite;
+  }
+  #rainMist{
+    opacity:.22;
+    background:
+      linear-gradient(180deg, transparent 0%, #a4c9cf09 35%, #dce8ec16 55%, transparent 100%);
+    filter: blur(18px);
+    transform: translateY(-4%);
+    animation: mist 26s ease-in-out infinite;
+  }
+  #vignette{
+    background:
+      radial-gradient(circle at 50% 50%, transparent 48%, #00000055 78%, #000000c0 100%);
+  }
+  #scan{
+    opacity:.12;
+    background:
+      repeating-linear-gradient(180deg,
+        rgba(180,220,220,.08) 0px,
+        rgba(180,220,220,.08) 1px,
+        transparent 2px,
+        transparent 4px);
+    mix-blend-mode:screen;
+  }
+  #grade{
+    background:
+      linear-gradient(180deg, #4fa39d10, transparent 25%, transparent 75%, #3f69820b),
+      linear-gradient(90deg, #0f171b88 0%, transparent 18%, transparent 82%, #0f171b88 100%);
+    mix-blend-mode:screen;
+  }
+  #edgeFade{
+    mask-image: radial-gradient(circle at 50% 50%, black 58%, transparent 98%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 58%, transparent 98%);
+    background:rgba(0,0,0,.08);
+  }
+
+  /* city layers */
+  .city{
+    position:absolute;
+    left:0; right:0;
+    pointer-events:none;
+  }
+  #cityFar{ bottom:43%; height:34%; opacity:.55; filter:blur(.2px);}
+  #cityMid{ bottom:28%; height:34%; opacity:.85;}
+  #cityNear{ bottom:10%; height:30%; opacity:1;}
+
+  .hazeBand{
+    position:absolute; left:-8%; width:116%; border-radius:50%;
+    background: radial-gradient(ellipse at center, #9cc8c61c 0%, #6ea39d10 34%, transparent 72%);
+    filter:blur(22px);
+    transform-origin:center;
+    animation: driftBand 32s ease-in-out infinite;
+  }
+  .h1{height:110px; top:18%;}
+  .h2{height:140px; top:41%; animation-duration:41s;}
+  .h3{height:120px; top:68%; animation-duration:36s;}
+
+  /* integrated art image */
+  #imageWrap{
+    position:absolute;
+    left:13%;
+    top:22%;
+    width:58%;
+    height:29%;
+    transform: rotate(-4deg);
+    z-index:12;
+  }
+  #imgShadow{
+    position:absolute; inset:6% -3% -4% 8%;
+    background: radial-gradient(circle at 40% 55%, #0c1518 0%, #091014 45%, transparent 75%);
+    filter: blur(18px);
+    opacity:.9;
+    transform:translateY(20px) scale(1.05, .82);
+  }
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.96;
+    filter: hue-rotate(158deg) saturate(.7) contrast(1.08) brightness(.78) sepia(.14);
+    box-shadow:
+      0 0 0 1px #96beb426,
+      0 12px 28px #00000088,
+      0 0 30px #79c8bc18;
+  }
+  #imgGlow{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(circle at 50% 50%, #5bcbbb14 0%, transparent 55%);
+    filter: blur(20px);
+    opacity:.8;
+  }
+
+  /* painterly drips / blobs crossing image edge */
+  .blob{
+    position:absolute;
+    border-radius:44% 56% 60% 40% / 41% 39% 61% 59%;
+    filter: blur(2px);
+    opacity:.9;
+    transform-origin:center;
+    animation: pulseBlob 20s ease-in-out infinite;
+  }
+  .b1{
+    left:-9%; top:12%; width:45%; height:23%;
+    background: radial-gradient(circle at 32% 40%, #3a8f8b 0%, #21484e 62%, transparent 72%);
+    opacity:.6;
+  }
+  .b2{
+    right:-14%; top:18%; width:40%; height:20%;
+    background: radial-gradient(circle at 52% 48%, #b8814a 0%, #5d3d2d 64%, transparent 74%);
+    animation-duration:24s;
+    opacity:.42;
+  }
+  .b3{
+    left:18%; bottom:-8%; width:56%; height:28%;
+    background: radial-gradient(circle at 48% 42%, #527679 0%, #223439 66%, transparent 76%);
+    animation-duration:29s;
+    opacity:.54;
+  }
+  .drip{
+    position:absolute;
+    width:14px;
+    border-radius:0 0 18px 18px;
+    background: linear-gradient(180deg, #3e8c8aee 0%, #20454abb 68%, transparent 100%);
+    filter: blur(.3px);
+    transform-origin:top center;
+    animation: drip 11s ease-in-out infinite;
+  }
+  .d1{left:20%; top:18%; height:18%; z-index:14;}
+  .d2{left:58%; top:20%; height:12%; width:10px; animation-duration:13s; z-index:14;}
+  .d3{left:41%; top:44%; height:15%; width:12px; background:linear-gradient(180deg,#9f6f47dd 0%, #5d3a28aa 70%, transparent 100%); z-index:14;}
+
+  /* game field */
+  #gameLayer{
+    position:absolute; inset:0; z-index:18; pointer-events:none;
+  }
+  #gameCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    image-rendering:pixelated;
+    opacity:.92;
+    mix-blend-mode:screen;
+  }
+
+  /* HUD / signage */
+  #hud{
+    position:absolute; inset:0; z-index:24; pointer-events:none;
+  }
+  .panel{
+    position:absolute;
+    border:1px solid #8ab9b033;
+    background: linear-gradient(180deg, #0f151966 0%, #17232922 100%);
+    box-shadow: inset 0 0 18px #7bd0c010;
+    backdrop-filter: blur(1px);
+  }
+  #scorePanel{
+    left:6%; top:7%; width:30%; height:4.8%;
+    transform:skewX(-18deg);
+  }
+  #sidePanel{
+    right:5.5%; top:14%; width:14%; height:23%;
+    transform:skewY(-8deg);
+    opacity:.7;
+  }
+  .hudLine{
+    position:absolute;
+    background:linear-gradient(90deg, transparent, #8ecdc466, transparent);
+    height:1px;
+  }
+  .hl1{left:8%; top:10.5%; width:26%;}
+  .hl2{right:7%; top:18%; width:11%;}
+  .hl3{right:7%; top:27%; width:11%;}
+
+  /* foreground pipes/rails */
+  #foreground{
+    position:absolute; inset:0; z-index:26; pointer-events:none;
+  }
+  .pipe{
+    position:absolute;
+    background: linear-gradient(180deg, #223037 0%, #10181d 50%, #2d4047 100%);
+    box-shadow: inset 0 0 0 1px #7ca39e29, 0 0 12px #000;
+  }
+  .p1{left:-5%; bottom:11%; width:62%; height:2.8%; transform:rotate(-8deg);}
+  .p2{right:-8%; bottom:23%; width:44%; height:2.4%; transform:rotate(11deg);}
+  .p3{left:77%; top:0; width:3.2%; height:100%; opacity:.72;}
+  .p4{left:0; top:63%; width:100%; height:1.2%; opacity:.44;}
+  .strut{
+    position:absolute;
+    width:20%;
+    height:32%;
+    border-left:2px solid #6f8a8433;
+    border-right:1px solid #9fc3bb18;
+    opacity:.5;
+    filter:blur(.2px);
+  }
+  .s1{left:10%; bottom:0; transform:skewY(-12deg);}
+  .s2{right:12%; bottom:0; transform:skewY(9deg);}
+
+  /* tiny hidden guinea pig */
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:9px;
+    bottom:188px;
+    opacity:.56;
+    filter: hue-rotate(165deg) saturate(.45) brightness(.78) contrast(.92);
+    z-index:25;
+    transform: rotate(-6deg);
+  }
+
+  #date{
+    position:absolute;
+    right:14px;
+    bottom:10px;
+    z-index:40;
+    color:#b2c7c4;
+    opacity:.42;
+    font-size:12px;
+    letter-spacing:.12em;
+    text-shadow:0 0 6px #000;
+    user-select:none;
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.03) translateY(-1.2%)}
+  }
+  @keyframes mist{
+    0%,100%{transform:translateY(-4%) scaleY(1); opacity:.18}
+    50%{transform:translateY(2%) scaleY(1.08); opacity:.28}
+  }
+  @keyframes driftBand{
+    0%,100%{transform:translateX(-1.5%) scaleX(1)}
+    50%{transform:translateX(1.5%) scaleX(1.04)}
+  }
+  @keyframes pulseBlob{
+    0%,100%{transform:translateY(0) scale(1) rotate(0deg)}
+    50%{transform:translateY(1.5%) scale(1.04) rotate(3deg)}
+  }
+  @keyframes drip{
+    0%,100%{transform:scaleY(1)}
+    50%{transform:scaleY(1.14)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="backGlow"></div>
+    <div id="rainMist"></div>
+
+    <svg id="cityFar" class="city" viewBox="0 0 1080 620" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fogFar" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#69838a55"/>
+          <stop offset="100%" stop-color="#11171b"/>
+        </linearGradient>
+      </defs>
+      <rect width="1080" height="620" fill="none"/>
+      <g fill="url(#fogFar)">
+        <rect x="0" y="300" width="90" height="260"/>
+        <rect x="70" y="240" width="110" height="320"/>
+        <rect x="160" y="270" width="80" height="290"/>
+        <rect x="220" y="210" width="120" height="350"/>
+        <rect x="310" y="250" width="100" height="310"/>
+        <rect x="385" y="170" width="140" height="390"/>
+        <rect x="508" y="230" width="118" height="330"/>
+        <rect x="590" y="180" width="160" height="380"/>
+        <rect x="730" y="260" width="92" height="300"/>
+        <rect x="805" y="210" width="100" height="350"/>
+        <rect x="890" y="245" width="80" height="315"/>
+        <rect x="952" y="195" width="128" height="365"/>
+      </g>
+      <g fill="#86c2b91e">
+        <rect x="246" y="255" width="10" height="120"/>
+        <rect x="682" y="205" width="10" height="140"/>
+        <rect x="831" y="248" width="8" height="90"/>
+      </g>
+    </svg>
+
+    <svg id="cityMid" class="city" viewBox="0 0 1080 700" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="midBuild" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#42545a"/>
+          <stop offset="70%" stop-color="#1a2328"/>
+          <stop offset="100%" stop-color="#0c1013"/>
+        </linearGradient>
+        <linearGradient id="signGlow" x1="0" x2="1">
+          <stop offset="0%" stop-color="#6fd1c833"/>
+          <stop offset="50%" stop-color="#9fe5da88"/>
+          <stop offset="100%" stop-color="#6fd1c833"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#midBuild)">
+        <polygon points="0,700 0,260 78,230 124,700"/>
+        <polygon points="98,700 120,180 248,150 272,700"/>
+        <polygon points="250,700 280,250 386,220 410,700"/>
+        <polygon points="388,700 420,130 568,122 594,700"/>
+        <polygon points="570,700 608,240 736,210 756,700"/>
+        <polygon points="730,700 754,170 840,158 862,700"/>
+        <polygon points="844,700 872,260 980,218 1005,700"/>
+        <polygon points="980,700 1002,194 1080,170 1080,700"/>
+      </g>
+      <g opacity=".5">
+        <rect x="148" y="252" width="74" height="16" fill="url(#signGlow)"/>
+        <rect x="472" y="184" width="86" height="18" fill="#c6955d66"/>
+        <rect x="792" y="210" width="66" height="15" fill="url(#signGlow)"/>
+      </g>
+      <g fill="#9dd9cf22">
+        <rect x="455" y="160" width="8" height="300"/>
+        <rect x="504" y="152" width="8" height="320"/>
+        <rect x="542" y="148" width="8" height="315"/>
+      </g>
+    </svg>
+
+    <svg id="cityNear" class="city" viewBox="0 0 1080 520" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="nearGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#243238"/>
+          <stop offset="45%" stop-color="#182126"/>
+          <stop offset="100%" stop-color="#080a0c"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#nearGrad)">
+        <polygon points="0,520 0,170 140,150 154,520"/>
+        <polygon points="126,520 145,120 305,100 324,520"/>
+        <polygon points="302,520 326,170 470,136 486,520"/>
+        <polygon points="472,520 494,80 695,52 722,520"/>
+        <polygon points="710,520 736,160 886,126 912,520"/>
+        <polygon points="898,520 928,105 1080,90 1080,520"/>
+      </g>
+      <g fill="#11181d">
+        <rect x="520" y="96" width="150" height="14"/>
+        <rect x="526" y="126" width="120" height="10"/>
+        <rect x="530" y="148" width="130" height="8"/>
+      </g>
+      <g opacity=".55">
+        <rect x="558" y="119" width="92" height="18" fill="#74e0d46a"/>
+        <rect x="186" y="188" width="80" height="20" fill="#a0724d52"/>
+        <rect x="838" y="172" width="42" height="16" fill="#74e0d44f"/>
+      </g>
+      <g stroke="#8bcfc626" stroke-width="4" fill="none">
+        <line x1="552" y1="0" x2="552" y2="310"/>
+        <line x1="620" y1="0" x2="620" y2="330"/>
+        <line x1="846" y1="90" x2="846" y2="312"/>
+      </g>
+    </svg>
+
+    <div class="hazeBand h1"></div>
+    <div class="hazeBand h2"></div>
+    <div class="hazeBand h3"></div>
+
+    <div id="imageWrap">
+      <div id="imgShadow"></div>
+      <div id="imgGlow"></div>
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <img id="art-image" src="art.png" alt="" />
+    </div>
+
+    <div class="drip d1"></div>
+    <div class="drip d2"></div>
+    <div class="drip d3"></div>
+
+    <div id="gameLayer">
+      <canvas id="gameCanvas" width="1080" height="1920"></canvas>
+    </div>
+
+    <div id="hud">
+      <div id="scorePanel" class="panel"></div>
+      <div id="sidePanel" class="panel"></div>
+      <div class="hudLine hl1"></div>
+      <div class="hudLine hl2"></div>
+      <div class="hudLine hl3"></div>
+    </div>
+
+    <div id="foreground">
+      <div class="pipe p1"></div>
+      <div class="pipe p2"></div>
+      <div class="pipe p3"></div>
+      <div class="pipe p4"></div>
+      <div class="strut s1"></div>
+      <div class="strut s2"></div>
+    </div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="scan"></div>
+    <div id="grade"></div>
+    <div id="vignette"></div>
+    <div id="edgeFade"></div>
+    <div id="date">2026-05-21</div>
+  </div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const W = canvas.width, H = canvas.height;
+
+  function RNG(seed){
+    let s = seed >>> 0;
+    return function(){
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+  const rand = RNG(20260521);
+
+  const horizon = Math.floor(H * 0.70);
+  const laneCount = 4;
+  const roadTopWidth = 180;
+  const roadBottomWidth = 900;
+  const roadCenterX = 570;
+
+  const segCount = 120;
+  const segLen = 28;
+  let worldZ = 0;
+  const speed = 6.5;
+
+  const buildings = [];
+  for(let i=0;i<20;i++){
+    buildings.push({
+      side: i%2===0 ? -1 : 1,
+      z: i*150 + rand()*120,
+      w: 70 + rand()*110,
+      h: 170 + rand()*420,
+      neon: rand()<0.5,
+      hue: rand()<0.65 ? 'teal' : 'amber',
+      inset: 22 + rand()*90
+    });
+  }
+
+  const rivals = [];
+  for(let i=0;i<8;i++){
+    rivals.push({
+      lane: i%laneCount,
+      z: 400 + i*280 + rand()*120,
+      col: rand()<0.5 ? '#5cc0c2' : '#b87b44'
+    });
+  }
+
+  let playerLane = 1;
+  let playerX = 0;
+  let targetLane = 1;
+  let laneTimer = 0;
+  let frame = 0;
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function ease(t){return .5-.5*Math.cos(Math.PI*t);}
+  function proj(z, laneOffset=0){
+    const dz = Math.max(10, z - worldZ);
+    const t = Math.min(1, Math.max(0, 1 - dz/1800));
+    const y = lerp(horizon, H*0.97, t);
+    const roadW = lerp(roadTopWidth, roadBottomWidth, t);
+    const x = roadCenterX + laneOffset * (roadW*0.18);
+    return {x,y,roadW,t,dz};
+  }
+
+  function drawBackground(){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#50666f');
+    g.addColorStop(.12,'#314148');
+    g.addColorStop(.32,'#1a252b');
+    g.addColorStop(.7,'#0a0d10');
+    g.addColorStop(1,'#050608');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // broad illuminated haze
+    const rg = ctx.createRadialGradient(W*0.67,H*0.2,10,W*0.67,H*0.2,280);
+    rg.addColorStop(0,'rgba(102,216,204,.10)');
+    rg.addColorStop(.5,'rgba(102,216,204,.04)');
+    rg.addColorStop(1,'rgba(102,216,204,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function drawRoad(){
+    // side darkness
+    ctx.fillStyle = 'rgba(0,0,0,.26)';
+    ctx.beginPath();
+    ctx.moveTo(0,H);
+    ctx.lineTo(0,horizon);
+    ctx.lineTo(roadCenterX-roadTopWidth/2,horizon);
+    ctx.lineTo(roadCenterX-roadBottomWidth/2,H);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(W,H);
+    ctx.lineTo(W,horizon);
+    ctx.lineTo(roadCenterX+roadTopWidth/2,horizon);
+    ctx.lineTo(roadCenterX+roadBottomWidth/2,H);
+    ctx.closePath();
+    ctx.fill();
+
+    // road
+    const roadGrad = ctx.createLinearGradient(0,horizon,0,H);
+    roadGrad.addColorStop(0,'#151b1f');
+    roadGrad.addColorStop(.55,'#0d1114');
+    roadGrad.addColorStop(1,'#050607');
+    ctx.fillStyle = roadGrad;
+    ctx.beginPath();
+    ctx.moveTo(roadCenterX-roadTopWidth/2,horizon);
+    ctx.lineTo(roadCenterX+roadTopWidth/2,horizon);
+    ctx.lineTo(roadCenterX+roadBottomWidth/2,H);
+    ctx.lineTo(roadCenterX-roadBottomWidth/2,H);
+    ctx.closePath();
+    ctx.fill();
+
+    // wet reflections
+    for(let i=0;i<segCount;i++){
+      const z0 = i*segLen + (worldZ%segLen);
+      const z1 = z0 + segLen;
+      const p0 = proj(worldZ + z0);
+      const p1 = proj(worldZ + z1);
+      const alpha = (1-p0.t)*0.15;
+      if(alpha<=0) continue;
+      ctx.fillStyle = i%2===0 ? `rgba(90,205,196,${alpha*.22})` : `rgba(200,140,84,${alpha*.15})`;
+      ctx.beginPath();
+      ctx.moveTo(roadCenterX-p0.roadW/2,p0.y);
+      ctx.lineTo(roadCenterX+p0.roadW/2,p0.y);
+      ctx.lineTo(roadCenterX+p1.roadW/2,p1.y);
+      ctx.lineTo(roadCenterX-p1.roadW/2,p1.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // lane markers
+    for(let lane=1; lane<laneCount; lane++){
+      ctx.strokeStyle = 'rgba(170,200,196,.18)';
+      ctx.lineWidth = 4;
+      for(let i=0;i<segCount;i+=2){
+        const z0 = i*segLen + (worldZ%(segLen*2));
+        const z1 = z0 + segLen*0.7;
+        const p0 = proj(worldZ + z0, (-1.5+lane));
+        const p1 = proj(worldZ + z1, (-1.5+lane));
+        ctx.beginPath();
+        ctx.moveTo(p0.x,p0.y);
+        ctx.lineTo(p1.x,p1.y);
+        ctx.stroke();
+      }
+    }
+
+    // edge neon rails
+    for(const side of [-1,1]){
+      ctx.strokeStyle = side<0 ? 'rgba(92,192,194,.20)' : 'rgba(192,138,82,.18)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      for(let i=0;i<segCount;i++){
+        const z = i*segLen + (worldZ%segLen);
+        const p = proj(worldZ + z, side*2.1);
+        if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function drawBuildingMass(x,y,w,h,col){
+    ctx.fillStyle = col;
+    ctx.fillRect(x,y,w,h);
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.fillRect(x+w*0.72,y,w*0.28,h);
+    ctx.strokeStyle = 'rgba(135,180,176,.08)';
+    ctx.strokeRect(x,y,w,h);
+  }
+
+  function drawBuildings(){
+    buildings.forEach(b=>{
+      let z = (b.z - worldZ*1.7) % 3000;
+      if(z<0) z += 3000;
+      const depth = 1 - z/3000;
+      const h = b.h * (0.25 + depth*0.75);
+      const w = b.w * (0.3 + depth*0.7);
+      const y = horizon - h + 50 + (1-depth)*40;
+      const sideOffset = (roadTopWidth*0.65 + b.inset + (1-depth)*130);
+      const x = roadCenterX + b.side*sideOffset - (b.side<0 ? w : 0);
+      const base = b.hue === 'teal' ? '#23363c' : '#2f2824';
+      drawBuildingMass(x,y,w,h,base);
+
+      // window strips
+      const rows = Math.max(3, Math.floor(h/34));
+      for(let r=0;r<rows;r++){
+        if((r+Math.floor(frame/40))%3!==0) continue;
+        const yy = y + 12 + r*(h-24)/rows;
+        ctx.fillStyle = b.hue==='teal' ? 'rgba(115,214,201,.12)' : 'rgba(194,137,82,.10)';
+        ctx.fillRect(x+8,yy,w-16,3);
+      }
+
+      // signage
+      if(b.neon){
+        const sy = y + h*(0.18 + 0.24*Math.sin((frame/180)+(b.z*.01)));
+        const sw = w*0.66;
+        const sx = x + w*0.16;
+        const sh = Math.max(8, h*0.05);
+        const grad = ctx.createLinearGradient(sx,0,sx+sw,0);
+        if(b.hue==='teal'){
+          grad.addColorStop(0,'rgba(70,180,175,.10)');
+          grad.addColorStop(.5,'rgba(132,231,219,.55)');
+          grad.addColorStop(1,'rgba(70,180,175,.10)');
+        } else {
+          grad.addColorStop(0,'rgba(170,105,64,.08)');
+          grad.addColorStop(.5,'rgba(214,153,98,.45)');
+          grad.addColorStop(1,'rgba(170,105,64,.08)');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(sx, sy, sw, sh);
+      }
+    });
+  }
+
+  function drawRival(carX,carY,scale,color){
+    const w = 84*scale, h = 136*scale;
+    ctx.save();
+    ctx.translate(carX,carY);
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,.38)';
+    ctx.beginPath();
+    ctx.ellipse(0,h*0.46,w*0.58,h*0.2,0,0,Math.PI*2);
+    ctx.fill();
+
+    // body
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-w*0.42,h*0.42);
+    ctx.lineTo(-w*0.3,-h*0.05);
+    ctx.lineTo(-w*0.12,-h*0.44);
+    ctx.lineTo(w*0.12,-h*0.44);
+    ctx.lineTo(w*0.3,-h*0.05);
+    ctx.lineTo(w*0.42,h*0.42);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(20,30,36,.92)';
+    ctx.beginPath();
+    ctx.moveTo(-w*0.15,-h*0.28);
+    ctx.lineTo(w*0.15,-h*0.28);
+    ctx.lineTo(w*0.23,-h*0.02);
+    ctx.lineTo(-w*0.23,-h*0.02);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(130,222,216,.45)';
+    ctx.fillRect(-w*0.24,h*0.25,w*0.18,h*0.07);
+    ctx.fillRect(w*0.06,h*0.25,w*0.18,h*0.07);
+    ctx.restore();
+  }
+
+  function drawPlayer(){
+    const p = proj(worldZ + 160, (-1.5+playerX));
+    const x = p.x;
+    const y = H*0.84;
+    const scale = 1.25;
+
+    ctx.save();
+    ctx.translate(x,y);
+
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    ctx.beginPath();
+    ctx.ellipse(0,88,96,34,0,0,Math.PI*2);
+    ctx.fill();
+
+    const w = 160*scale/1.25, h = 220*scale/1.25;
+    const bodyGrad = ctx.createLinearGradient(0,-h*0.4,0,h*0.5);
+    bodyGrad.addColorStop(0,'#4a8d8f');
+    bodyGrad.addColorStop(.5,'#26484f');
+    bodyGrad.addColorStop(1,'#0e181d');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(-w*0.42,h*0.42);
+    ctx.lineTo(-w*0.31,-h*0.04);
+    ctx.lineTo(-w*0.16,-h*0.45);
+    ctx.lineTo(w*0.16,-h*0.45);
+    ctx.lineTo(w*0.31,-h*0.04);
+    ctx.lineTo(w*0.42,h*0.42);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#0f171c';
+    ctx.beginPath();
+    ctx.moveTo(-w*0.17,-h*0.25);
+    ctx.lineTo(w*0.17,-h*0.25);
+    ctx.lineTo(w*0.24,0);
+    ctx.lineTo(-w*0.24,0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(121,228,214,.72)';
+    ctx.fillRect(-w*0.26,h*0.25,w*0.18,h*0.08);
+    ctx.fillRect(w*0.08,h*0.25,w*0.18,h*0.08);
+
+    ctx.fillStyle = 'rgba(198,142,87,.38)';
+    ctx.fillRect(-w*0.06,-h*0.52,w*0.12,h*0.08);
+
+    ctx.restore();
+  }
+
+  function drawRivals(){
+    rivals.forEach(r=>{
+      let z = (r.z - worldZ*3.2);
+      while(z<220) z += 2500;
+      while(z>2500) z -= 2500;
+      const p = proj(worldZ + z, -1.5 + r.lane);
+      if(p.t<=0 || p.t>=1) return;
+      const scale = 0.35 + p.t*0.92;
+      drawRival(p.x,p.y-30,scale,r.col);
+    });
+  }
+
+  function drawHUD(){
+    const pulse = 0.5 + 0.5*Math.sin(frame/70);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+
+    ctx.strokeStyle = 'rgba(123,214,201,.28)';
+    ctx.strokeRect(86,132,290,52);
+    ctx.fillStyle = 'rgba(123,214,201,'+(0.06 + pulse*0.04)+')';
+    ctx.fillRect(94,144,120 + Math.sin(frame/90)*30,10);
+    ctx.fillStyle = 'rgba(194,137,82,.16)';
+    ctx.fillRect(94,162,86 + Math.cos(frame/60)*18,8);
+
+    ctx.strokeStyle = 'rgba(123,214,201,.18)';
+    ctx.strokeRect(888,260,132,430);
+    for(let i=0;i<9;i++){
+      ctx.fillStyle = i%3===0 ? 'rgba(123,214,201,.14)' : 'rgba(194,137,82,.10)';
+      ctx.fillRect(905,285+i*42,96,8);
+    }
+
+    // target marker
+    const markerY = 1120 + Math.sin(frame/100)*10;
+    ctx.strokeStyle = 'rgba(123,214,201,.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(512,markerY); ctx.lineTo(568,markerY);
+    ctx.moveTo(540,1092); ctx.lineTo(540,1148);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawRain(){
+    ctx.save();
+    ctx.strokeStyle = 'rgba(190,220,224,.08)';
+    ctx.lineWidth = 1.2;
+    for(let i=0;i<90;i++){
+      const x = (i*73 + frame*9) % (W+80) - 40;
+      const y = (i*141 + frame*17) % (H+140) - 80;
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x-12,y+38);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function draw(){
+    frame++;
+    worldZ += speed;
+
+    laneTimer++;
+    if(laneTimer > 120){
+      laneTimer = 0;
+      const occupied = rivals.map(r => {
+        let z = (r.z - worldZ*3.2);
+        while(z<220) z += 2500;
+        while(z>2500) z -= 2500;
+        return {lane:r.lane, z};
+      }).filter(o => o.z < 640 && o.z > 240).map(o=>o.lane);
+
+      const choices = [0,1,2,3].filter(l => !occupied.includes(l));
+      targetLane = choices.length ? choices[Math.floor(rand()*choices.length)] : targetLane;
+    }
+
+    playerX = lerp(playerX, targetLane, 0.03);
+
+    drawBackground();
+    drawBuildings();
+    drawRoad();
+    drawRivals();
+    drawPlayer();
+    drawHUD();
+
+    // lower screen wet overlay
+    const g = ctx.createLinearGradient(0,H*0.66,0,H);
+    g.addColorStop(0,'rgba(80,130,130,0)');
+    g.addColorStop(1,'rgba(70,120,120,.10)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,H*0.66,W,H*0.34);
+
+    drawRain();
+  }
+
+  function loop(){
+    draw();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  if (window.self === window.top) {
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const low = ac.createOscillator();
+      low.type = 'sawtooth';
+      low.frequency.value = 46;
+
+      const lowLP = ac.createBiquadFilter();
+      lowLP.type = 'lowpass';
+      lowLP.frequency.value = 120;
+      lowLP.Q.value = 0.6;
+
+      const mid = ac.createOscillator();
+      mid.type = 'triangle';
+      mid.frequency.value = 92;
+
+      const midLP = ac.createBiquadFilter();
+      midLP.type = 'bandpass';
+      midLP.frequency.value = 340;
+      midLP.Q.value = 0.9;
+
+      const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.45;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+      const noiseLP = ac.createBiquadFilter();
+      noiseLP.type = 'bandpass';
+      noiseLP.frequency.value = 1800;
+      noiseLP.Q.value = 0.5;
+      const noiseGain = ac.createGain();
+      noiseGain.gain.value = 0.012;
+
+      const lowGain = ac.createGain();
+      lowGain.gain.value = 0.35;
+      const midGain = ac.createGain();
+      midGain.gain.value = 0.18;
+
+      low.connect(lowLP); lowLP.connect(lowGain); lowGain.connect(master);
+      mid.connect(midLP); midLP.connect(midGain); midGain.connect(master);
+      noise.connect(noiseLP); noiseLP.connect(noiseGain); noiseGain.connect(master);
+
+      low.start();
+      mid.start();
+      noise.start();
+
+      function audioMod(){
+        const t = ac.currentTime;
+        low.frequency.setTargetAtTime(44 + 4*Math.sin(t/7), t, 2.4);
+        mid.frequency.setTargetAtTime(88 + 12*Math.sin(t/5.3), t, 2.0);
+        noiseGain.gain.setTargetAtTime(0.008 + 0.006*(0.5+0.5*Math.sin(t/8.2)), t, 3.0);
+        setTimeout(audioMod, 2500);
+      }
+      audioMod();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
