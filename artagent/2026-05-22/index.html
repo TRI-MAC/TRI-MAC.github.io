@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-05-22</title>
+<style>
+  :root{
+    --bg1:#f4e7c8;
+    --bg2:#d8c3a0;
+    --bg3:#8ea0a8;
+    --ink:#1f1a17;
+    --inkSoft:rgba(31,26,23,.52);
+    --paper:#f6ecd4;
+    --mist:rgba(255,255,255,.12);
+    --red:#a63a2f;
+    --indigo:#2a3f59;
+    --moss:#60725e;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#0d0d0c;
+    overflow:hidden;
+    font-family:serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg,#f8efd8 0%, #e9dbc0 18%, #cab899 44%, #8da0a8 73%, #51616e 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 30px 90px rgba(0,0,0,.45);
+  }
+
+  /* Main colour field */
+  #gradientField, #paperTexture, #inkWash, #mistLayer, #frontVeil, #vignette, #grainCanvas, #inkCanvas, #sunSvg {
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+
+  #gradientField{
+    background:
+      radial-gradient(120% 90% at 52% 18%, rgba(252,242,216,.95) 0%, rgba(240,221,184,.88) 26%, rgba(211,188,144,.68) 45%, rgba(132,151,162,.60) 70%, rgba(65,85,96,.78) 100%),
+      linear-gradient(180deg, #f6ebd3 0%, #e6d5b5 22%, #c9b089 50%, #879ba4 76%, #495c6b 100%);
+    filter:saturate(1.08) contrast(1.03);
+    animation: fieldShift 48s ease-in-out infinite alternate;
+    transform-origin:center center;
+  }
+  @keyframes fieldShift{
+    0%{
+      transform:scale(1.02);
+      filter:hue-rotate(0deg) saturate(1.02) brightness(1);
+    }
+    50%{
+      transform:scale(1.05);
+      filter:hue-rotate(-6deg) saturate(1.08) brightness(.98);
+    }
+    100%{
+      transform:scale(1.03);
+      filter:hue-rotate(5deg) saturate(1.12) brightness(1.01);
+    }
+  }
+
+  /* Rice paper / woodblock feel */
+  #paperTexture{
+    opacity:.42;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(88,67,47,.022) 0px, rgba(88,67,47,.022) 1px,
+        rgba(255,255,255,0) 3px, rgba(255,255,255,0) 8px),
+      repeating-linear-gradient(0deg,
+        rgba(88,67,47,.018) 0px, rgba(88,67,47,.018) 1px,
+        rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
+    mix-blend-mode:multiply;
+  }
+
+  #inkWash{
+    background:
+      radial-gradient(70% 42% at 50% 17%, rgba(255,248,233,.22) 0%, rgba(255,248,233,.12) 30%, rgba(255,248,233,0) 72%),
+      radial-gradient(88% 68% at 50% 66%, rgba(30,34,38,.08) 0%, rgba(30,34,38,.04) 42%, rgba(30,34,38,0) 74%),
+      radial-gradient(46% 30% at 16% 58%, rgba(31,26,23,.09) 0%, rgba(31,26,23,0) 70%),
+      radial-gradient(44% 34% at 82% 61%, rgba(31,26,23,.08) 0%, rgba(31,26,23,0) 72%);
+    mix-blend-mode:multiply;
+    animation: washDrift 34s ease-in-out infinite alternate;
+    opacity:.9;
+  }
+  @keyframes washDrift{
+    0%{transform:translateY(-1.2%) scale(1.01)}
+    100%{transform:translateY(1.5%) scale(1.035)}
+  }
+
+  /* Mist bands as soft planes, not standalone shapes */
+  #mistLayer{
+    background:
+      radial-gradient(95% 24% at 50% 78%, rgba(255,255,255,.18), rgba(255,255,255,0) 72%),
+      radial-gradient(110% 28% at 50% 66%, rgba(255,255,255,.14), rgba(255,255,255,0) 75%),
+      radial-gradient(120% 22% at 50% 30%, rgba(255,255,255,.09), rgba(255,255,255,0) 74%);
+    mix-blend-mode:screen;
+    opacity:.75;
+    animation: mistFloat 26s ease-in-out infinite alternate;
+  }
+  @keyframes mistFloat{
+    0%{transform:translateY(0) scaleY(1)}
+    100%{transform:translateY(-1.4%) scaleY(1.05)}
+  }
+
+  /* Portrait */
+  #portraitWrap{
+    position:absolute;
+    left:12%;
+    bottom:11%;
+    width:34%;
+    height:41%;
+    z-index:8;
+    pointer-events:none;
+    animation: portraitBreathe 24s ease-in-out infinite alternate;
+    transform-origin:50% 100%;
+  }
+  @keyframes portraitBreathe{
+    0%{transform:translateY(0) scale(1)}
+    100%{transform:translateY(-8px) scale(1.012)}
+  }
+  #portraitShadow{
+    position:absolute;
+    left:7%;
+    right:8%;
+    bottom:1%;
+    height:14%;
+    background:radial-gradient(50% 60% at 50% 50%, rgba(22,18,16,.34), rgba(22,18,16,0) 72%);
+    filter:blur(16px);
+    transform:scaleX(1.2);
+    opacity:.8;
+  }
+  #portrait-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center bottom;
+    filter:
+      saturate(.72)
+      contrast(1.06)
+      sepia(.22)
+      hue-rotate(-8deg)
+      drop-shadow(0 6px 18px rgba(20,18,17,.35))
+      drop-shadow(0 0 18px rgba(240,233,212,.18));
+    opacity:.94;
+  }
+  #portraitRim{
+    position:absolute;
+    inset:4% 8% 2% 8%;
+    background:
+      radial-gradient(55% 72% at 50% 36%, rgba(245,236,214,.22), rgba(245,236,214,0) 62%),
+      radial-gradient(50% 42% at 48% 78%, rgba(74,97,113,.16), rgba(74,97,113,0) 72%);
+    filter:blur(10px);
+    mix-blend-mode:screen;
+  }
+
+  /* soft foreground atmospheric occlusion in front of portrait */
+  #frontVeil{
+    z-index:10;
+    background:
+      radial-gradient(64% 20% at 24% 84%, rgba(246,241,230,.18), rgba(246,241,230,0) 72%),
+      radial-gradient(58% 16% at 18% 73%, rgba(246,241,230,.11), rgba(246,241,230,0) 74%),
+      radial-gradient(70% 16% at 58% 88%, rgba(20,22,26,.10), rgba(20,22,26,0) 74%);
+    animation: veilMove 18s ease-in-out infinite alternate;
+  }
+  @keyframes veilMove{
+    0%{transform:translateX(-1%)}
+    100%{transform:translateX(1.2%)}
+  }
+
+  /* Sun seal / hanko-like red mark */
+  #sunSvg{
+    z-index:6;
+    opacity:.2;
+    transform:translateY(.5%);
+    animation: sealBreath 36s ease-in-out infinite alternate;
+  }
+  @keyframes sealBreath{
+    0%{transform:scale(1) translateY(0)}
+    100%{transform:scale(1.02) translateY(-.4%)}
+  }
+
+  #date{
+    position:absolute;
+    right:20px;
+    bottom:16px;
+    z-index:20;
+    font-size:14px;
+    letter-spacing:.08em;
+    color:rgba(31,26,23,.45);
+    mix-blend-mode:multiply;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:47px;
+    bottom:110px;
+    opacity:.6;
+    z-index:11;
+    filter:sepia(.45) saturate(.7) brightness(.9) contrast(1.02);
+  }
+
+  #vignette{
+    z-index:19;
+    background:
+      radial-gradient(140% 100% at 50% 42%, rgba(255,255,255,0) 58%, rgba(44,35,28,.08) 82%, rgba(25,20,16,.18) 100%);
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="gradientField"></div>
+    <svg id="sunSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="soften">
+          <feGaussianBlur stdDeviation="10"/>
+        </filter>
+        <radialGradient id="sealGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#b64232" stop-opacity="0.85"/>
+          <stop offset="68%" stop-color="#a3372b" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#8e2d24" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="765" cy="418" r="150" fill="url(#sealGrad)" filter="url(#soften)"/>
+      <circle cx="765" cy="418" r="126" fill="#b13b2f" opacity="0.22"/>
+    </svg>
+    <canvas id="inkCanvas" width="1080" height="1920"></canvas>
+    <div id="paperTexture"></div>
+    <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+    <div id="inkWash"></div>
+    <div id="mistLayer"></div>
+
+    <div id="portraitWrap">
+      <div id="portraitShadow"></div>
+      <div id="portraitRim"></div>
+      <img id="portrait-image" src="portrait.png" alt="" />
+    </div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="frontVeil"></div>
+    <div id="vignette"></div>
+    <div id="date">2026-05-22</div>
+  </div>
+
+<script>
+(() => {
+  const dateStr = "2026-05-22";
+  let seed = 0;
+  for (let i = 0; i < dateStr.length; i++) seed = (seed * 131 + dateStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  const inkCanvas = document.getElementById('inkCanvas');
+  const ictx = inkCanvas.getContext('2d');
+  const grainCanvas = document.getElementById('grainCanvas');
+  const gctx = grainCanvas.getContext('2d');
+
+  const W = inkCanvas.width, H = inkCanvas.height;
+
+  function drawStaticGrain(){
+    const img = gctx.createImageData(W, H);
+    const data = img.data;
+    for(let i=0;i<data.length;i+=4){
+      const v = 228 + Math.floor((rand() - 0.5) * 26);
+      data[i] = v;
+      data[i+1] = v - 4;
+      data[i+2] = v - 10;
+      data[i+3] = 18;
+    }
+    gctx.putImageData(img,0,0);
+    gctx.globalCompositeOperation = 'multiply';
+    for(let i=0;i<28;i++){
+      const y = rand()*H;
+      const h = 12 + rand()*48;
+      const grad = gctx.createLinearGradient(0,y,0,y+h);
+      grad.addColorStop(0,'rgba(90,74,60,0)');
+      grad.addColorStop(0.5,`rgba(90,74,60,${0.012+rand()*0.02})`);
+      grad.addColorStop(1,'rgba(90,74,60,0)');
+      gctx.fillStyle = grad;
+      gctx.fillRect(0,y,W,h);
+    }
+  }
+
+  drawStaticGrain();
+
+  const washes = [];
+  for(let i=0;i<6;i++){
+    washes.push({
+      x: W*(0.14 + i*0.14 + rand()*0.05),
+      y: H*(0.18 + rand()*0.55),
+      rx: 140 + rand()*250,
+      ry: 90 + rand()*170,
+      rot: rand()*Math.PI,
+      alpha: 0.05 + rand()*0.08,
+      drift: (rand()*2-1)*0.15,
+      phase: rand()*Math.PI*2
+    });
+  }
+
+  function inkBlob(ctx, x, y, rx, ry, rot, color, feather){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.scale(rx,ry);
+    const grad = ctx.createRadialGradient(0,0,0.1,0,0,1);
+    grad.addColorStop(0, color.replace('ALPHA', feather*1.1));
+    grad.addColorStop(0.42, color.replace('ALPHA', feather));
+    grad.addColorStop(1, color.replace('ALPHA', 0));
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0,0,1,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawInk(t){
+    ictx.clearRect(0,0,W,H);
+
+    const topLift = 0.5 + 0.5*Math.sin(t*0.00008);
+    const bottomLift = 0.5 + 0.5*Math.sin(t*0.00006 + 1.3);
+
+    // broad soft ink gradients to keep "single field" concept
+    inkBlob(ictx, W*0.52, H*(0.78 - bottomLift*0.015), W*0.58, H*0.17, 0,
+      'rgba(28,31,35,ALPHA)', 0.10);
+    inkBlob(ictx, W*0.50, H*(0.20 + topLift*0.01), W*0.50, H*0.11, 0,
+      'rgba(255,250,238,ALPHA)', 0.12);
+
+    washes.forEach((w, idx)=>{
+      const shift = Math.sin(t*0.00007 + w.phase) * 28;
+      const swell = 1 + Math.sin(t*0.00009 + w.phase)*0.035;
+      inkBlob(
+        ictx,
+        w.x + shift * w.drift,
+        w.y + Math.cos(t*0.00006 + w.phase)*16*w.drift,
+        w.rx * swell,
+        w.ry * (2 - swell),
+        w.rot + Math.sin(t*0.00005 + idx)*0.04,
+        idx % 2 ? 'rgba(32,26,22,ALPHA)' : 'rgba(248,241,227,ALPHA)',
+        w.alpha
+      );
+    });
+
+    // subtle horizontal woodblock tide bands
+    for(let i=0;i<7;i++){
+      const yy = H*(0.18 + i*0.11) + Math.sin(t*0.00006 + i)*12;
+      const hh = 140 + 40*Math.sin(t*0.00005 + i*0.9);
+      const grad = ictx.createLinearGradient(0,yy,0,yy+hh);
+      const a = 0.016 + i*0.003;
+      grad.addColorStop(0,'rgba(255,255,255,0)');
+      grad.addColorStop(0.5,`rgba(${i<3?'255,248,236':'36,36,40'},${i<3?'':' '}${i<3?'':' '}${i<3?'':' '}`); // placeholder
+      ictx.fillStyle = grad;
+    }
+
+    for(let i=0;i<7;i++){
+      const yy = H*(0.14 + i*0.115) + Math.sin(t*0.00005 + i*0.8)*10;
+      const hh = 120 + 35*Math.sin(t*0.00004 + i*1.1);
+      const grad = ictx.createLinearGradient(0,yy,0,yy+hh);
+      const alpha = 0.014 + i*0.002;
+      if(i < 3){
+        grad.addColorStop(0,'rgba(255,249,236,0)');
+        grad.addColorStop(0.48,`rgba(255,249,236,${alpha})`);
+        grad.addColorStop(1,'rgba(255,249,236,0)');
+      }else{
+        grad.addColorStop(0,'rgba(28,30,34,0)');
+        grad.addColorStop(0.52,`rgba(28,30,34,${alpha})`);
+        grad.addColorStop(1,'rgba(28,30,34,0)');
+      }
+      ictx.fillStyle = grad;
+      ictx.fillRect(0,yy,W,hh);
+    }
+
+    // gentle lower-ground darkening to seat the portrait in the world
+    const ground = ictx.createRadialGradient(W*0.25,H*0.87,40,W*0.25,H*0.87,340);
+    ground.addColorStop(0,'rgba(34,29,26,0.16)');
+    ground.addColorStop(0.45,'rgba(34,29,26,0.08)');
+    ground.addColorStop(1,'rgba(34,29,26,0)');
+    ictx.fillStyle = ground;
+    ictx.fillRect(0,H*0.68,W,H*0.32);
+  }
+
+  function animate(t){
+    drawInk(t);
+
+    // sync overall field colours subtly with date-seeded cadence
+    const gf = document.getElementById('gradientField');
+    const a = Math.sin(t*0.00005)*4;
+    const b = Math.sin(t*0.000037 + 1.4)*3;
+    gf.style.filter = `hue-rotate(${a+b}deg) saturate(${1.05 + Math.sin(t*0.00004)*0.06}) brightness(${0.99 + Math.sin(t*0.00006+0.8)*0.02})`;
+
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.012;
+      master.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+
+      function tone(freq, start, dur, gainVal){
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const lp = ctx.createBiquadFilter();
+        o.type = 'sine';
+        o.frequency.value = freq;
+        lp.type = 'lowpass';
+        lp.frequency.value = 900;
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.linearRampToValueAtTime(gainVal, start + dur*0.35);
+        g.gain.linearRampToValueAtTime(0.0001, start + dur);
+        o.connect(lp);
+        lp.connect(g);
+        g.connect(master);
+        o.start(start);
+        o.stop(start + dur + 0.1);
+      }
+
+      const base = 196;
+      const ratios = [1, 4/3, 3/2, 2];
+      for(let i=0;i<24;i++){
+        const start = now + i * 4.2;
+        const r = ratios[i % ratios.length];
+        tone(base * r, start, 6.8, 0.018);
+        tone(base * 0.5 * r, start + 0.8, 7.4, 0.012);
+      }
+
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * 12, ctx.sampleRate);
+      const ch = buffer.getChannelData(0);
+      for(let i=0;i<ch.length;i++){
+        ch[i] = (Math.random()*2-1) * 0.12;
+      }
+      noise.buffer = buffer;
+      noise.loop = true;
+      const nFilter = ctx.createBiquadFilter();
+      nFilter.type = 'bandpass';
+      nFilter.frequency.value = 210;
+      nFilter.Q.value = 0.35;
+      const nGain = ctx.createGain();
+      nGain.gain.value = 0.0035;
+      noise.connect(nFilter);
+      nFilter.connect(nGain);
+      nGain.connect(master);
+      noise.start();
+
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.hidden && ctx.state === 'running') ctx.suspend();
+        else if(!document.hidden && ctx.state !== 'running') ctx.resume();
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
