@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-05-23</title>
+<style>
+  :root{
+    --bg:#120d09;
+    --umber:#2a1710;
+    --bronze:#7a5624;
+    --gold:#d8b45e;
+    --pale:#f3e2b5;
+    --ivory:#efe0c7;
+    --crimson:#7c1f1f;
+    --verdigris:#2f6d66;
+    --emerald:#2a8a63;
+    --shadow:#080605;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 20%, #4d3117 0%, #1d130e 38%, #090707 100%);
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 16%, rgba(239,224,199,.24), rgba(239,224,199,0) 26%),
+      linear-gradient(180deg,#3a2415 0%, #1a120e 24%, #100b09 58%, #0a0808 100%);
+    box-shadow:0 0 40px rgba(0,0,0,.55), inset 0 0 90px rgba(0,0,0,.35);
+  }
+
+  .layer{position:absolute; inset:0}
+  canvas,svg{position:absolute; inset:0; width:100%; height:100%; display:block}
+
+  #bgOrnament{
+    opacity:.9;
+    filter:drop-shadow(0 0 10px rgba(216,180,94,.12));
+  }
+
+  #glowVeil{
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255,224,154,.22), rgba(255,224,154,0) 24%),
+      radial-gradient(circle at 50% 72%, rgba(35,128,104,.18), rgba(35,128,104,0) 28%),
+      radial-gradient(circle at 28% 58%, rgba(124,31,31,.14), rgba(124,31,31,0) 18%),
+      radial-gradient(circle at 72% 58%, rgba(124,31,31,.14), rgba(124,31,31,0) 18%);
+    mix-blend-mode:screen;
+    animation:veilBreath 22s ease-in-out infinite;
+  }
+
+  @keyframes veilBreath{
+    0%,100%{transform:scale(1); opacity:.9}
+    50%{transform:scale(1.035); opacity:1}
+  }
+
+  #roses{
+    opacity:.93;
+    mix-blend-mode:screen;
+    filter:drop-shadow(0 0 12px rgba(216,180,94,.08));
+  }
+
+  #architecture{
+    opacity:.95;
+  }
+
+  .vignette{
+    position:absolute; inset:-2%;
+    background:
+      radial-gradient(circle at center, rgba(0,0,0,0) 54%, rgba(0,0,0,.18) 74%, rgba(0,0,0,.55) 100%);
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(239,224,199,.46);
+    font-size:15px;
+    letter-spacing:.12em;
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:104px;
+    bottom:206px;
+    opacity:.56;
+    filter:saturate(.72) brightness(.84) drop-shadow(0 1px 1px rgba(0,0,0,.45));
+    z-index:8;
+    transform:rotate(-7deg);
+  }
+
+  #grain{
+    opacity:.12;
+    mix-blend-mode:soft-light;
+  }
+
+  .archFade{
+    mask-image:radial-gradient(circle at center, #000 0%, #000 72%, transparent 98%);
+    -webkit-mask-image:radial-gradient(circle at center, #000 0%, #000 72%, transparent 98%);
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="glowVeil" class="layer archFade"></div>
+  <svg id="bgOrnament" class="layer archFade" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="goldStroke" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f8e9bb"/>
+        <stop offset="45%" stop-color="#d8b45e"/>
+        <stop offset="70%" stop-color="#8d672d"/>
+        <stop offset="100%" stop-color="#f0d795"/>
+      </linearGradient>
+      <linearGradient id="darkGold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6d4c20"/>
+        <stop offset="100%" stop-color="#2d1a0b"/>
+      </linearGradient>
+      <radialGradient id="medallionFill" cx="50%" cy="45%" r="60%">
+        <stop offset="0%" stop-color="#3d2614"/>
+        <stop offset="75%" stop-color="#1b120c"/>
+        <stop offset="100%" stop-color="#0e0b0a"/>
+      </radialGradient>
+    </defs>
+
+    <g opacity=".75">
+      <rect x="86" y="88" width="908" height="1744" rx="26" fill="none" stroke="url(#goldStroke)" stroke-width="5"/>
+      <rect x="112" y="114" width="856" height="1692" rx="18" fill="none" stroke="rgba(239,224,199,.24)" stroke-width="1.8"/>
+      <path d="M150 220 L930 220" stroke="rgba(216,180,94,.45)" stroke-width="2"/>
+      <path d="M150 1700 L930 1700" stroke="rgba(216,180,94,.38)" stroke-width="2"/>
+      <path d="M215 130 L215 1790 M865 130 L865 1790" stroke="rgba(216,180,94,.18)" stroke-width="2"/>
+    </g>
+
+    <g transform="translate(540 218)">
+      <circle r="124" fill="url(#medallionFill)" stroke="url(#goldStroke)" stroke-width="5"/>
+      <circle r="98" fill="none" stroke="rgba(239,224,199,.18)" stroke-width="2"/>
+      <g stroke="url(#goldStroke)" fill="none" opacity=".8">
+        <path d="M-152 0h304" stroke-width="2"/>
+        <path d="M0 -152v304" stroke-width="2"/>
+      </g>
+      <g id="sunburstStatic" opacity=".5">
+        <g fill="url(#goldStroke)">
+          <polygon points="0,-156 8,-126 -8,-126"/>
+          <polygon points="0,156 8,126 -8,126"/>
+          <polygon points="156,0 126,8 126,-8"/>
+          <polygon points="-156,0 -126,8 -126,-8"/>
+          <polygon points="110,-110 90,-88 88,-90"/>
+          <polygon points="-110,-110 -88,-90 -90,-88"/>
+          <polygon points="110,110 88,90 90,88"/>
+          <polygon points="-110,110 -90,88 -88,90"/>
+        </g>
+      </g>
+    </g>
+
+    <g opacity=".55" stroke="url(#goldStroke)" fill="none">
+      <path d="M214 370 Q540 220 866 370" stroke-width="3"/>
+      <path d="M214 1548 Q540 1700 866 1548" stroke-width="3"/>
+    </g>
+  </svg>
+
+  <canvas id="architecture" class="layer archFade" width="1080" height="1920"></canvas>
+  <canvas id="roses" class="layer archFade" width="1080" height="1920"></canvas>
+  <canvas id="grain" class="layer" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt=""/>
+
+  <div class="vignette"></div>
+  <div id="date">2026-05-23</div>
+</div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  const seedString = "2026-05-23";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rnd(){
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const arch = document.getElementById('architecture');
+  const ctxA = arch.getContext('2d');
+
+  const roses = document.getElementById('roses');
+  const ctxR = roses.getContext('2d');
+
+  const grain = document.getElementById('grain');
+  const ctxG = grain.getContext('2d');
+
+  function drawGrain(){
+    const img = ctxG.createImageData(W,H);
+    const d = img.data;
+    for(let i=0;i<d.length;i+=4){
+      const v = 105 + Math.floor(rnd()*70);
+      d[i]=v; d[i+1]=v-8; d[i+2]=v-18; d[i+3]=22;
+    }
+    ctxG.putImageData(img,0,0);
+  }
+  drawGrain();
+
+  const gears = [];
+  const columns = [250, 540, 830];
+  const flowerYs = [540, 830, 1120, 1410];
+
+  columns.forEach((x, ci) => {
+    flowerYs.forEach((y, yi) => {
+      if ((ci + yi) % 2 === 0 || yi === 1) {
+        gears.push({
+          x: x + (ci===1 ? 0 : (ci===0 ? -18 : 18)),
+          y: y + (yi%2===0 ? 0 : 24),
+          r: 72 + ((ci*13 + yi*7) % 3) * 18,
+          petals: 10 + ((ci+yi)%4)*2,
+          inner: 28 + ((ci*11 + yi*9)%3)*8,
+          rot: rnd()*Math.PI*2,
+          speed: (rnd()*0.15 + 0.08) * (ci===1 ? 1 : -1),
+          hueShift: rnd()*0.2
+        });
+      }
+    });
+  });
+
+  const buds = [];
+  for(let i=0;i<18;i++){
+    const side = i%2===0 ? 1 : -1;
+    const baseX = side>0 ? 760 : 320;
+    buds.push({
+      x: baseX + side*(40 + rnd()*90),
+      y: 500 + i*65 + rnd()*30,
+      s: 0.7 + rnd()*0.9,
+      rot: rnd()*Math.PI*2,
+      phase: rnd()*Math.PI*2
+    });
+  }
+
+  function goldGradient(x,y,r){
+    const g = ctxR.createRadialGradient(x-r*0.15,y-r*0.18,r*0.12,x,y,r);
+    g.addColorStop(0,"rgba(255,241,194,0.95)");
+    g.addColorStop(0.38,"rgba(216,180,94,0.9)");
+    g.addColorStop(0.72,"rgba(126,86,36,0.92)");
+    g.addColorStop(1,"rgba(40,24,11,0)");
+    return g;
+  }
+
+  function drawToothGear(ctx,x,y,r,teeth,rot,fillA,fillB,stroke){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    for(let i=0;i<teeth*2;i++){
+      const a = i*Math.PI/teeth;
+      const rr = i%2===0 ? r : r*0.84;
+      ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);
+    }
+    ctx.closePath();
+    const g = ctx.createRadialGradient(-r*0.25,-r*0.25,r*0.12,0,0,r);
+    g.addColorStop(0, fillA);
+    g.addColorStop(.55, fillB);
+    g.addColorStop(1, "rgba(56,33,13,0.96)");
+    ctx.fillStyle = g;
+    ctx.fill();
+
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0,0,r*0.42,0,Math.PI*2);
+    ctx.fillStyle = "rgba(34,21,12,0.98)";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(243,226,181,0.55)";
+    ctx.stroke();
+
+    for(let i=0;i<8;i++){
+      const a = i*Math.PI/4;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a)*r*0.62, Math.sin(a)*r*0.62, r*0.045, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(239,224,199,0.68)";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function petal(ctx,x,y,len,w,rot,color1,color2){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    const g = ctx.createLinearGradient(0,-w*0.5,0,w*0.5);
+    g.addColorStop(0,color1);
+    g.addColorStop(.5,color2);
+    g.addColorStop(1,"rgba(86,48,18,.95)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(len*0.42,0,w*0.5,-Math.PI/2,Math.PI/2,false);
+    ctx.arc(len*0.72,0,w*0.75,Math.PI/2,-Math.PI/2,false);
+    ctx.closePath();
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255,233,181,.28)";
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFlower(ctx, f, t){
+    const bloom = 0.82 + 0.14*Math.sin(t*0.00023 + f.x*0.003 + f.y*0.0018);
+    const open = 0.86 + 0.18*Math.sin(t*0.00018 + f.y*0.0021);
+    const rot = f.rot + t*0.00006*f.speed*50;
+    const r = f.r * bloom;
+
+    for(let i=0;i<f.petals;i++){
+      const a = rot + (Math.PI*2/f.petals)*i;
+      const pr = r*(1.02 + 0.08*Math.sin(t*0.0003+i));
+      petal(
+        ctx,
+        f.x + Math.cos(a)*r*0.14,
+        f.y + Math.sin(a)*r*0.14,
+        pr*0.92,
+        pr*0.42*open,
+        a,
+        "rgba(249,232,184,0.96)",
+        i%3===0 ? "rgba(132,34,34,0.95)" : "rgba(47,109,102,0.95)"
+      );
+    }
+
+    drawToothGear(
+      ctx, f.x, f.y, r*0.56, f.petals,
+      -rot*0.75,
+      "rgba(255,240,194,0.95)",
+      "rgba(180,128,50,0.95)",
+      "rgba(243,226,181,0.78)"
+    );
+
+    ctx.save();
+    ctx.translate(f.x,f.y);
+    ctx.rotate(rot*1.4);
+    for(let i=0;i<12;i++){
+      ctx.rotate(Math.PI/6);
+      ctx.fillStyle = i%2===0 ? "rgba(239,224,199,0.46)" : "rgba(216,180,94,0.28)";
+      ctx.fillRect(r*0.1,-2,r*0.33,4);
+    }
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(f.x,f.y,r*0.08,0,Math.PI*2);
+    ctx.fillStyle = "rgba(255,245,210,0.9)";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(f.x,f.y,r*1.06,0,Math.PI*2);
+    ctx.strokeStyle = "rgba(216,180,94,0.18)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    const halo = ctx.createRadialGradient(f.x,f.y,r*0.2,f.x,f.y,r*1.3);
+    halo.addColorStop(0,"rgba(255,229,150,0.10)");
+    halo.addColorStop(0.55,"rgba(255,229,150,0.05)");
+    halo.addColorStop(1,"rgba(255,229,150,0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(f.x,f.y,r*1.3,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawCircuitVine(ctx, x1,y1,x2,y2, width, phase, side){
+    const segs = 18;
+    const pts = [];
+    for(let i=0;i<=segs;i++){
+      const t = i/segs;
+      const x = lerp(x1,x2,t) + Math.sin(t*Math.PI*(2 + side*0.2) + phase)*30*side*(1-Math.abs(t-.5)*1.2);
+      const y = lerp(y1,y2,t) + Math.sin(t*Math.PI*4 + phase*1.2)*8;
+      pts.push([x,y]);
+    }
+
+    for(let i=0;i<pts.length-1;i++){
+      const [ax,ay]=pts[i], [bx,by]=pts[i+1];
+      const dx=bx-ax, dy=by-ay, len=Math.hypot(dx,dy);
+      const ang=Math.atan2(dy,dx);
+      ctx.save();
+      ctx.translate(ax,ay);
+      ctx.rotate(ang);
+      const g = ctx.createLinearGradient(0,-width,0,width);
+      g.addColorStop(0,"rgba(245,223,165,0.9)");
+      g.addColorStop(.5,"rgba(56,133,105,0.95)");
+      g.addColorStop(1,"rgba(20,52,43,0.95)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0,-width*0.5,len+1,width);
+
+      if(i<pts.length-2){
+        ctx.fillStyle = "rgba(220,188,96,0.88)";
+        ctx.fillRect(len*0.4,-width*0.95,12,width*0.7);
+        ctx.fillStyle = "rgba(239,224,199,0.5)";
+        ctx.beginPath();
+        ctx.arc(len*0.4+6,0,2.4,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawRosetteBud(ctx,b,t){
+    const open = 0.92 + 0.12*Math.sin(t*0.00035 + b.phase);
+    const r = 22*b.s*open;
+    ctx.save();
+    ctx.translate(b.x,b.y);
+    ctx.rotate(b.rot + Math.sin(t*0.00021+b.phase)*0.12);
+    for(let i=0;i<8;i++){
+      const a = i*Math.PI/4;
+      petal(ctx, Math.cos(a)*r*0.18, Math.sin(a)*r*0.18, r*0.72, r*0.4, a,
+        "rgba(245,232,188,0.92)",
+        i%2===0 ? "rgba(47,109,102,0.9)" : "rgba(125,31,31,0.9)"
+      );
+    }
+    drawToothGear(ctx,0,0,r*0.52,8,-b.rot*1.2 + t*0.00008,"rgba(250,242,210,0.88)","rgba(174,128,53,0.9)","rgba(239,224,199,0.55)");
+    ctx.restore();
+  }
+
+  function drawArchitecture(t){
+    ctxA.clearRect(0,0,W,H);
+
+    const center = W/2;
+
+    const wall = ctxA.createLinearGradient(0,0,0,H);
+    wall.addColorStop(0,"rgba(83,57,29,0.18)");
+    wall.addColorStop(.3,"rgba(0,0,0,0)");
+    wall.addColorStop(.7,"rgba(0,0,0,0)");
+    wall.addColorStop(1,"rgba(0,0,0,0.22)");
+    ctxA.fillStyle = wall;
+    ctxA.fillRect(0,0,W,H);
+
+    function column(x){
+      const sway = Math.sin(t*0.00012 + x)*1.2;
+      const gx = ctxA.createLinearGradient(x-26,0,x+26,0);
+      gx.addColorStop(0,"rgba(92,63,29,0.95)");
+      gx.addColorStop(.22,"rgba(236,208,140,0.88)");
+      gx.addColorStop(.5,"rgba(133,91,40,0.95)");
+      gx.addColorStop(.78,"rgba(245,227,180,0.82)");
+      gx.addColorStop(1,"rgba(87,60,30,0.95)");
+      ctxA.fillStyle = gx;
+      ctxA.fillRect(x-26+sway, 295, 52, 1160);
+
+      ctxA.fillStyle = "rgba(40,25,12,0.7)";
+      for(let i=0;i<14;i++){
+        const yy = 330 + i*78;
+        ctxA.fillRect(x-23+sway, yy, 46, 16);
+      }
+
+      ctxA.fillStyle = "rgba(175,130,53,0.95)";
+      ctxA.fillRect(x-42+sway, 252, 84, 30);
+      ctxA.fillRect(x-52+sway, 1450, 104, 34);
+
+      ctxA.beginPath();
+      ctxA.moveTo(x-64+sway,1450);
+      ctxA.lineTo(x+64+sway,1450);
+      ctxA.lineTo(x+82+sway,1490);
+      ctxA.lineTo(x-82+sway,1490);
+      ctxA.closePath();
+      ctxA.fillStyle = "rgba(120,82,33,0.95)";
+      ctxA.fill();
+    }
+
+    column(185);
+    column(895);
+
+    ctxA.save();
+    ctxA.translate(center, 262);
+    const domePulse = 1 + Math.sin(t*0.0002)*0.01;
+    ctxA.scale(domePulse,domePulse);
+    const dome = ctxA.createRadialGradient(0,-30,30,0,0,260);
+    dome.addColorStop(0,"rgba(247,229,176,0.82)");
+    dome.addColorStop(.4,"rgba(142,98,41,0.96)");
+    dome.addColorStop(1,"rgba(56,34,16,0.98)");
+    ctxA.fillStyle = dome;
+    ctxA.beginPath();
+    ctxA.arc(0,0,225,Math.PI,0,false);
+    ctxA.lineTo(225,0);
+    ctxA.lineTo(-225,0);
+    ctxA.closePath();
+    ctxA.fill();
+    ctxA.strokeStyle="rgba(239,224,199,0.42)";
+    ctxA.lineWidth=3;
+    ctxA.stroke();
+
+    for(let i=-4;i<=4;i++){
+      const x=i*44;
+      ctxA.fillStyle="rgba(239,224,199,0.18)";
+      ctxA.fillRect(x-8,-180,16,180);
+    }
+    ctxA.restore();
+
+    ctxA.strokeStyle = "rgba(216,180,94,0.35)";
+    ctxA.lineWidth = 3;
+    ctxA.beginPath();
+    ctxA.moveTo(160, 390);
+    ctxA.lineTo(920, 390);
+    ctxA.stroke();
+
+    const floor = ctxA.createLinearGradient(0,1510,0,H);
+    floor.addColorStop(0,"rgba(59,42,22,0.1)");
+    floor.addColorStop(.45,"rgba(122,86,36,0.28)");
+    floor.addColorStop(1,"rgba(11,9,8,0.65)");
+    ctxA.fillStyle = floor;
+    ctxA.fillRect(90,1500,900,300);
+
+    for(let i=0;i<10;i++){
+      const yy = 1520 + i*28;
+      ctxA.strokeStyle = i%2===0 ? "rgba(216,180,94,0.18)" : "rgba(239,224,199,0.08)";
+      ctxA.beginPath();
+      ctxA.moveTo(122,yy);
+      ctxA.lineTo(958,yy);
+      ctxA.stroke();
+    }
+
+    for(let i=0;i<7;i++){
+      const xx = 150 + i*130;
+      ctxA.strokeStyle = "rgba(216,180,94,0.12)";
+      ctxA.beginPath();
+      ctxA.moveTo(xx,1505);
+      ctxA.lineTo(xx+40,1810);
+      ctxA.stroke();
+    }
+
+    const shadow = ctxA.createRadialGradient(center,1535,30,center,1535,410);
+    shadow.addColorStop(0,"rgba(0,0,0,0.44)");
+    shadow.addColorStop(1,"rgba(0,0,0,0)");
+    ctxA.fillStyle = shadow;
+    ctxA.beginPath();
+    ctxA.ellipse(center,1535,380,86,0,0,Math.PI*2);
+    ctxA.fill();
+  }
+
+  function drawRoses(t){
+    ctxR.clearRect(0,0,W,H);
+
+    const phase = t*0.00022;
+
+    drawCircuitVine(ctxR, 540, 1550, 540, 480, 18, phase, 0.4);
+    drawCircuitVine(ctxR, 540, 1350, 300, 720, 12, phase+1.3, -1);
+    drawCircuitVine(ctxR, 540, 1350, 780, 720, 12, phase+1.1, 1);
+    drawCircuitVine(ctxR, 540, 1120, 235, 1110, 10, phase+2.3, -1);
+    drawCircuitVine(ctxR, 540, 1120, 845, 1110, 10, phase+2.0, 1);
+    drawCircuitVine(ctxR, 540, 920, 240, 1460, 9, phase+0.6, -1);
+    drawCircuitVine(ctxR, 540, 920, 840, 1460, 9, phase+0.8, 1);
+
+    buds.forEach(b => drawRosetteBud(ctxR,b,t));
+
+    gears.forEach(g => drawFlower(ctxR,g,t));
+
+    const filigree = [
+      [540,1565,260,38],[540,1565,350,20],
+      [320,1400,110,12],[760,1400,110,12],
+      [540,700,220,16]
+    ];
+    filigree.forEach(([x,y,r,off])=>{
+      ctxR.beginPath();
+      ctxR.arc(x,y,r+Math.sin(t*0.00016+off)*6,0,Math.PI*2);
+      ctxR.strokeStyle = "rgba(216,180,94,0.12)";
+      ctxR.lineWidth = 3;
+      ctxR.stroke();
+    });
+
+    const baseGlow = goldGradient(540, 1540, 300);
+    ctxR.fillStyle = baseGlow;
+    ctxR.beginPath();
+    ctxR.arc(540,1540,300,0,Math.PI*2);
+    ctxR.fill();
+  }
+
+  function animate(now){
+    drawArchitecture(now);
+    drawRoses(now);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const low = ac.createOscillator();
+      low.type = "sine";
+      low.frequency.value = 55.0;
+
+      const high = ac.createOscillator();
+      high.type = "triangle";
+      high.frequency.value = 164.81;
+
+      const lGain = ac.createGain();
+      const hGain = ac.createGain();
+      lGain.gain.value = 0.22;
+      hGain.gain.value = 0.06;
+
+      const filter = ac.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 620;
+      filter.Q.value = 0.4;
+
+      low.connect(lGain).connect(filter);
+      high.connect(hGain).connect(filter);
+      filter.connect(master);
+
+      low.start();
+      high.start();
+
+      const start = ac.currentTime;
+      function toneLoop(){
+        const t = ac.currentTime - start;
+        lGain.gain.setTargetAtTime(0.18 + 0.05*Math.sin(t/7), ac.currentTime, 2.5);
+        hGain.gain.setTargetAtTime(0.05 + 0.02*Math.sin(t/11 + 1.2), ac.currentTime, 2.8);
+        low.frequency.setTargetAtTime(55 + 2*Math.sin(t/9), ac.currentTime, 3);
+        high.frequency.setTargetAtTime(164.81 + 5*Math.sin(t/13), ac.currentTime, 3.5);
+        filter.frequency.setTargetAtTime(560 + 90*Math.sin(t/10 + 0.4), ac.currentTime, 4);
+        requestAnimationFrame(toneLoop);
+      }
+      toneLoop();
+
+      const resume = () => { if (ac.state !== "running") ac.resume(); };
+      document.addEventListener("visibilitychange", resume);
+      window.addEventListener("load", resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
