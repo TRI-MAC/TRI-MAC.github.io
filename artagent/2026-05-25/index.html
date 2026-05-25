@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-25</title>
+<style>
+  :root{
+    --bg-paper:#efe3c1;
+    --paper2:#e5d4a5;
+    --ink:#1c1712;
+    --red:#c53a2b;
+    --verm:#d84a2f;
+    --indigo:#28406b;
+    --blue:#3f6a92;
+    --teal:#587c7c;
+    --gold:#d8a34c;
+    --leaf:#7d8f47;
+    --plum:#6e3450;
+    --shadow:#8f7a5a;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#12100d;
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(100vh,177.777vw);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% 15%, rgba(255,245,220,.18), rgba(255,245,220,0) 48%),
+      linear-gradient(180deg, #f1e5bf 0%, #e9d9ac 28%, #d6bc86 58%, #b68452 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.35), 0 30px 80px rgba(0,0,0,.45);
+  }
+
+  .paper-grain,
+  .mist,
+  .vignette,
+  .sunmask,
+  .foreground-svg,
+  .hud,
+  #gameCanvas,
+  #date,
+  #guinea-pig{
+    position:absolute;
+    inset:0;
+  }
+
+  .paper-grain{
+    opacity:.16;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 70% 20%, rgba(0,0,0,.18) 0 1px, transparent 1.3px),
+      radial-gradient(circle at 30% 80%, rgba(0,0,0,.12) 0 1px, transparent 1.1px),
+      radial-gradient(circle at 80% 75%, rgba(255,255,255,.25) 0 1px, transparent 1.2px);
+    background-size: 12px 12px, 17px 17px, 19px 19px, 14px 14px;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  .mist{
+    inset:-8%;
+    opacity:.28;
+    background:
+      radial-gradient(40% 14% at 32% 52%, rgba(255,239,204,.48), transparent 70%),
+      radial-gradient(36% 12% at 72% 58%, rgba(255,239,204,.42), transparent 70%),
+      radial-gradient(44% 15% at 48% 67%, rgba(255,250,234,.34), transparent 72%);
+    filter:blur(16px);
+    animation: mistDrift 18s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes mistDrift{
+    0%,100%{transform:translateX(0) translateY(0)}
+    50%{transform:translateX(1.2%) translateY(-0.8%)}
+  }
+
+  .vignette{
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(50,30,10,.08), rgba(50,30,10,0) 10%, rgba(50,30,10,0) 90%, rgba(30,15,8,.22)),
+      radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(27,18,12,.22) 100%);
+    z-index:20;
+  }
+
+  .sunmask{
+    pointer-events:none;
+    z-index:2;
+    background:
+      radial-gradient(34% 19% at 50% 15%, rgba(216,163,76,.34), rgba(216,163,76,.14) 35%, transparent 65%);
+    filter:blur(2px);
+    animation: sunBreath 16s ease-in-out infinite;
+  }
+  @keyframes sunBreath{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.03)}
+  }
+
+  #gameCanvas{
+    width:100%;
+    height:100%;
+    z-index:5;
+    image-rendering:auto;
+  }
+
+  .foreground-svg{
+    z-index:12;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  .hud{
+    z-index:11;
+    pointer-events:none;
+  }
+
+  .score-panel{
+    position:absolute;
+    left:72px;
+    top:88px;
+    width:300px;
+    height:86px;
+    border:4px solid rgba(28,23,18,.8);
+    background:rgba(239,227,193,.64);
+    box-shadow:
+      inset 0 0 0 4px rgba(200,90,55,.22),
+      0 3px 0 rgba(28,23,18,.25);
+    backdrop-filter:blur(1px);
+  }
+  .score-panel::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border:2px solid rgba(40,64,107,.45);
+  }
+  .score-nums{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:26px;
+    font-weight:700;
+    font-size:36px;
+    color:var(--ink);
+    letter-spacing:2px;
+    text-shadow:1px 1px 0 rgba(255,248,230,.6);
+  }
+  .life-dots{
+    position:absolute;
+    right:78px;
+    top:100px;
+    display:flex;
+    gap:12px;
+  }
+  .life-dots span{
+    width:20px;
+    height:20px;
+    background:var(--verm);
+    border:3px solid var(--ink);
+    transform:rotate(45deg);
+    opacity:.9;
+  }
+
+  #date{
+    z-index:30;
+    inset:auto 20px 16px auto;
+    width:auto;
+    height:auto;
+    font-size:15px;
+    color:rgba(28,23,18,.46);
+    letter-spacing:.08em;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    z-index:18;
+    width:18px;
+    height:auto;
+    left:1004px;
+    top:1744px;
+    opacity:.62;
+    filter:saturate(.78) contrast(.96) drop-shadow(0 1px 1px rgba(0,0,0,.22));
+    pointer-events:none;
+  }
+
+  svg .slow-sway{ animation: sway 11s ease-in-out infinite; transform-origin:center; }
+  svg .slow-sway2{ animation: sway2 14s ease-in-out infinite; transform-origin:center; }
+  svg .pulse-soft{ animation: pulseSoft 9s ease-in-out infinite; transform-origin:center; }
+  svg .riseMask{ animation: riseMask 12s ease-in-out infinite; transform-origin:center; }
+
+  @keyframes sway{
+    0%,100%{transform:translateX(0) rotate(0deg)}
+    50%{transform:translateX(6px) rotate(0.6deg)}
+  }
+  @keyframes sway2{
+    0%,100%{transform:translateX(0) rotate(0deg)}
+    50%{transform:translateX(-8px) rotate(-0.8deg)}
+  }
+  @keyframes pulseSoft{
+    0%,100%{transform:scale(1); opacity:.92}
+    50%{transform:scale(1.018); opacity:1}
+  }
+  @keyframes riseMask{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-7px)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="gameCanvas" width="1080" height="1920" aria-hidden="true"></canvas>
+
+    <div class="sunmask"></div>
+    <div class="paper-grain"></div>
+    <div class="mist"></div>
+
+    <div class="hud">
+      <div class="score-panel">
+        <div class="score-nums"><span id="scoreA">00</span><span>之</span><span id="scoreB">00</span></div>
+      </div>
+      <div class="life-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <svg class="foreground-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fadeTop" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="rgba(239,227,193,1)"/>
+          <stop offset="65%" stop-color="rgba(239,227,193,0)"/>
+        </linearGradient>
+        <linearGradient id="fadeBottom" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+          <stop offset="100%" stop-color="rgba(28,23,18,.92)"/>
+        </linearGradient>
+        <linearGradient id="curtainRed" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#8c231c"/>
+          <stop offset="40%" stop-color="#c53a2b"/>
+          <stop offset="100%" stop-color="#7a1f19"/>
+        </linearGradient>
+        <radialGradient id="goldWash" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#f3d28b" stop-opacity=".95"/>
+          <stop offset="100%" stop-color="#c6913f" stop-opacity=".25"/>
+        </radialGradient>
+        <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4"/>
+        </filter>
+      </defs>
+
+      <g opacity=".9">
+        <path class="slow-sway" d="M0,0 L170,0 C145,120 175,260 122,390 C97,452 72,512 90,610 C114,736 104,842 72,986 C53,1071 47,1185 60,1290 C76,1422 70,1540 38,1660 C21,1720 15,1790 20,1920 L0,1920 Z" fill="url(#curtainRed)" opacity=".93"/>
+        <path class="slow-sway2" d="M1080,0 L910,0 C935,120 905,260 958,390 C983,452 1008,512 990,610 C966,736 976,842 1008,986 C1027,1071 1033,1185 1020,1290 C1004,1422 1010,1540 1042,1660 C1059,1720 1065,1790 1060,1920 L1080,1920 Z" fill="url(#curtainRed)" opacity=".93"/>
+      </g>
+
+      <g opacity=".72" class="pulse-soft">
+        <circle cx="540" cy="228" r="164" fill="url(#goldWash)"/>
+        <circle cx="540" cy="228" r="188" fill="none" stroke="#c53a2b" stroke-width="14" opacity=".55"/>
+        <circle cx="540" cy="228" r="216" fill="none" stroke="#28406b" stroke-width="8" opacity=".45"/>
+      </g>
+
+      <g opacity=".84">
+        <path d="M135,1505 C330,1452 468,1441 540,1438 C635,1435 812,1458 955,1518 L955,1600 C786,1560 646,1548 542,1548 C405,1548 258,1568 135,1604 Z" fill="#d4bf92"/>
+        <path d="M135,1533 C310,1496 436,1487 540,1488 C654,1489 803,1510 955,1546" fill="none" stroke="#1c1712" stroke-width="6" opacity=".62"/>
+      </g>
+
+      <g class="riseMask" opacity=".88">
+        <path d="M0,1690 C170,1648 280,1658 402,1706 C506,1748 575,1750 676,1700 C796,1642 926,1650 1080,1702 L1080,1920 L0,1920 Z" fill="#231a14"/>
+        <path d="M0,1736 C184,1700 287,1708 404,1752 C514,1794 589,1790 702,1740 C818,1688 938,1698 1080,1742" fill="none" stroke="#f0dfb8" stroke-width="5" opacity=".18"/>
+      </g>
+
+      <g opacity=".28" filter="url(#softBlur)">
+        <ellipse cx="544" cy="1566" rx="220" ry="58" fill="#2a1b11"/>
+      </g>
+
+      <g opacity=".7">
+        <path d="M252 1408 L315 1378 L315 1440 Z" fill="#28406b"/>
+        <path d="M828 1412 L765 1382 L765 1445 Z" fill="#c53a2b"/>
+      </g>
+
+      <g opacity=".85">
+        <rect x="78" y="82" width="924" height="11" fill="#1c1712" opacity=".24"/>
+        <rect x="78" y="94" width="924" height="4" fill="#c53a2b" opacity=".42"/>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="date">2026-05-25</div>
+    <div class="vignette"></div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+  const seed = 20260525;
+  const rand = mulberry32(seed);
+
+  const uiA = document.getElementById('scoreA');
+  const uiB = document.getElementById('scoreB');
+
+  const palette = {
+    ink:'#1c1712',
+    red:'#c53a2b',
+    verm:'#d84a2f',
+    indigo:'#28406b',
+    blue:'#3f6a92',
+    teal:'#587c7c',
+    gold:'#d8a34c',
+    paper:'#efe3c1',
+    paper2:'#e5d4a5',
+    leaf:'#7d8f47',
+    plum:'#6e3450',
+    shadow:'#8f7a5a',
+    white:'#faf3dc'
+  };
+
+  const game = {
+    horizon: 430,
+    floorY: 1510,
+    lanes: [],
+    segments: [],
+    enemies: [],
+    pickups: [],
+    splashes: [],
+    score: 0,
+    wave: 0,
+    time: 0
+  };
+
+  const player = {
+    x: 300,
+    y: 1330,
+    w: 150,
+    h: 280,
+    targetX: 300,
+    vx: 0,
+    step: 0
+  };
+
+  function laneY(i){
+    return 1240 + i * 92;
+  }
+
+  for(let i=0;i<4;i++) game.lanes.push(laneY(i));
+
+  function spawnWorld(){
+    game.segments = [];
+    let x = -80;
+    while(x < W + 260){
+      const w = 110 + Math.floor(rand()*90);
+      const typeRoll = rand();
+      let type = 'platform';
+      if(typeRoll < 0.22) type = 'gap';
+      else if(typeRoll < 0.43) type = 'spike';
+      else if(typeRoll < 0.57) type = 'gate';
+      else if(typeRoll < 0.7) type = 'drum';
+      const lane = Math.floor(rand()*4);
+      game.segments.push({x,w,type,lane,mark:rand()});
+      x += w + 36 + Math.floor(rand()*30);
+    }
+  }
+  spawnWorld();
+
+  function spawnEnemy(){
+    const lane = Math.floor(rand()*4);
+    const kind = rand() < .5 ? 'mask' : 'fan';
+    game.enemies.push({
+      x: W + 120 + rand()*250,
+      lane,
+      y: laneY(lane)-10,
+      kind,
+      phase: rand()*Math.PI*2,
+      speed: 3.1 + rand()*1.5,
+      hit:false
+    });
+  }
+
+  function spawnPickup(){
+    const lane = Math.floor(rand()*4);
+    game.pickups.push({
+      x: W + 150 + rand()*180,
+      lane,
+      y: laneY(lane)-46,
+      rot: rand()*Math.PI*2,
+      speed: 3.2,
+      taken:false
+    });
+  }
+
+  for(let i=0;i<5;i++) spawnEnemy();
+  for(let i=0;i<3;i++) spawnPickup();
+
+  function fmt(n){ return String(n).padStart(2,'0').slice(-2); }
+
+  function drawPaperBands(t){
+    ctx.save();
+    for(let i=0;i<9;i++){
+      const y = 180 + i*138 + Math.sin(t*0.00025 + i)*6;
+      ctx.fillStyle = i%2===0 ? 'rgba(255,245,215,.05)' : 'rgba(120,85,45,.04)';
+      ctx.fillRect(0, y, W, 2);
+    }
+    ctx.restore();
+  }
+
+  function drawCloudBlock(x,y,w,h,color,ink){
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.rect(x,y,w,h);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillRect(x-28,y+14,28,h-28);
+    ctx.strokeRect(x-28,y+14,28,h-28);
+    ctx.fillRect(x+w,y+22,36,h-44);
+    ctx.strokeRect(x+w,y+22,36,h-44);
+    ctx.restore();
+  }
+
+  function drawBackdrop(t){
+    ctx.save();
+
+    ctx.fillStyle = palette.paper;
+    ctx.fillRect(0,0,W,H);
+
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#efe3c1');
+    grad.addColorStop(.28,'#ead8ab');
+    grad.addColorStop(.62,'#d7bb86');
+    grad.addColorStop(1,'#b17e4d');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = 'rgba(216,163,76,.23)';
+    ctx.beginPath();
+    ctx.arc(540,228,182 + Math.sin(t*0.00035)*5,0,Math.PI*2);
+    ctx.fill();
+
+    const rayCount = 18;
+    for(let i=0;i<rayCount;i++){
+      const a0 = (-Math.PI*0.65) + (i/rayCount)*Math.PI*1.3 + Math.sin(t*0.0002+i)*0.004;
+      const a1 = a0 + 0.06;
+      ctx.beginPath();
+      ctx.moveTo(540,228);
+      ctx.arc(540,228,670,a0,a1);
+      ctx.closePath();
+      ctx.fillStyle = i%2===0 ? 'rgba(197,58,43,.10)' : 'rgba(40,64,107,.08)';
+      ctx.fill();
+    }
+
+    drawCloudBlock(190 + Math.sin(t*0.00018)*12, 286, 180, 56, 'rgba(239,227,193,.78)', 'rgba(28,23,18,.45)');
+    drawCloudBlock(668 + Math.sin(t*0.00015+1.2)*10, 328, 155, 48, 'rgba(239,227,193,.74)', 'rgba(28,23,18,.38)');
+    drawCloudBlock(420 + Math.sin(t*0.00017+2.1)*14, 392, 205, 62, 'rgba(239,227,193,.76)', 'rgba(28,23,18,.42)');
+
+    ctx.fillStyle = palette.indigo;
+    ctx.beginPath();
+    ctx.moveTo(0, game.horizon+130);
+    for(let i=0;i<=10;i++){
+      const x = i*120;
+      const peak = 540 + ((i%3===0)?-90:((i%2===0)?50:-30));
+      ctx.lineTo(x, peak);
+    }
+    ctx.lineTo(W, game.horizon+300);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0,H);
+    ctx.closePath();
+    ctx.globalAlpha=.15;
+    ctx.fill();
+    ctx.globalAlpha=1;
+
+    ctx.fillStyle = palette.blue;
+    ctx.beginPath();
+    ctx.moveTo(0, game.horizon+200);
+    for(let i=0;i<=9;i++){
+      const x = i*135;
+      const peak = 690 + ((i%2===0)?-70:38);
+      ctx.lineTo(x, peak);
+    }
+    ctx.lineTo(W, 860);
+    ctx.lineTo(W,H);
+    ctx.lineTo(0,H);
+    ctx.closePath();
+    ctx.globalAlpha=.18;
+    ctx.fill();
+    ctx.globalAlpha=1;
+
+    ctx.fillStyle = '#d6bf92';
+    ctx.beginPath();
+    ctx.moveTo(0,1480);
+    ctx.quadraticCurveTo(240,1430,540,1440);
+    ctx.quadraticCurveTo(810,1450,1080,1502);
+    ctx.lineTo(1080,H);
+    ctx.lineTo(0,H);
+    ctx.closePath();
+    ctx.fill();
+
+    drawPaperBands(t);
+
+    ctx.restore();
+  }
+
+  function drawSegment(seg, t){
+    const y = laneY(seg.lane);
+    const x = seg.x;
+    ctx.save();
+
+    if(seg.type !== 'gap'){
+      ctx.fillStyle = '#f2e2b7';
+      ctx.strokeStyle = palette.ink;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.rect(x, y, seg.w, 34);
+      ctx.fill();
+      ctx.stroke();
+
+      for(let i=0;i<Math.floor(seg.w/24);i++){
+        ctx.fillStyle = i%2===0 ? 'rgba(40,64,107,.18)' : 'rgba(197,58,43,.16)';
+        ctx.fillRect(x+i*24, y+7, 16, 20);
+      }
+    }
+
+    if(seg.type === 'spike'){
+      for(let i=0;i<Math.floor(seg.w/36);i++){
+        const sx = x + 8 + i*36;
+        ctx.beginPath();
+        ctx.moveTo(sx, y);
+        ctx.lineTo(sx+14, y-30);
+        ctx.lineTo(sx+28, y);
+        ctx.closePath();
+        ctx.fillStyle = palette.red;
+        ctx.fill();
+        ctx.strokeStyle = palette.ink;
+        ctx.stroke();
+      }
+    } else if(seg.type === 'gate'){
+      const gx = x + seg.w*0.5 - 36;
+      ctx.fillStyle = palette.red;
+      ctx.fillRect(gx, y-112, 72, 112);
+      ctx.strokeStyle = palette.ink;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(gx, y-112, 72, 112);
+      ctx.fillStyle = palette.gold;
+      ctx.beginPath();
+      ctx.arc(gx+36, y-66 + Math.sin(t*0.001+seg.mark*6)*2, 18, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    } else if(seg.type === 'drum'){
+      const dx = x + seg.w*0.5;
+      ctx.fillStyle = palette.gold;
+      ctx.beginPath();
+      ctx.ellipse(dx, y-14, 34, 28, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = palette.ink;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(dx-18,y-14); ctx.lineTo(dx+18,y-14);
+      ctx.moveTo(dx,y-30); ctx.lineTo(dx,y+2);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawEnemy(e, t){
+    const bob = Math.sin(t*0.004 + e.phase)*8;
+    const x = e.x, y = e.y + bob;
+    ctx.save();
+    ctx.translate(x,y);
+
+    if(e.kind==='mask'){
+      ctx.fillStyle = palette.white;
+      ctx.beginPath();
+      ctx.moveTo(-34,-48); ctx.lineTo(34,-48); ctx.lineTo(42,18); ctx.lineTo(0,58); ctx.lineTo(-42,18); ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = palette.ink;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.fillStyle = palette.red;
+      ctx.fillRect(-18,-8,12,14);
+      ctx.fillRect(6,-8,12,14);
+      ctx.fillStyle = palette.indigo;
+      ctx.fillRect(-7,20,14,9);
+    } else {
+      ctx.rotate(Math.sin(t*0.003+e.phase)*0.08);
+      ctx.fillStyle = palette.plum;
+      ctx.beginPath();
+      ctx.moveTo(0,-52);
+      ctx.lineTo(48,-6);
+      ctx.lineTo(0,40);
+      ctx.lineTo(-48,-6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = palette.ink;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = palette.gold;
+      ctx.lineWidth = 4;
+      for(let i=-1;i<=1;i++){
+        ctx.beginPath();
+        ctx.moveTo(-28,-12+i*14);
+        ctx.lineTo(28,-12+i*14);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawPickup(p, t){
+    const x = p.x, y = p.y + Math.sin(t*0.004 + p.rot)*6;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(t*0.001 + p.rot);
+    ctx.fillStyle = palette.gold;
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 4;
+    for(let i=0;i<4;i++){
+      ctx.rotate(Math.PI/2);
+      ctx.beginPath();
+      ctx.moveTo(0,-24);
+      ctx.lineTo(7,-7);
+      ctx.lineTo(0,0);
+      ctx.lineTo(-7,-7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.arc(0,0,10,0,Math.PI*2);
+    ctx.fillStyle = palette.red;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSplash(s){
+    ctx.save();
+    ctx.globalAlpha = s.life;
+    for(let i=0;i<s.parts.length;i++){
+      const p = s.parts[i];
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.rect(s.x + p.x, s.y + p.y, p.w, p.h);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawPlayer(t){
+    const pulse = Math.sin(t*0.006)*2;
+    const x = player.x, y = player.y;
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = 'rgba(28,23,18,.18)';
+    ctx.beginPath();
+    ctx.ellipse(0, 240, 116, 24, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.save();
+    const jumpTilt = (player.targetX-player.x)*0.0006;
+    ctx.rotate(jumpTilt);
+
+    ctx.fillStyle = palette.red;
+    ctx.beginPath();
+    ctx.moveTo(-88,28);
+    ctx.lineTo(0,-126);
+    ctx.lineTo(88,28);
+    ctx.lineTo(52,184);
+    ctx.lineTo(-52,184);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    const patterns = [
+      {x:-54,y:8,w:24,h:34,c:palette.gold},
+      {x:-18,y:38,w:22,h:42,c:palette.paper},
+      {x:20,y:0,w:26,h:38,c:palette.indigo},
+      {x:-38,y:94,w:30,h:36,c:palette.paper},
+      {x:6,y:104,w:28,h:30,c:palette.gold},
+      {x:26,y:56,w:20,h:24,c:palette.paper}
+    ];
+    patterns.forEach(pt=>{
+      ctx.fillStyle = pt.c;
+      ctx.fillRect(pt.x, pt.y, pt.w, pt.h);
+      ctx.strokeStyle = palette.ink;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(pt.x, pt.y, pt.w, pt.h);
+    });
+
+    ctx.fillStyle = palette.indigo;
+    ctx.fillRect(-96,32,36,138);
+    ctx.fillRect(60,32,36,138);
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 7;
+    ctx.strokeRect(-96,32,36,138);
+    ctx.strokeRect(60,32,36,138);
+
+    ctx.fillStyle = palette.paper;
+    ctx.beginPath();
+    ctx.arc(0,-182+pulse,56,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    ctx.fillStyle = palette.ink;
+    ctx.fillRect(-22,-194+pulse,16,11);
+    ctx.fillRect(8,-194+pulse,16,11);
+    ctx.fillStyle = palette.red;
+    ctx.fillRect(-11,-162+pulse,22,10);
+
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(-20,-244+pulse); ctx.lineTo(0,-276+pulse); ctx.lineTo(18,-244+pulse);
+    ctx.stroke();
+
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(-22,186); ctx.lineTo(-34,250 + Math.sin(player.step)*6);
+    ctx.moveTo(22,186); ctx.lineTo(34,248 - Math.sin(player.step)*6);
+    ctx.stroke();
+
+    ctx.fillStyle = palette.ink;
+    ctx.fillRect(-40,246,24,10);
+    ctx.fillRect(16,244,24,10);
+
+    ctx.fillStyle = palette.gold;
+    ctx.beginPath();
+    ctx.moveTo(98,-12);
+    ctx.lineTo(170,-34);
+    ctx.lineTo(174,-8);
+    ctx.lineTo(108,22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = palette.ink;
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    ctx.fillStyle = palette.paper;
+    ctx.beginPath();
+    ctx.arc(178,-22,16,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function makeSplash(x,y,c1,c2){
+    const parts = [];
+    for(let i=0;i<8;i++){
+      parts.push({
+        x:(rand()*50-25),
+        y:(rand()*30-15),
+        w:8+rand()*10,
+        h:8+rand()*10,
+        c:i%2?c1:c2
+      });
+    }
+    game.splashes.push({x,y,life:1,parts});
+  }
+
+  function update(){
+    game.time += 16.666;
+    const t = game.time;
+
+    if(game.time % 1200 < 17) spawnEnemy();
+    if(game.time % 1800 < 17) spawnPickup();
+
+    player.targetX = 320 + Math.sin(t*0.00058)*110 + Math.sin(t*0.00113)*65;
+
+    const nearestThreat = game.enemies
+      .filter(e => e.x > player.x-20 && e.x < player.x+280)
+      .sort((a,b)=>a.x-b.x)[0];
+
+    const nearestPickup = game.pickups
+      .filter(p => p.x > player.x && p.x < player.x+220)
+      .sort((a,b)=>a.x-b.x)[0];
+
+    if(nearestThreat){
+      const dangerLane = nearestThreat.lane;
+      const currentLane = Math.round((player.y-1330)/92);
+      let desiredLane = currentLane;
+      if(dangerLane === currentLane) desiredLane = (currentLane+1)%4;
+      player.y += ((1330 + desiredLane*92) - player.y)*0.08;
+    } else if(nearestPickup){
+      const desiredLane = nearestPickup.lane;
+      player.y += ((1330 + desiredLane*92) - player.y)*0.06;
+    } else {
+      const idleLane = Math.floor((Math.sin(t*0.00037)+1.0)*1.99);
+      player.y += ((1330 + idleLane*92) - player.y)*0.04;
+    }
+
+    player.x += (player.targetX - player.x)*0.08;
+    player.step += 0.14;
+
+    for(const seg of game.segments){
+      seg.x -= 3.2;
+    }
+    while(game.segments.length && game.segments[0].x + game.segments[0].w < -80){
+      game.segments.shift();
+      const last = game.segments[game.segments.length-1];
+      const w = 110 + Math.floor(rand()*90);
+      const typeRoll = rand();
+      let type = 'platform';
+      if(typeRoll < 0.22) type = 'gap';
+      else if(typeRoll < 0.43) type = 'spike';
+      else if(typeRoll < 0.57) type = 'gate';
+      else if(typeRoll < 0.7) type = 'drum';
+      game.segments.push({x:last.x + last.w + 36 + Math.floor(rand()*30), w, type, lane:Math.floor(rand()*4), mark:rand()});
+    }
+
+    for(let i=game.enemies.length-1;i>=0;i--){
+      const e = game.enemies[i];
+      e.x -= e.speed;
+      const dx = e.x - (player.x + 45);
+      const dy = (e.y) - (player.y + 10);
+      if(Math.abs(dx) < 78 && Math.abs(dy) < 70 && !e.hit){
+        e.hit = true;
+        game.score = (game.score + 7) % 100;
+        makeSplash(e.x, e.y, palette.red, palette.gold);
+        game.enemies.splice(i,1);
+        continue;
+      }
+      if(e.x < -140) game.enemies.splice(i,1);
+    }
+
+    for(let i=game.pickups.length-1;i>=0;i--){
+      const p = game.pickups[i];
+      p.x -= p.speed;
+      p.rot += 0.02;
+      const dx = p.x - (player.x + 10);
+      const dy = p.y - (player.y - 20);
+      if(Math.abs(dx)<72 && Math.abs(dy)<72 && !p.taken){
+        p.taken = true;
+        game.wave = (game.wave + 1) % 100;
+        makeSplash(p.x, p.y, palette.indigo, palette.paper);
+        game.pickups.splice(i,1);
+        continue;
+      }
+      if(p.x < -100) game.pickups.splice(i,1);
+    }
+
+    for(let i=game.splashes.length-1;i>=0;i--){
+      const s = game.splashes[i];
+      s.life -= 0.03;
+      s.y -= 0.2;
+      s.parts.forEach(p=>{ p.x*=1.02; p.y*=1.015; });
+      if(s.life<=0) game.splashes.splice(i,1);
+    }
+
+    uiA.textContent = fmt(game.score);
+    uiB.textContent = fmt(game.wave);
+  }
+
+  function render(){
+    const t = game.time;
+    ctx.clearRect(0,0,W,H);
+
+    drawBackdrop(t);
+
+    ctx.save();
+    for(const seg of game.segments){
+      drawSegment(seg,t);
+    }
+    ctx.restore();
+
+    ctx.save();
+    for(const p of game.pickups) drawPickup(p,t);
+    for(const e of game.enemies) drawEnemy(e,t);
+    for(const s of game.splashes) drawSplash(s);
+    drawPlayer(t);
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = .14;
+    for(let i=0;i<8;i++){
+      const yy = 120 + i*220 + Math.sin(t*0.00024+i)*8;
+      ctx.strokeStyle = i%2===0 ? palette.red : palette.indigo;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(74,yy);
+      ctx.lineTo(1006,yy);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    const maskGrad = ctx.createLinearGradient(0,0,0,180);
+    maskGrad.addColorStop(0,'rgba(239,227,193,.95)');
+    maskGrad.addColorStop(1,'rgba(239,227,193,0)');
+    ctx.fillStyle = maskGrad;
+    ctx.fillRect(0,0,W,180);
+
+    const bottomGrad = ctx.createLinearGradient(0,H-220,0,H);
+    bottomGrad.addColorStop(0,'rgba(35,26,20,0)');
+    bottomGrad.addColorStop(1,'rgba(35,26,20,.76)');
+    ctx.fillStyle = bottomGrad;
+    ctx.fillRect(0,H-220,W,220);
+    ctx.restore();
+  }
+
+  function loop(){
+    update();
+    render();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const actx = new AudioCtx();
+      const master = actx.createGain();
+      master.gain.value = 0.018;
+      master.connect(actx.destination);
+
+      const now = actx.currentTime;
+
+      function makeVoice(freq, type, gainVal, lfoRate){
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        const lfo = actx.createOscillator();
+        const lfoG = actx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        lfo.frequency.value = lfoRate;
+        lfoG.gain.value = freq * 0.012;
+        lfo.connect(lfoG);
+        lfoG.connect(o.frequency);
+        g.gain.value = gainVal;
+        o.connect(g);
+        g.connect(master);
+        o.start();
+        lfo.start();
+        return {o,g,lfo};
+      }
+
+      const a = makeVoice(146.8, 'triangle', 0.32, 0.06);
+      const b = makeVoice(220.0, 'sine', 0.14, 0.09);
+      const c = makeVoice(293.6, 'triangle', 0.08, 0.04);
+
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 1100;
+      master.disconnect();
+      master.connect(filter);
+      filter.connect(actx.destination);
+
+      const chord = [146.8,164.8,196.0,220.0,246.9,293.6];
+      let idx = 0;
+      setInterval(()=>{
+        if (actx.state === 'suspended') actx.resume().catch(()=>{});
+        idx = (idx+1)%chord.length;
+        const t = actx.currentTime;
+        a.o.frequency.cancelScheduledValues(t);
+        b.o.frequency.cancelScheduledValues(t);
+        c.o.frequency.cancelScheduledValues(t);
+        a.o.frequency.linearRampToValueAtTime(chord[idx], t + 3.8);
+        b.o.frequency.linearRampToValueAtTime(chord[(idx+2)%chord.length], t + 4.0);
+        c.o.frequency.linearRampToValueAtTime(chord[(idx+4)%chord.length] * 0.5, t + 4.2);
+        filter.frequency.linearRampToValueAtTime(950 + (idx%3)*180, t + 4.0);
+      }, 4000);
+    }
+  }
+})();
+</script>
+</body>
+</html>
