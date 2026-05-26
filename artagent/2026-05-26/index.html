@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-05-26</title>
+<style>
+  :root{
+    --bg1:#efe2c1;
+    --bg2:#d7b67a;
+    --sand:#c8924b;
+    --mustard:#c9a13a;
+    --teal:#3e8f8f;
+    --deepteal:#1f5c5b;
+    --olive:#6f6c3d;
+    --rust:#b45a37;
+    --char:#2e2a26;
+    --cream:#f6eed9;
+    --shadow:rgba(41,29,20,.22);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#c8b189;
+    overflow:hidden;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 900px at 15% 8%, rgba(255,245,214,.8), transparent 60%),
+      radial-gradient(900px 1200px at 85% 95%, rgba(97,142,128,.16), transparent 60%),
+      linear-gradient(180deg,var(--bg1),#e5cf9d 32%, #d6b57e 66%, #c89a5a 100%);
+    box-shadow:0 24px 70px rgba(0,0,0,.28);
+  }
+
+  #grain, #veil, #mirror-cracks, #shards, #sunbursts, #date, #guinea-pig, #maskFade, #backShapes, #frontShapes {
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+
+  #backShapes{
+    overflow:hidden;
+    filter:saturate(1.02) contrast(1.02);
+  }
+
+  .column{
+    position:absolute;
+    bottom:-3%;
+    width:15%;
+    border-radius:14px 14px 0 0;
+    background:linear-gradient(180deg, rgba(255,250,240,.55), rgba(102,76,52,.16));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.45),
+      inset 0 -8px 30px rgba(65,37,14,.12);
+    opacity:.42;
+    transform-origin:bottom center;
+    animation: swayCol 18s ease-in-out infinite;
+  }
+  .c1{left:7%; height:44%; animation-delay:-2s}
+  .c2{left:24%; height:58%; animation-delay:-9s}
+  .c3{right:24%; height:54%; animation-delay:-5s}
+  .c4{right:8%; height:39%; animation-delay:-11s}
+  @keyframes swayCol{
+    0%,100%{transform:skewX(-1deg) scaleY(1)}
+    50%{transform:skewX(1.6deg) scaleY(1.03)}
+  }
+
+  .orbital{
+    position:absolute;
+    border-radius:50%;
+    border:10px solid rgba(62,143,143,.38);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      0 0 60px rgba(62,143,143,.10);
+    opacity:.85;
+    animation: driftRing 24s ease-in-out infinite;
+    mix-blend-mode:multiply;
+  }
+  .o1{width:420px;height:420px;left:-130px;top:170px;border-color:rgba(62,143,143,.35);animation-delay:-2s}
+  .o2{width:300px;height:300px;right:-80px;top:320px;border-color:rgba(201,161,58,.48);animation-delay:-8s}
+  .o3{width:520px;height:520px;left:290px;top:980px;border-color:rgba(180,90,55,.26);animation-delay:-14s}
+  @keyframes driftRing{
+    0%,100%{transform:translateY(0px) rotate(0.001deg) scale(1)}
+    50%{transform:translateY(-22px) rotate(8deg) scale(1.03)}
+  }
+
+  .boomerang{
+    position:absolute;
+    width:220px;height:120px;
+    background:var(--teal);
+    border-radius:120px 12px 120px 12px;
+    opacity:.2;
+    filter:blur(.3px);
+    mix-blend-mode:multiply;
+    animation: rock 16s ease-in-out infinite;
+  }
+  .b1{left:-30px;top:1120px;transform:rotate(-18deg);background:#4a8f84;animation-delay:-3s}
+  .b2{right:-10px;top:860px;transform:rotate(164deg);background:#b87839;animation-delay:-7s}
+  .b3{left:140px;top:60px;transform:rotate(22deg) scale(.8);background:#c29a3e;animation-delay:-11s}
+  @keyframes rock{
+    0%,100%{margin-top:0; transform-origin:center center}
+    50%{margin-top:-18px}
+  }
+
+  #sceneCanvas, #overlayCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  #shards{
+    z-index:8;
+    filter: drop-shadow(0 18px 18px rgba(60,35,15,.08));
+  }
+
+  .shard{
+    position:absolute;
+    overflow:hidden;
+    background:rgba(255,255,255,.045);
+    box-shadow:
+      inset 0 0 0 1.3px rgba(255,244,214,.55),
+      inset 0 0 24px rgba(255,255,255,.05),
+      0 10px 20px rgba(0,0,0,.05);
+    backdrop-filter: blur(.6px) saturate(1.04);
+    animation: shardFloat var(--dur) ease-in-out infinite;
+    transform-origin:center center;
+  }
+  .shard::before{
+    content:"";
+    position:absolute; inset:-12%;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.16), transparent 28%, transparent 68%, rgba(66,112,112,.08)),
+      radial-gradient(circle at 22% 18%, rgba(255,255,255,.25), transparent 22%);
+    opacity:.75;
+    mix-blend-mode:screen;
+  }
+  .shard .inner{
+    position:absolute; inset:-12%;
+    animation: innerShift var(--dur) ease-in-out infinite;
+    transform-origin:center center;
+    filter:saturate(1.04) contrast(1.02);
+  }
+  .shard .inner svg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  @keyframes shardFloat{
+    0%,100%{transform:translate(0px,0px) rotate(0deg) scale(1)}
+    50%{transform:translate(var(--mx),var(--my)) rotate(var(--rot)) scale(1.012)}
+  }
+  @keyframes innerShift{
+    0%,100%{transform:translate(calc(var(--ix)*-1),calc(var(--iy)*-1)) scale(1.03)}
+    50%{transform:translate(var(--ix),var(--iy)) scale(1.07)}
+  }
+
+  #mirror-cracks{
+    z-index:12;
+    opacity:.78;
+    mix-blend-mode:multiply;
+  }
+
+  #sunbursts{
+    z-index:5;
+    opacity:.34;
+    mix-blend-mode:multiply;
+    filter:blur(.1px);
+  }
+
+  #frontShapes{
+    z-index:13;
+    overflow:hidden;
+  }
+  .slab{
+    position:absolute;
+    border-radius:100px 100px 20px 20px;
+    background:linear-gradient(180deg, rgba(255,247,225,.2), rgba(79,64,42,.08));
+    opacity:.25;
+    animation: slabShift 26s ease-in-out infinite;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .s1{width:26%;height:29%;left:-4%;top:65%;transform:rotate(-8deg);animation-delay:-2s}
+  .s2{width:22%;height:35%;right:-2%;top:9%;transform:rotate(7deg);animation-delay:-12s}
+  @keyframes slabShift{
+    0%,100%{transform:translateY(0) rotate(var(--r,0deg))}
+    50%{transform:translateY(-22px) rotate(calc(var(--r,0deg) + 1.6deg))}
+  }
+
+  #grain{
+    z-index:20;
+    opacity:.18;
+    mix-blend-mode:multiply;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.18) 0 0.6px, transparent 1.2px),
+      radial-gradient(circle at 80% 40%, rgba(255,255,255,.14) 0 0.6px, transparent 1.2px),
+      radial-gradient(circle at 50% 80%, rgba(0,0,0,.16) 0 0.7px, transparent 1.4px);
+    background-size: 8px 8px, 9px 9px, 11px 11px;
+    animation: grainDrift 8s steps(6) infinite;
+  }
+  @keyframes grainDrift{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(-1px,1px)}
+    50%{transform:translate(1px,-1px)}
+    75%{transform:translate(1px,1px)}
+    100%{transform:translate(0,0)}
+  }
+
+  #veil{
+    z-index:21;
+    background:
+      linear-gradient(180deg, rgba(255,249,236,.12), transparent 18%, transparent 72%, rgba(86,58,30,.08)),
+      radial-gradient(1000px 600px at 50% -6%, rgba(255,251,238,.28), transparent 55%),
+      radial-gradient(1200px 800px at 50% 110%, rgba(89,65,37,.18), transparent 52%);
+  }
+
+  #maskFade{
+    z-index:30;
+    background:
+      radial-gradient(130% 94% at 50% 50%, transparent 63%, rgba(229,207,157,.18) 78%, rgba(208,178,122,.55) 88%, rgba(200,165,111,.95) 100%);
+    mix-blend-mode:normal;
+  }
+
+  #date{
+    z-index:40;
+    inset:auto 22px 18px auto;
+    color:rgba(46,42,38,.6);
+    font-size:15px;
+    letter-spacing:.12em;
+    text-transform:none;
+  }
+
+  #guinea-pig{
+    z-index:16;
+    width:18px;
+    height:auto;
+    left:101px;
+    bottom:151px;
+    opacity:.58;
+    filter:saturate(.8) contrast(.95) sepia(.18) hue-rotate(-12deg) drop-shadow(0 1px 1px rgba(0,0,0,.18));
+    transform:rotate(-6deg);
+  }
+
+  .hide-edge{
+    mask-image: radial-gradient(120% 88% at 50% 50%, #000 65%, rgba(0,0,0,.85) 76%, rgba(0,0,0,.25) 92%, transparent 100%);
+    -webkit-mask-image: radial-gradient(120% 88% at 50% 50%, #000 65%, rgba(0,0,0,.85) 76%, rgba(0,0,0,.25) 92%, transparent 100%);
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="backShapes" class="hide-edge">
+    <div class="column c1"></div>
+    <div class="column c2"></div>
+    <div class="column c3"></div>
+    <div class="column c4"></div>
+    <div class="orbital o1"></div>
+    <div class="orbital o2"></div>
+    <div class="orbital o3"></div>
+    <div class="boomerang b1"></div>
+    <div class="boomerang b2"></div>
+    <div class="boomerang b3"></div>
+  </div>
+
+  <canvas id="sceneCanvas"></canvas>
+  <svg id="sunbursts" viewBox="0 0 1080 1920" preserveAspectRatio="none" class="hide-edge"></svg>
+  <div id="shards" class="hide-edge"></div>
+  <svg id="mirror-cracks" viewBox="0 0 1080 1920" preserveAspectRatio="none" class="hide-edge"></svg>
+  <canvas id="overlayCanvas"></canvas>
+
+  <div id="frontShapes" class="hide-edge">
+    <div class="slab s1" style="--r:-8deg"></div>
+    <div class="slab s2" style="--r:7deg"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="">
+  </div>
+
+  <div id="grain"></div>
+  <div id="veil"></div>
+  <div id="maskFade"></div>
+  <div id="date">2026-05-26</div>
+</div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  const seedString = "2026-05-26";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967295;
+  }
+  function r(a,b){ return a + (b-a)*rand(); }
+  function pick(arr){ return arr[Math.floor(rand()*arr.length)]; }
+
+  const palette = {
+    cream:"#f6eed9",
+    sand:"#c8924b",
+    mustard:"#c9a13a",
+    teal:"#3e8f8f",
+    deepteal:"#1f5c5b",
+    olive:"#6f6c3d",
+    rust:"#b45a37",
+    char:"#2e2a26",
+    pale:"#efe2c1"
+  };
+
+  const sceneCanvas = document.getElementById('sceneCanvas');
+  const overlayCanvas = document.getElementById('overlayCanvas');
+  [sceneCanvas, overlayCanvas].forEach(c => { c.width = W; c.height = H; });
+  const ctx = sceneCanvas.getContext('2d');
+  const octx = overlayCanvas.getContext('2d');
+
+  const sun = document.getElementById('sunbursts');
+  const cracks = document.getElementById('mirror-cracks');
+  const shardsWrap = document.getElementById('shards');
+
+  function makeSunbursts(){
+    const centers = [
+      {x:220,y:280, rays:18, r1:80, r2:350, color:"rgba(201,161,58,.33)"},
+      {x:860,y:640, rays:16, r1:60, r2:280, color:"rgba(62,143,143,.24)"}
+    ];
+    let html = '';
+    centers.forEach((c,idx)=>{
+      for(let i=0;i<c.rays;i++){
+        const a0 = (Math.PI*2/c.rays)*i;
+        const a1 = a0 + 0.085;
+        const x1 = c.x + Math.cos(a0)*c.r1;
+        const y1 = c.y + Math.sin(a0)*c.r1;
+        const x2 = c.x + Math.cos((a0+a1)/2)*c.r2;
+        const y2 = c.y + Math.sin((a0+a1)/2)*c.r2;
+        const x3 = c.x + Math.cos(a1)*c.r1;
+        const y3 = c.y + Math.sin(a1)*c.r1;
+        html += `<polygon points="${c.x},${c.y} ${x1.toFixed(1)},${y1.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} ${x3.toFixed(1)},${y3.toFixed(1)}"
+          fill="${c.color}" style="transform-origin:${c.x}px ${c.y}px; animation: pulse${idx} ${28+idx*8}s ease-in-out infinite;"/>`;
+      }
+      html += `<circle cx="${c.x}" cy="${c.y}" r="${c.r1-8}" fill="rgba(255,243,210,.18)"/>`;
+    });
+    sun.innerHTML = `
+      <defs>
+        <style>
+          @keyframes pulse0 {0%,100%{transform:rotate(0deg) scale(1)}50%{transform:rotate(6deg) scale(1.03)}}
+          @keyframes pulse1 {0%,100%{transform:rotate(0deg) scale(1)}50%{transform:rotate(-7deg) scale(1.025)}}
+        </style>
+      </defs>${html}`;
+  }
+
+  function generateShardPolys(){
+    const base = [
+      [[40,90],[360,40],[300,360],[70,420]],
+      [[355,45],[735,70],[660,370],[300,365]],
+      [[730,68],[1020,130],[980,480],[650,380]],
+      [[55,420],[292,364],[275,740],[40,875]],
+      [[280,370],[662,372],[620,765],[272,744]],
+      [[662,380],[981,486],[940,815],[620,768]],
+      [[40,875],[270,744],[255,1180],[62,1370]],
+      [[255,744],[620,768],[590,1228],[255,1180]],
+      [[620,768],[940,815],[998,1210],[590,1228]],
+      [[62,1370],[255,1180],[290,1800],[35,1888]],
+      [[255,1180],[590,1228],[688,1865],[290,1800]],
+      [[590,1228],[998,1210],[1035,1825],[688,1865]]
+    ];
+    return base.map(poly => poly.map(([x,y]) => {
+      const jx = x + r(-24,24), jy = y + r(-24,24);
+      return [Math.max(10,Math.min(W-10,jx)), Math.max(10,Math.min(H-10,jy))];
+    }));
+  }
+
+  function polyBounds(poly){
+    let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+    poly.forEach(([x,y])=>{ if(x<minX)minX=x; if(y<minY)minY=y; if(x>maxX)maxX=x; if(y>maxY)maxY=y;});
+    return {minX,minY,maxX,maxY,w:maxX-minX,h:maxY-minY};
+  }
+  function polyToClip(poly){
+    return `polygon(${poly.map(([x,y]) => `${(x/W*100).toFixed(3)}% ${(y/H*100).toFixed(3)}%`).join(',')})`;
+  }
+
+  function innerSVG(idx){
+    const hueSet = [
+      [palette.pale,palette.mustard,palette.teal,palette.rust,palette.cream],
+      [palette.cream,palette.sand,palette.deepteal,palette.mustard,palette.char],
+      [palette.pale,palette.rust,palette.olive,palette.teal,palette.cream]
+    ][idx%3];
+    const ox = r(-80,80), oy = r(-120,120), rot = r(-8,8);
+    const cx = 540+ox, cy = 890+oy;
+    return `
+    <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" style="transform:rotate(${rot}deg) scale(${r(1.0,1.08)});">
+      <defs>
+        <linearGradient id="g${idx}a" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${hueSet[0]}"/>
+          <stop offset="100%" stop-color="${hueSet[1]}"/>
+        </linearGradient>
+        <linearGradient id="g${idx}b" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${hueSet[2]}"/>
+          <stop offset="100%" stop-color="${hueSet[3]}"/>
+        </linearGradient>
+      </defs>
+      <rect x="-50" y="-50" width="1180" height="2020" fill="url(#g${idx}a)"/>
+      <circle cx="${cx}" cy="${cy}" r="${r(220,340)}" fill="${hueSet[4]}" opacity=".7"/>
+      <circle cx="${cx}" cy="${cy}" r="${r(120,190)}" fill="${hueSet[1]}" opacity=".88"/>
+      <circle cx="${cx}" cy="${cy}" r="${r(28,52)}" fill="${hueSet[2]}" opacity=".95"/>
+      <ellipse cx="${r(260,410)}" cy="${r(220,420)}" rx="${r(180,270)}" ry="${r(80,150)}" fill="${hueSet[3]}" opacity=".46" transform="rotate(${r(-25,25)} ${r(260,410)} ${r(220,420)})"/>
+      <ellipse cx="${r(730,860)}" cy="${r(1240,1480)}" rx="${r(200,330)}" ry="${r(90,170)}" fill="${hueSet[2]}" opacity=".36" transform="rotate(${r(-30,30)} ${r(730,860)} ${r(1240,1480)})"/>
+      <rect x="${r(60,180)}" y="${r(1040,1200)}" width="${r(90,140)}" height="${r(520,720)}" rx="22" fill="${hueSet[4]}" opacity=".28"/>
+      <rect x="${r(870,950)}" y="${r(830,980)}" width="${r(80,130)}" height="${r(560,760)}" rx="22" fill="${hueSet[3]}" opacity=".23"/>
+      <g opacity=".28">
+        ${Array.from({length:14}).map((_,i)=>{
+          const x=r(80,1000), y=r(100,1820), ww=r(12,30), hh=r(90,240), rr=r(-60,60);
+          return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${ww.toFixed(1)}" height="${hh.toFixed(1)}" rx="8" fill="${pick(hueSet)}" transform="rotate(${rr.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`
+        }).join('')}
+      </g>
+      <g opacity=".24">
+        ${Array.from({length:8}).map((_,i)=>{
+          const x=r(120,980), y=r(120,1680), rr=r(40,130);
+          return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr.toFixed(1)}" fill="none" stroke="${pick(hueSet)}" stroke-width="${r(10,18).toFixed(1)}"/>`
+        }).join('')}
+      </g>
+    </svg>`;
+  }
+
+  function buildShards(){
+    const polys = generateShardPolys();
+    shardsWrap.innerHTML = '';
+    polys.forEach((poly,i)=>{
+      const b = polyBounds(poly);
+      const d = document.createElement('div');
+      d.className = 'shard';
+      d.style.left = b.minX + 'px';
+      d.style.top = b.minY + 'px';
+      d.style.width = b.w + 'px';
+      d.style.height = b.h + 'px';
+      d.style.clipPath = polyToClip(poly.map(([x,y])=>[x-b.minX,y-b.minY]));
+      d.style.setProperty('--dur', `${18 + i*1.6}s`);
+      d.style.setProperty('--mx', `${r(-10,10).toFixed(1)}px`);
+      d.style.setProperty('--my', `${r(-16,16).toFixed(1)}px`);
+      d.style.setProperty('--rot', `${r(-1.5,1.5).toFixed(2)}deg`);
+      d.style.setProperty('--ix', `${r(-20,20).toFixed(1)}px`);
+      d.style.setProperty('--iy', `${r(-28,28).toFixed(1)}px`);
+      d.style.opacity = (0.82 + rand()*0.12).toFixed(2);
+      const inner = document.createElement('div');
+      inner.className = 'inner';
+      inner.innerHTML = innerSVG(i);
+      d.appendChild(inner);
+      shardsWrap.appendChild(d);
+    });
+    return polys;
+  }
+
+  function drawCracks(polys){
+    let lines = '';
+    const edgeColor = "rgba(96,71,47,.56)";
+    const hiColor = "rgba(255,248,231,.45)";
+    polys.forEach(poly=>{
+      let p = poly.map(pt=>pt.join(',')).join(' ');
+      lines += `<polygon points="${p}" fill="none" stroke="${hiColor}" stroke-width="1.8" stroke-linejoin="round"/>`;
+      lines += `<polygon points="${p}" fill="none" stroke="${edgeColor}" stroke-width="5.5" stroke-linejoin="round" opacity=".42"/>`;
+    });
+
+    const hubs = [
+      [520+r(-40,40), 870+r(-60,60)],
+      [320+r(-30,30), 420+r(-30,30)],
+      [840+r(-30,30), 1230+r(-50,50)]
+    ];
+    hubs.forEach(([hx,hy],idx)=>{
+      for(let i=0;i<5;i++){
+        const ang = (Math.PI*2/5)*i + r(-.18,.18);
+        const len = idx===0 ? r(220,460) : r(120,260);
+        const x2 = hx + Math.cos(ang)*len;
+        const y2 = hy + Math.sin(ang)*len;
+        lines += `<line x1="${hx}" y1="${hy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(78,60,40,.22)" stroke-width="2.2" stroke-linecap="round"/>`;
+      }
+    });
+    cracks.innerHTML = lines;
+  }
+
+  function drawBackground(t){
+    ctx.clearRect(0,0,W,H);
+
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#efe2c1");
+    g.addColorStop(0.28,"#ebd6aa");
+    g.addColorStop(0.68,"#d7b67a");
+    g.addColorStop(1,"#c58f4d");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    const rg = ctx.createRadialGradient(220,200,30,220,200,460);
+    rg.addColorStop(0,"rgba(255,248,226,.85)");
+    rg.addColorStop(1,"rgba(255,248,226,0)");
+    ctx.fillStyle = rg;
+    ctx.fillRect(0,0,W,H);
+
+    const horizon = 1180 + Math.sin(t*0.00014)*20;
+    ctx.fillStyle = "rgba(99,118,82,.18)";
+    ctx.fillRect(0,horizon,W,H-horizon);
+
+    for(let i=0;i<7;i++){
+      const y = 1330 + i*78 + Math.sin(t*0.00012+i)*8;
+      ctx.fillStyle = i%2 ? "rgba(112,104,61,.08)" : "rgba(201,161,58,.08)";
+      ctx.fillRect(0,y,W,34);
+    }
+
+    // atomic mobile structures
+    ctx.save();
+    ctx.translate(540,920);
+    ctx.rotate(Math.sin(t*0.00018)*0.06);
+    for(let i=0;i<6;i++){
+      const a = i*Math.PI/3 + t*0.00006*(i%2?1:-1);
+      const rr = 310 + (i%2)*120;
+      const x = Math.cos(a)*rr;
+      const y = Math.sin(a)*rr*0.75;
+      ctx.strokeStyle = "rgba(46,42,38,.18)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.lineTo(x,y);
+      ctx.stroke();
+
+      ctx.fillStyle = [palette.teal,palette.mustard,palette.rust,palette.olive,palette.cream,palette.deepteal][i];
+      ctx.beginPath();
+      ctx.ellipse(x,y, 52+(i%3)*14, 40+(i%2)*12, a, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "rgba(246,238,217,.9)";
+    ctx.beginPath();
+    ctx.arc(0,0,62,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // floor shadow arcs
+    for(let i=0;i<3;i++){
+      ctx.fillStyle = `rgba(70,48,24,${0.05+i*0.015})`;
+      ctx.beginPath();
+      ctx.ellipse(540 + i*20, 1550+i*30, 300-i*15, 60-i*6, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // geometric tile accents
+    for(let i=0;i<12;i++){
+      const x = 90 + i*86 + Math.sin(t*0.00011+i)*5;
+      const y = 1650 + (i%2)*40;
+      ctx.fillStyle = i%3===0 ? "rgba(62,143,143,.18)" : i%3===1 ? "rgba(201,161,58,.22)" : "rgba(180,90,55,.18)";
+      ctx.fillRect(x,y,54,130);
+      ctx.fillStyle = "rgba(246,238,217,.22)";
+      ctx.fillRect(x+8,y+8,38,10);
+    }
+  }
+
+  function drawOverlay(t){
+    octx.clearRect(0,0,W,H);
+
+    // soft vignette bands
+    const vg = octx.createLinearGradient(0,0,W,0);
+    vg.addColorStop(0,"rgba(120,81,41,.12)");
+    vg.addColorStop(0.18,"rgba(0,0,0,0)");
+    vg.addColorStop(0.82,"rgba(0,0,0,0)");
+    vg.addColorStop(1,"rgba(78,58,32,.12)");
+    octx.fillStyle = vg;
+    octx.fillRect(0,0,W,H);
+
+    // mirror glints
+    for(let i=0;i<9;i++){
+      const x = 120 + i*102 + Math.sin(t*0.00016+i*0.9)*18;
+      const y = 140 + (i%4)*380 + Math.cos(t*0.00014+i)*16;
+      const lg = octx.createLinearGradient(x-40,y-70,x+60,y+90);
+      lg.addColorStop(0,"rgba(255,255,255,0)");
+      lg.addColorStop(0.48,"rgba(255,250,236,.13)");
+      lg.addColorStop(0.52,"rgba(255,250,236,.32)");
+      lg.addColorStop(1,"rgba(255,255,255,0)");
+      octx.fillStyle = lg;
+      octx.save();
+      octx.translate(x,y);
+      octx.rotate(-0.58);
+      octx.fillRect(-14,-100,28,200);
+      octx.restore();
+    }
+
+    // broad decorative bands, no thin squiggles
+    const bands = [
+      {x:180,y:280,w:540,h:160,r:-18,c:"rgba(62,143,143,.11)"},
+      {x:470,y:430,w:400,h:120,r:22,c:"rgba(201,161,58,.12)"},
+      {x:120,y:1030,w:620,h:160,r:16,c:"rgba(180,90,55,.085)"},
+      {x:380,y:1440,w:520,h:130,r:-14,c:"rgba(31,92,91,.08)"}
+    ];
+    bands.forEach(b=>{
+      octx.save();
+      octx.translate(b.x,b.y + Math.sin(t*0.00018+b.x)*8);
+      octx.rotate(b.r*Math.PI/180);
+      octx.fillStyle = b.c;
+      octx.beginPath();
+      octx.roundRect(-b.w/2,-b.h/2,b.w,b.h, b.h/2);
+      octx.fill();
+      octx.restore();
+    });
+  }
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const audio = new AC();
+      const master = audio.createGain();
+      master.gain.value = 0.022;
+      master.connect(audio.destination);
+
+      const freqs = [110,164.81,220,329.63];
+      freqs.forEach((f,i)=>{
+        const o = audio.createOscillator();
+        const g = audio.createGain();
+        o.type = i%2 ? "triangle" : "sine";
+        o.frequency.value = f;
+        g.gain.value = 0.0;
+        o.connect(g).connect(master);
+        o.start();
+        const lfo = audio.createOscillator();
+        const lfoG = audio.createGain();
+        lfo.type = "sine";
+        lfo.frequency.value = 0.03 + i*0.011;
+        lfoG.gain.value = 0.01 + i*0.004;
+        lfo.connect(lfoG).connect(g.gain);
+        lfo.start();
+        g.gain.value = 0.005 + i*0.002;
+      });
+    }catch(e){}
+  }
+
+  makeSunbursts();
+  const polys = buildShards();
+  drawCracks(polys);
+
+  let start = performance.now();
+  function animate(now){
+    const t = now - start;
+    drawBackground(t);
+    drawOverlay(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
