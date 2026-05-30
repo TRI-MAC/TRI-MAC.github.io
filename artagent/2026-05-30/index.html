@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-05-30</title>
+<style>
+  :root{
+    --bg1:#efe5c9;
+    --bg2:#d1c29d;
+    --ink:#121212;
+    --red:#c7262b;
+    --acid:#ecd74b;
+    --blue:#2f5fd0;
+    --paper:#f4eddc;
+    --off:#d8ccb1;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0f0d0b;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 22%, rgba(255,202,105,.45), rgba(255,202,105,0) 22%),
+      linear-gradient(180deg, #f4ecd7 0%, #d9cba6 30%, #9b8a6a 58%, #3b3b41 78%, #101015 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 70px rgba(0,0,0,.45);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.78;
+    filter:contrast(1.15) saturate(.8) sepia(.18) hue-rotate(-8deg) brightness(.9);
+    mix-blend-mode:multiply;
+    transform:scale(1.08);
+  }
+
+  .papergrain,
+  .halftone,
+  .edgefade,
+  .tape,
+  .date,
+  .headline,
+  .headline2,
+  .poster,
+  .sunburst,
+  .maskstrip,
+  .ransom,
+  .raccoonStamp,
+  #batCanvas,
+  #collage,
+  #overlaySvg{position:absolute; inset:0;}
+
+  .papergrain{
+    pointer-events:none;
+    opacity:.16;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(0,0,0,.18) 0 0.6px, transparent 0.8px),
+      radial-gradient(circle at 72% 33%, rgba(0,0,0,.12) 0 0.7px, transparent 0.9px),
+      radial-gradient(circle at 46% 72%, rgba(255,255,255,.16) 0 0.8px, transparent 1px);
+    background-size:9px 9px, 11px 11px, 13px 13px;
+    mix-blend-mode:multiply;
+  }
+  .halftone{
+    pointer-events:none;
+    opacity:.16;
+    background:
+      radial-gradient(circle, rgba(0,0,0,.42) 0 1.2px, transparent 1.5px) 0 0/14px 14px;
+    mask-image:linear-gradient(180deg, transparent, rgba(0,0,0,.85) 18%, rgba(0,0,0,.25) 50%, transparent 100%);
+    -webkit-mask-image:linear-gradient(180deg, transparent, rgba(0,0,0,.85) 18%, rgba(0,0,0,.25) 50%, transparent 100%);
+    mix-blend-mode:multiply;
+  }
+
+  #collage{
+    pointer-events:none;
+    animation: drift 28s ease-in-out infinite;
+  }
+  .poster{
+    inset:auto;
+    background:var(--paper);
+    border:3px solid rgba(0,0,0,.82);
+    box-shadow:0 8px 0 rgba(0,0,0,.12), 0 18px 32px rgba(0,0,0,.16);
+    filter:saturate(1.05);
+  }
+  .p1{
+    left:-4%;
+    top:6%;
+    width:48%;
+    height:25%;
+    transform:rotate(-8deg);
+    background:
+      linear-gradient(180deg, rgba(236,215,75,.8), rgba(236,215,75,0) 28%),
+      linear-gradient(0deg, rgba(47,95,208,.12), rgba(47,95,208,0)),
+      var(--paper);
+  }
+  .p2{
+    right:-6%;
+    top:18%;
+    width:44%;
+    height:22%;
+    transform:rotate(7deg);
+    background:
+      linear-gradient(90deg, rgba(199,38,43,.22), transparent 44%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 2px, transparent 2px 6px),
+      var(--paper);
+  }
+  .p3{
+    left:10%;
+    bottom:18%;
+    width:42%;
+    height:19%;
+    transform:rotate(4.5deg);
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.06), transparent 24%),
+      linear-gradient(120deg, rgba(47,95,208,.18), rgba(47,95,208,0) 55%),
+      var(--paper);
+  }
+  .p4{
+    right:8%;
+    bottom:11%;
+    width:35%;
+    height:17%;
+    transform:rotate(-10deg);
+    background:
+      linear-gradient(135deg, rgba(236,215,75,.28), rgba(236,215,75,0) 45%),
+      var(--paper);
+  }
+
+  .tape{
+    pointer-events:none;
+    inset:auto;
+    width:15%;
+    height:2.2%;
+    background:linear-gradient(180deg, rgba(255,241,186,.65), rgba(205,180,124,.45));
+    border:1px solid rgba(90,73,34,.25);
+    mix-blend-mode:multiply;
+    filter:blur(.2px);
+    opacity:.9;
+  }
+  .t1{left:10%; top:5.4%; transform:rotate(-11deg)}
+  .t2{left:32%; top:28.3%; transform:rotate(8deg)}
+  .t3{right:14%; top:16%; transform:rotate(12deg)}
+  .t4{right:26%; bottom:27.4%; transform:rotate(-7deg)}
+  .t5{left:13%; bottom:16%; transform:rotate(9deg)}
+  .t6{right:10%; bottom:8.4%; transform:rotate(-14deg)}
+
+  .headline,.headline2,.ransom{
+    color:#0c0c0c;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    pointer-events:none;
+  }
+  .headline{
+    left:4%;
+    top:3%;
+    width:92%;
+    font-size:10.2vw;
+    line-height:.84;
+    transform:rotate(-2deg);
+    mix-blend-mode:multiply;
+    opacity:.92;
+  }
+  .headline span{
+    display:inline-block;
+    background:rgba(244,237,220,.92);
+    padding:.04em .08em 0;
+    margin:.04em .02em;
+    border:2px solid rgba(0,0,0,.85);
+    box-shadow:5px 5px 0 rgba(0,0,0,.12);
+  }
+  .headline2{
+    right:5%;
+    top:33.4%;
+    width:50%;
+    text-align:right;
+    font-size:3.8vw;
+    line-height:1.06;
+    transform:rotate(6deg);
+    opacity:.75;
+  }
+  .headline2 span{
+    display:inline-block;
+    padding:.05em .12em;
+    margin:.05em;
+    background:rgba(236,215,75,.8);
+    border:2px solid rgba(0,0,0,.85);
+  }
+
+  .ransom{
+    left:6%;
+    bottom:29%;
+    width:45%;
+    font-size:4.2vw;
+    line-height:1.12;
+    transform:rotate(-5deg);
+    opacity:.72;
+  }
+  .ransom span{
+    display:inline-block;
+    margin:.08em .06em;
+    padding:.04em .13em;
+    border:2px solid rgba(0,0,0,.86);
+    background:#fff4d7;
+    box-shadow:3px 3px 0 rgba(0,0,0,.12);
+  }
+  .ransom span:nth-child(3n){background:#dfe7ff}
+  .ransom span:nth-child(4n){background:#ffdfc7}
+  .ransom span:nth-child(5n){background:#f5ef7b}
+
+  .sunburst{
+    pointer-events:none;
+    inset:auto;
+    width:86%;
+    height:86%;
+    left:7%;
+    top:7%;
+    opacity:.32;
+    border-radius:50%;
+    background:
+      conic-gradient(from 0deg,
+        rgba(199,38,43,.75) 0 8deg,
+        rgba(0,0,0,0) 8deg 18deg,
+        rgba(47,95,208,.65) 18deg 23deg,
+        rgba(0,0,0,0) 23deg 35deg,
+        rgba(236,215,75,.7) 35deg 40deg,
+        rgba(0,0,0,0) 40deg 55deg,
+        rgba(0,0,0,.6) 55deg 58deg,
+        rgba(0,0,0,0) 58deg 360deg);
+    filter:blur(1px);
+    mix-blend-mode:multiply;
+    mask-image:radial-gradient(circle, rgba(0,0,0,.85) 0 42%, rgba(0,0,0,.3) 60%, transparent 82%);
+    -webkit-mask-image:radial-gradient(circle, rgba(0,0,0,.85) 0 42%, rgba(0,0,0,.3) 60%, transparent 82%);
+    animation: rotateSlow 46s linear infinite;
+  }
+
+  .maskstrip{
+    pointer-events:none;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.9), rgba(0,0,0,0) 18%, rgba(0,0,0,0) 82%, rgba(0,0,0,.92)),
+      linear-gradient(180deg, rgba(255,245,223,.06), rgba(0,0,0,0) 20%, rgba(0,0,0,0) 76%, rgba(0,0,0,.45));
+    mix-blend-mode:multiply;
+  }
+
+  #batCanvas{
+    pointer-events:none;
+    mix-blend-mode:multiply;
+  }
+
+  #overlaySvg{
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  .date{
+    inset:auto;
+    right:2.2%;
+    bottom:1.5%;
+    color:rgba(255,248,236,.55);
+    font-size:12px;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    z-index:30;
+    mix-blend-mode:screen;
+  }
+
+  .raccoonStamp{
+    inset:auto;
+    right:5%;
+    top:45%;
+    width:20%;
+    height:11%;
+    transform:rotate(-8deg);
+    opacity:.55;
+    mix-blend-mode:multiply;
+    animation: stampBreath 10s ease-in-out infinite;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:14px;
+    bottom:118px;
+    opacity:.58;
+    filter:saturate(.85) brightness(.88) drop-shadow(0 1px 1px rgba(0,0,0,.25));
+    z-index:25;
+    transform:rotate(-9deg);
+  }
+
+  .edgefade{
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,247,228,.12), transparent 10%, transparent 88%, rgba(0,0,0,.18)),
+      linear-gradient(90deg, rgba(0,0,0,.22), transparent 9%, transparent 91%, rgba(0,0,0,.22));
+    mask-image:radial-gradient(circle at center, rgba(0,0,0,0) 70%, rgba(0,0,0,.75) 100%);
+    -webkit-mask-image:radial-gradient(circle at center, rgba(0,0,0,0) 70%, rgba(0,0,0,.75) 100%);
+  }
+
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes drift{
+    0%,100%{transform:translateY(0px) rotate(0deg)}
+    50%{transform:translateY(-10px) rotate(.6deg)}
+  }
+  @keyframes stampBreath{
+    0%,100%{transform:rotate(-8deg) scale(1)}
+    50%{transform:rotate(-6deg) scale(1.03)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <div class="sunburst"></div>
+
+    <div id="collage">
+      <div class="poster p1"></div>
+      <div class="poster p2"></div>
+      <div class="poster p3"></div>
+      <div class="poster p4"></div>
+
+      <div class="tape t1"></div>
+      <div class="tape t2"></div>
+      <div class="tape t3"></div>
+      <div class="tape t4"></div>
+      <div class="tape t5"></div>
+      <div class="tape t6"></div>
+    </div>
+
+    <div class="headline">
+      <span>BAT</span><span>DUSK</span><span>BAT</span><span>DUSK</span>
+    </div>
+
+    <div class="headline2">
+      <span>EXIT</span><span>SWARM</span><span>SKY</span>
+    </div>
+
+    <div class="ransom">
+      <span>LOOSE</span><span>ARCS</span><span>NO</span><span>CENTER</span><span>ORDER</span>
+    </div>
+
+    <canvas id="batCanvas"></canvas>
+
+    <svg id="overlaySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="paperFade" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#f5edd8" stop-opacity="0.95"/>
+          <stop offset="40%" stop-color="#e4d5b0" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="duskSpot" cx="50%" cy="18%" r="48%">
+          <stop offset="0%" stop-color="#ffe1a2" stop-opacity="0.55"/>
+          <stop offset="42%" stop-color="#c95d42" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#2f3042" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="rough">
+          <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="2" seed="530"/>
+          <feDisplacementMap in="SourceGraphic" scale="9"/>
+        </filter>
+      </defs>
+
+      <rect x="0" y="0" width="1080" height="580" fill="url(#paperFade)" opacity="0.6"/>
+      <ellipse cx="550" cy="330" rx="340" ry="180" fill="url(#duskSpot)" opacity="0.9"/>
+
+      <g opacity="0.9" filter="url(#rough)">
+        <polygon points="0,1110 120,1070 280,1155 408,1040 560,1128 700,1068 852,1145 1080,1040 1080,1920 0,1920"
+                 fill="#17171b"/>
+        <polygon points="0,1210 96,1188 230,1238 370,1197 495,1262 628,1218 780,1269 926,1224 1080,1278 1080,1920 0,1920"
+                 fill="#09090c" opacity="0.95"/>
+      </g>
+
+      <g opacity="0.95">
+        <rect x="82" y="555" width="240" height="16" fill="#111"/>
+        <rect x="756" y="708" width="210" height="16" fill="#111"/>
+        <rect x="225" y="1430" width="310" height="18" fill="#ecd74b"/>
+        <rect x="585" y="1508" width="250" height="18" fill="#c7262b"/>
+      </g>
+
+      <g opacity="0.55">
+        <circle cx="189" cy="563" r="48" fill="none" stroke="#c7262b" stroke-width="18"/>
+        <circle cx="882" cy="716" r="55" fill="none" stroke="#2f5fd0" stroke-width="18"/>
+      </g>
+
+      <g class="raccoonmark">
+        <g transform="translate(865 864) rotate(-11)" opacity="0.55">
+          <ellipse cx="0" cy="0" rx="88" ry="64" fill="#f1ead7" stroke="#111" stroke-width="6"/>
+          <circle cx="-46" cy="-43" r="22" fill="#111"/>
+          <circle cx="49" cy="-40" r="22" fill="#111"/>
+          <ellipse cx="-25" cy="-6" rx="26" ry="20" fill="#111"/>
+          <ellipse cx="27" cy="-6" rx="26" ry="20" fill="#111"/>
+          <circle cx="-24" cy="-8" r="6" fill="#f1ead7"/>
+          <circle cx="25" cy="-8" r="6" fill="#f1ead7"/>
+          <ellipse cx="0" cy="21" rx="14" ry="10" fill="#111"/>
+          <rect x="-8" y="32" width="16" height="5" fill="#111"/>
+        </g>
+      </g>
+
+      <g opacity="0.35">
+        <polygon points="70,1580 310,1500 255,1710" fill="#2f5fd0"/>
+        <polygon points="1010,1340 852,1288 924,1510" fill="#ecd74b"/>
+        <polygon points="992,112 874,260 1036,290" fill="#c7262b"/>
+      </g>
+    </svg>
+
+    <div class="raccoonStamp">
+      <svg viewBox="0 0 260 140" preserveAspectRatio="none">
+        <ellipse cx="130" cy="70" rx="96" ry="58" fill="rgba(244,237,220,.7)" stroke="#111" stroke-width="4"/>
+        <circle cx="84" cy="36" r="18" fill="#111"/>
+        <circle cx="176" cy="36" r="18" fill="#111"/>
+        <ellipse cx="102" cy="66" rx="24" ry="18" fill="#111"/>
+        <ellipse cx="158" cy="66" rx="24" ry="18" fill="#111"/>
+        <circle cx="102" cy="66" r="5" fill="#f4eddc"/>
+        <circle cx="158" cy="66" r="5" fill="#f4eddc"/>
+        <ellipse cx="130" cy="88" rx="12" ry="8" fill="#111"/>
+        <rect x="122" y="100" width="16" height="4" fill="#111"/>
+      </svg>
+    </div>
+
+    <div class="papergrain"></div>
+    <div class="halftone"></div>
+    <div class="maskstrip"></div>
+    <div class="edgefade"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div class="date">2026-05-30</div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('batCanvas');
+  const frame = document.getElementById('frame');
+  const ctx = canvas.getContext('2d');
+  const DATE_SEED = 20260530;
+
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(DATE_SEED);
+
+  let W = 1080, H = 1920, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const bats = [];
+  const GROUPS = 7;
+
+  function resize(){
+    const r = frame.getBoundingClientRect();
+    W = Math.round(r.width);
+    H = Math.round(r.height);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+
+  function makeBat(group, i){
+    const baseY = H * (0.23 + group * 0.055 + rand() * 0.025);
+    const amp = H * (0.02 + rand() * 0.03);
+    const speed = 0.000018 + rand() * 0.00003;
+    const phase = rand() * Math.PI * 2;
+    const dir = rand() > 0.46 ? 1 : -1;
+    const size = 0.65 + rand() * 1.5;
+    return {
+      group,
+      index:i,
+      xBase: rand() * W,
+      span: W * (0.28 + rand() * 0.92),
+      yBase: baseY,
+      amp,
+      speed,
+      phase,
+      dir,
+      tilt: (rand() - .5) * 0.55,
+      flap: 0.8 + rand() * 1.6,
+      size,
+      shape: rand(),
+      offset: rand() * 100000
+    };
+  }
+
+  function build(){
+    bats.length = 0;
+    const counts = [17, 15, 14, 12, 10, 8, 7];
+    for(let g=0; g<GROUPS; g++){
+      for(let i=0;i<counts[g];i++) bats.push(makeBat(g, i));
+    }
+  }
+
+  function drawBat(x,y,s,wing,tone,rot){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.scale(s,s);
+    ctx.fillStyle = tone;
+    ctx.beginPath();
+    ctx.moveTo(-26,0);
+    ctx.lineTo(-57,-12-18*wing);
+    ctx.lineTo(-42,5);
+    ctx.lineTo(-18,-1);
+    ctx.lineTo(0,-18);
+    ctx.lineTo(18,-1);
+    ctx.lineTo(42,5);
+    ctx.lineTo(57,-12-18*wing);
+    ctx.lineTo(26,0);
+    ctx.lineTo(12,9);
+    ctx.lineTo(0,19);
+    ctx.lineTo(-12,9);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillRect(-5,12,3,12);
+    ctx.fillRect(2,12,3,12);
+    ctx.restore();
+  }
+
+  let start = performance.now();
+
+  function render(now){
+    const t = now - start;
+    ctx.clearRect(0,0,W,H);
+
+    ctx.fillStyle = 'rgba(255,245,220,0.08)';
+    ctx.fillRect(0,0,W,H*0.46);
+
+    for(let idx=0; idx<bats.length; idx++){
+      const b = bats[idx];
+      const local = t * b.speed + b.phase;
+      const route = Math.sin(local) * 0.5 + Math.sin(local * 0.47 + b.phase * 1.7) * 0.35;
+      let x = b.xBase + b.dir * route * b.span;
+      x = ((x % (W + 180)) + (W + 180)) % (W + 180) - 90;
+
+      const y = b.yBase
+        + Math.sin(local * 1.3 + b.phase) * b.amp
+        + Math.cos(local * 0.63 + b.phase * 0.3) * (b.amp * 0.38);
+
+      const flap = Math.sin(local * (0.95 + b.flap) * 12);
+      const wing = Math.abs(flap) * 0.95;
+      const rot = Math.cos(local * 2.3 + b.phase) * 0.22 + b.tilt;
+      const alpha = 0.92 - b.group * 0.08;
+      const tone = `rgba(11,11,13,${Math.max(.18, alpha)})`;
+
+      drawBat(x, y, b.size * (0.45 + (7 - b.group) * 0.12), wing, tone, rot);
+
+      if(idx % 9 === 0){
+        ctx.save();
+        ctx.globalAlpha = 0.06;
+        drawBat(x+8, y+4, b.size * (0.45 + (7 - b.group) * 0.12), wing, '#c7262b', rot);
+        ctx.restore();
+      }
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.09;
+    ctx.fillStyle = '#000';
+    for(let i=0;i<6;i++){
+      const yy = H*(0.13 + i*0.07) + Math.sin(t*0.0002 + i)*6;
+      ctx.fillRect(0, yy, W, 2);
+    }
+    ctx.restore();
+
+    requestAnimationFrame(render);
+  }
+
+  resize();
+  build();
+  requestAnimationFrame(render);
+  window.addEventListener('resize', ()=>{ resize(); build(); });
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audio = new AudioCtx();
+      const master = audio.createGain();
+      master.gain.value = 0.018;
+      master.connect(audio.destination);
+
+      const hp = audio.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 120;
+      hp.connect(master);
+
+      const lp = audio.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 900;
+      lp.Q.value = 0.5;
+      lp.connect(hp);
+
+      const noiseBuffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++){
+        data[i] = (Math.random()*2-1) * 0.35;
+      }
+
+      const noise = audio.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseGain = audio.createGain();
+      noiseGain.gain.value = 0.012;
+
+      const lfo = audio.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.027;
+      const lfoGain = audio.createGain();
+      lfoGain.gain.value = 340;
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      const osc1 = audio.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.value = 82.4;
+      const g1 = audio.createGain();
+      g1.gain.value = 0.008;
+
+      const osc2 = audio.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 123.6;
+      const g2 = audio.createGain();
+      g2.gain.value = 0.005;
+
+      noise.connect(noiseGain).connect(lp);
+      osc1.connect(g1).connect(lp);
+      osc2.connect(g2).connect(lp);
+
+      const nowT = audio.currentTime;
+      g1.gain.setValueAtTime(0.006, nowT);
+      g1.gain.linearRampToValueAtTime(0.01, nowT + 14);
+      g1.gain.linearRampToValueAtTime(0.006, nowT + 28);
+      g1.gain.setValueCurveAtTime(new Float32Array([0.006,0.009,0.007,0.01,0.006]), nowT, 28);
+
+      audio.resume().then(()=>{
+        noise.start();
+        osc1.start();
+        osc2.start();
+        lfo.start();
+      }).catch(()=>{});
+    }
+  }
+})();
+</script>
+</body>
+</html>
