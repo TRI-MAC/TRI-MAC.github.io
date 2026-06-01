@@ -53,8 +53,8 @@
     width:86%;
     height:84%;
     object-fit:cover;
-    opacity:.78;
-    filter: sepia(1) saturate(1.7) hue-rotate(-14deg) contrast(1.25) brightness(.6) blur(.25px);
+    opacity:.9;
+    filter: sepia(1) saturate(1.55) hue-rotate(-14deg) contrast(1.15) brightness(.98) blur(.15px);
     mix-blend-mode:screen;
     clip-path: polygon(8% 3%, 92% 5%, 97% 19%, 95% 80%, 88% 95%, 13% 96%, 4% 78%, 2% 16%);
     mask-image: radial-gradient(circle at 50% 50%, black 55%, rgba(0,0,0,.75) 76%, transparent 95%);
@@ -70,8 +70,8 @@
   .layer{position:absolute; inset:0; pointer-events:none;}
 
   #stoneTexture{
-    opacity:.95;
-    mix-blend-mode:multiply;
+    opacity:.58;
+    mix-blend-mode:soft-light;
   }
 
   #particleCanvas{
@@ -97,7 +97,7 @@
   .vignette{
     position:absolute; inset:0;
     background:
-      radial-gradient(ellipse at center, transparent 44%, rgba(7,5,4,0.18) 64%, rgba(7,5,4,.58) 82%, rgba(4,3,2,.88) 100%);
+      radial-gradient(ellipse at center, transparent 48%, rgba(7,5,4,0.08) 66%, rgba(4,3,2,.32) 84%, rgba(4,3,2,.56) 100%);
     pointer-events:none;
   }
 
@@ -109,6 +109,7 @@
       radial-gradient(circle at -10% 50%, rgba(0,0,0,.46), transparent 26%),
       radial-gradient(circle at 110% 50%, rgba(0,0,0,.46), transparent 26%);
     filter: blur(18px);
+    opacity:.48;
   }
 
   .smoke{
@@ -257,7 +258,7 @@
         <rect x="972" y="316" width="18" height="1220" fill="#140f0b"/>
       </g>
 
-      <rect x="0" y="0" width="1080" height="1920" fill="url(#charFade)" opacity=".34"/>
+      <rect x="0" y="0" width="1080" height="1920" fill="url(#charFade)" opacity=".14"/>
     </svg>
 
     <canvas id="stoneTexture" width="1080" height="1920" class="layer"></canvas>
