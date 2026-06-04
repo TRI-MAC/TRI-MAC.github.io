@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Art 2026-06-04</title>
+<style>
+  :root{
+    --bg:#04060b;
+    --black:#05070c;
+    --deep:#09111f;
+    --teal:#00ffd5;
+    --cyan:#39c9ff;
+    --green:#87ff65;
+    --mag:#d24cff;
+    --red:#ff4b6e;
+    --amber:#ffb347;
+    --white:#dffcff;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:system-ui, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(0,255,213,.12), transparent 55%),
+      radial-gradient(80% 45% at 50% 100%, rgba(210,76,255,.12), transparent 62%),
+      linear-gradient(180deg,#020307 0%, #07101a 24%, #03060d 100%);
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(140,220,255,.07), 0 40px 120px rgba(0,0,0,.7);
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+  canvas{display:block; width:100%; height:100%}
+
+  #sand{z-index:5;}
+  #hud{z-index:12;}
+  #glyphs{z-index:11; mix-blend-mode:screen; opacity:.9;}
+  #vignette{
+    z-index:30;
+    background:
+      radial-gradient(85% 70% at 50% 45%, transparent 58%, rgba(0,0,0,.18) 78%, rgba(0,0,0,.45) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.16), transparent 15%, transparent 84%, rgba(0,0,0,.22));
+  }
+  #scanlines{
+    z-index:29;
+    opacity:.17;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        rgba(190,255,255,.12) 0px,
+        rgba(190,255,255,.12) 1px,
+        transparent 2px,
+        transparent 6px
+      );
+    mix-blend-mode:screen;
+    animation: driftScan 18s linear infinite;
+  }
+  @keyframes driftScan{
+    from{transform:translateY(0)}
+    to{transform:translateY(6px)}
+  }
+
+  #mist{
+    z-index:13;
+    background:
+      radial-gradient(30% 18% at 50% 22%, rgba(0,255,213,.08), transparent 70%),
+      radial-gradient(45% 18% at 50% 58%, rgba(210,76,255,.07), transparent 72%),
+      radial-gradient(55% 20% at 50% 84%, rgba(0,190,255,.08), transparent 74%);
+    filter:blur(18px) saturate(120%);
+    animation: breathe 14s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.02) translateY(-8px)}
+  }
+
+  #panels{
+    z-index:8;
+    opacity:.95;
+  }
+  #centerGlow{
+    z-index:7;
+    background:
+      radial-gradient(26% 14% at 50% 18%, rgba(57,201,255,.18), transparent 70%),
+      radial-gradient(32% 16% at 50% 33%, rgba(0,255,213,.12), transparent 72%);
+    filter:blur(8px);
+    animation:pulse 12s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:.85; transform:scale(1)}
+    50%{opacity:1; transform:scale(1.03)}
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    z-index:40;
+    color:rgba(210,245,255,.55);
+    font-size:14px;
+    letter-spacing:.18em;
+    text-transform:none;
+    text-shadow:0 0 10px rgba(0,255,213,.2);
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    z-index:14;
+    width:17px;
+    height:auto;
+    right:123px;
+    bottom:138px;
+    opacity:.58;
+    filter:hue-rotate(158deg) saturate(.55) brightness(.92);
+    transform:rotate(-7deg);
+  }
+
+  svg{width:100%;height:100%;display:block}
+  .hudLine{
+    stroke:rgba(90,220,255,.58);
+    stroke-width:1.2;
+    fill:none;
+  }
+  .hudThin{
+    stroke:rgba(180,250,255,.26);
+    stroke-width:0.8;
+    fill:none;
+  }
+  .hudDim{
+    stroke:rgba(0,255,213,.16);
+    stroke-width:1;
+    fill:none;
+  }
+  .hudGlow{
+    stroke:rgba(0,255,213,.75);
+    stroke-width:2.2;
+    fill:none;
+    filter:url(#glow);
+  }
+  .neonFillCyan{fill:rgba(57,201,255,.12)}
+  .neonFillMag{fill:rgba(210,76,255,.11)}
+  .neonFillTeal{fill:rgba(0,255,213,.12)}
+
+  .ring{
+    transform-origin:540px 540px;
+    animation:rotateSlow 22s linear infinite;
+  }
+  .ring2{
+    transform-origin:540px 540px;
+    animation:rotateSlow2 30s linear infinite;
+  }
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes rotateSlow2{
+    from{transform:rotate(360deg)}
+    to{transform:rotate(0deg)}
+  }
+
+  .panelPulse{ animation:panelPulse 11s ease-in-out infinite; transform-origin:center; }
+  @keyframes panelPulse{
+    0%,100%{opacity:.86; transform:scale(1)}
+    50%{opacity:1; transform:scale(1.02)}
+  }
+
+  #edgeFade{
+    z-index:28;
+    background:
+      linear-gradient(90deg, rgba(2,4,8,.85), transparent 7%, transparent 93%, rgba(2,4,8,.85)),
+      linear-gradient(180deg, rgba(2,4,8,.82), transparent 6%, transparent 94%, rgba(2,4,8,.86));
+    mix-blend-mode:multiply;
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="centerGlow" class="layer"></div>
+
+  <svg id="panels" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="5" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <linearGradient id="panelGrad" x1="0" x2="1">
+        <stop offset="0%" stop-color="rgba(0,255,213,0.02)"/>
+        <stop offset="50%" stop-color="rgba(57,201,255,0.15)"/>
+        <stop offset="100%" stop-color="rgba(210,76,255,0.02)"/>
+      </linearGradient>
+      <linearGradient id="sandGlow" x1="0" x2="1">
+        <stop offset="0%" stop-color="#00ffd5"/>
+        <stop offset="50%" stop-color="#39c9ff"/>
+        <stop offset="100%" stop-color="#d24cff"/>
+      </linearGradient>
+    </defs>
+
+    <g opacity=".95">
+      <path class="panelPulse" d="M120 90
+        C235 85, 330 140, 360 235
+        C388 325, 350 420, 255 472
+        C188 509, 126 570, 120 650
+        L120 1270
+        C125 1352, 188 1412, 255 1448
+        C350 1500, 388 1597, 360 1686
+        C330 1781, 235 1836, 120 1831
+        L120 90 Z"
+        fill="rgba(0,0,0,.65)" stroke="rgba(0,255,213,.26)" stroke-width="4"/>
+
+      <path class="panelPulse" d="M960 90
+        C845 85, 750 140, 720 235
+        C692 325, 730 420, 825 472
+        C892 509, 954 570, 960 650
+        L960 1270
+        C955 1352, 892 1412, 825 1448
+        C730 1500, 692 1597, 720 1686
+        C750 1781, 845 1836, 960 1831
+        L960 90 Z"
+        fill="rgba(0,0,0,.65)" stroke="rgba(0,255,213,.26)" stroke-width="4"/>
+    </g>
+
+    <g opacity=".9">
+      <path d="M120 200
+               C220 200, 285 255, 285 335
+               C285 405, 240 454, 165 485
+               C240 517, 285 566, 285 636
+               C285 718, 220 774, 120 772"
+            fill="none" stroke="url(#sandGlow)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M960 200
+               C860 200, 795 255, 795 335
+               C795 405, 840 454, 915 485
+               C840 517, 795 566, 795 636
+               C795 718, 860 774, 960 772"
+            fill="none" stroke="url(#sandGlow)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M120 1110
+               C222 1110, 295 1168, 295 1245
+               C295 1319, 242 1364, 170 1393
+               C243 1426, 295 1472, 295 1544
+               C295 1623, 223 1680, 120 1680"
+            fill="none" stroke="url(#sandGlow)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M960 1110
+               C858 1110, 785 1168, 785 1245
+               C785 1319, 838 1364, 910 1393
+               C837 1426, 785 1472, 785 1544
+               C785 1623, 857 1680, 960 1680"
+            fill="none" stroke="url(#sandGlow)" stroke-width="16" stroke-linecap="round"/>
+    </g>
+
+    <g opacity=".28">
+      <path d="M185 125 C250 135 300 175 322 228 C345 288 336 349 296 392 C257 433 194 454 145 493"
+            fill="none" stroke="#39c9ff" stroke-width="5"/>
+      <path d="M895 125 C830 135 780 175 758 228 C735 288 744 349 784 392 C823 433 886 454 935 493"
+            fill="none" stroke="#39c9ff" stroke-width="5"/>
+      <path d="M185 1795 C250 1785 300 1745 322 1692 C345 1632 336 1571 296 1528 C257 1487 194 1466 145 1427"
+            fill="none" stroke="#39c9ff" stroke-width="5"/>
+      <path d="M895 1795 C830 1785 780 1745 758 1692 C735 1632 744 1571 784 1528 C823 1487 886 1466 935 1427"
+            fill="none" stroke="#39c9ff" stroke-width="5"/>
+    </g>
+  </svg>
+
+  <canvas id="sand" class="layer" width="1080" height="1920"></canvas>
+
+  <svg id="glyphs" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="softGlow">
+        <feGaussianBlur stdDeviation="3.5" result="bb"/>
+        <feMerge>
+          <feMergeNode in="bb"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <mask id="topFade">
+        <rect width="1080" height="1920" fill="url(#fadeGrad)"/>
+      </mask>
+      <linearGradient id="fadeGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="white"/>
+        <stop offset="80%" stop-color="white"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </linearGradient>
+    </defs>
+
+    <g opacity=".42" filter="url(#softGlow)">
+      <circle class="ring hudThin" cx="540" cy="410" r="170"/>
+      <circle class="ring2 hudDim" cx="540" cy="410" r="214"/>
+      <circle class="hudGlow" cx="540" cy="410" r="104"/>
+      <path class="hudGlow" d="M470 410 H610 M540 340 V480"/>
+      <path class="hudThin" d="M365 410 A175 175 0 0 1 715 410"/>
+      <path class="hudThin" d="M540 236 A174 174 0 0 1 540 584"/>
+    </g>
+
+    <g opacity=".23">
+      <path d="M380 1270 C460 1212 620 1212 700 1270" stroke="#00ffd5" stroke-width="3" fill="none"/>
+      <path d="M355 1322 C455 1264 625 1264 725 1322" stroke="#39c9ff" stroke-width="3" fill="none"/>
+      <path d="M332 1378 C462 1315 618 1315 748 1378" stroke="#d24cff" stroke-width="3" fill="none"/>
+      <path d="M310 1438 C465 1371 615 1371 770 1438" stroke="#00ffd5" stroke-width="3" fill="none"/>
+    </g>
+  </svg>
+
+  <svg id="hud" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="vertGlow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(0,255,213,.0)"/>
+        <stop offset="18%" stop-color="rgba(57,201,255,.38)"/>
+        <stop offset="50%" stop-color="rgba(0,255,213,.28)"/>
+        <stop offset="82%" stop-color="rgba(210,76,255,.35)"/>
+        <stop offset="100%" stop-color="rgba(0,255,213,.0)"/>
+      </linearGradient>
+    </defs>
+
+    <g opacity=".46">
+      <rect x="530" y="120" width="20" height="1680" fill="url(#vertGlow)"/>
+      <rect x="488" y="118" width="104" height="1684" fill="none" stroke="rgba(120,240,255,.18)" stroke-width="1"/>
+      <rect x="430" y="155" width="220" height="1608" rx="90" fill="none" stroke="rgba(0,255,213,.12)" stroke-width="1.5"/>
+    </g>
+
+    <g opacity=".24">
+      <path class="hudThin" d="M168 960 H912"/>
+      <path class="hudThin" d="M205 914 H875"/>
+      <path class="hudThin" d="M205 1006 H875"/>
+      <path class="hudThin" d="M260 860 H820"/>
+      <path class="hudThin" d="M260 1060 H820"/>
+    </g>
+
+    <g opacity=".32">
+      <path class="hudLine" d="M144 960 C232 936 314 924 420 918"/>
+      <path class="hudLine" d="M936 960 C848 936 766 924 660 918"/>
+      <path class="hudLine" d="M144 960 C232 984 314 996 420 1002"/>
+      <path class="hudLine" d="M936 960 C848 984 766 996 660 1002"/>
+    </g>
+
+    <g opacity=".28">
+      <circle class="hudThin" cx="225" cy="270" r="34"/>
+      <circle class="hudThin" cx="855" cy="270" r="34"/>
+      <circle class="hudThin" cx="225" cy="1650" r="34"/>
+      <circle class="hudThin" cx="855" cy="1650" r="34"/>
+      <path class="hudDim" d="M191 270 H259 M225 236 V304"/>
+      <path class="hudDim" d="M821 270 H889 M855 236 V304"/>
+      <path class="hudDim" d="M191 1650 H259 M225 1616 V1684"/>
+      <path class="hudDim" d="M821 1650 H889 M855 1616 V1684"/>
+    </g>
+  </svg>
+
+  <div id="mist" class="layer"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="edgeFade" class="layer"></div>
+  <div id="scanlines" class="layer"></div>
+  <div id="vignette" class="layer"></div>
+  <div id="date">2026-06-04</div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('sand');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+  const seed = 20260604;
+  const rand = mulberry32(seed);
+
+  const palette = [
+    [0,255,213],
+    [57,201,255],
+    [135,255,101],
+    [210,76,255],
+    [255,179,71],
+    [255,75,110]
+  ];
+
+  const dunes = [];
+  const duneCount = 7;
+  const baseHeights = [1550, 1495, 1440, 1378, 1314, 1248, 1182];
+  for(let i=0;i<duneCount;i++){
+    dunes.push({
+      base: baseHeights[i],
+      amp: 40 + i*9,
+      freq: 1.1 + i*0.19,
+      phase: rand()*Math.PI*2,
+      color: palette[i % palette.length],
+      density: 0.82 - i*0.07
+    });
+  }
+
+  const streams = [];
+  const streamCount = 18;
+  const streamXs = [380,415,450,490,525,540,555,590,630,665,700];
+  for(let i=0;i<streamCount;i++){
+    const sx = streamXs[(i*7 + Math.floor(rand()*11)) % streamXs.length] + (rand()-0.5)*52;
+    const col = palette[Math.floor(rand()*palette.length)];
+    streams.push({
+      x:sx,
+      sway: 10 + rand()*35,
+      speed: 0.0004 + rand()*0.0011,
+      width: 3 + rand()*5,
+      color: col,
+      offset: rand()*1000
+    });
+  }
+
+  function duneY(layerIndex, x, t){
+    const d = dunes[layerIndex];
+    const nx = x / W;
+    return d.base
+      + Math.sin(nx * Math.PI * 2 * d.freq + d.phase + t*0.00012*(layerIndex+1)) * d.amp
+      + Math.sin(nx * Math.PI * 6 + d.phase*0.7) * (14 + layerIndex*2);
+  }
+
+  function drawBackground(t){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#02040a');
+    g.addColorStop(0.18,'#07131f');
+    g.addColorStop(0.44,'#09111a');
+    g.addColorStop(0.76,'#060911');
+    g.addColorStop(1,'#030408');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    for(let i=0;i<36;i++){
+      const y = 110 + i*44 + Math.sin(t*0.00015 + i*0.45)*8;
+      ctx.fillStyle = i%3===0 ? 'rgba(0,255,213,.15)' : i%3===1 ? 'rgba(57,201,255,.11)' : 'rgba(210,76,255,.09)';
+      ctx.fillRect(140, y, 800, 1);
+    }
+    ctx.restore();
+  }
+
+  function drawPanels(t){
+    ctx.save();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(0,255,213,0.09)';
+    for(let i=0;i<8;i++){
+      const yy = 170 + i*214;
+      ctx.beginPath();
+      ctx.moveTo(150, yy);
+      ctx.lineTo(930, yy + Math.sin(t*0.0001 + i)*6);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawDunes(t){
+    for(let i=dunes.length-1;i>=0;i--){
+      const d = dunes[i];
+      ctx.beginPath();
+      ctx.moveTo(0,H);
+      for(let x=0;x<=W;x+=8){
+        ctx.lineTo(x, duneY(i,x,t));
+      }
+      ctx.lineTo(W,H);
+      ctx.closePath();
+
+      const [r,g,b] = d.color;
+      const grad = ctx.createLinearGradient(0, d.base-120, 0, H);
+      grad.addColorStop(0, `rgba(${r},${g},${b},${0.08 + i*0.015})`);
+      grad.addColorStop(0.4, `rgba(${r},${g},${b},${0.20 + i*0.03})`);
+      grad.addColorStop(1, `rgba(0,0,0,${0.78 - i*0.08})`);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.strokeStyle = `rgba(${r},${g},${b},${0.34 - i*0.026})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for(let x=0;x<=W;x+=6){
+        const y = duneY(i,x,t);
+        if(x===0) ctx.moveTo(x,y);
+        else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      for(let bnd=0;bnd<3;bnd++){
+        ctx.save();
+        ctx.globalAlpha = 0.1 - bnd*0.022;
+        ctx.strokeStyle = `rgba(${r},${g},${b},1)`;
+        ctx.lineWidth = 8 - bnd*2;
+        ctx.beginPath();
+        for(let x=0;x<=W;x+=12){
+          const y = duneY(i,x,t) - 18 - bnd*22 + Math.sin((x*0.01)+t*0.00015+i)*4;
+          if(x===0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawDataMotifs(t){
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+
+    for(let s=0;s<3;s++){
+      const cy = 270 + s*95;
+      const r = 48 + s*38;
+      ctx.strokeStyle = s===0 ? 'rgba(0,255,213,.36)' : s===1 ? 'rgba(57,201,255,.28)' : 'rgba(210,76,255,.22)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(540, cy, r, 0, Math.PI*2);
+      ctx.stroke();
+
+      const a = t*0.00025*(s%2?1:-1) + s;
+      ctx.strokeStyle = 'rgba(220,255,255,.45)';
+      ctx.beginPath();
+      ctx.arc(540, cy, r, a, a + Math.PI*0.42);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawSandStreams(t){
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for(const s of streams){
+      const tt = t * s.speed + s.offset;
+      const x = s.x + Math.sin(tt)*s.sway + Math.sin(tt*0.37)*s.sway*0.4;
+      const yTop = 120;
+      const yBottom = duneY(6, x, t) - 10;
+      const grad = ctx.createLinearGradient(x, yTop, x, yBottom);
+      grad.addColorStop(0, `rgba(${s.color[0]},${s.color[1]},${s.color[2]},0)`);
+      grad.addColorStop(0.15, `rgba(${s.color[0]},${s.color[1]},${s.color[2]},0.55)`);
+      grad.addColorStop(0.85, `rgba(${s.color[0]},${s.color[1]},${s.color[2]},0.28)`);
+      grad.addColorStop(1, `rgba(${s.color[0]},${s.color[1]},${s.color[2]},0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - s.width*0.5, yTop, s.width, yBottom-yTop);
+
+      for(let k=0;k<18;k++){
+        const yy = yTop + ((k/18) * (yBottom-yTop));
+        const wob = Math.sin(tt*4 + k*0.7) * 2.2;
+        ctx.fillStyle = `rgba(${s.color[0]},${s.color[1]},${s.color[2]},${0.22 + 0.18*Math.sin(tt*2 + k)})`;
+        ctx.fillRect(x + wob - 1, yy, 2.2, 5.5);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawSettledGrainTexture(t){
+    const step = 12;
+    for(let i=0;i<dunes.length;i++){
+      const d = dunes[i];
+      for(let x=160 + (i%2)*4; x<W-160; x+=step){
+        const y = duneY(i,x,t);
+        const [r,g,b] = d.color;
+        const rows = 3;
+        for(let rr=0; rr<rows; rr++){
+          const yy = y + rr*11 + ((x+rr*13)%17<8?1.5:-1.5);
+          ctx.fillStyle = `rgba(${r},${g},${b},${0.16 - rr*0.035})`;
+          ctx.fillRect(x, yy, 5, 5);
+          if((x/step + rr + i)%4===0){
+            ctx.fillStyle = 'rgba(220,255,255,.10)';
+            ctx.fillRect(x+1, yy+1, 2, 2);
+          }
+        }
+      }
+    }
+  }
+
+  function drawKoruThresholds(t){
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.lineCap = 'round';
+
+    const motifs = [
+      {x:210,y:900,dir:1,c:'#00ffd5'},
+      {x:870,y:900,dir:-1,c:'#39c9ff'},
+      {x:220,y:1130,dir:1,c:'#d24cff'},
+      {x:860,y:1130,dir:-1,c:'#00ffd5'},
+      {x:245,y:1390,dir:1,c:'#39c9ff'},
+      {x:835,y:1390,dir:-1,c:'#d24cff'}
+    ];
+
+    for(const m of motifs){
+      ctx.strokeStyle = m.c;
+      ctx.lineWidth = 10;
+      const r1 = 44 + Math.sin(t*0.0004 + m.x)*3;
+      const r2 = 22 + Math.cos(t*0.0005 + m.y)*2;
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, r1, Math.PI*0.1*m.dir, Math.PI*1.78*m.dir, m.dir<0);
+      ctx.stroke();
+
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(m.x + m.dir*16, m.y + 2, r2, Math.PI*0.3*m.dir, Math.PI*1.9*m.dir, m.dir<0);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawSparrowGlyph(t){
+    const x = 540, y = 520;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.globalAlpha = 0.16;
+    ctx.strokeStyle = 'rgba(220,255,255,.45)';
+    ctx.fillStyle = 'rgba(0,255,213,.06)';
+    ctx.lineWidth = 2.5;
+
+    const flap = Math.sin(t*0.00045)*4;
+
+    ctx.beginPath();
+    ctx.moveTo(0,-24);
+    ctx.lineTo(32,-8-flap);
+    ctx.lineTo(16,8);
+    ctx.lineTo(8,36);
+    ctx.lineTo(-2,20);
+    ctx.lineTo(-8,34);
+    ctx.lineTo(-15,8);
+    ctx.lineTo(-34,-8-flap);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-4,-4);
+    ctx.lineTo(7,-2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(32,-8-flap);
+    ctx.lineTo(50,-18-flap*0.5);
+    ctx.lineTo(40,-1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-34,-8-flap);
+    ctx.lineTo(-52,-18-flap*0.5);
+    ctx.lineTo(-42,-1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function frameAt(t){
+    ctx.clearRect(0,0,W,H);
+    drawBackground(t);
+    drawPanels(t);
+    drawDataMotifs(t);
+    drawSandStreams(t);
+    drawDunes(t);
+    drawSettledGrainTexture(t);
+    drawKoruThresholds(t);
+    drawSparrowGlyph(t);
+  }
+
+  let start = performance.now();
+  function animate(now){
+    const t = now - start;
+    frameAt(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const audio = new AC();
+
+      const master = audio.createGain();
+      master.gain.value = 0.018;
+      master.connect(audio.destination);
+
+      const lp = audio.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 900;
+      lp.Q.value = 0.4;
+      lp.connect(master);
+
+      const osc1 = audio.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.value = 54;
+
+      const osc2 = audio.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 81;
+
+      const lfo = audio.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.035;
+
+      const lfoGain = audio.createGain();
+      lfoGain.gain.value = 18;
+
+      const g1 = audio.createGain();
+      const g2 = audio.createGain();
+      g1.gain.value = 0.18;
+      g2.gain.value = 0.12;
+
+      const noiseBuffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (rand()*2-1) * 0.25;
+      const noise = audio.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseFilter = audio.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 540;
+      noiseFilter.Q.value = 0.6;
+
+      const ng = audio.createGain();
+      ng.gain.value = 0.02;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      osc1.connect(g1).connect(lp);
+      osc2.connect(g2).connect(lp);
+      noise.connect(noiseFilter).connect(ng).connect(lp);
+
+      const nowT = audio.currentTime;
+      g1.gain.setValueAtTime(0.0001, nowT);
+      g1.gain.linearRampToValueAtTime(0.18, nowT + 4);
+      g2.gain.setValueAtTime(0.0001, nowT);
+      g2.gain.linearRampToValueAtTime(0.12, nowT + 6);
+      ng.gain.setValueAtTime(0.0, nowT);
+      ng.gain.linearRampToValueAtTime(0.02, nowT + 8);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+      noise.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
