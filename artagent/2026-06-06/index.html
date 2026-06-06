@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-06-06</title>
+<style>
+  :root{
+    --bg0:#0d0f14;
+    --bg1:#18131c;
+    --ink:#0a0b10;
+    --bone:#e7dcc8;
+    --acid:#c4ff32;
+    --coral:#ff6e46;
+    --violet:#7f5cff;
+    --teal:#44d8c7;
+    --amber:#ffbd48;
+    --fog:rgba(241,233,221,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0a0c10;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 60% at 50% 100%, rgba(255,255,255,.06), transparent 60%),
+      linear-gradient(180deg, #12161f 0%, #17141c 28%, #151015 70%, #0d0f14 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 20px 80px rgba(0,0,0,.45);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.82;
+    filter:saturate(1.25) contrast(1.05) brightness(.93) hue-rotate(-8deg);
+    transform:scale(1.08);
+    mix-blend-mode:screen;
+  }
+
+  #vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(110% 70% at 50% 46%, transparent 32%, rgba(8,9,12,.18) 58%, rgba(6,7,10,.52) 100%),
+      linear-gradient(180deg, rgba(9,10,12,.08), rgba(10,10,14,.18) 70%, rgba(5,6,8,.28));
+    pointer-events:none;
+  }
+
+  #colorwash{
+    position:absolute; inset:-6%;
+    background:
+      conic-gradient(from 210deg at 50% 50%, rgba(127,92,255,.22), rgba(255,110,70,.16), rgba(68,216,199,.16), rgba(196,255,50,.15), rgba(127,92,255,.22)),
+      radial-gradient(45% 26% at 24% 32%, rgba(255,189,72,.18), transparent 70%),
+      radial-gradient(38% 28% at 70% 58%, rgba(127,92,255,.16), transparent 70%);
+    mix-blend-mode:overlay;
+    opacity:.75;
+    animation:washDrift 34s ease-in-out infinite alternate;
+    pointer-events:none;
+  }
+
+  #city{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #bands{
+    position:absolute; inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    mask-image:radial-gradient(90% 78% at 50% 50%, #000 66%, transparent 100%);
+    -webkit-mask-image:radial-gradient(90% 78% at 50% 50%, #000 66%, transparent 100%);
+  }
+  .band{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    border-radius:48% 52% 43% 57% / 56% 44% 56% 44%;
+    border:1px solid rgba(255,255,255,.08);
+    opacity:.38;
+    mix-blend-mode:screen;
+    filter:blur(.2px);
+  }
+  .band.a{
+    width:82%;
+    height:29%;
+    top:13%;
+    background:
+      radial-gradient(95% 100% at 50% 50%, rgba(196,255,50,.13), transparent 70%),
+      linear-gradient(90deg, rgba(255,110,70,.05), rgba(255,255,255,.02), rgba(68,216,199,.05));
+    animation:bandBreathA 19s ease-in-out infinite;
+  }
+  .band.b{
+    width:68%;
+    height:20%;
+    top:30%;
+    background:
+      radial-gradient(100% 100% at 50% 50%, rgba(127,92,255,.17), transparent 72%);
+    animation:bandBreathB 23s ease-in-out infinite reverse;
+  }
+  .band.c{
+    width:96%;
+    height:34%;
+    top:57%;
+    background:
+      radial-gradient(100% 100% at 50% 50%, rgba(255,189,72,.11), transparent 68%),
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.02));
+    animation:bandBreathC 29s ease-in-out infinite;
+  }
+
+  #canopy{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.95;
+  }
+
+  .veil{
+    position:absolute;
+    inset:auto 0 0 0;
+    height:46%;
+    background:
+      linear-gradient(180deg, rgba(9,10,12,0), rgba(9,10,12,.12) 15%, rgba(9,10,12,.46) 42%, rgba(9,10,12,.86) 100%);
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(244,238,228,.5);
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    z-index:30;
+    user-select:none;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:14px;
+    bottom:118px;
+    opacity:.58;
+    filter:saturate(.8) contrast(.92) brightness(.82);
+    z-index:12;
+    transform:rotate(-7deg);
+  }
+
+  #grain, #scan{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  #grain{
+    opacity:.1;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.08) 0 1px, transparent 1.3px),
+      radial-gradient(circle at 70% 40%, rgba(255,255,255,.05) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 40% 80%, rgba(255,255,255,.06) 0 1px, transparent 1.1px);
+    background-size:11px 11px, 13px 13px, 17px 17px;
+    mix-blend-mode:soft-light;
+  }
+  #scan{
+    opacity:.16;
+    background:repeating-linear-gradient(180deg, rgba(255,255,255,.06) 0 1px, transparent 1px 6px);
+    mix-blend-mode:overlay;
+  }
+
+  @keyframes washDrift{
+    0%{transform:translateY(-1.5%) scale(1) rotate(0deg)}
+    100%{transform:translateY(1.5%) scale(1.04) rotate(6deg)}
+  }
+  @keyframes bandBreathA{
+    0%,100%{transform:translateX(-50%) scale(1,.96) rotate(-5deg)}
+    50%{transform:translateX(-50%) scale(1.04,1.08) rotate(3deg)}
+  }
+  @keyframes bandBreathB{
+    0%,100%{transform:translateX(-50%) scale(.96,1.04) rotate(8deg)}
+    50%{transform:translateX(-50%) scale(1.05,.96) rotate(-4deg)}
+  }
+  @keyframes bandBreathC{
+    0%,100%{transform:translateX(-50%) scale(1.02,.97) rotate(2deg)}
+    50%{transform:translateX(-50%) scale(.98,1.05) rotate(-3deg)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg id="city" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6e46"/>
+          <stop offset="45%" stop-color="#c4ff32"/>
+          <stop offset="100%" stop-color="#44d8c7"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#7f5cff"/>
+          <stop offset="100%" stop-color="#ffbd48"/>
+        </linearGradient>
+        <linearGradient id="boneGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f3ead7"/>
+          <stop offset="100%" stop-color="#b9ae9a"/>
+        </linearGradient>
+        <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="8" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <filter id="microBlur">
+          <feGaussianBlur stdDeviation="1.4"/>
+        </filter>
+        <mask id="fadeBottom">
+          <rect width="1080" height="1920" fill="url(#fadeBottomGrad)"/>
+        </mask>
+        <linearGradient id="fadeBottomGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="82%" stop-color="white"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+      </defs>
+
+      <g id="svgBack">
+        <path d="M110 360 L280 240 L430 332 L530 208 L690 278 L790 194 L968 300 L968 382 L110 382 Z"
+              fill="rgba(255,255,255,0.035)"/>
+        <path d="M120 960 L262 900 L356 1004 L482 924 L648 1048 L828 938 L954 1026 L954 1098 L120 1098 Z"
+              fill="rgba(255,255,255,0.03)"/>
+      </g>
+
+      <g id="svgGlowPlanes" filter="url(#softGlow)" opacity=".62">
+        <polygon points="164,318 446,178 500,512 236,636" fill="url(#g2)"/>
+        <polygon points="648,266 910,376 806,676 560,578" fill="url(#g1)" opacity=".62"/>
+        <polygon points="320,1086 664,918 804,1310 452,1428" fill="url(#g1)" opacity=".46"/>
+      </g>
+
+      <g id="svgBridges" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M240 698 L446 590 L650 664 L814 560" fill="none" stroke="rgba(243,234,215,.75)" stroke-width="14"/>
+        <path d="M244 698 L280 796 L350 732 L414 834 L478 760 L554 866 L626 794 L714 888 L814 560"
+              fill="none" stroke="rgba(243,234,215,.19)" stroke-width="10"/>
+        <path d="M196 1224 L374 1122 L548 1240 L732 1136 L902 1272"
+              fill="none" stroke="rgba(243,234,215,.68)" stroke-width="16"/>
+      </g>
+
+      <g id="svgFore" opacity=".92">
+        <polygon points="60,1600 376,1340 540,1482 540,1920 60,1920" fill="#111217"/>
+        <polygon points="540,1482 840,1278 1024,1436 1024,1920 540,1920" fill="#13151b"/>
+        <polygon points="368,1540 564,1408 680,1488 680,1920 368,1920" fill="rgba(243,234,215,.06)"/>
+      </g>
+
+      <g id="hedgehogMark" transform="translate(736 1188)" opacity=".2">
+        <path d="M-44 22 L-32 -6 L-12 -18 L18 -20 L46 -8 L66 10 L72 30 L66 50 L46 60 L-4 58 L-32 46 Z"
+              fill="rgba(196,255,50,.38)"/>
+        <circle cx="76" cy="32" r="10" fill="rgba(255,110,70,.38)"/>
+        <circle cx="78" cy="30" r="2.5" fill="rgba(10,11,16,.7)"/>
+        <path d="M-26 0 L-42 -20 M-10 -12 L-20 -36 M8 -14 L6 -42 M28 -10 L36 -34 M46 -2 L62 -20"
+              stroke="rgba(243,234,215,.45)" stroke-width="8"/>
+      </g>
+    </svg>
+
+    <canvas id="canopy"></canvas>
+
+    <div id="bands">
+      <div class="band a"></div>
+      <div class="band b"></div>
+      <div class="band c"></div>
+    </div>
+
+    <div id="colorwash"></div>
+    <div id="grain"></div>
+    <div id="scan"></div>
+    <div id="vignette"></div>
+    <div class="veil"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-06-06</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-06";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const canvas = document.getElementById('canopy');
+  const ctx = canvas.getContext('2d');
+  const frame = document.getElementById('frame');
+
+  let w = 1080, h = 1920, dpr = Math.min(devicePixelRatio || 1, 2);
+
+  const palette = ["#f0e6d2","#c4ff32","#ff6e46","#44d8c7","#7f5cff","#ffbd48"];
+  const darks = ["#0f1118","#12151b","#17131b"];
+
+  const towers = [];
+  const arches = [];
+  const shards = [];
+  const cells = [];
+  const colony = [];
+
+  function resetStructures(){
+    towers.length = 0;
+    arches.length = 0;
+    shards.length = 0;
+    cells.length = 0;
+    colony.length = 0;
+
+    const lanes = [170, 300, 450, 610, 770, 910];
+    let yBase = 1480;
+    for(let i=0;i<lanes.length;i++){
+      const lane = lanes[i] + (rnd()-0.5)*28;
+      let y = yBase + (rnd()-0.5)*120;
+      let width = 86 + rnd()*88;
+      for(let j=0;j<5 + ((i%2)?1:0);j++){
+        const height = 88 + rnd()*250;
+        const inset = 8 + rnd()*24;
+        towers.push({
+          x: lane + (rnd()-0.5)*26,
+          y,
+          w: width,
+          h: height,
+          inset,
+          cut: 18 + rnd()*45,
+          tone: palette[(i+j)%palette.length],
+          dark: darks[(i+j)%darks.length],
+          phase:rnd()*Math.PI*2,
+          speed:0.2 + rnd()*0.6
+        });
+        y -= height*0.74;
+        width *= 0.83 + rnd()*0.08;
+      }
+    }
+
+    for(let i=0;i<14;i++){
+      const x1 = 110 + rnd()*860;
+      const x2 = x1 + 90 + rnd()*180;
+      const y = 340 + i*95 + rnd()*40;
+      arches.push({
+        x1,x2,y,
+        rise: 32 + rnd()*70,
+        thick: 12 + rnd()*20,
+        color: palette[(i+2)%palette.length],
+        phase:rnd()*Math.PI*2
+      });
+    }
+
+    for(let i=0;i<32;i++){
+      shards.push({
+        x: 130 + rnd()*820,
+        y: 220 + rnd()*1280,
+        w: 30 + rnd()*140,
+        h: 24 + rnd()*180,
+        skew: -0.8 + rnd()*1.6,
+        rot: -0.7 + rnd()*1.4,
+        color: palette[(i*3)%palette.length],
+        alpha: 0.06 + rnd()*0.14,
+        speed:0.25 + rnd()*0.5,
+        phase:rnd()*Math.PI*2
+      });
+    }
+
+    for(let i=0;i<26;i++){
+      cells.push({
+        x: 160 + rnd()*760,
+        y: 180 + rnd()*1380,
+        r1: 24 + rnd()*54,
+        r2: 14 + rnd()*40,
+        color: palette[(i+1)%palette.length],
+        alpha: 0.07 + rnd()*0.12,
+        phase:rnd()*Math.PI*2
+      });
+    }
+
+    for(let i=0;i<18;i++){
+      colony.push({
+        x: 220 + rnd()*640,
+        y: 260 + rnd()*1040,
+        s: 26 + rnd()*48,
+        color: palette[(i+4)%palette.length],
+        phase:rnd()*Math.PI*2
+      });
+    }
+  }
+
+  function resize(){
+    const rect = frame.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    w = rect.width;
+    h = rect.height;
+  }
+
+  function scaleX(v){ return v / 1080 * w; }
+  function scaleY(v){ return v / 1920 * h; }
+
+  function drawPoly(points, fill, alpha=1){
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(scaleX(points[0][0]), scaleY(points[0][1]));
+    for(let i=1;i<points.length;i++) ctx.lineTo(scaleX(points[i][0]), scaleY(points[i][1]));
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawRoundedSlab(x,y,w0,h0,cut,fill,stroke,alpha){
+    const sx=scaleX(x), sy=scaleY(y), sw=scaleX(w0), sh=scaleY(h0), c=scaleX(cut);
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(sx+c, sy);
+    ctx.lineTo(sx+sw-c, sy);
+    ctx.lineTo(sx+sw, sy+c);
+    ctx.lineTo(sx+sw, sy+sh-c);
+    ctx.lineTo(sx+sw-c, sy+sh);
+    ctx.lineTo(sx+c, sy+sh);
+    ctx.lineTo(sx, sy+sh-c);
+    ctx.lineTo(sx, sy+c);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if(stroke){
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = Math.max(1, scaleX(3));
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function archShape(x1,x2,y,rise,thick,color,alpha){
+    const a=scaleX(x1), b=scaleX(x2), yy=scaleY(y), rr=scaleY(rise), tt=scaleY(thick);
+    ctx.globalAlpha=alpha;
+    ctx.beginPath();
+    ctx.moveTo(a,yy);
+    ctx.lineTo(a,yy+tt);
+    ctx.quadraticCurveTo((a+b)/2,yy-rr+tt,b,yy+tt);
+    ctx.lineTo(b,yy);
+    ctx.quadraticCurveTo((a+b)/2,yy-rr,a,yy);
+    ctx.closePath();
+    ctx.fillStyle=color;
+    ctx.fill();
+    ctx.globalAlpha=1;
+  }
+
+  function impossibleGlyph(x,y,s,color,alpha,t){
+    const sx=scaleX(x), sy=scaleY(y), ss=scaleX(s);
+    ctx.save();
+    ctx.translate(sx,sy);
+    ctx.rotate(Math.sin(t)*0.15);
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=color;
+    const k = 0.55 + 0.08*Math.sin(t*1.7);
+    ctx.beginPath();
+    ctx.moveTo(-ss*0.55, -ss*0.05);
+    ctx.lineTo(0, -ss*0.55);
+    ctx.lineTo(ss*0.55, -ss*0.05);
+    ctx.lineTo(ss*0.2, ss*0.15);
+    ctx.lineTo(ss*0.2, ss*0.58);
+    ctx.lineTo(-ss*0.2, ss*0.58);
+    ctx.lineTo(-ss*0.2, ss*0.15);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-ss*0.18, -ss*(0.42*k));
+    ctx.lineTo(ss*0.18, -ss*(0.42*k));
+    ctx.lineTo(ss*0.18, ss*0.36);
+    ctx.lineTo(-ss*0.18, ss*0.36);
+    ctx.closePath();
+    ctx.fillStyle="rgba(10,11,16,0.28)";
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function draw(tms){
+    const t = tms * 0.00022;
+    ctx.clearRect(0,0,w,h);
+
+    const bg = ctx.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,"rgba(15,18,25,0.00)");
+    bg.addColorStop(0.5,"rgba(18,14,18,0.06)");
+    bg.addColorStop(1,"rgba(9,10,12,0.14)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,w,h);
+
+    shards.forEach((s,i)=>{
+      const dy = Math.sin(t*s.speed + s.phase)*18;
+      ctx.save();
+      ctx.translate(scaleX(s.x), scaleY(s.y+dy));
+      ctx.rotate(s.rot + Math.sin(t*0.8+s.phase)*0.05);
+      ctx.transform(1,0,s.skew,1,0,0);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = s.alpha;
+      ctx.beginPath();
+      ctx.moveTo(-scaleX(s.w*0.5), -scaleY(s.h*0.5));
+      ctx.lineTo(scaleX(s.w*0.5), -scaleY(s.h*0.18));
+      ctx.lineTo(scaleX(s.w*0.24), scaleY(s.h*0.5));
+      ctx.lineTo(-scaleX(s.w*0.55), scaleY(s.h*0.18));
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    });
+
+    cells.forEach((c,i)=>{
+      const pulse = 0.88 + 0.16*(0.5+0.5*Math.sin(t*2 + c.phase));
+      ctx.save();
+      ctx.translate(scaleX(c.x), scaleY(c.y));
+      ctx.rotate(Math.sin(t*0.7 + c.phase)*0.25);
+      ctx.scale(pulse, 1.08-pulse*0.06);
+      ctx.beginPath();
+      ctx.ellipse(0,0,scaleX(c.r1),scaleY(c.r2),0,0,Math.PI*2);
+      ctx.fillStyle = c.color;
+      ctx.globalAlpha = c.alpha;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(0,0,scaleX(c.r1*0.42),scaleY(c.r2*0.42),0,0,Math.PI*2);
+      ctx.fillStyle = "rgba(10,12,18,.25)";
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    });
+
+    towers.forEach((tw, idx)=>{
+      const live = Math.sin(t*tw.speed + tw.phase);
+      const rise = live*18;
+      drawRoundedSlab(tw.x-tw.w/2, tw.y-tw.h+rise, tw.w, tw.h, tw.cut, tw.dark, "rgba(255,255,255,.05)", 0.92);
+
+      const faceW = tw.w - tw.inset*2;
+      drawRoundedSlab(tw.x-faceW/2, tw.y-tw.h+tw.inset+rise, faceW, tw.h-tw.inset*2, tw.cut*0.58, tw.tone, null, 0.17);
+
+      if(idx % 3 === 0){
+        const gx = scaleX(tw.x);
+        const gy = scaleY(tw.y - tw.h*0.74 + rise);
+        const grad = ctx.createLinearGradient(gx, gy, gx, gy + scaleY(tw.h*0.4));
+        grad.addColorStop(0, "rgba(255,255,255,.45)");
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = grad;
+        ctx.globalAlpha = 0.16;
+        ctx.fillRect(scaleX(tw.x-tw.w*0.16), gy, scaleX(tw.w*0.12), scaleY(tw.h*0.46));
+        ctx.globalAlpha = 1;
+      }
+
+      if(idx % 4 === 1){
+        const y0 = tw.y - tw.h + tw.inset + rise + 12;
+        for(let k=0;k<4;k++){
+          ctx.fillStyle = "rgba(12,12,17,.2)";
+          ctx.fillRect(scaleX(tw.x - tw.w*0.18), scaleY(y0 + k*tw.h*0.14), scaleX(tw.w*0.36), scaleY(7));
+        }
+      }
+    });
+
+    arches.forEach((a,i)=>{
+      const mod = Math.sin(t*0.9 + a.phase);
+      archShape(a.x1, a.x2, a.y + mod*10, a.rise*(0.92+0.08*mod), a.thick, a.color, 0.12 + (i%4===0 ? 0.18 : 0.08));
+      archShape(a.x1+10, a.x2-10, a.y + 8 + mod*6, a.rise*0.78, Math.max(8, a.thick*0.32), "rgba(10,11,16,.24)", 0.5);
+    });
+
+    colony.forEach((g,i)=>{
+      impossibleGlyph(g.x, g.y, g.s, g.color, 0.14, t + g.phase);
+    });
+
+    // Lower mass foreground to integrate everything
+    const floorGrad = ctx.createLinearGradient(0, scaleY(1240), 0, h);
+    floorGrad.addColorStop(0, "rgba(15,16,21,0)");
+    floorGrad.addColorStop(1, "rgba(10,11,15,0.92)");
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, scaleY(1220), w, h-scaleY(1220));
+
+    // Cradle forms
+    drawPoly([[98,1544],[356,1376],[550,1510],[550,1920],[98,1920]], "rgba(17,18,23,0.93)", 1);
+    drawPoly([[532,1490],[818,1294],[1030,1460],[1030,1920],[532,1920]], "rgba(19,20,26,0.93)", 1);
+    drawPoly([[320,1602],[542,1446],[708,1530],[708,1920],[320,1920]], "rgba(235,224,204,0.05)", 1);
+
+    // Alien ledges
+    ctx.fillStyle = "rgba(243,234,215,.08)";
+    ctx.fillRect(scaleX(182), scaleY(1450 + Math.sin(t)*8), scaleX(220), scaleY(10));
+    ctx.fillRect(scaleX(670), scaleY(1356 + Math.sin(t*1.2+2)*8), scaleX(164), scaleY(10));
+
+    requestAnimationFrame(draw);
+  }
+
+  resetStructures();
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(draw);
+
+  // Ambient audio only when not embedded
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const actx = new AudioCtx();
+      const master = actx.createGain();
+      master.gain.value = 0.014;
+      master.connect(actx.destination);
+
+      function makeVoice(freq, type, lfoRate, lfoDepth, panVal){
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        const filter = actx.createBiquadFilter();
+        const lfo = actx.createOscillator();
+        const lfoGain = actx.createGain();
+        const pan = actx.createStereoPanner();
+
+        osc.type = type;
+        osc.frequency.value = freq;
+
+        lfo.type = 'sine';
+        lfo.frequency.value = lfoRate;
+        lfoGain.gain.value = lfoDepth;
+
+        filter.type = 'bandpass';
+        filter.frequency.value = freq*1.7;
+        filter.Q.value = 0.7;
+
+        gain.gain.value = 0.0;
+        pan.pan.value = panVal;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.detune);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(pan);
+        pan.connect(master);
+
+        const now = actx.currentTime;
+        gain.gain.linearRampToValueAtTime(0.018, now + 3.0);
+
+        osc.start();
+        lfo.start();
+      }
+
+      try{
+        makeVoice(82.4, 'triangle', 0.07, 8, -0.2);
+        makeVoice(123.5, 'sawtooth', 0.051, 5, 0.18);
+        makeVoice(246.9, 'triangle', 0.11, 3, 0.05);
+      }catch(e){}
+    }
+  }
+})();
+</script>
+</body>
+</html>
