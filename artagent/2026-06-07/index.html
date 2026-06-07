@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-07</title>
+<style>
+  :root{
+    --bg:#f2efe4;
+    --paper:#f6f2e8;
+    --sand1:#e9d66f;
+    --sand2:#d9432f;
+    --sand3:#1f56a8;
+    --line:#0a0a0a;
+    --sun:#f2d312;
+    --white:#fbfaf5;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#cfc8b7;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:var(--paper);
+    box-shadow:0 0 0 10px #111, 0 25px 80px rgba(0,0,0,.28);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.78;
+    filter:saturate(.85) contrast(1.05) brightness(.98);
+    mix-blend-mode:multiply;
+  }
+
+  .base{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, #f7f4ea 0 18%, #efe9d7 18% 42%, #eadc88 42% 100%);
+  }
+
+  #heatCanvas, #sandCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  svg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+
+  .gridline{
+    stroke:var(--line);
+    stroke-width:14;
+    stroke-linecap:square;
+    vector-effect:non-scaling-stroke;
+  }
+  .gridline.thin{
+    stroke-width:8;
+    opacity:.9;
+  }
+  .outline{
+    stroke:var(--line);
+    stroke-width:12;
+    fill:none;
+    vector-effect:non-scaling-stroke;
+  }
+
+  .panel{
+    position:absolute;
+    border:12px solid var(--line);
+    overflow:hidden;
+    background:rgba(255,255,255,.2);
+  }
+
+  .skyWhite{
+    position:absolute;
+    left:0; top:0;
+    width:100%;
+    height:17.5%;
+    background:var(--white);
+    border-bottom:12px solid var(--line);
+  }
+
+  .sunBlock{
+    position:absolute;
+    right:10.5%;
+    top:7.8%;
+    width:20.5%;
+    aspect-ratio:1/1;
+    background:var(--sun);
+    border:12px solid var(--line);
+    animation:sunShift 32s ease-in-out infinite;
+  }
+
+  .redTower{
+    position:absolute;
+    left:0;
+    top:17.5%;
+    width:19%;
+    height:33%;
+    background:var(--sand2);
+    border-right:12px solid var(--line);
+    border-bottom:12px solid var(--line);
+    animation:towerBreath 24s ease-in-out infinite;
+  }
+
+  .blueSlab{
+    position:absolute;
+    right:0;
+    top:24%;
+    width:13%;
+    height:25%;
+    background:var(--sand3);
+    border-left:12px solid var(--line);
+    border-bottom:12px solid var(--line);
+    animation:slabMove 28s ease-in-out infinite;
+  }
+
+  .horizonBand{
+    position:absolute;
+    left:19%;
+    top:34.7%;
+    width:68%;
+    height:8%;
+    background:linear-gradient(90deg, rgba(255,255,255,.95) 0 26%, rgba(242,211,18,.95) 26% 47%, rgba(31,86,168,.96) 47% 68%, rgba(255,255,255,.95) 68% 100%);
+    border-top:12px solid var(--line);
+    border-bottom:12px solid var(--line);
+    overflow:hidden;
+  }
+  .horizonBand::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 48px, rgba(0,0,0,.1) 48px 51px, transparent 51px 120px);
+    opacity:.22;
+    transform:translateX(0);
+    animation:horizonSlide 30s linear infinite;
+  }
+
+  .duneMask{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:67%;
+    pointer-events:none;
+  }
+
+  .frontBlocks{
+    position:absolute; inset:0;
+    pointer-events:none;
+    mix-blend-mode:multiply;
+    opacity:.88;
+  }
+  .frontBlocks .blk{
+    position:absolute;
+    background:rgba(255,255,255,.18);
+    border:10px solid var(--line);
+  }
+  .frontBlocks .b1{left:6%; bottom:15%; width:18%; height:9%; animation:blockDrift1 26s ease-in-out infinite;}
+  .frontBlocks .b2{right:7%; bottom:20%; width:15%; height:7%; background:rgba(31,86,168,.16); animation:blockDrift2 31s ease-in-out infinite;}
+  .frontBlocks .b3{left:27%; bottom:8%; width:13%; height:6%; background:rgba(217,67,47,.16); animation:blockDrift3 29s ease-in-out infinite;}
+
+  .grainOverlay{
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.03) 0 1px, transparent 1px 10px),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.02) 0 1px, transparent 1px 14px);
+    mix-blend-mode:multiply;
+    opacity:.32;
+    animation:grainShift 18s linear infinite;
+    pointer-events:none;
+  }
+
+  .vfadeTop, .vfadeBottom{
+    position:absolute;
+    left:0; width:100%;
+    pointer-events:none;
+  }
+  .vfadeTop{
+    top:0; height:14%;
+    background:linear-gradient(180deg, rgba(246,242,232,1), rgba(246,242,232,0));
+  }
+  .vfadeBottom{
+    bottom:0; height:11%;
+    background:linear-gradient(0deg, rgba(233,214,111,.95), rgba(233,214,111,0));
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    font-size:15px;
+    letter-spacing:1.5px;
+    color:rgba(0,0,0,.42);
+    z-index:30;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:12px;
+    bottom:168px;
+    opacity:.58;
+    filter:saturate(.7) contrast(.95) brightness(.8);
+    z-index:18;
+    transform:rotate(-5deg);
+  }
+
+  @keyframes sunShift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(10px) scale(1.03)}
+  }
+  @keyframes towerBreath{
+    0%,100%{transform:scaleY(1)}
+    50%{transform:scaleY(1.015)}
+  }
+  @keyframes slabMove{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(8px)}
+  }
+  @keyframes horizonSlide{
+    from{transform:translateX(0)}
+    to{transform:translateX(120px)}
+  }
+  @keyframes grainShift{
+    0%,100%{transform:translate(0,0)}
+    50%{transform:translate(-8px,6px)}
+  }
+  @keyframes blockDrift1{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(8px)}
+  }
+  @keyframes blockDrift2{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(-7px)}
+  }
+  @keyframes blockDrift3{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(6px)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div class="base"></div>
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <div class="skyWhite"></div>
+    <div class="sunBlock"></div>
+    <div class="redTower"></div>
+    <div class="blueSlab"></div>
+    <div class="horizonBand"></div>
+
+    <canvas id="heatCanvas" width="1080" height="1920"></canvas>
+    <canvas id="sandCanvas" width="1080" height="1920"></canvas>
+
+    <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="duneYellow" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#ead86c"/>
+          <stop offset="48%" stop-color="#f0dc76"/>
+          <stop offset="100%" stop-color="#e1c94d"/>
+        </linearGradient>
+        <linearGradient id="duneRed" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#ce3d2f"/>
+          <stop offset="100%" stop-color="#df4a35"/>
+        </linearGradient>
+        <linearGradient id="duneBlue" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="#1e529e"/>
+          <stop offset="100%" stop-color="#2f69bf"/>
+        </linearGradient>
+        <linearGradient id="edgeFade" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="white" stop-opacity="0"/>
+          <stop offset="10%" stop-color="white" stop-opacity="1"/>
+          <stop offset="90%" stop-color="white" stop-opacity="1"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="softMask">
+          <rect width="1080" height="1920" fill="url(#edgeFade)"/>
+        </mask>
+      </defs>
+
+      <g mask="url(#softMask)">
+        <path id="dune1" d="" fill="url(#duneYellow)" stroke="#0a0a0a" stroke-width="12"></path>
+        <path id="dune2" d="" fill="url(#duneRed)" stroke="#0a0a0a" stroke-width="12"></path>
+        <path id="dune3" d="" fill="url(#duneBlue)" stroke="#0a0a0a" stroke-width="12"></path>
+        <path id="dune4" d="" fill="#fbfaf5" stroke="#0a0a0a" stroke-width="12"></path>
+
+        <line class="gridline" x1="0" y1="958" x2="260" y2="958"/>
+        <line class="gridline" x1="874" y1="958" x2="1080" y2="958"/>
+        <line class="gridline thin" x1="382" y1="1216" x2="632" y2="1216"/>
+        <line class="gridline thin" x1="707" y1="1428" x2="1040" y2="1428"/>
+        <line class="gridline thin" x1="0" y1="1606" x2="230" y2="1606"/>
+
+        <rect x="904" y="1276" width="176" height="260" fill="#fbfaf5" stroke="#0a0a0a" stroke-width="12"/>
+        <rect x="0" y="1110" width="128" height="194" fill="#f2d312" stroke="#0a0a0a" stroke-width="12"/>
+      </g>
+    </svg>
+
+    <div class="frontBlocks">
+      <div class="blk b1"></div>
+      <div class="blk b2"></div>
+      <div class="blk b3"></div>
+    </div>
+
+    <div class="grainOverlay"></div>
+    <div class="vfadeTop"></div>
+    <div class="vfadeBottom"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div id="date">2026-06-07</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-07";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const duneEls = [
+    document.getElementById('dune1'),
+    document.getElementById('dune2'),
+    document.getElementById('dune3'),
+    document.getElementById('dune4')
+  ];
+
+  const baseParams = [
+    { y: 1020, amp: 62, phase: rnd()*Math.PI*2, tilt: -0.00028, band: 0.10, fillBottom: 1920 },
+    { y: 1180, amp: 92, phase: rnd()*Math.PI*2, tilt:  0.00018, band: 0.18, fillBottom: 1920 },
+    { y: 1410, amp: 110, phase: rnd()*Math.PI*2, tilt: -0.00016, band: 0.13, fillBottom: 1920 },
+    { y: 1660, amp: 84, phase: rnd()*Math.PI*2, tilt:  0.00022, band: 0.16, fillBottom: 1920 }
+  ];
+
+  function dunePath(yBase, amp, phase, tilt, t, step, fillBottom){
+    const pts = [];
+    for(let x=0; x<=1080; x+=step){
+      const nx = x / 1080;
+      const y =
+        yBase +
+        Math.sin(nx * Math.PI * 1.25 + phase + t*0.22) * amp +
+        Math.cos(nx * Math.PI * 3.2 + phase*0.6 + t*0.13) * amp * 0.18 +
+        (x - 540) * tilt;
+      pts.push([x,y]);
+    }
+    let d = `M 0 ${fillBottom} L ${pts[0][0]} ${pts[0][1].toFixed(2)} `;
+    for(let i=1;i<pts.length;i++) d += `L ${pts[i][0]} ${pts[i][1].toFixed(2)} `;
+    d += `L 1080 ${fillBottom} Z`;
+    return d;
+  }
+
+  const heatCanvas = document.getElementById('heatCanvas');
+  const hctx = heatCanvas.getContext('2d');
+  const sandCanvas = document.getElementById('sandCanvas');
+  const sctx = sandCanvas.getContext('2d');
+
+  const grains = [];
+  for(let i=0;i<220;i++){
+    grains.push({
+      x:rnd()*1080,
+      y:980 + rnd()*860,
+      s:1 + rnd()*3,
+      a:0.08 + rnd()*0.16,
+      vx:0.2 + rnd()*0.8,
+      zone:rnd()
+    });
+  }
+
+  function drawHeat(t){
+    hctx.clearRect(0,0,1080,1920);
+    hctx.save();
+    const horizonY = 720;
+    for(let i=0;i<38;i++){
+      const y = horizonY + i*8;
+      const drift = Math.sin(t*0.7 + i*0.35) * (8 + i*0.2);
+      hctx.fillStyle = i % 2 ? 'rgba(31,86,168,0.045)' : 'rgba(255,255,255,0.055)';
+      hctx.fillRect(220 + drift, y, 620 - i*4, 5);
+    }
+    hctx.restore();
+  }
+
+  function drawSand(t){
+    sctx.clearRect(0,0,1080,1920);
+    sctx.save();
+    for(const g of grains){
+      g.x += g.vx + Math.sin(t + g.y*0.01)*0.12;
+      if(g.x > 1105){
+        g.x = -20;
+        g.y = 980 + rnd()*860;
+      }
+      const wob = Math.sin(t*1.2 + g.zone*8 + g.y*0.02) * 2.5;
+      sctx.fillStyle = `rgba(0,0,0,${g.a})`;
+      sctx.fillRect(g.x, g.y + wob, g.s*1.6, g.s*0.9);
+      sctx.fillStyle = `rgba(255,255,255,${g.a*0.55})`;
+      sctx.fillRect(g.x+1, g.y + wob + 1, g.s*0.9, g.s*0.5);
+    }
+    sctx.restore();
+  }
+
+  function animate(ms){
+    const t = ms * 0.001;
+
+    for(let i=0;i<duneEls.length;i++){
+      const p = baseParams[i];
+      const amp = p.amp * (1 + Math.sin(t*0.17 + i)*0.03);
+      duneEls[i].setAttribute('d', dunePath(p.y, amp, p.phase, p.tilt, t + i*0.6, 60, p.fillBottom));
+    }
+
+    drawHeat(t);
+    drawSand(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.014;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'triangle';
+      low.frequency.value = 73.4;
+
+      const high = ctx.createOscillator();
+      high.type = 'sine';
+      high.frequency.value = 220.0;
+
+      const lGain = ctx.createGain();
+      const hGain = ctx.createGain();
+      lGain.gain.value = 0.16;
+      hGain.gain.value = 0.05;
+
+      const lFilter = ctx.createBiquadFilter();
+      lFilter.type = 'lowpass';
+      lFilter.frequency.value = 180;
+
+      const hFilter = ctx.createBiquadFilter();
+      hFilter.type = 'bandpass';
+      hFilter.frequency.value = 480;
+      hFilter.Q.value = 0.7;
+
+      low.connect(lFilter).connect(lGain).connect(master);
+      high.connect(hFilter).connect(hGain).connect(master);
+
+      low.start();
+      high.start();
+
+      function breathe(){
+        const now = ctx.currentTime;
+        master.gain.cancelScheduledValues(now);
+        master.gain.setValueAtTime(master.gain.value, now);
+        master.gain.linearRampToValueAtTime(0.018, now + 8);
+        master.gain.linearRampToValueAtTime(0.011, now + 16);
+
+        low.frequency.setValueAtTime(73.4, now);
+        low.frequency.linearRampToValueAtTime(69.3, now + 8);
+        low.frequency.linearRampToValueAtTime(73.4, now + 16);
+
+        high.frequency.setValueAtTime(220, now);
+        high.frequency.linearRampToValueAtTime(246.9, now + 8);
+        high.frequency.linearRampToValueAtTime(220, now + 16);
+      }
+      breathe();
+      setInterval(breathe, 16000);
+
+      const resume = () => { if (ctx.state !== 'running') ctx.resume(); };
+      document.addEventListener('visibilitychange', resume);
+      window.addEventListener('load', resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
