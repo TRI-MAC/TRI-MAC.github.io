@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-08</title>
+<style>
+  :root{
+    --bg:#f2ead6;
+    --cream:#efe4cf;
+    --red:#b3181e;
+    --deep-red:#7e0f15;
+    --black:#0f0f10;
+    --char:#171719;
+    --white:#f8f4ec;
+    --bone:#d8ccb5;
+    --glass:#fff7e8;
+    --shadow:rgba(0,0,0,.24);
+    --seed:20260608;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    max-width:1080px;
+    max-height:1920px;
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255,245,224,.7), rgba(255,245,224,0) 24%),
+      linear-gradient(180deg, #f5edda 0%, #ece0c8 28%, #d9ccb0 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 28px 80px rgba(0,0,0,.45);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:-6%;
+    width:112%;
+    height:112%;
+    object-fit:cover;
+    opacity:.84;
+    filter:saturate(.8) contrast(1.08) brightness(.9) sepia(.18) hue-rotate(-10deg);
+    mix-blend-mode:multiply;
+    transform:scale(1.08);
+    animation:slowZoom 44s ease-in-out infinite;
+  }
+
+  #paperVeil{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,250,240,.42), rgba(255,248,236,.18) 30%, rgba(255,240,224,.1) 100%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.02) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 11px);
+    mix-blend-mode:screen;
+    opacity:.55;
+    pointer-events:none;
+  }
+
+  #cathedralGlow{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(255,251,245,.96) 0 8%, rgba(255,245,232,.78) 16%, rgba(255,223,190,.22) 29%, rgba(255,223,190,0) 49%),
+      linear-gradient(180deg, rgba(120,10,10,.08), rgba(0,0,0,0) 40%, rgba(0,0,0,.05) 100%);
+    pointer-events:none;
+  }
+
+  #steelRays{
+    position:absolute;
+    inset:-8%;
+    opacity:.9;
+    transform-origin:50% 38%;
+    animation:rotateSlow 70s linear infinite;
+    filter:drop-shadow(0 0 10px rgba(0,0,0,.18));
+    mask-image:radial-gradient(circle at 50% 38%, black 0 62%, transparent 92%);
+    -webkit-mask-image:radial-gradient(circle at 50% 38%, black 0 62%, transparent 92%);
+  }
+
+  #roseWrap{
+    position:absolute;
+    left:50%;
+    top:39%;
+    width:92%;
+    height:92%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    filter:drop-shadow(0 18px 18px rgba(0,0,0,.18));
+  }
+
+  #constructBands{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .band{
+    position:absolute;
+    transform-origin:left center;
+    opacity:.96;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.18));
+  }
+  .band.redA{
+    width:86%;
+    height:110px;
+    left:-10%;
+    top:57%;
+    transform:rotate(-34deg);
+    background:linear-gradient(90deg, rgba(179,24,30,0) 0%, rgba(179,24,30,.96) 10%, rgba(179,24,30,.96) 76%, rgba(179,24,30,0) 100%);
+    animation:bandShiftA 22s ease-in-out infinite;
+  }
+  .band.blackA{
+    width:102%;
+    height:68px;
+    left:32%;
+    top:62%;
+    transform:rotate(-34deg);
+    background:linear-gradient(90deg, rgba(15,15,16,0) 0%, rgba(15,15,16,.96) 14%, rgba(15,15,16,.96) 84%, rgba(15,15,16,0) 100%);
+    animation:bandShiftB 28s ease-in-out infinite;
+  }
+  .band.whiteA{
+    width:76%;
+    height:34px;
+    left:4%;
+    top:60.3%;
+    transform:rotate(-34deg);
+    background:linear-gradient(90deg, rgba(250,244,236,0) 0%, rgba(250,244,236,.96) 18%, rgba(250,244,236,.96) 82%, rgba(250,244,236,0) 100%);
+    opacity:.72;
+    animation:bandShiftC 26s ease-in-out infinite;
+  }
+
+  #pillarLeft, #pillarRight{
+    position:absolute;
+    top:0; bottom:0;
+    width:12.5%;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.12), rgba(255,255,255,.05) 15%, rgba(0,0,0,.05) 45%, rgba(0,0,0,.18) 100%),
+      linear-gradient(90deg, #120f10 0%, #231a19 16%, #120f10 45%, #0b0b0c 100%);
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.04);
+    z-index:6;
+  }
+  #pillarLeft{left:0}
+  #pillarRight{right:0}
+
+  .totemInset{
+    position:absolute;
+    top:7%;
+    width:74%;
+    left:13%;
+    height:72%;
+    opacity:.88;
+  }
+
+  #lowerMask{
+    position:absolute;
+    left:-3%;
+    right:-3%;
+    bottom:-2%;
+    height:33%;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(24,18,17,.1) 18%, rgba(18,13,13,.9) 78%, rgba(10,8,8,1) 100%);
+    z-index:9;
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:20px;
+    bottom:14px;
+    font-size:18px;
+    letter-spacing:.18em;
+    color:rgba(248,244,236,.55);
+    z-index:20;
+    mix-blend-mode:screen;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:26px;
+    bottom:102px;
+    opacity:.56;
+    filter:sepia(.55) saturate(.4) brightness(.82) contrast(.9);
+    z-index:10;
+    transform:rotate(-8deg);
+  }
+
+  #grainCanvas, #glassCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+  #grainCanvas{z-index:12; opacity:.24; mix-blend-mode:multiply;}
+  #glassCanvas{z-index:8; opacity:1;}
+
+  .fadeEdge{
+    position:absolute; inset:0; pointer-events:none; z-index:30;
+    box-shadow:
+      inset 0 0 160px rgba(0,0,0,.18),
+      inset 0 120px 140px rgba(255,246,226,.08),
+      inset 0 -180px 160px rgba(0,0,0,.2);
+  }
+
+  @keyframes slowZoom{
+    0%,100%{transform:scale(1.08) translateY(0px)}
+    50%{transform:scale(1.14) translateY(-1.2%)}
+  }
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes bandShiftA{
+    0%,100%{transform:rotate(-34deg) translateX(0)}
+    50%{transform:rotate(-34deg) translateX(2.2%)}
+  }
+  @keyframes bandShiftB{
+    0%,100%{transform:rotate(-34deg) translateX(0)}
+    50%{transform:rotate(-34deg) translateX(-2.5%)}
+  }
+  @keyframes bandShiftC{
+    0%,100%{transform:rotate(-34deg) translateX(0)}
+    50%{transform:rotate(-34deg) translateX(1.6%)}
+  }
+
+  svg{display:block}
+</style>
+</head>
+<body>
+<div id="frame">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <div id="paperVeil"></div>
+  <div id="cathedralGlow"></div>
+
+  <svg id="steelRays" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="rayRed" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="rgba(179,24,30,0)"/>
+        <stop offset=".2" stop-color="#b3181e"/>
+        <stop offset=".82" stop-color="#b3181e"/>
+        <stop offset="1" stop-color="rgba(179,24,30,0)"/>
+      </linearGradient>
+      <linearGradient id="rayBlk" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="rgba(15,15,16,0)"/>
+        <stop offset=".2" stop-color="#111"/>
+        <stop offset=".82" stop-color="#111"/>
+        <stop offset="1" stop-color="rgba(15,15,16,0)"/>
+      </linearGradient>
+    </defs>
+    <g transform="translate(540 720)">
+      <g opacity=".7">
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayBlk)"/>
+        <rect x="-14" y="100" width="28" height="660" fill="url(#rayBlk)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayRed)" transform="rotate(22)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayBlk)" transform="rotate(44)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayRed)" transform="rotate(66)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayBlk)" transform="rotate(88)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayRed)" transform="rotate(110)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayBlk)" transform="rotate(132)"/>
+        <rect x="-14" y="-760" width="28" height="660" fill="url(#rayRed)" transform="rotate(154)"/>
+      </g>
+    </g>
+  </svg>
+
+  <div id="constructBands">
+    <div class="band redA"></div>
+    <div class="band blackA"></div>
+    <div class="band whiteA"></div>
+  </div>
+
+  <svg id="roseWrap" viewBox="0 0 1080 1080" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <defs>
+      <radialGradient id="centerGlow" cx="50%" cy="50%" r="55%">
+        <stop offset="0%" stop-color="#fff9f0"/>
+        <stop offset="38%" stop-color="#fff1d8"/>
+        <stop offset="72%" stop-color="#d73a31"/>
+        <stop offset="100%" stop-color="#320609"/>
+      </radialGradient>
+      <radialGradient id="haloSoft" cx="50%" cy="50%" r="65%">
+        <stop offset="0%" stop-color="rgba(255,250,236,.86)"/>
+        <stop offset="48%" stop-color="rgba(255,244,228,.2)"/>
+        <stop offset="100%" stop-color="rgba(255,244,228,0)"/>
+      </radialGradient>
+      <filter id="softblur">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+    </defs>
+    <circle cx="540" cy="540" r="380" fill="url(#haloSoft)" filter="url(#softblur)" opacity=".9"/>
+    <g id="assemblyLayer"></g>
+    <g id="leadLayer"></g>
+    <g id="motifLayer"></g>
+    <circle cx="540" cy="540" r="372" fill="none" stroke="#111" stroke-width="26"/>
+    <circle cx="540" cy="540" r="332" fill="none" stroke="#111" stroke-width="18"/>
+    <circle cx="540" cy="540" r="192" fill="none" stroke="#111" stroke-width="16"/>
+    <circle cx="540" cy="540" r="84" fill="url(#centerGlow)" stroke="#111" stroke-width="14"/>
+  </svg>
+
+  <div id="pillarLeft">
+    <svg class="totemInset" viewBox="0 0 100 400" preserveAspectRatio="none" aria-hidden="true">
+      <rect width="100" height="400" fill="none"/>
+      <ellipse cx="50" cy="62" rx="30" ry="22" fill="#f1e8d5" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="62" rx="10" ry="7" fill="#b3181e"/>
+      <ellipse cx="50" cy="147" rx="34" ry="25" fill="#b3181e" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="34" cy="146" rx="8" ry="10" fill="#f1e8d5"/>
+      <ellipse cx="66" cy="146" rx="8" ry="10" fill="#f1e8d5"/>
+      <rect x="24" y="196" width="52" height="40" rx="18" fill="#f1e8d5" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="292" rx="28" ry="22" fill="#b3181e" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="356" rx="22" ry="16" fill="#f1e8d5" stroke="#0f0f10" stroke-width="8"/>
+    </svg>
+  </div>
+
+  <div id="pillarRight">
+    <svg class="totemInset" viewBox="0 0 100 400" preserveAspectRatio="none" aria-hidden="true">
+      <rect width="100" height="400" fill="none"/>
+      <ellipse cx="50" cy="62" rx="30" ry="22" fill="#b3181e" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="62" rx="10" ry="7" fill="#f1e8d5"/>
+      <ellipse cx="50" cy="147" rx="34" ry="25" fill="#f1e8d5" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="34" cy="146" rx="8" ry="10" fill="#b3181e"/>
+      <ellipse cx="66" cy="146" rx="8" ry="10" fill="#b3181e"/>
+      <rect x="24" y="196" width="52" height="40" rx="18" fill="#b3181e" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="292" rx="28" ry="22" fill="#f1e8d5" stroke="#0f0f10" stroke-width="8"/>
+      <ellipse cx="50" cy="356" rx="22" ry="16" fill="#b3181e" stroke="#0f0f10" stroke-width="8"/>
+    </svg>
+  </div>
+
+  <canvas id="glassCanvas" width="1080" height="1920"></canvas>
+  <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt=""/>
+
+  <div id="lowerMask"></div>
+  <div class="fadeEdge"></div>
+  <div id="date">2026-06-08</div>
+</div>
+
+<script>
+(function(){
+  const seedStr = "2026-06-08";
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = ((seed * 31) + seedStr.charCodeAt(i)) >>> 0;
+  function rnd(){
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  const assemblyLayer = document.getElementById('assemblyLayer');
+  const leadLayer = document.getElementById('leadLayer');
+  const motifLayer = document.getElementById('motifLayer');
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  function el(name, attrs){
+    const n = document.createElementNS(svgNS, name);
+    for(const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  const cx = 540, cy = 540;
+  const assembled = [];
+  const lead = [];
+  const motifs = [];
+
+  function polar(a, r){
+    return [cx + Math.cos(a)*r, cy + Math.sin(a)*r];
+  }
+
+  function wedgePath(a0, a1, r0, r1){
+    const p1 = polar(a0, r0), p2 = polar(a1, r0), p3 = polar(a1, r1), p4 = polar(a0, r1);
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    return `M ${p1[0]} ${p1[1]} A ${r0} ${r0} 0 ${large} 1 ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]} A ${r1} ${r1} 0 ${large} 0 ${p4[0]} ${p4[1]} Z`;
+  }
+
+  const palette = ["#f4ecdc","#b3181e","#111111"];
+  const rings = [
+    {r0:92, r1:188, n:8},
+    {r0:206, r1:326, n:16},
+    {r0:344, r1:372, n:24}
+  ];
+
+  rings.forEach((ring, ri)=>{
+    for(let i=0;i<ring.n;i++){
+      const a0 = -Math.PI/2 + (i/ring.n)*Math.PI*2;
+      const a1 = -Math.PI/2 + ((i+1)/ring.n)*Math.PI*2;
+      const p = el("path", {
+        d:wedgePath(a0+0.02, a1-0.02, ring.r0, ring.r1),
+        fill: palette[(i+ri)%3],
+        stroke:"none",
+        opacity:"0"
+      });
+      p.style.transformOrigin = `${cx}px ${cy}px`;
+      p.style.animation = `paneAssemble 18s ease-in-out infinite`;
+      p.style.animationDelay = `${(i + ri*7) * .18}s`;
+      assemblyLayer.appendChild(p);
+      assembled.push({node:p, delay:(i+ri*7)*180});
+    }
+  });
+
+  const style = document.createElement('style');
+  let css = `@keyframes paneAssemble{
+    0%,12%{opacity:0; transform:translateY(34px) scale(.7) rotate(-10deg)}
+    18%,82%{opacity:1; transform:translateY(0) scale(1) rotate(0deg)}
+    100%{opacity:0; transform:translateY(-18px) scale(1.02) rotate(3deg)}
+  }`;
+  document.head.appendChild(style);
+  style.textContent = css;
+
+  for(let i=0;i<8;i++){
+    const a = -Math.PI/2 + i*Math.PI/4;
+    const g = el("g",{});
+    const [x1,y1] = polar(a,92);
+    const [x2,y2] = polar(a,372);
+    g.appendChild(el("line",{x1,y1,x2,y2,stroke:"#111","stroke-width":"18","stroke-linecap":"round"}));
+    leadLayer.appendChild(g);
+  }
+  for(let i=0;i<16;i++){
+    const a = -Math.PI/2 + i*Math.PI/8;
+    const [x1,y1] = polar(a,206);
+    const [x2,y2] = polar(a,326);
+    leadLayer.appendChild(el("line",{x1,y1,x2,y2,stroke:"#111","stroke-width":"10","stroke-linecap":"round"}));
+  }
+
+  function addOvoid(x,y,rx,ry,fill,inner){
+    motifLayer.appendChild(el("ellipse",{cx:x,cy:y,rx,ry,fill,stroke:"#111","stroke-width":"10"}));
+    motifLayer.appendChild(el("ellipse",{cx:x,cy:y,rx:rx*.32,ry:ry*.32,fill:inner}));
+  }
+
+  for(let i=0;i<8;i++){
+    const a = -Math.PI/2 + i*Math.PI/4 + Math.PI/8;
+    const [x,y] = polar(a,256);
+    addOvoid(x,y,30,46, i%2 ? "#b3181e" : "#f4ecdc", i%2 ? "#f4ecdc" : "#b3181e");
+  }
+
+  function koiBand(group, angle, radius, scale, flip){
+    const [x,y] = polar(angle, radius);
+    const g = el("g", {transform:`translate(${x} ${y}) rotate(${angle*180/Math.PI + (flip?90:-90)}) scale(${scale} ${flip?-scale:scale})`});
+    g.appendChild(el("ellipse",{cx:0, cy:0, rx:44, ry:24, fill:"#f4ecdc", stroke:"#111", "stroke-width":"10"}));
+    g.appendChild(el("ellipse",{cx:-8, cy:0, rx:18, ry:10, fill:"#b3181e"}));
+    g.appendChild(el("circle",{cx:22, cy:-4, r:4, fill:"#111"}));
+    g.appendChild(el("path",{d:"M -44 0 L -74 -22 L -66 0 L -74 22 Z", fill:"#b3181e", stroke:"#111", "stroke-width":"10", "stroke-linejoin":"round"}));
+    g.appendChild(el("path",{d:"M -6 -22 L 10 -46 L 22 -18 Z", fill:"#111", stroke:"#111", "stroke-width":"4"}));
+    g.appendChild(el("path",{d:"M -2 22 L 16 46 L 22 18 Z", fill:"#111", stroke:"#111", "stroke-width":"4"}));
+    group.appendChild(g);
+  }
+
+  const koiGroup = el("g",{opacity:".94"});
+  for(let i=0;i<8;i++){
+    koiBand(koiGroup, i*Math.PI/4, 136, 1, i%2===0);
+  }
+  motifLayer.appendChild(koiGroup);
+
+  const glassCanvas = document.getElementById('glassCanvas');
+  const gctx = glassCanvas.getContext('2d');
+  const grainCanvas = document.getElementById('grainCanvas');
+  const nctx = grainCanvas.getContext('2d');
+
+  function drawGrain(){
+    const w = grainCanvas.width, h = grainCanvas.height;
+    const img = nctx.createImageData(w,h);
+    for(let i=0;i<img.data.length;i+=4){
+      const v = 110 + ((rnd()*145)|0);
+      img.data[i]=v; img.data[i+1]=v-8; img.data[i+2]=v-16; img.data[i+3]=20;
+    }
+    nctx.putImageData(img,0,0);
+  }
+  drawGrain();
+
+  const shards = [];
+  for(let i=0;i<74;i++){
+    const ring = i<18 ? 0 : i<52 ? 1 : 2;
+    const rr = ring===0 ? 150 + rnd()*40 : ring===1 ? 240 + rnd()*90 : 360 + rnd()*130;
+    const a = rnd()*Math.PI*2;
+    const count = 4 + (rnd()*3|0);
+    const pts = [];
+    for(let j=0;j<count;j++){
+      const aa = a + (j/count)*Math.PI*2;
+      const r = 22 + rnd()*34 + ring*10;
+      pts.push([cx + Math.cos(aa)*rr + Math.cos(aa)*r, 720 + (Math.sin(aa)*rr*.68) + Math.sin(aa)*r]);
+    }
+    shards.push({
+      pts,
+      fill: palette[(i + (ring*2)) % 3],
+      alpha: .15 + rnd()*.22,
+      drift: rnd()*Math.PI*2,
+      speed: .0008 + rnd()*.0012
+    });
+  }
+
+  function drawShards(t){
+    gctx.clearRect(0,0,1080,1920);
+    gctx.save();
+    gctx.globalCompositeOperation = "multiply";
+    shards.forEach((s,idx)=>{
+      const off = Math.sin(t*s.speed + s.drift)*10;
+      gctx.beginPath();
+      s.pts.forEach((p,i)=>{
+        const x = p[0] + Math.cos((idx*0.17)+t*0.00018)*off;
+        const y = p[1] + Math.sin((idx*0.21)+t*0.00015)*off*.8;
+        if(i===0) gctx.moveTo(x,y); else gctx.lineTo(x,y);
+      });
+      gctx.closePath();
+      gctx.fillStyle = s.fill;
+      gctx.globalAlpha = s.alpha;
+      gctx.fill();
+    });
+    gctx.restore();
+
+    const beams = 6;
+    for(let i=0;i<beams;i++){
+      const ang = -1.15 + i*0.24 + Math.sin(t*0.00012 + i)*0.05;
+      const len = 980;
+      const spread = 56 + i*10;
+      const x1 = 540 + Math.cos(ang-spread/1000)*40;
+      const y1 = 720 + Math.sin(ang-spread/1000)*40;
+      const x2 = x1 + Math.cos(ang)*len;
+      const y2 = y1 + Math.sin(ang)*len;
+      const grd = gctx.createLinearGradient(x1,y1,x2,y2);
+      grd.addColorStop(0,"rgba(255,248,224,.28)");
+      grd.addColorStop(.22,"rgba(255,232,188,.18)");
+      grd.addColorStop(1,"rgba(255,232,188,0)");
+      gctx.beginPath();
+      gctx.moveTo(540,720);
+      gctx.lineTo(x2 + Math.cos(ang+Math.PI/2)*spread, y2 + Math.sin(ang+Math.PI/2)*spread);
+      gctx.lineTo(x2 + Math.cos(ang-Math.PI/2)*spread, y2 + Math.sin(ang-Math.PI/2)*spread);
+      gctx.closePath();
+      gctx.fillStyle = grd;
+      gctx.fill();
+    }
+  }
+
+  function animate(t){
+    drawShards(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.022;
+      master.connect(ctx.destination);
+
+      const lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 900;
+      lp.Q.value = 0.2;
+      lp.connect(master);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
+      osc1.type = "sawtooth";
+      osc2.type = "triangle";
+      osc3.type = "sine";
+      osc1.frequency.value = 73.42;
+      osc2.frequency.value = 110.0;
+      osc3.frequency.value = 146.84;
+
+      const g1 = ctx.createGain(), g2 = ctx.createGain(), g3 = ctx.createGain();
+      g1.gain.value = .014; g2.gain.value = .01; g3.gain.value = .008;
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(lp); g2.connect(lp); g3.connect(lp);
+
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.027;
+      lfoGain.gain.value = 180;
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      osc1.start(); osc2.start(); osc3.start(); lfo.start();
+
+      setInterval(()=>{
+        const now = ctx.currentTime;
+        const base = [73.42,82.41,98.00,110.0][Math.floor(rnd()*4)];
+        osc1.frequency.linearRampToValueAtTime(base, now + 6);
+        osc2.frequency.linearRampToValueAtTime(base*1.5, now + 7);
+        osc3.frequency.linearRampToValueAtTime(base*2, now + 8);
+      }, 8000);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
