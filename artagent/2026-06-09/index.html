@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-06-09</title>
+<style>
+  :root{
+    --bg:#07110a;
+    --deep:#051008;
+    --acid:#d7ff2a;
+    --lime:#8cff31;
+    --pink:#ff3f92;
+    --orange:#ff7a17;
+    --cyan:#1de6b8;
+    --violet:#7b3cff;
+    --cream:#f4e7c8;
+    --shadow:#0a120d;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 78%, rgba(134,255,61,.10), transparent 30%),
+      radial-gradient(circle at 20% 15%, rgba(255,63,146,.10), transparent 22%),
+      linear-gradient(180deg, #163127 0%, #0b1d13 23%, #081108 50%, #091208 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.6);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:-4%;
+    width:108%;
+    height:108%;
+    object-fit:cover;
+    opacity:.83;
+    filter:saturate(1.25) contrast(1.05) brightness(.95) hue-rotate(-6deg);
+    mix-blend-mode:screen;
+    transform:scale(1.02);
+  }
+
+  .vignette, .top-haze, .mist, .paint-mask, .edge-feather, .poster-layer, .tags, .drips, .stencil-svg, #glowCanvas, #paintCanvas, .date{
+    position:absolute; inset:0;
+  }
+
+  .edge-feather{
+    pointer-events:none;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.18), transparent 8%, transparent 92%, rgba(0,0,0,.18)),
+      linear-gradient(180deg, rgba(0,0,0,.10), transparent 8%, transparent 88%, rgba(0,0,0,.16));
+  }
+
+  .vignette{
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 46%, transparent 0 50%, rgba(0,0,0,.16) 72%, rgba(0,0,0,.34) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.0) 0%, rgba(0,0,0,.05) 45%, rgba(0,0,0,.28) 100%);
+  }
+
+  .top-haze{
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,100,40,.14), rgba(255,100,40,0) 26%),
+      radial-gradient(circle at 50% 0%, rgba(255,181,79,.18), transparent 32%),
+      radial-gradient(circle at 80% 12%, rgba(255,63,146,.12), transparent 18%);
+    mix-blend-mode:screen;
+    animation:hazeDrift 24s ease-in-out infinite;
+  }
+
+  .mist{
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 75%, rgba(170,255,90,.07), transparent 35%),
+      radial-gradient(ellipse at 30% 82%, rgba(255,255,210,.05), transparent 20%),
+      radial-gradient(ellipse at 72% 86%, rgba(29,230,184,.04), transparent 22%);
+    filter:blur(18px);
+    animation:mistShift 18s ease-in-out infinite;
+  }
+
+  .paint-mask{
+    pointer-events:none;
+    opacity:.92;
+    background:
+      radial-gradient(circle at 6% 22%, rgba(255,63,146,.22), transparent 0 7%, rgba(255,63,146,.12) 9%, transparent 14%),
+      radial-gradient(circle at 90% 28%, rgba(29,230,184,.15), transparent 0 8%, rgba(29,230,184,.08) 11%, transparent 17%),
+      radial-gradient(circle at 14% 88%, rgba(255,122,23,.13), transparent 0 10%, rgba(255,122,23,.08) 14%, transparent 18%),
+      radial-gradient(circle at 86% 86%, rgba(215,255,42,.12), transparent 0 10%, rgba(215,255,42,.06) 14%, transparent 18%);
+    filter:blur(4px) saturate(1.4);
+    mix-blend-mode:screen;
+  }
+
+  .poster-layer{
+    pointer-events:none;
+  }
+  .poster{
+    position:absolute;
+    background:
+      linear-gradient(180deg, rgba(250,235,207,.9), rgba(225,210,182,.85));
+    border-radius:2px;
+    box-shadow:
+      0 2px 0 rgba(255,255,255,.06) inset,
+      0 10px 22px rgba(0,0,0,.18);
+    opacity:.18;
+    mix-blend-mode:screen;
+    transform-origin:center;
+  }
+  .poster::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, transparent 0 4%, rgba(0,0,0,.12) 5%, transparent 6% 94%, rgba(0,0,0,.12) 95%, transparent),
+      repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, rgba(255,255,255,.02) 2px 6px);
+    opacity:.35;
+  }
+
+  .poster.p1{left:7%; top:8%; width:26%; height:20%; transform:rotate(-10deg); animation:paperBreath 17s ease-in-out infinite;}
+  .poster.p2{right:5%; top:18%; width:24%; height:18%; transform:rotate(8deg); animation:paperBreath 19s ease-in-out infinite reverse;}
+  .poster.p3{left:11%; bottom:18%; width:19%; height:16%; transform:rotate(6deg); animation:paperBreath 21s ease-in-out infinite;}
+  .poster.p4{right:10%; bottom:12%; width:22%; height:19%; transform:rotate(-7deg); animation:paperBreath 18s ease-in-out infinite reverse;}
+
+  .tags{
+    pointer-events:none;
+    mix-blend-mode:screen;
+    opacity:.85;
+    filter:blur(.2px);
+  }
+  .tag{
+    position:absolute;
+    color:rgba(255,245,220,.26);
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    transform-origin:center;
+    white-space:nowrap;
+    text-shadow:0 0 8px rgba(255,255,255,.03);
+  }
+  .tag.t1{left:5%; top:6%; font-size:40px; transform:rotate(-11deg) scaleX(1.2); color:rgba(255,63,146,.22)}
+  .tag.t2{right:7%; top:10%; font-size:28px; transform:rotate(9deg) scaleX(1.3); color:rgba(29,230,184,.22)}
+  .tag.t3{left:8%; bottom:26%; font-size:34px; transform:rotate(7deg); color:rgba(255,122,23,.22)}
+  .tag.t4{right:14%; bottom:8%; font-size:26px; transform:rotate(-8deg); color:rgba(215,255,42,.20)}
+  .tag.t5{left:28%; top:31%; font-size:18px; transform:rotate(-13deg); color:rgba(255,255,255,.14)}
+
+  .drips{
+    pointer-events:none;
+    opacity:.65;
+    mix-blend-mode:screen;
+  }
+  .drip{
+    position:absolute;
+    width:8px;
+    border-radius:0 0 10px 10px;
+    transform-origin:top center;
+    filter:blur(.2px);
+  }
+  .drip::before{
+    content:"";
+    position:absolute;
+    top:-8px; left:50%;
+    width:14px; height:14px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:inherit;
+  }
+  .drip::after{
+    content:"";
+    position:absolute;
+    bottom:-8px; left:50%;
+    width:10px; height:16px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:inherit;
+  }
+
+  .d1{left:12%; top:10%; height:118px; background:linear-gradient(180deg, rgba(255,63,146,.55), rgba(255,63,146,.06)); animation:drip 14s ease-in-out infinite;}
+  .d2{left:16.5%; top:13%; height:92px; background:linear-gradient(180deg, rgba(255,122,23,.55), rgba(255,122,23,.06)); animation:drip 16s ease-in-out infinite reverse;}
+  .d3{right:18%; top:18%; height:140px; background:linear-gradient(180deg, rgba(29,230,184,.48), rgba(29,230,184,.05)); animation:drip 18s ease-in-out infinite;}
+  .d4{right:13%; top:19.5%; height:76px; background:linear-gradient(180deg, rgba(215,255,42,.52), rgba(215,255,42,.06)); animation:drip 15s ease-in-out infinite reverse;}
+  .d5{left:19%; bottom:27%; height:98px; background:linear-gradient(180deg, rgba(250,235,207,.35), rgba(250,235,207,.02)); animation:drip 17s ease-in-out infinite;}
+  .d6{right:15%; bottom:15%; height:84px; background:linear-gradient(180deg, rgba(255,63,146,.38), rgba(255,63,146,.03)); animation:drip 19s ease-in-out infinite reverse;}
+
+  .stencil-svg{
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  #glowCanvas, #paintCanvas{
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    right:14px;
+    bottom:108px;
+    opacity:.58;
+    z-index:12;
+    filter:saturate(.8) brightness(.86) hue-rotate(44deg) drop-shadow(0 0 3px rgba(180,255,120,.18));
+    transform:rotate(-7deg);
+  }
+
+  .date{
+    inset:auto 18px 14px auto;
+    color:rgba(245,235,220,.42);
+    font-size:12px;
+    letter-spacing:.18em;
+    z-index:20;
+    pointer-events:none;
+    text-transform:none;
+  }
+
+  @keyframes hazeDrift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(1.2%) scale(1.02)}
+  }
+  @keyframes mistShift{
+    0%,100%{transform:translateX(0) translateY(0)}
+    50%{transform:translateX(-1.1%) translateY(1.1%)}
+  }
+  @keyframes paperBreath{
+    0%,100%{transform:translateY(0) rotate(var(--r,0deg)) scale(1)}
+    50%{transform:translateY(-4px) rotate(calc(var(--r,0deg) + 1.2deg)) scale(1.012)}
+  }
+  @keyframes drip{
+    0%,100%{transform:scaleY(1)}
+    50%{transform:scaleY(1.08)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <div class="poster-layer">
+      <div class="poster p1" style="--r:-10deg"></div>
+      <div class="poster p2" style="--r:8deg"></div>
+      <div class="poster p3" style="--r:6deg"></div>
+      <div class="poster p4" style="--r:-7deg"></div>
+    </div>
+
+    <div class="tags" aria-hidden="true">
+      <div class="tag t1">DUSK</div>
+      <div class="tag t2">YARD</div>
+      <div class="tag t3">GLOW</div>
+      <div class="tag t4">FIELD</div>
+      <div class="tag t5">NITE</div>
+    </div>
+
+    <svg class="stencil-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="rayGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f6edcf" stop-opacity=".72"/>
+          <stop offset="45%" stop-color="#a5ff41" stop-opacity=".4"/>
+          <stop offset="100%" stop-color="#ff3f92" stop-opacity=".14"/>
+        </linearGradient>
+        <linearGradient id="rayDark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#09110b" stop-opacity=".0"/>
+          <stop offset="100%" stop-color="#040905" stop-opacity=".92"/>
+        </linearGradient>
+        <filter id="spray">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="609"/>
+          <feColorMatrix values="1 0 0 0 0
+                                 0 1 0 0 0
+                                 0 0 1 0 0
+                                 0 0 0 9 -3"/>
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+        <filter id="soft">
+          <feGaussianBlur stdDeviation="8"/>
+        </filter>
+        <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#dfff65" stop-opacity=".55"/>
+          <stop offset="45%" stop-color="#ff7a17" stop-opacity=".22"/>
+          <stop offset="100%" stop-color="#ff7a17" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <g opacity=".82">
+        <ellipse cx="540" cy="1480" rx="420" ry="240" fill="url(#halo)" filter="url(#soft)"/>
+      </g>
+
+      <g opacity=".45">
+        <path d="M0 1500 C180 1410 340 1360 540 1355 C730 1353 910 1400 1080 1485 L1080 1920 L0 1920 Z" fill="#0d1f10"/>
+        <path d="M0 1575 C220 1495 380 1460 540 1458 C750 1455 920 1515 1080 1600 L1080 1920 L0 1920 Z" fill="#143119"/>
+        <path d="M0 1660 C150 1600 360 1575 540 1580 C760 1586 930 1632 1080 1695 L1080 1920 L0 1920 Z" fill="#08110a"/>
+      </g>
+
+      <g opacity=".9">
+        <g transform="translate(540 1030)">
+          <ellipse cx="0" cy="0" rx="190" ry="52" fill="#0a130d" opacity=".86"/>
+          <path d="M-210 18 C-128 -92 128 -92 210 18 C112 54 -111 61 -210 18 Z" fill="url(#rayGrad)" opacity=".86"/>
+          <path d="M-160 12 C-86 -38 86 -38 160 12 C88 32 -87 36 -160 12 Z" fill="#06110a" opacity=".62"/>
+          <path d="M-30 20 C-10 105 8 196 0 287 C-11 197 12 105 30 20 Z" fill="url(#rayGrad)" opacity=".68"/>
+          <path d="M-23 17 C-5 81 5 161 0 235 C-6 160 7 82 23 17 Z" fill="#09110b" opacity=".46"/>
+          <ellipse cx="0" cy="0" rx="205" ry="62" fill="none" stroke="#f4e7c8" stroke-opacity=".18" stroke-width="18" filter="url(#spray)"/>
+          <ellipse cx="0" cy="0" rx="217" ry="73" fill="none" stroke="#ff3f92" stroke-opacity=".14" stroke-width="26" filter="url(#soft)"/>
+        </g>
+      </g>
+
+      <g opacity=".24" filter="url(#spray)">
+        <rect x="100" y="1430" width="14" height="280" fill="#f4e7c8"/>
+        <rect x="178" y="1378" width="10" height="310" fill="#ff7a17"/>
+        <rect x="892" y="1420" width="11" height="300" fill="#1de6b8"/>
+        <rect x="957" y="1386" width="13" height="322" fill="#d7ff2a"/>
+        <rect x="282" y="1460" width="7" height="210" fill="#ff3f92"/>
+        <rect x="788" y="1488" width="8" height="190" fill="#f4e7c8"/>
+      </g>
+
+      <g opacity=".26">
+        <circle cx="540" cy="1010" r="330" fill="none" stroke="#ff7a17" stroke-width="44" stroke-linecap="round" stroke-dasharray="6 26" filter="url(#spray)"/>
+        <circle cx="540" cy="1010" r="390" fill="none" stroke="#ff3f92" stroke-width="30" stroke-linecap="round" stroke-dasharray="4 34" filter="url(#soft)"/>
+      </g>
+
+      <rect x="0" y="0" width="1080" height="1920" fill="url(#rayDark)" opacity=".16"/>
+    </svg>
+
+    <canvas id="paintCanvas" width="1080" height="1920"></canvas>
+    <canvas id="glowCanvas" width="1080" height="1920"></canvas>
+
+    <div class="drips" aria-hidden="true">
+      <div class="drip d1"></div>
+      <div class="drip d2"></div>
+      <div class="drip d3"></div>
+      <div class="drip d4"></div>
+      <div class="drip d5"></div>
+      <div class="drip d6"></div>
+    </div>
+
+    <div class="paint-mask"></div>
+    <div class="top-haze"></div>
+    <div class="mist"></div>
+    <div class="edge-feather"></div>
+    <div class="vignette"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div class="date">2026-06-09</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-09";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(hashString(seedStr));
+
+  const paintCanvas = document.getElementById('paintCanvas');
+  const pctx = paintCanvas.getContext('2d');
+  const glowCanvas = document.getElementById('glowCanvas');
+  const gctx = glowCanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+
+  function drawPaintTexture(){
+    pctx.clearRect(0,0,W,H);
+
+    const grad = pctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(18,51,34,.18)');
+    grad.addColorStop(.35,'rgba(7,17,9,0)');
+    grad.addColorStop(1,'rgba(9,22,10,.22)');
+    pctx.fillStyle = grad;
+    pctx.fillRect(0,0,W,H);
+
+    const colors = [
+      'rgba(255,63,146,0.08)',
+      'rgba(255,122,23,0.08)',
+      'rgba(29,230,184,0.07)',
+      'rgba(215,255,42,0.06)',
+      'rgba(244,231,200,0.04)'
+    ];
+
+    for(let i=0;i<90;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const r = 20 + rand()*90;
+      pctx.beginPath();
+      pctx.fillStyle = colors[(rand()*colors.length)|0];
+      pctx.arc(x,y,r,0,Math.PI*2);
+      pctx.fill();
+    }
+
+    pctx.globalCompositeOperation = 'overlay';
+    for(let i=0;i<42;i++){
+      const x = rand()*W;
+      const y = 90 + rand()*(H-140);
+      const w = 60 + rand()*220;
+      const h = 16 + rand()*44;
+      pctx.save();
+      pctx.translate(x,y);
+      pctx.rotate((rand()-.5)*0.30);
+      const g = pctx.createLinearGradient(-w/2,0,w/2,0);
+      g.addColorStop(0,'rgba(255,255,255,0)');
+      g.addColorStop(.5,`rgba(${180+rand()*75},${90+rand()*120|0},${40+rand()*180|0},${0.10+rand()*0.08})`);
+      g.addColorStop(1,'rgba(255,255,255,0)');
+      pctx.fillStyle = g;
+      pctx.fillRect(-w/2,-h/2,w,h);
+      pctx.restore();
+    }
+    pctx.globalCompositeOperation = 'source-over';
+
+    pctx.save();
+    pctx.globalAlpha = .14;
+    pctx.fillStyle = 'rgba(0,0,0,1)';
+    for(let i=0;i<1200;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const s = rand()*2 + .5;
+      pctx.fillRect(x,y,s,s);
+    }
+    pctx.restore();
+
+    pctx.save();
+    pctx.globalAlpha = .20;
+    pctx.strokeStyle = 'rgba(255,246,220,.12)';
+    pctx.lineWidth = 2;
+    for(let i=0;i<24;i++){
+      const y = 1400 + rand()*320;
+      pctx.beginPath();
+      pctx.moveTo(-20,y);
+      pctx.lineTo(W+20,y + (rand()-.5)*40);
+      pctx.stroke();
+    }
+    pctx.restore();
+  }
+
+  const lights = [];
+  for(let i=0;i<78;i++){
+    const band = i < 54 ? 0 : 1;
+    const x = 60 + rand()*960;
+    const y = band === 0 ? (1180 + rand()*560) : (860 + rand()*660);
+    const base = band === 0 ? 1 : 0.7;
+    lights.push({
+      x, y,
+      ox:x,
+      oy:y,
+      size:(band===0 ? 2.2 : 1.5) + rand()*4.3,
+      hue:[58, 72, 33, 168, 328][(rand()*5)|0],
+      speed:0.12 + rand()*0.4,
+      phase:rand()*Math.PI*2,
+      amp:5 + rand()*18,
+      ampY:3 + rand()*14,
+      base,
+      flickA:0.35 + rand()*0.5,
+      flickB:0.15 + rand()*0.3,
+      driftDir:(rand()-.5)*0.9
+    });
+  }
+
+  function glowColor(h, a){
+    if(h === 328) return `hsla(328,100%,66%,${a})`;
+    if(h === 168) return `hsla(168,90%,58%,${a})`;
+    if(h === 33) return `hsla(33,100%,58%,${a})`;
+    if(h === 72) return `hsla(72,100%,62%,${a})`;
+    return `hsla(58,100%,78%,${a})`;
+  }
+
+  function drawScene(t){
+    gctx.clearRect(0,0,W,H);
+
+    const time = t * 0.001;
+
+    const sky = gctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,'rgba(255,84,30,0.06)');
+    sky.addColorStop(.22,'rgba(255,63,146,0.04)');
+    sky.addColorStop(.5,'rgba(0,0,0,0)');
+    sky.addColorStop(1,'rgba(0,0,0,0.08)');
+    gctx.fillStyle = sky;
+    gctx.fillRect(0,0,W,H);
+
+    for(const l of lights){
+      const swayX = Math.sin(time*l.speed + l.phase) * l.amp + Math.sin(time*0.17 + l.phase*1.7)*l.driftDir*8;
+      const swayY = Math.cos(time*(l.speed*0.8) + l.phase*0.8) * l.ampY;
+      l.x = l.ox + swayX;
+      l.y = l.oy + swayY;
+
+      const pulse = 0.52
+        + Math.sin(time*(0.55 + l.speed) + l.phase)*l.flickA
+        + Math.sin(time*(1.1 + l.speed*1.6) + l.phase*2.2)*l.flickB;
+
+      const alpha = Math.max(0.04, Math.min(0.95, pulse * l.base));
+      const r = l.size * (0.8 + alpha*0.7);
+
+      gctx.save();
+      gctx.globalCompositeOperation = 'screen';
+
+      const halo = gctx.createRadialGradient(l.x,l.y,0,l.x,l.y,r*8);
+      halo.addColorStop(0, glowColor(l.hue, alpha*0.95));
+      halo.addColorStop(.18, glowColor(l.hue, alpha*0.36));
+      halo.addColorStop(.5, glowColor(l.hue, alpha*0.12));
+      halo.addColorStop(1, glowColor(l.hue, 0));
+      gctx.fillStyle = halo;
+      gctx.beginPath();
+      gctx.arc(l.x,l.y,r*8,0,Math.PI*2);
+      gctx.fill();
+
+      gctx.fillStyle = glowColor(l.hue, Math.min(.95, alpha+.2));
+      gctx.beginPath();
+      gctx.arc(l.x,l.y,r,0,Math.PI*2);
+      gctx.fill();
+
+      if(alpha > .62){
+        gctx.strokeStyle = glowColor(l.hue, alpha*0.20);
+        gctx.lineWidth = r*0.8;
+        gctx.beginPath();
+        gctx.arc(l.x,l.y,r*1.8,0,Math.PI*2);
+        gctx.stroke();
+      }
+
+      gctx.restore();
+    }
+
+    gctx.save();
+    gctx.globalCompositeOperation = 'multiply';
+    const field = gctx.createLinearGradient(0,1280,0,H);
+    field.addColorStop(0,'rgba(0,0,0,0)');
+    field.addColorStop(1,'rgba(4,12,6,0.28)');
+    gctx.fillStyle = field;
+    gctx.fillRect(0,1280,W,H-1280);
+    gctx.restore();
+
+    const can = document.getElementById('frame');
+    can.style.transform = 'translateZ(0)';
+    requestAnimationFrame(drawScene);
+  }
+
+  drawPaintTexture();
+  requestAnimationFrame(drawScene);
+
+  if (window.self === window.top) {
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 120;
+      hp.Q.value = 0.4;
+      hp.connect(master);
+
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1600;
+      lp.Q.value = 0.3;
+      lp.connect(hp);
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      let nr = mulberry32(hashString(seedStr + '-audio'));
+      for(let i=0;i<data.length;i++) data[i] = (nr()*2-1) * 0.5;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.014;
+      noise.connect(noiseGain).connect(lp);
+      noise.start();
+
+      const drone1 = ctx.createOscillator();
+      drone1.type = 'triangle';
+      drone1.frequency.value = 73.42;
+      const d1g = ctx.createGain();
+      d1g.gain.value = 0.010;
+      drone1.connect(d1g).connect(lp);
+      drone1.start();
+
+      const drone2 = ctx.createOscillator();
+      drone2.type = 'sine';
+      drone2.frequency.value = 110.0;
+      const d2g = ctx.createGain();
+      d2g.gain.value = 0.006;
+      drone2.connect(d2g).connect(lp);
+      drone2.start();
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.028;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 220;
+      lfo.connect(lfoGain).connect(lp.frequency);
+      lfo.start();
+
+      function firePulse(delay, freq, gainAmt){
+        const now = ctx.currentTime + delay;
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = freq;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(gainAmt, now + 0.06);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 1.2 + nr()*1.5);
+        o.connect(g).connect(lp);
+        o.start(now);
+        o.stop(now + 2.8);
+      }
+
+      function schedulePulses(){
+        const base = 3.6;
+        for(let i=0;i<8;i++){
+          firePulse(i*(base/8) + nr()*0.35, 550 + nr()*900, 0.003 + nr()*0.004);
+        }
+        setTimeout(schedulePulses, base*1000);
+      }
+
+      const resume = () => {
+        if(ctx.state !== 'running') ctx.resume();
+      };
+      resume();
+      document.addEventListener('visibilitychange', resume);
+      schedulePulses();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
