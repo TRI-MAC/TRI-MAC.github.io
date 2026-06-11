@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Artwork</title>
+<style>
+  :root{
+    --bg:#050506;
+    --gold1:#f0d88a;
+    --gold2:#cda34b;
+    --gold3:#8f6a28;
+    --ruby:#7f1632;
+    --lapis:#274b78;
+    --emerald:#1f5f4e;
+    --stone:#6e6054;
+    --bone:#d3c0a0;
+    --char:#121214;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:system-ui, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    height:min(100vh, calc(100vw * 16 / 9));
+    aspect-ratio:9/16;
+    background:
+      radial-gradient(circle at 50% 28%, rgba(34,27,14,.22), rgba(0,0,0,0) 20%),
+      radial-gradient(circle at 50% 50%, rgba(18,18,20,.8), #020202 58%, #000 100%);
+    overflow:hidden;
+  }
+
+  /* Vast dark emptiness */
+  #void{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(38,31,18,.16), rgba(0,0,0,0) 18%),
+      radial-gradient(circle at 50% 50%, rgba(18,14,8,.12), rgba(0,0,0,0) 30%),
+      linear-gradient(180deg, #070707 0%, #040404 55%, #000 100%);
+  }
+
+  #vignette{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 42%, rgba(0,0,0,.22) 60%, rgba(0,0,0,.62) 84%, rgba(0,0,0,.88) 100%);
+    pointer-events:none;
+  }
+
+  /* Tiny central object */
+  #relic{
+    position:absolute;
+    left:50%;
+    top:49%;
+    width:23.2%;
+    height:15.5%;
+    transform:translate(-50%,-50%);
+    filter: drop-shadow(0 20px 38px rgba(0,0,0,.7))
+            drop-shadow(0 0 30px rgba(178,128,30,.16));
+    animation: relicFloat 22s ease-in-out infinite;
+  }
+
+  #aura{
+    position:absolute;
+    inset:-26%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle, rgba(227,186,83,.22) 0%, rgba(193,139,42,.15) 18%, rgba(110,62,14,.06) 36%, rgba(0,0,0,0) 63%);
+    filter:blur(10px);
+    opacity:.9;
+    animation: auraPulse 18s ease-in-out infinite;
+    mask-image: radial-gradient(circle, black 0 55%, transparent 82%);
+    -webkit-mask-image: radial-gradient(circle, black 0 55%, transparent 82%);
+  }
+
+  #halo-svg{
+    position:absolute;
+    inset:-20%;
+    overflow:visible;
+    opacity:.92;
+    filter: drop-shadow(0 0 10px rgba(219,174,65,.25));
+    animation: haloTurn 36s linear infinite;
+    mask-image: radial-gradient(circle, black 0 58%, transparent 84%);
+    -webkit-mask-image: radial-gradient(circle, black 0 58%, transparent 84%);
+  }
+
+  #mosaic{
+    position:absolute;
+    inset:0;
+    border-radius:1.5%/2.2%;
+    overflow:hidden;
+    transform:perspective(900px) rotateX(9deg) rotateY(-7deg) rotateZ(-3deg);
+    animation: shardShift 20s ease-in-out infinite;
+    background:
+      linear-gradient(135deg, rgba(248,223,153,.12), rgba(103,74,24,.06)),
+      linear-gradient(0deg, rgba(0,0,0,.18), rgba(0,0,0,.18));
+    box-shadow:
+      inset 0 0 0 1px rgba(255,224,154,.3),
+      inset 0 0 28px rgba(255,220,120,.18),
+      0 0 0 1px rgba(0,0,0,.25);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.8;
+    filter:saturate(1.05) contrast(1.08) brightness(.92) sepia(.28) hue-rotate(-8deg);
+    mix-blend-mode:screen;
+  }
+
+  #glass{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(160deg,
+        rgba(255,227,161,.17) 0 12%,
+        rgba(121,30,56,.08) 12% 25%,
+        rgba(34,69,113,.12) 25% 39%,
+        rgba(201,165,74,.18) 39% 54%,
+        rgba(24,86,71,.1) 54% 68%,
+        rgba(96,56,28,.14) 68% 82%,
+        rgba(232,210,155,.12) 82% 100%);
+    mix-blend-mode:overlay;
+  }
+
+  #facets{
+    position:absolute; inset:0;
+  }
+
+  .facet{
+    position:absolute;
+    background:linear-gradient(145deg, rgba(255,223,141,.16), rgba(80,44,18,.04));
+    border:1px solid rgba(255,214,132,.14);
+    mix-blend-mode:screen;
+    backdrop-filter: blur(.6px);
+  }
+
+  #icon-svg{
+    position:absolute;
+    inset:8% 14% 12% 14%;
+    overflow:visible;
+    opacity:.98;
+    filter:drop-shadow(0 0 8px rgba(230,182,77,.12));
+  }
+
+  #front-shards{
+    position:absolute;
+    inset:-6%;
+    pointer-events:none;
+    animation: frontTilt 24s ease-in-out infinite;
+  }
+
+  .fshard{
+    position:absolute;
+    background:linear-gradient(180deg, rgba(248,224,171,.34), rgba(141,97,35,.08));
+    mix-blend-mode:screen;
+    opacity:.5;
+    filter:blur(.2px);
+  }
+
+  /* distant architectural silence */
+  #horizon{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:21%;
+    opacity:.3;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.7)),
+      linear-gradient(90deg,
+        transparent 0 8%, rgba(72,61,40,.35) 8% 9%, transparent 9% 15%,
+        rgba(61,48,28,.26) 15% 17%, transparent 17% 23%,
+        rgba(79,67,42,.28) 23% 24.4%, transparent 24.4% 38%,
+        rgba(71,57,35,.24) 38% 41%, transparent 41% 57%,
+        rgba(74,60,36,.22) 57% 58.3%, transparent 58.3% 73%,
+        rgba(71,56,33,.26) 73% 75%, transparent 75% 87%,
+        rgba(69,55,35,.2) 87% 88.4%, transparent 88.4% 100%);
+    mask-image: linear-gradient(180deg, transparent, black 48%, black 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent, black 48%, black 100%);
+  }
+
+  #dust{
+    position:absolute; inset:0;
+    opacity:.17;
+    mix-blend-mode:screen;
+  }
+
+  #date{
+    position:absolute;
+    right:24px;
+    bottom:18px;
+    color:rgba(234,214,173,.48);
+    font-size:12px;
+    letter-spacing:.18em;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:17px;
+    bottom:104px;
+    opacity:.56;
+    filter: sepia(.6) saturate(.6) brightness(.75) contrast(1.05);
+    transform:rotate(-6deg);
+  }
+
+  @keyframes relicFloat{
+    0%,100%{ transform:translate(-50%,-50%) scale(1) rotate(-0.4deg); }
+    50%{ transform:translate(-50%,-51.2%) scale(1.015) rotate(0.5deg); }
+  }
+  @keyframes auraPulse{
+    0%,100%{ transform:scale(1); opacity:.82; }
+    50%{ transform:scale(1.06); opacity:1; }
+  }
+  @keyframes haloTurn{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+  @keyframes shardShift{
+    0%,100%{ transform:perspective(900px) rotateX(9deg) rotateY(-7deg) rotateZ(-3deg) scale(1); }
+    50%{ transform:perspective(900px) rotateX(7deg) rotateY(-4deg) rotateZ(-1deg) scale(1.012); }
+  }
+  @keyframes frontTilt{
+    0%,100%{ transform:rotate(-2deg) translateY(0); }
+    50%{ transform:rotate(2deg) translateY(-1.2%); }
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="void"></div>
+  <canvas id="dust"></canvas>
+  <div id="horizon"></div>
+
+  <div id="relic">
+    <div id="aura"></div>
+
+    <svg id="halo-svg" viewBox="0 0 1000 1000" aria-hidden="true">
+      <defs>
+        <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffe39a" stop-opacity="0.0"/>
+          <stop offset="55%" stop-color="#e3b653" stop-opacity="0.0"/>
+          <stop offset="75%" stop-color="#e0b75d" stop-opacity="0.75"/>
+          <stop offset="84%" stop-color="#8b6325" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffecb2"/>
+          <stop offset="40%" stop-color="#d9aa49"/>
+          <stop offset="70%" stop-color="#8b6428"/>
+          <stop offset="100%" stop-color="#f1d98a"/>
+        </linearGradient>
+      </defs>
+      <circle cx="500" cy="500" r="278" fill="none" stroke="url(#ringGold)" stroke-width="24" opacity=".9"/>
+      <circle cx="500" cy="500" r="316" fill="none" stroke="url(#ringGold)" stroke-width="6" opacity=".45"/>
+      <g opacity=".72">
+        <polygon points="500,128 524,196 500,228 476,196" fill="#f0d88a"/>
+        <polygon points="500,872 524,804 500,772 476,804" fill="#f0d88a"/>
+        <polygon points="128,500 196,476 228,500 196,524" fill="#f0d88a"/>
+        <polygon points="872,500 804,476 772,500 804,524" fill="#f0d88a"/>
+        <polygon points="239,239 290,263 263,290 214,266" fill="#cda34b"/>
+        <polygon points="761,239 734,290 710,263 737,214" fill="#cda34b"/>
+        <polygon points="239,761 266,737 290,710 263,734" fill="#cda34b"/>
+        <polygon points="761,761 734,710 710,737 737,786" fill="#cda34b"/>
+      </g>
+      <circle cx="500" cy="500" r="350" fill="url(#goldGlow)" opacity=".42"/>
+    </svg>
+
+    <div id="mosaic">
+      <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+      <div id="glass"></div>
+      <canvas id="facet-canvas"></canvas>
+
+      <svg id="icon-svg" viewBox="0 0 100 140" aria-hidden="true">
+        <defs>
+          <linearGradient id="robe" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6f1730"/>
+            <stop offset="48%" stop-color="#274b78"/>
+            <stop offset="100%" stop-color="#d0a24d"/>
+          </linearGradient>
+          <linearGradient id="goldleaf" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fff0bb"/>
+            <stop offset="35%" stop-color="#dcae4f"/>
+            <stop offset="70%" stop-color="#8c6427"/>
+            <stop offset="100%" stop-color="#f2d889"/>
+          </linearGradient>
+        </defs>
+
+        <!-- cubist/byzantine cat icon -->
+        <circle cx="50" cy="34" r="18" fill="url(#goldleaf)" opacity=".92"/>
+        <polygon points="38,19 44,7 50,19 46,25" fill="#f0d88a"/>
+        <polygon points="50,19 56,7 62,19 54,25" fill="#cda34b"/>
+
+        <polygon points="34,28 49,20 60,27 59,41 44,47 33,41" fill="#d3c0a0" stroke="#4b3923" stroke-width=".6"/>
+        <polygon points="49,20 66,23 68,38 59,41 60,27" fill="#9d7a54" stroke="#4b3923" stroke-width=".6"/>
+        <polygon points="33,41 44,47 43,59 31,52" fill="#7f1632" stroke="#4b3923" stroke-width=".6"/>
+        <polygon points="44,47 59,41 61,56 43,59" fill="#274b78" stroke="#4b3923" stroke-width=".6"/>
+        <polygon points="59,41 68,38 71,52 61,56" fill="#1f5f4e" stroke="#4b3923" stroke-width=".6"/>
+
+        <polygon points="42,34 47,32 48,37 43,39" fill="#121214"/>
+        <polygon points="54,31 60,30 60,36 55,37" fill="#121214"/>
+        <polygon points="48,42 53,42 50,47" fill="#8f6a28"/>
+
+        <polygon points="38,63 62,63 71,110 29,110" fill="url(#robe)" stroke="#4b3923" stroke-width=".8"/>
+        <polygon points="29,110 49,131 71,110 50,100" fill="#6e6054" opacity=".9"/>
+        <polygon points="45,63 56,63 58,103 43,102" fill="#f0d88a" opacity=".82"/>
+
+        <polygon points="24,72 37,66 39,76 28,84" fill="#d3c0a0" opacity=".82"/>
+        <polygon points="63,67 76,73 71,85 60,78" fill="#d3c0a0" opacity=".82"/>
+
+        <polygon points="20,114 50,103 82,114 50,123" fill="url(#goldleaf)" opacity=".86"/>
+        <polygon points="50,18 69,38 50,58 30,38" fill="none" stroke="#f0d88a" stroke-width="1.2" opacity=".55"/>
+      </svg>
+
+      <div id="facets">
+        <div class="facet" style="left:4%;top:6%;width:32%;height:18%;clip-path:polygon(0 0,100% 10%,72% 100%,8% 84%);"></div>
+        <div class="facet" style="right:6%;top:8%;width:28%;height:22%;clip-path:polygon(10% 0,100% 0,88% 100%,0 72%);"></div>
+        <div class="facet" style="left:8%;bottom:10%;width:34%;height:22%;clip-path:polygon(0 14%,84% 0,100% 78%,12% 100%);"></div>
+        <div class="facet" style="right:10%;bottom:14%;width:26%;height:19%;clip-path:polygon(18% 0,100% 22%,84% 100%,0 76%);"></div>
+        <div class="facet" style="left:36%;top:0;width:28%;height:20%;clip-path:polygon(4% 0,96% 0,100% 62%,12% 100%);"></div>
+      </div>
+
+      <div id="front-shards">
+        <div class="fshard" style="left:14%;top:16%;width:14%;height:40%;clip-path:polygon(0 0,100% 8%,72% 100%,12% 86%);"></div>
+        <div class="fshard" style="right:16%;top:24%;width:11%;height:34%;clip-path:polygon(20% 0,100% 0,78% 100%,0 88%);"></div>
+        <div class="fshard" style="left:41%;bottom:6%;width:18%;height:16%;clip-path:polygon(0 38%,100% 0,86% 100%,16% 94%);"></div>
+      </div>
+    </div>
+  </div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="vignette"></div>
+  <div id="date">2026-06-11</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-11";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const dust = document.getElementById('dust');
+  const dctx = dust.getContext('2d');
+  const facetCanvas = document.getElementById('facet-canvas');
+  const fctx = facetCanvas.getContext('2d');
+
+  function resize(){
+    const r = dust.getBoundingClientRect();
+    dust.width = r.width * devicePixelRatio;
+    dust.height = r.height * devicePixelRatio;
+    dctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+
+    const fr = facetCanvas.getBoundingClientRect();
+    facetCanvas.width = fr.width * devicePixelRatio;
+    facetCanvas.height = fr.height * devicePixelRatio;
+    fctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  const motes = [];
+  for(let i=0;i<90;i++){
+    motes.push({
+      x:rnd(), y:rnd(), s:0.3+rnd()*1.6,
+      a:0.03+rnd()*0.1, p:rnd()*Math.PI*2
+    });
+  }
+
+  const shards = [];
+  for(let i=0;i<26;i++){
+    const cx = 20 + rnd()*60;
+    const cy = 18 + rnd()*64;
+    const w = 10 + rnd()*24;
+    const h = 8 + rnd()*20;
+    shards.push({
+      pts:[
+        [cx-w*0.4, cy-h*0.45],
+        [cx+w*0.46, cy-h*0.3],
+        [cx+w*0.22, cy+h*0.5],
+        [cx-w*0.5, cy+h*0.28]
+      ],
+      col:[
+        ["rgba(240,216,138,0.28)","rgba(143,106,40,0.04)"],
+        ["rgba(127,22,50,0.16)","rgba(0,0,0,0.02)"],
+        ["rgba(39,75,120,0.18)","rgba(0,0,0,0.02)"],
+        ["rgba(211,192,160,0.18)","rgba(0,0,0,0.02)"],
+        ["rgba(31,95,78,0.14)","rgba(0,0,0,0.02)"]
+      ][Math.floor(rnd()*5)],
+      drift:rnd()*Math.PI*2
+    });
+  }
+
+  function drawDust(t){
+    const w = dust.clientWidth, h = dust.clientHeight;
+    dctx.clearRect(0,0,w,h);
+    for(const m of motes){
+      const x = m.x*w + Math.sin(t*0.00025 + m.p)*8;
+      const y = m.y*h + Math.cos(t*0.00022 + m.p*1.3)*10;
+      const r = m.s + Math.sin(t*0.0004 + m.p)*0.3;
+      dctx.beginPath();
+      dctx.fillStyle = `rgba(235,206,140,${m.a})`;
+      dctx.arc(x,y,r,0,Math.PI*2);
+      dctx.fill();
+    }
+  }
+
+  function drawFacets(t){
+    const w = facetCanvas.clientWidth, h = facetCanvas.clientHeight;
+    fctx.clearRect(0,0,w,h);
+
+    // mosaic tile texture
+    const cols = 12, rows = 18;
+    const tw = w / cols, th = h / rows;
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const j = ((x*17+y*31)%7);
+        const palette = [
+          [240,216,138],[205,163,75],[127,22,50],[39,75,120],[31,95,78],[211,192,160],[110,96,84]
+        ][j];
+        const ox = Math.sin(t*0.00035 + x*0.6 + y*0.4)*1.2;
+        const oy = Math.cos(t*0.00031 + x*0.5 + y*0.7)*1.2;
+        fctx.fillStyle = `rgba(${palette[0]},${palette[1]},${palette[2]},0.085)`;
+        fctx.fillRect(x*tw+1+ox, y*th+1+oy, tw-2, th-2);
+      }
+    }
+
+    shards.forEach((s,i)=>{
+      const drift = Math.sin(t*0.00035 + s.drift)*2.2;
+      const g = fctx.createLinearGradient(0,0,w,h);
+      g.addColorStop(0,s.col[0]);
+      g.addColorStop(1,s.col[1]);
+      fctx.beginPath();
+      fctx.moveTo(s.pts[0][0]/100*w + drift, s.pts[0][1]/100*h);
+      for(let k=1;k<s.pts.length;k++) fctx.lineTo(s.pts[k][0]/100*w + drift, s.pts[k][1]/100*h);
+      fctx.closePath();
+      fctx.fillStyle = g;
+      fctx.fill();
+      fctx.strokeStyle = `rgba(255,223,160,${0.08 + (i%3)*0.03})`;
+      fctx.lineWidth = 1;
+      fctx.stroke();
+    });
+
+    // soft gold cross-light
+    const g2 = fctx.createRadialGradient(w*0.48,h*0.36,4,w*0.5,h*0.45,w*0.7);
+    g2.addColorStop(0,'rgba(255,234,180,0.12)');
+    g2.addColorStop(0.35,'rgba(225,176,68,0.08)');
+    g2.addColorStop(1,'rgba(0,0,0,0)');
+    fctx.fillStyle = g2;
+    fctx.fillRect(0,0,w,h);
+  }
+
+  function animate(t){
+    drawDust(t);
+    drawFacets(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const actx = new AudioCtx();
+      const master = actx.createGain();
+      master.gain.value = 0.028;
+      master.connect(actx.destination);
+
+      const osc1 = actx.createOscillator();
+      const osc2 = actx.createOscillator();
+      const osc3 = actx.createOscillator();
+      const g1 = actx.createGain(), g2 = actx.createGain(), g3 = actx.createGain();
+      const lp = actx.createBiquadFilter();
+
+      lp.type = "lowpass";
+      lp.frequency.value = 780;
+      lp.Q.value = 0.4;
+
+      osc1.type = "triangle";
+      osc2.type = "sine";
+      osc3.type = "sine";
+
+      osc1.frequency.value = 110;
+      osc2.frequency.value = 164.81;
+      osc3.frequency.value = 220;
+
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.14;
+      g3.gain.value = 0.08;
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(lp); g2.connect(lp); g3.connect(lp); lp.connect(master);
+
+      const lfo = actx.createOscillator();
+      const lfoG = actx.createGain();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.027;
+      lfoG.gain.value = 18;
+      lfo.connect(lfoG);
+      lfoG.connect(osc2.frequency);
+
+      const lfo2 = actx.createOscillator();
+      const lfo2G = actx.createGain();
+      lfo2.type = "sine";
+      lfo2.frequency.value = 0.019;
+      lfo2G.gain.value = 28;
+      lfo2.connect(lfo2G);
+      lfo2G.connect(lp.frequency);
+
+      const now = actx.currentTime;
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(0.028, now + 4);
+
+      osc1.start(); osc2.start(); osc3.start(); lfo.start(); lfo2.start();
+
+      const chord = [110, 123.47, 130.81, 146.83];
+      let idx = 0;
+      setInterval(() => {
+        if (actx.state === "suspended") actx.resume().catch(()=>{});
+        const t = actx.currentTime;
+        idx = (idx + 1) % chord.length;
+        osc1.frequency.linearRampToValueAtTime(chord[idx], t + 8);
+        osc2.frequency.linearRampToValueAtTime(chord[(idx+1)%chord.length] * 1.498, t + 8);
+        osc3.frequency.linearRampToValueAtTime(chord[idx] * 2.0, t + 8);
+      }, 9000);
+    }
+  }
+})();
+</script>
+</body>
+</html>
