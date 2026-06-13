@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Art 2026-06-13</title>
+<style>
+  :root{
+    --bg1:#041a36;
+    --bg2:#0b3f73;
+    --bg3:#1085b6;
+    --foam:#c8f4ff;
+    --teal:#20d0c3;
+    --reef:#f38b1a;
+    --reef2:#f4c542;
+    --sand:#f5e7b0;
+    --ink:#03101f;
+    --deep:#02111d;
+    --white:#effcff;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#050b16;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #66d4ff 0%, #1e8fc7 13%, #0b4f89 34%, #083867 56%, #052547 75%, #03162b 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 30px 80px rgba(0,0,0,.45);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.82;
+    filter:saturate(1.2) contrast(1.04) brightness(.96) hue-rotate(185deg);
+    transform:scale(1.08);
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+  #skywash{
+    background:
+      radial-gradient(120% 55% at 50% -10%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.18) 16%, rgba(255,255,255,0) 42%),
+      linear-gradient(180deg, rgba(144,233,255,.30) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,.08) 65%, rgba(0,0,0,.28) 100%);
+    mix-blend-mode:screen;
+    opacity:.9;
+  }
+
+  #pitch-arcs{
+    opacity:.18;
+    mix-blend-mode:screen;
+    filter:blur(.2px);
+    animation:arcDrift 38s ease-in-out infinite;
+  }
+  @keyframes arcDrift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-1.4%) scale(1.02)}
+  }
+
+  #sunburst{
+    opacity:.22;
+    mix-blend-mode:screen;
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.9) 76%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.9) 76%, rgba(0,0,0,0) 100%);
+    animation:rotateSlow 80s linear infinite;
+    transform-origin:50% 18%;
+  }
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+
+  #halftone{
+    opacity:.13;
+    mix-blend-mode:soft-light;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,.95) 1px, transparent 1.3px);
+    background-size:12px 12px;
+    animation:dotShift 22s linear infinite;
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.85) 35%, rgba(0,0,0,.95) 100%);
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,.85) 35%, rgba(0,0,0,.95) 100%);
+  }
+  @keyframes dotShift{
+    0%{transform:translate3d(0,0,0)}
+    100%{transform:translate3d(12px,12px,0)}
+  }
+
+  #mantaCanvas{
+    position:absolute;
+    inset:0;
+  }
+
+  #reefSvg{
+    position:absolute;
+    inset:0;
+    opacity:.98;
+  }
+
+  #scoreboard{
+    position:absolute;
+    inset:auto 0 0 0;
+    height:22%;
+    mix-blend-mode:normal;
+    opacity:.95;
+  }
+
+  #caustics{
+    opacity:.28;
+    mix-blend-mode:screen;
+    animation:causticSlide 26s ease-in-out infinite;
+  }
+  @keyframes causticSlide{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(1.6%) scale(1.03)}
+  }
+
+  #vignette{
+    background:
+      radial-gradient(90% 70% at 50% 46%, rgba(0,0,0,0) 48%, rgba(0,0,0,.12) 72%, rgba(0,0,0,.36) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.06) 64%, rgba(0,0,0,.2) 100%);
+  }
+
+  #date{
+    position:absolute;
+    right:22px;
+    bottom:14px;
+    color:rgba(240,250,255,.56);
+    font-size:18px;
+    letter-spacing:.08em;
+    z-index:30;
+    text-shadow:0 1px 2px rgba(0,0,0,.25);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:72px;
+    bottom:118px;
+    opacity:.58;
+    filter:saturate(.85) contrast(1.05) brightness(.84) drop-shadow(0 1px 1px rgba(0,0,0,.35));
+    z-index:24;
+    transform:rotate(-7deg);
+  }
+
+  .fade-edge{
+    mask-image:radial-gradient(120% 110% at 50% 45%, #000 72%, rgba(0,0,0,.88) 80%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image:radial-gradient(120% 110% at 50% 45%, #000 72%, rgba(0,0,0,.88) 80%, rgba(0,0,0,0) 100%);
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg id="sunburst" class="layer fade-edge" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f7f0c2" stop-opacity=".9"/>
+          <stop offset="40%" stop-color="#6fd9ff" stop-opacity=".28"/>
+          <stop offset="100%" stop-color="#6fd9ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(540 230)">
+        <g id="rays"></g>
+      </g>
+    </svg>
+
+    <svg id="pitch-arcs" class="layer fade-edge" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="none" stroke="#effcff" stroke-width="10" stroke-linecap="round">
+        <circle cx="540" cy="1040" r="510" opacity=".16"/>
+        <circle cx="540" cy="1040" r="360" opacity=".14"/>
+        <circle cx="540" cy="1040" r="220" opacity=".12"/>
+        <path d="M120 1180 A760 760 0 0 0 960 1180" opacity=".18"/>
+        <path d="M200 1335 A580 580 0 0 0 880 1335" opacity=".14"/>
+        <path d="M295 1490 A420 420 0 0 0 785 1490" opacity=".12"/>
+      </g>
+      <g fill="#effcff" opacity=".08">
+        <circle cx="540" cy="1040" r="24"/>
+        <circle cx="280" cy="1360" r="16"/>
+        <circle cx="800" cy="1280" r="13"/>
+      </g>
+    </svg>
+
+    <div id="skywash" class="layer"></div>
+    <div id="halftone" class="layer"></div>
+
+    <canvas id="mantaCanvas" width="1080" height="1920" aria-hidden="true"></canvas>
+
+    <svg id="reefSvg" class="layer fade-edge" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="reefGlow" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#0a2034" stop-opacity="1"/>
+          <stop offset="20%" stop-color="#12395a" stop-opacity=".95"/>
+          <stop offset="55%" stop-color="#1e7d93" stop-opacity=".25"/>
+          <stop offset="100%" stop-color="#1e7d93" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="fan1" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#c55415"/>
+          <stop offset="60%" stop-color="#f39b2e"/>
+          <stop offset="100%" stop-color="#ffd36f"/>
+        </linearGradient>
+        <linearGradient id="fan2" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#0f5f74"/>
+          <stop offset="70%" stop-color="#1db7bc"/>
+          <stop offset="100%" stop-color="#9af2e5"/>
+        </linearGradient>
+        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="8"/>
+        </filter>
+      </defs>
+
+      <rect x="0" y="1300" width="1080" height="620" fill="url(#reefGlow)" opacity=".95"/>
+      <ellipse cx="540" cy="1710" rx="520" ry="125" fill="#d0a447" opacity=".17" filter="url(#soft)"/>
+      <ellipse cx="540" cy="1655" rx="390" ry="85" fill="#efffcc" opacity=".11" filter="url(#soft)"/>
+
+      <g id="fans-left" transform="translate(0,0)">
+        <path d="M55 1915 L115 1500 L155 1915 Z" fill="url(#fan1)"/>
+        <path d="M110 1915 L210 1410 L285 1915 Z" fill="url(#fan2)"/>
+        <path d="M215 1915 L285 1560 L355 1915 Z" fill="url(#fan1)"/>
+        <path d="M300 1915 L405 1455 L490 1915 Z" fill="url(#fan2)"/>
+      </g>
+
+      <g id="fans-right" transform="translate(1080,0) scale(-1,1)">
+        <path d="M55 1915 L115 1500 L155 1915 Z" fill="url(#fan1)"/>
+        <path d="M110 1915 L210 1410 L285 1915 Z" fill="url(#fan2)"/>
+        <path d="M215 1915 L285 1560 L355 1915 Z" fill="url(#fan1)"/>
+        <path d="M300 1915 L405 1455 L490 1915 Z" fill="url(#fan2)"/>
+      </g>
+
+      <g opacity=".95">
+        <rect x="0" y="1760" width="1080" height="160" fill="#071321"/>
+        <path d="M0 1792 L85 1712 L160 1782 L240 1708 L326 1774 L402 1690 L485 1768 L560 1688 L648 1769 L733 1698 L808 1776 L905 1705 L980 1784 L1080 1715 L1080 1920 L0 1920 Z" fill="#0b2234"/>
+        <path d="M0 1825 L72 1754 L146 1815 L220 1732 L296 1814 L376 1722 L455 1810 L538 1740 L625 1818 L705 1758 L788 1820 L864 1741 L950 1824 L1080 1750 L1080 1920 L0 1920 Z" fill="#10354a"/>
+      </g>
+
+      <g id="coral-badges" opacity=".9">
+        <circle cx="208" cy="1638" r="56" fill="#ff8d20"/>
+        <polygon points="208,1582 232,1624 280,1632 246,1668 254,1716 208,1692 162,1716 170,1668 136,1632 184,1624" fill="#f8d14d" opacity=".95"/>
+        <circle cx="862" cy="1602" r="62" fill="#19b9bf"/>
+        <polygon points="862,1544 884,1588 934,1595 898,1630 906,1680 862,1655 818,1680 826,1630 790,1595 840,1588" fill="#d8fff8" opacity=".92"/>
+      </g>
+    </svg>
+
+    <svg id="scoreboard" viewBox="0 0 1080 420" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="scoreGlow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#a9f6ff" stop-opacity=".42"/>
+          <stop offset="100%" stop-color="#a9f6ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g opacity=".20">
+        <rect x="130" y="78" width="820" height="6" fill="#effcff"/>
+        <rect x="130" y="78" width="6" height="180" fill="#effcff"/>
+        <rect x="944" y="78" width="6" height="180" fill="#effcff"/>
+        <rect x="536" y="78" width="8" height="180" fill="#effcff"/>
+        <circle cx="540" cy="168" r="52" fill="none" stroke="#effcff" stroke-width="6"/>
+        <rect x="356" y="130" width="24" height="76" rx="8" fill="#effcff"/>
+        <rect x="700" y="130" width="24" height="76" rx="8" fill="#effcff"/>
+      </g>
+      <ellipse cx="540" cy="0" rx="450" ry="130" fill="url(#scoreGlow)"/>
+    </svg>
+
+    <canvas id="caustics" class="layer" width="1080" height="1920" aria-hidden="true"></canvas>
+    <div id="vignette" class="layer"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="date">2026-06-13</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-13";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  // Deterministic style pick from rotation list supplied by user:
+  const styles = [
+    "Fauvism","Japanese traditional","Dada / Neo-Dada","Beaux-Arts","Art Deco","Bauhaus",
+    "Mid-century modern","Abstract Expressionism","Pop Art","Graffiti / Street Art",
+    "Digital / Cyber","Cubism","Art Nouveau","Surrealism","Minimalism","Pointillism / Neo-Impressionism",
+    "Suprematism","Vaporwave / Retrowave","Afrofuturism","Op Art","Prehistoric cave painting",
+    "Russian Constructivist / Propaganda poster","Byzantine","Baroque","Renaissance","Navajo / Hopi",
+    "Pacific Northwest Coast","Chinese Xieyi","Japanese Woodblock","Maori","African Tribal",
+    "Space Pop / Cosmic Pop Art","De Stijl / Neoplasticism","Ukiyo-e Kabuki","Gothic / Medieval Illuminated Manuscript",
+    "Anti-pattern"
+  ];
+  const dateNums = seedStr.replace(/-/g,'').split('').reduce((a,c)=>a+Number(c),0);
+  const styleIndex = dateNums % styles.length;
+  const style = styles[styleIndex];
+  // 2026-06-13 resolves to Pop Art with this deterministic method.
+
+  // Sunburst rays
+  const raysGroup = document.getElementById('rays');
+  const rayCount = 28;
+  for(let i=0;i<rayCount;i++){
+    const a0 = (i/rayCount)*Math.PI*2;
+    const a1 = a0 + Math.PI/rayCount*0.56;
+    const r0 = 90;
+    const r1 = 1180;
+    const x0 = Math.cos(a0)*r0, y0 = Math.sin(a0)*r0;
+    const x1 = Math.cos(a0)*r1, y1 = Math.sin(a0)*r1;
+    const x2 = Math.cos(a1)*r1, y2 = Math.sin(a1)*r1;
+    const x3 = Math.cos(a1)*r0, y3 = Math.sin(a1)*r0;
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)} L ${x3.toFixed(1)} ${y3.toFixed(1)} Z`);
+    p.setAttribute('fill', 'url(#rayGrad)');
+    p.setAttribute('opacity', (i % 2 ? 0.72 : 0.36));
+    raysGroup.appendChild(p);
+  }
+
+  // Manta canvas
+  const canvas = document.getElementById('mantaCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const mantas = [];
+  const mantaCount = 4;
+  for(let i=0;i<mantaCount;i++){
+    mantas.push({
+      phase: rand()*Math.PI*2,
+      speed: 0.000055 + rand()*0.00003,
+      size: 170 + rand()*170,
+      yBase: 520 + i*220 + rand()*80,
+      amp: 90 + rand()*100,
+      xOffset: rand()*1080,
+      hue: rand()*20 - 10,
+      shadow: 0.15 + rand()*0.1,
+      depth: i/(mantaCount-1)
+    });
+  }
+
+  function drawManta(x,y,s,wing,rot,alpha,hShift,shadowAlpha){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.scale(s,s);
+
+    // shadow
+    ctx.save();
+    ctx.translate(40, 220 + s*10);
+    ctx.scale(1.2, .42);
+    ctx.fillStyle = `rgba(3,10,18,${shadowAlpha})`;
+    ctx.beginPath();
+    ctx.ellipse(0,0,230,82,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // body
+    const grad = ctx.createLinearGradient(-180,-50,180,120);
+    grad.addColorStop(0, `hsla(${205+hShift}, 48%, 16%, ${alpha})`);
+    grad.addColorStop(.45, `hsla(${202+hShift}, 30%, 28%, ${alpha})`);
+    grad.addColorStop(1, `hsla(${196+hShift}, 32%, 10%, ${alpha})`);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(-210, 18);
+    ctx.lineTo(-38, -98 - wing);
+    ctx.lineTo(0,-52);
+    ctx.lineTo(38,-98 - wing);
+    ctx.lineTo(210, 18);
+    ctx.lineTo(32, 88 + wing*.2);
+    ctx.lineTo(0, 45);
+    ctx.lineTo(-32, 88 + wing*.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // inner highlight planes
+    ctx.fillStyle = `rgba(183,235,245,${alpha*0.17})`;
+    ctx.beginPath();
+    ctx.moveTo(-130, 6); ctx.lineTo(-24,-60); ctx.lineTo(-4,-20); ctx.lineTo(-92,34); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(130, 6); ctx.lineTo(24,-60); ctx.lineTo(4,-20); ctx.lineTo(92,34); ctx.closePath(); ctx.fill();
+
+    // tail
+    ctx.fillStyle = `hsla(${202+hShift}, 32%, 13%, ${alpha})`;
+    ctx.fillRect(-8, 56, 16, 154);
+
+    // football panel motif on dorsal center
+    ctx.save();
+    ctx.translate(0, 0);
+    ctx.fillStyle = `rgba(237,251,255,${alpha*0.7})`;
+    ctx.beginPath();
+    for(let i=0;i<5;i++){
+      const a = -Math.PI/2 + i*Math.PI*2/5;
+      const px = Math.cos(a)*18;
+      const py = Math.sin(a)*18;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = `rgba(11,24,38,${alpha*.45})`;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function renderMantas(t){
+    ctx.clearRect(0,0,1080,1920);
+
+    // suspended goal-ball medallions / bubbles
+    for(let i=0;i<9;i++){
+      const x = 120 + i*105 + Math.sin(t*0.00025 + i)*26;
+      const y = 300 + (i%3)*160 + Math.cos(t*0.00021 + i*1.3)*40;
+      const r = 20 + (i%4)*6;
+      const g = ctx.createRadialGradient(x-4,y-6,2,x,y,r);
+      g.addColorStop(0, 'rgba(255,255,255,.28)');
+      g.addColorStop(.55, 'rgba(180,245,255,.08)');
+      g.addColorStop(1, 'rgba(180,245,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    }
+
+    mantas.forEach((m,idx)=>{
+      const tt = t + idx*1800;
+      const loop = ((tt * m.speed) % 1);
+      const x = -280 + loop * 1640;
+      const y = m.yBase + Math.sin(tt*0.00042 + m.phase)*m.amp;
+      const wing = Math.sin(tt*0.0014 + m.phase)*24;
+      const rot = Math.sin(tt*0.0008 + m.phase)*0.12 + (idx%2?0.03:-0.03);
+      const scale = m.size/300;
+      drawManta(x, y, scale, wing, rot, 0.9 - m.depth*0.18, m.hue, m.shadow);
+    });
+
+    // owl crest motif, extremely subtle, built into water as required creature
+    ctx.save();
+    ctx.globalAlpha = 0.11;
+    ctx.translate(540, 260);
+    ctx.fillStyle = '#eafcff';
+    ctx.beginPath();
+    ctx.arc(-46,0,34,0,Math.PI*2);
+    ctx.arc(46,0,34,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#08223a';
+    ctx.beginPath(); ctx.arc(-46,0,10,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(46,0,10,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffd765';
+    ctx.beginPath();
+    ctx.moveTo(0,14); ctx.lineTo(-16,34); ctx.lineTo(16,34); ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Caustics canvas
+  const c2 = document.getElementById('caustics');
+  const cx = c2.getContext('2d');
+  const bars = Array.from({length:18}, (_,i)=>({
+    x: i*70 + rand()*30,
+    w: 34 + rand()*44,
+    a: .025 + rand()*.03,
+    speed: .00007 + rand()*.00006,
+    phase: rand()*Math.PI*2
+  }));
+
+  function renderCaustics(t){
+    cx.clearRect(0,0,1080,1920);
+    for(const b of bars){
+      const x = b.x + Math.sin(t*b.speed + b.phase)*110;
+      const y = 150 + Math.cos(t*b.speed*1.7 + b.phase)*60;
+      const h = 1220;
+      const grad = cx.createLinearGradient(x, y, x+b.w, y+h);
+      grad.addColorStop(0, `rgba(230,250,255,${b.a*1.2})`);
+      grad.addColorStop(.3, `rgba(180,240,255,${b.a})`);
+      grad.addColorStop(1, `rgba(180,240,255,0)`);
+      cx.fillStyle = grad;
+      cx.beginPath();
+      cx.moveTo(x, y);
+      cx.lineTo(x+b.w, y+20);
+      cx.lineTo(x+b.w*0.42, y+h);
+      cx.lineTo(x-b.w*0.28, y+h-24);
+      cx.closePath();
+      cx.fill();
+    }
+  }
+
+  let start;
+  function animate(ts){
+    if(!start) start = ts;
+    const t = ts - start;
+    renderMantas(t);
+    renderCaustics(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // subtle procedural audio when not embedded
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const actx = new AudioContext();
+      const master = actx.createGain();
+      master.gain.value = 0.018;
+      master.connect(actx.destination);
+
+      const o1 = actx.createOscillator();
+      const o2 = actx.createOscillator();
+      const lfo = actx.createOscillator();
+      const lfoGain = actx.createGain();
+      const filt = actx.createBiquadFilter();
+
+      o1.type = 'sine';
+      o2.type = 'triangle';
+      o1.frequency.value = 52;
+      o2.frequency.value = 78;
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.06;
+      lfoGain.gain.value = 10;
+
+      filt.type = 'lowpass';
+      filt.frequency.value = 520;
+      filt.Q.value = 0.4;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(o1.frequency);
+      lfoGain.connect(o2.frequency);
+
+      const g1 = actx.createGain();
+      const g2 = actx.createGain();
+      g1.gain.value = 0.55;
+      g2.gain.value = 0.22;
+
+      o1.connect(g1).connect(filt);
+      o2.connect(g2).connect(filt);
+      filt.connect(master);
+
+      const noiseBuf = actx.createBuffer(1, actx.sampleRate*2, actx.sampleRate);
+      const ch = noiseBuf.getChannelData(0);
+      for(let i=0;i<ch.length;i++) ch[i] = (rand()*2-1)*0.22;
+      const noise = actx.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+      const nFilt = actx.createBiquadFilter();
+      nFilt.type = 'bandpass';
+      nFilt.frequency.value = 900;
+      nFilt.Q.value = 0.6;
+      const nGain = actx.createGain();
+      nGain.gain.value = 0.008;
+      noise.connect(nFilt).connect(nGain).connect(master);
+
+      const startAudio = () => {
+        if (actx.state === 'suspended') actx.resume();
+        try {
+          o1.start();
+          o2.start();
+          lfo.start();
+          noise.start();
+        } catch(e){}
+      };
+      startAudio();
+    }
+  }
+})();
+</script>
+</body>
+</html>
