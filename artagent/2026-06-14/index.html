@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-06-14</title>
+<style>
+  :root{
+    --bg:#f3f0e8;
+    --black:#101010;
+    --cream:#f6f2e8;
+    --gold:#d6aa2b;
+    --deepgold:#9b7414;
+    --red:#d61f26;
+    --blue:#1a49d8;
+    --yellow:#f2cf12;
+    --teal:#0f6c74;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    background:#121212;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:linear-gradient(180deg,#f5f1e7 0%,#ece3cd 48%,#d9ccb2 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04),0 30px 80px rgba(0,0,0,.45);
+  }
+
+  /* structured deco + neoplastic background */
+  .plane{
+    position:absolute;
+    border:7px solid var(--black);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .p1{left:-2%;top:-1%;width:38%;height:18%;background:var(--red);}
+  .p2{left:36%;top:0;width:30%;height:14%;background:var(--cream);}
+  .p3{right:-1%;top:-1%;width:36%;height:20%;background:var(--blue);}
+  .p4{left:-1%;top:17%;width:20%;height:16%;background:var(--yellow);}
+  .p5{left:18%;top:13%;width:22%;height:20%;background:var(--cream);}
+  .p6{left:40%;top:14%;width:24%;height:16%;background:var(--gold);}
+  .p7{right:-1%;top:19%;width:37%;height:14%;background:var(--cream);}
+  .p8{left:-1%;bottom:0;width:28%;height:21%;background:var(--blue);}
+  .p9{left:27%;bottom:-1%;width:24%;height:17%;background:var(--cream);}
+  .p10{left:51%;bottom:-1%;width:18%;height:11%;background:var(--yellow);}
+  .p11{right:-1%;bottom:-1%;width:32%;height:23%;background:var(--red);}
+  .p12{left:0;top:33%;width:14%;height:27%;background:var(--cream);}
+  .p13{right:0;top:33%;width:13%;height:30%;background:var(--cream);}
+
+  #sunburst{
+    position:absolute;
+    inset:0;
+    opacity:.45;
+    mix-blend-mode:multiply;
+    -webkit-mask-image:radial-gradient(circle at 50% 46%, black 0 52%, transparent 83%);
+            mask-image:radial-gradient(circle at 50% 46%, black 0 52%, transparent 83%);
+    animation:turnSlow 80s linear infinite;
+  }
+
+  #shaftSvg, #overlaySvg, #whaleSvg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:.55;
+    mix-blend-mode:multiply;
+  }
+
+  #panelGlow{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(255,240,190,.50), rgba(255,240,190,0) 22%),
+      linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 25%, rgba(0,0,0,.03) 70%, rgba(0,0,0,.12));
+    pointer-events:none;
+  }
+
+  #vignette{
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(0,0,0,0) 53%, rgba(0,0,0,.08) 76%, rgba(0,0,0,.18) 100%);
+    pointer-events:none;
+  }
+
+  .band{
+    position:absolute;
+    left:-8%;
+    width:116%;
+    border-top:8px solid var(--black);
+    border-bottom:8px solid var(--black);
+    transform-origin:center;
+    opacity:.98;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.12));
+  }
+  .band.one{
+    top:43%;
+    height:11%;
+    background:linear-gradient(90deg,var(--yellow) 0 22%, var(--cream) 22% 46%, var(--red) 46% 68%, var(--blue) 68% 100%);
+    transform:rotate(-8deg);
+    animation:bandOne 24s ease-in-out infinite;
+    -webkit-mask-image:linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+            mask-image:linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  }
+  .band.two{
+    top:57%;
+    height:8%;
+    background:linear-gradient(90deg,var(--cream) 0 18%, var(--blue) 18% 38%, var(--cream) 38% 52%, var(--gold) 52% 74%, var(--red) 74% 100%);
+    transform:rotate(6deg);
+    animation:bandTwo 30s ease-in-out infinite;
+    -webkit-mask-image:linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+            mask-image:linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  }
+
+  #date{
+    position:absolute;
+    right:20px;
+    bottom:14px;
+    font-size:14px;
+    letter-spacing:2px;
+    color:rgba(16,16,16,.45);
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:10px;
+    bottom:145px;
+    opacity:.58;
+    filter:saturate(.7) contrast(.95) drop-shadow(0 1px 1px rgba(0,0,0,.18));
+    z-index:7;
+    transform:rotate(-4deg);
+  }
+
+  @keyframes turnSlow{
+    from{transform:scale(1.02) rotate(0deg)}
+    to{transform:scale(1.02) rotate(360deg)}
+  }
+  @keyframes bandOne{
+    0%,100%{transform:rotate(-8deg) translateY(0)}
+    50%{transform:rotate(-6deg) translateY(-10px)}
+  }
+  @keyframes bandTwo{
+    0%,100%{transform:rotate(6deg) translateY(0)}
+    50%{transform:rotate(4deg) translateY(12px)}
+  }
+  @keyframes whaleDrift{
+    0%,100%{transform:translateY(0px) translateX(0px)}
+    50%{transform:translateY(-16px) translateX(6px)}
+  }
+  @keyframes tailPulse{
+    0%,100%{transform:rotate(0deg)}
+    50%{transform:rotate(-4deg)}
+  }
+  @keyframes lightBreathe{
+    0%,100%{opacity:.72}
+    50%{opacity:.94}
+  }
+
+  #whaleGroup{ animation:whaleDrift 20s ease-in-out infinite; transform-origin:center; }
+  #tailFin{ animation:tailPulse 9s ease-in-out infinite; transform-origin:78% 50%; }
+  .lightShaft{ animation:lightBreathe 18s ease-in-out infinite; }
+
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="plane p1"></div><div class="plane p2"></div><div class="plane p3"></div>
+  <div class="plane p4"></div><div class="plane p5"></div><div class="plane p6"></div>
+  <div class="plane p7"></div><div class="plane p8"></div><div class="plane p9"></div>
+  <div class="plane p10"></div><div class="plane p11"></div><div class="plane p12"></div><div class="plane p13"></div>
+
+  <svg id="sunburst" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <g transform="translate(540 900)">
+      <g fill="#d8aa29">
+        <polygon points="0,-690 20,-300 -20,-300"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(15)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(30)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(45)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(60)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(75)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(90)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(105)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(120)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(135)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(150)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(165)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(180)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(195)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(210)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(225)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(240)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(255)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(270)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(285)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(300)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(315)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(330)"/>
+        <polygon points="0,-690 20,-300 -20,-300" transform="rotate(345)"/>
+      </g>
+      <circle r="260" fill="#f3edd9" stroke="#101010" stroke-width="16"></circle>
+      <circle r="220" fill="none" stroke="#d8aa29" stroke-width="32"></circle>
+      <circle r="168" fill="none" stroke="#101010" stroke-width="12"></circle>
+    </g>
+  </svg>
+
+  <svg id="shaftSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="shaftFade" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.95)"/>
+        <stop offset="60%" stop-color="rgba(255,255,255,0.32)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </linearGradient>
+    </defs>
+    <g opacity=".55">
+      <polygon class="lightShaft" points="210,0 320,0 485,1030 330,1030" fill="url(#shaftFade)" style="animation-delay:-3s"/>
+      <polygon class="lightShaft" points="460,0 590,0 675,1120 520,1120" fill="url(#shaftFade)" style="animation-delay:-9s"/>
+      <polygon class="lightShaft" points="735,0 850,0 785,930 645,930" fill="url(#shaftFade)" style="animation-delay:-14s"/>
+    </g>
+  </svg>
+
+  <canvas id="canvas" width="1080" height="1920"></canvas>
+
+  <svg id="whaleSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="whaleGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0f0f10"/>
+        <stop offset="28%" stop-color="#f3f0e8"/>
+        <stop offset="29%" stop-color="#f3f0e8"/>
+        <stop offset="48%" stop-color="#1a49d8"/>
+        <stop offset="68%" stop-color="#101010"/>
+        <stop offset="100%" stop-color="#d61f26"/>
+      </linearGradient>
+      <linearGradient id="bellyGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#f1e6c8"/>
+        <stop offset="100%" stop-color="#d8aa29"/>
+      </linearGradient>
+      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity=".22"/>
+      </filter>
+    </defs>
+    <g id="whaleGroup" filter="url(#softShadow)">
+      <!-- stylized great whale in deco / neoplastic blocks -->
+      <g transform="translate(118 770) rotate(-8 420 190)">
+        <path d="M88,283
+                 L146,218
+                 L310,122
+                 L560,76
+                 L756,118
+                 L870,80
+                 L937,108
+                 L892,164
+                 L952,218
+                 L878,248
+                 L756,220
+                 L596,277
+                 L349,304
+                 L196,328
+                 Z"
+              fill="url(#whaleGrad)"
+              stroke="#101010"
+              stroke-width="16"
+              stroke-linejoin="round"/>
+        <path d="M292,255
+                 L470,238
+                 L628,208
+                 L713,210
+                 L595,263
+                 L396,281
+                 Z"
+              fill="url(#bellyGrad)"
+              stroke="#101010"
+              stroke-width="12"
+              stroke-linejoin="round"/>
+        <g id="tailFin">
+          <polygon points="850,110 972,34 1010,96 938,154" fill="#f2cf12" stroke="#101010" stroke-width="14" stroke-linejoin="round"/>
+          <polygon points="846,171 950,218 1007,172 936,133" fill="#d61f26" stroke="#101010" stroke-width="14" stroke-linejoin="round"/>
+        </g>
+        <polygon points="432,112 515,26 584,122" fill="#d6aa2b" stroke="#101010" stroke-width="14" stroke-linejoin="round"/>
+        <polygon points="292,164 362,136 400,184 334,208" fill="#1a49d8" stroke="#101010" stroke-width="12" stroke-linejoin="round"/>
+        <rect x="650" y="128" width="62" height="28" fill="#f3f0e8" stroke="#101010" stroke-width="10"/>
+        <circle cx="695" cy="141" r="8" fill="#101010"/>
+        <g opacity=".9">
+          <rect x="375" y="243" width="26" height="50" fill="#101010"/>
+          <rect x="430" y="236" width="20" height="52" fill="#101010"/>
+          <rect x="482" y="228" width="20" height="50" fill="#101010"/>
+          <rect x="531" y="220" width="19" height="45" fill="#101010"/>
+          <rect x="578" y="214" width="18" height="42" fill="#101010"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <div class="band one"></div>
+  <div class="band two"></div>
+
+  <svg id="overlaySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <g opacity=".92">
+      <rect x="0" y="686" width="1080" height="22" fill="#101010"/>
+      <rect x="0" y="1216" width="1080" height="22" fill="#101010"/>
+      <rect x="186" y="0" width="22" height="1920" fill="#101010"/>
+      <rect x="873" y="0" width="22" height="1920" fill="#101010"/>
+    </g>
+    <g opacity=".78">
+      <rect x="210" y="708" width="140" height="136" fill="#f2cf12" stroke="#101010" stroke-width="10"/>
+      <rect x="735" y="1118" width="148" height="120" fill="#1a49d8" stroke="#101010" stroke-width="10"/>
+      <rect x="792" y="642" width="110" height="88" fill="#d61f26" stroke="#101010" stroke-width="10"/>
+      <rect x="171" y="1188" width="105" height="124" fill="#f3f0e8" stroke="#101010" stroke-width="10"/>
+    </g>
+  </svg>
+
+  <div id="panelGlow"></div>
+  <div id="vignette"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date">2026-06-14</div>
+</div>
+
+<script>
+(() => {
+  const dateSeed = "2026-06-14";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  const rand = mulberry32(hashString(dateSeed));
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const plankton = [];
+  const bars = [];
+  const salmonMotifs = [];
+
+  for(let i=0;i<180;i++){
+    plankton.push({
+      x: rand()*1080,
+      y: rand()*1920,
+      r: 1 + rand()*4,
+      a: 0.18 + rand()*0.4,
+      s: 0.1 + rand()*0.45,
+      p: rand()*Math.PI*2,
+      c: rand() > 0.72 ? '#d6aa2b' : (rand() > 0.5 ? '#f3f0e8' : '#1a49d8')
+    });
+  }
+
+  for(let i=0;i<14;i++){
+    bars.push({
+      x: 70 + i*70 + (rand()*16-8),
+      w: 22 + rand()*22,
+      h: 260 + rand()*340,
+      y: 1350 + rand()*300,
+      phase: rand()*Math.PI*2,
+      color: ['#d61f26','#1a49d8','#f2cf12','#f3f0e8'][i%4]
+    });
+  }
+
+  /* tiny salmon motifs as deco tiles, to satisfy creature rule while keeping whale central */
+  for(let i=0;i<8;i++){
+    salmonMotifs.push({
+      x: 210 + (i%4)*190 + (i>3?50:0),
+      y: i<4 ? 220 : 1520,
+      s: 0.65 + rand()*0.25,
+      dir: i%2===0 ? 1 : -1,
+      phase: rand()*Math.PI*2,
+      color: ['#d61f26','#1a49d8','#f2cf12','#d6aa2b'][i%4]
+    });
+  }
+
+  function drawSalmon(x,y,scale,dir,color,t){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(scale*dir, scale);
+    ctx.beginPath();
+    ctx.moveTo(-36,0);
+    ctx.lineTo(-10,-14);
+    ctx.lineTo(22,-10);
+    ctx.lineTo(42,0);
+    ctx.lineTo(22,10);
+    ctx.lineTo(-10,14);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#101010';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-36,0);
+    ctx.lineTo(-58,-16);
+    ctx.lineTo(-50,0);
+    ctx.lineTo(-58,16);
+    ctx.closePath();
+    ctx.fillStyle = '#f3f0e8';
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-2,-6);
+    ctx.lineTo(10,-28);
+    ctx.lineTo(20,-4);
+    ctx.closePath();
+    ctx.fillStyle = '#f2cf12';
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#101010';
+    ctx.beginPath();
+    ctx.arc(25,-2,3.2,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.globalAlpha = .22 + 0.08*Math.sin(t*0.001 + 1.4);
+    ctx.fillStyle = '#d6aa2b';
+    ctx.fillRect(-62,-24,128,48);
+    ctx.restore();
+  }
+
+  let start = performance.now();
+  function frame(now){
+    const t = now - start;
+    ctx.clearRect(0,0,1080,1920);
+
+    /* vertical deco seabed bars */
+    for(const b of bars){
+      const oy = Math.sin(t*0.00045 + b.phase)*18;
+      ctx.fillStyle = b.color;
+      ctx.strokeStyle = '#101010';
+      ctx.lineWidth = 8;
+      ctx.globalAlpha = 0.65;
+      ctx.beginPath();
+      ctx.rect(b.x, b.y + oy, b.w, b.h);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    /* plankton */
+    for(const p of plankton){
+      const yy = p.y + Math.sin(t*0.0006 * (0.5 + p.s) + p.p) * (18 + p.r*3);
+      const xx = p.x + Math.cos(t*0.0004 * (0.5 + p.s) + p.p) * (10 + p.r*1.8);
+      ctx.globalAlpha = p.a;
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.rect(xx, yy, p.r*1.6, p.r*1.6);
+      ctx.fill();
+    }
+
+    /* whale song pulse rings as geometric echoes */
+    const cx = 528, cy = 922;
+    for(let i=0;i<5;i++){
+      const phase = ((t*0.00006) + i*0.18) % 1;
+      const rw = 120 + phase*540;
+      const rh = 42 + phase*160;
+      ctx.globalAlpha = (1-phase)*0.2;
+      ctx.lineWidth = 10 - phase*5;
+      ctx.strokeStyle = i%2 ? '#1a49d8' : '#d6aa2b';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rw, rh, -0.12, 0, Math.PI*2);
+      ctx.stroke();
+    }
+
+    /* salmon deco motifs */
+    for(const s of salmonMotifs){
+      const bob = Math.sin(t*0.00055 + s.phase) * 5;
+      drawSalmon(s.x, s.y + bob, s.s, s.dir, s.color, t);
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const actx = new AudioCtx();
+      const master = actx.createGain();
+      master.gain.value = 0.018;
+      master.connect(actx.destination);
+
+      const low = actx.createOscillator();
+      low.type = 'sine';
+      low.frequency.value = 62;
+
+      const lowGain = actx.createGain();
+      lowGain.gain.value = 0.0;
+
+      const mid = actx.createOscillator();
+      mid.type = 'triangle';
+      mid.frequency.value = 124;
+
+      const midGain = actx.createGain();
+      midGain.gain.value = 0.0;
+
+      const lfo = actx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.042;
+
+      const lfo2 = actx.createOscillator();
+      lfo2.type = 'sine';
+      lfo2.frequency.value = 0.067;
+
+      const lfoGain1 = actx.createGain();
+      lfoGain1.gain.value = 0.008;
+
+      const lfoGain2 = actx.createGain();
+      lfoGain2.gain.value = 0.006;
+
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 380;
+      filter.Q.value = 0.5;
+
+      const noiseBuffer = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.22;
+      const noise = actx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseFilter = actx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 540;
+      noiseFilter.Q.value = 0.6;
+
+      const noiseGain = actx.createGain();
+      noiseGain.gain.value = 0.0025;
+
+      lfo.connect(lfoGain1);
+      lfoGain1.connect(lowGain.gain);
+      lfo2.connect(lfoGain2);
+      lfoGain2.connect(midGain.gain);
+
+      low.connect(lowGain).connect(filter).connect(master);
+      mid.connect(midGain).connect(filter).connect(master);
+      noise.connect(noiseFilter).connect(noiseGain).connect(master);
+
+      low.start();
+      mid.start();
+      lfo.start();
+      lfo2.start();
+      noise.start();
+
+      function breathe(){
+        const n = actx.currentTime;
+        low.frequency.cancelScheduledValues(n);
+        mid.frequency.cancelScheduledValues(n);
+        low.frequency.linearRampToValueAtTime(54 + Math.random()*18, n + 8);
+        mid.frequency.linearRampToValueAtTime(108 + Math.random()*30, n + 10);
+        filter.frequency.linearRampToValueAtTime(260 + Math.random()*220, n + 9);
+        setTimeout(breathe, 9000);
+      }
+      breathe();
+
+      const resume = () => {
+        if (actx.state !== 'running') actx.resume();
+        window.removeEventListener('load', resume);
+      };
+      window.addEventListener('load', resume);
+    }
+  }
+})();
+</script>
+</body>
+</html>
