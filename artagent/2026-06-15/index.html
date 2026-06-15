@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-06-15</title>
+<style>
+  :root{
+    --bg1:#f1e6c8;
+    --bg2:#d9c39a;
+    --ink:#101010;
+    --vermilion:#d9471f;
+    --rust:#9d2e16;
+    --indigo:#203a72;
+    --teal:#2f7d73;
+    --jade:#6aa36c;
+    --cream:#f6efdc;
+    --paper:#e8d9b7;
+    --gold:#c7a15f;
+    --char:#181514;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#111;
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 75% at 20% 15%, rgba(255,245,220,.55), transparent 45%),
+      radial-gradient(90% 70% at 82% 24%, rgba(217,71,31,.16), transparent 48%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 30px 80px rgba(0,0,0,.55);
+  }
+  .layer{position:absolute; inset:0; pointer-events:none}
+  #paperNoise,#paintCanvas{mix-blend-mode:multiply}
+  #inkCanvas{mix-blend-mode:normal}
+  #streetSvg{overflow:visible}
+  .fadeEdge{
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 62%, rgba(0,0,0,.95) 72%, rgba(0,0,0,.5) 84%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 62%, rgba(0,0,0,.95) 72%, rgba(0,0,0,.5) 84%, transparent 100%);
+  }
+
+  .poster{
+    position:absolute;
+    background:linear-gradient(180deg, rgba(246,239,220,.98), rgba(231,216,180,.95));
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.45) inset,
+      0 0 0 1px rgba(32,24,18,.15),
+      0 12px 30px rgba(45,20,8,.18);
+    transform-origin:center;
+    opacity:.95;
+  }
+  .poster:before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.035), rgba(0,0,0,.035) 2px, transparent 2px, transparent 7px),
+      radial-gradient(circle at 18% 24%, rgba(255,255,255,.22), transparent 28%);
+    mix-blend-mode:multiply;
+    opacity:.45;
+  }
+  .poster.torn{
+    clip-path:polygon(4% 3%, 94% 0%, 100% 14%, 97% 88%, 91% 100%, 8% 97%, 0% 86%, 2% 10%);
+  }
+  .poster.one{left:9%; top:10%; width:49%; height:24%; transform:rotate(-6deg)}
+  .poster.two{right:10%; top:28%; width:38%; height:19%; transform:rotate(7deg)}
+  .poster.three{left:20%; bottom:16%; width:44%; height:20%; transform:rotate(3deg)}
+  .poster.four{right:14%; bottom:31%; width:28%; height:14%; transform:rotate(-9deg); opacity:.88}
+
+  .stamp{
+    position:absolute;
+    border:4px solid rgba(157,46,22,.65);
+    color:rgba(157,46,22,.55);
+    font-size:12px;
+    letter-spacing:.28em;
+    padding:8px 10px;
+    transform:rotate(-11deg);
+    mix-blend-mode:multiply;
+    opacity:.6;
+  }
+  .stamp.a{left:13%; top:13%}
+  .stamp.b{right:14%; bottom:34%; transform:rotate(8deg)}
+
+  .date{
+    position:absolute;
+    right:16px;
+    bottom:11px;
+    color:rgba(16,16,16,.45);
+    font-size:12px;
+    letter-spacing:.18em;
+    z-index:20;
+    mix-blend-mode:multiply;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:22px;
+    bottom:168px;
+    opacity:.58;
+    filter:saturate(.65) contrast(.95) brightness(.88);
+    z-index:12;
+  }
+
+  .silhouettePatch{
+    position:absolute;
+    background:rgba(16,16,16,.08);
+    filter:blur(16px);
+    border-radius:50%;
+    mix-blend-mode:multiply;
+  }
+  .silhouettePatch.one{left:5%; top:60%; width:28%; height:10%; transform:rotate(-6deg)}
+  .silhouettePatch.two{right:6%; top:48%; width:24%; height:9%; transform:rotate(7deg)}
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="paperNoise" class="layer"></canvas>
+
+  <div class="layer fadeEdge">
+    <div class="poster torn one"></div>
+    <div class="poster torn two"></div>
+    <div class="poster torn three"></div>
+    <div class="poster torn four"></div>
+    <div class="stamp a">印刷</div>
+    <div class="stamp b">TOKYO</div>
+    <div class="silhouettePatch one"></div>
+    <div class="silhouettePatch two"></div>
+  </div>
+
+  <svg id="streetSvg" class="layer fadeEdge" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="sprayRed" x1="0" x2="1">
+        <stop offset="0%" stop-color="#ff6b34"/>
+        <stop offset="100%" stop-color="#b12c14"/>
+      </linearGradient>
+      <linearGradient id="sprayBlue" x1="0" x2="1">
+        <stop offset="0%" stop-color="#4a89cc"/>
+        <stop offset="100%" stop-color="#203a72"/>
+      </linearGradient>
+      <linearGradient id="jadeFade" x1="0" x2="1">
+        <stop offset="0%" stop-color="#81b782"/>
+        <stop offset="100%" stop-color="#2f7d73"/>
+      </linearGradient>
+      <filter id="softSpray">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <filter id="heavySpray">
+        <feGaussianBlur stdDeviation="18"/>
+      </filter>
+      <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#2f170d" flood-opacity=".25"/>
+      </filter>
+      <mask id="edgeFadeMask">
+        <rect width="1080" height="1920" fill="url(#maskGrad)"/>
+      </mask>
+      <radialGradient id="maskGrad" cx="50%" cy="50%" r="68%">
+        <stop offset="72%" stop-color="white"/>
+        <stop offset="90%" stop-color="rgba(255,255,255,.65)"/>
+        <stop offset="100%" stop-color="black"/>
+      </radialGradient>
+    </defs>
+
+    <g opacity=".18" filter="url(#heavySpray)">
+      <ellipse cx="244" cy="270" rx="180" ry="120" fill="#d9471f"/>
+      <ellipse cx="812" cy="540" rx="210" ry="110" fill="#203a72"/>
+      <ellipse cx="385" cy="1380" rx="240" ry="136" fill="#6aa36c"/>
+    </g>
+
+    <g id="collageGroup" filter="url(#paperShadow)">
+      <rect x="132" y="202" width="420" height="270" fill="rgba(246,239,220,.75)" transform="rotate(-6 342 337)"/>
+      <rect x="614" y="572" width="270" height="188" fill="rgba(246,239,220,.72)" transform="rotate(8 749 666)"/>
+      <rect x="214" y="1282" width="376" height="256" fill="rgba(246,239,220,.66)" transform="rotate(4 402 1410)"/>
+    </g>
+
+    <g id="sunburst" opacity=".85" transform-origin="540 970">
+      <polygon points="540,970 705,92 772,112 611,972" fill="rgba(217,71,31,.12)"/>
+      <polygon points="540,970 918,244 969,292 574,982" fill="rgba(32,58,114,.10)"/>
+      <polygon points="540,970 938,640 968,703 567,995" fill="rgba(106,163,108,.14)"/>
+      <polygon points="540,970 820,1710 760,1730 516,1001" fill="rgba(217,71,31,.10)"/>
+      <polygon points="540,970 210,1740 154,1702 503,994" fill="rgba(32,58,114,.10)"/>
+      <polygon points="540,970 102,1120 93,1054 503,954" fill="rgba(16,16,16,.10)"/>
+      <polygon points="540,970 78,306 129,258 519,934" fill="rgba(106,163,108,.10)"/>
+    </g>
+
+    <g id="snailMotif">
+      <ellipse cx="558" cy="1008" rx="228" ry="154" fill="rgba(246,239,220,.78)" stroke="#101010" stroke-width="10"/>
+      <ellipse cx="510" cy="1018" rx="154" ry="118" fill="none" stroke="#101010" stroke-width="17"/>
+      <ellipse cx="522" cy="1020" rx="96" ry="73" fill="none" stroke="#d9471f" stroke-width="22" opacity=".9"/>
+      <ellipse cx="537" cy="1022" rx="44" ry="34" fill="none" stroke="#203a72" stroke-width="14" opacity=".95"/>
+      <path d="M705 1022 L822 1012 L895 1062 L832 1102 L723 1108 Z" fill="#101010"/>
+      <path d="M678 1036 L772 1028 L840 1072 L778 1100 L692 1103 Z" fill="#f6efdc" opacity=".16"/>
+      <rect x="810" y="950" width="12" height="90" fill="#101010" transform="rotate(13 816 995)"/>
+      <rect x="848" y="938" width="12" height="98" fill="#101010" transform="rotate(8 854 987)"/>
+      <circle cx="827" cy="948" r="18" fill="#d9471f" stroke="#101010" stroke-width="7"/>
+      <circle cx="862" cy="938" r="17" fill="#203a72" stroke="#101010" stroke-width="7"/>
+      <path d="M316 1116 L861 1116 L810 1182 L372 1182 Z" fill="#2f7d73" opacity=".95" stroke="#101010" stroke-width="8"/>
+      <rect x="342" y="1150" width="67" height="22" fill="#101010"/>
+      <rect x="482" y="1150" width="74" height="22" fill="#101010"/>
+      <rect x="638" y="1150" width="81" height="22" fill="#101010"/>
+      <rect x="770" y="1150" width="42" height="22" fill="#101010"/>
+      <path d="M434 900 L360 822 L398 786 L468 864 Z" fill="url(#sprayRed)" stroke="#101010" stroke-width="8"/>
+      <path d="M350 820 L296 746 L326 712 L392 784 Z" fill="#f6efdc" stroke="#101010" stroke-width="8"/>
+      <path d="M600 848 L650 750 L708 764 L647 864 Z" fill="url(#sprayBlue)" stroke="#101010" stroke-width="8"/>
+    </g>
+
+    <g id="kanjiBlocks" opacity=".92">
+      <rect x="133" y="247" width="105" height="145" fill="#101010"/>
+      <rect x="711" y="604" width="85" height="112" fill="#101010"/>
+      <rect x="294" y="1330" width="92" height="128" fill="#101010"/>
+      <text x="162" y="338" fill="#f6efdc" font-size="78" font-family="serif">墨</text>
+      <text x="732" y="678" fill="#f6efdc" font-size="60" font-family="serif">波</text>
+      <text x="320" y="1414" fill="#f6efdc" font-size="64" font-family="serif">街</text>
+    </g>
+
+    <g id="drips" fill="#101010" opacity=".78">
+      <rect x="238" y="468" width="16" height="110" rx="8"/>
+      <rect x="261" y="468" width="10" height="88" rx="5"/>
+      <circle cx="246" cy="594" r="13"/>
+      <rect x="810" y="762" width="13" height="128" rx="7"/>
+      <circle cx="816" cy="905" r="14"/>
+      <rect x="524" y="1193" width="14" height="93" rx="7"/>
+      <circle cx="531" cy="1297" r="12"/>
+    </g>
+
+    <g id="borderCuts" opacity=".5">
+      <rect x="-40" y="0" width="180" height="1920" fill="url(#sprayRed)" transform="rotate(4 50 960)"/>
+      <rect x="960" y="-20" width="180" height="1960" fill="url(#sprayBlue)" transform="rotate(-5 1050 960)"/>
+    </g>
+  </svg>
+
+  <canvas id="paintCanvas" class="layer fadeEdge"></canvas>
+  <canvas id="inkCanvas" class="layer fadeEdge"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div class="date">2026-06-15</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-15";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const frame = document.getElementById('frame');
+  const canvases = ['paperNoise','paintCanvas','inkCanvas'].map(id => document.getElementById(id));
+  const ctxs = canvases.map(c => c.getContext('2d'));
+  let W = 1080, H = 1920, DPR = Math.min(2, window.devicePixelRatio || 1);
+
+  const paper = ctxs[0], paint = ctxs[1], ink = ctxs[2];
+
+  const posters = [...document.querySelectorAll('.poster')];
+  const sunburst = document.getElementById('sunburst');
+  const snailMotif = document.getElementById('snailMotif');
+  const drips = document.getElementById('drips');
+
+  function resize() {
+    const rect = frame.getBoundingClientRect();
+    W = Math.round(rect.width);
+    H = Math.round(rect.height);
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    canvases.forEach(c => {
+      c.width = Math.round(W * DPR);
+      c.height = Math.round(H * DPR);
+      c.style.width = W + 'px';
+      c.style.height = H + 'px';
+      c.getContext('2d').setTransform(DPR,0,0,DPR,0,0);
+    });
+    drawPaper();
+  }
+
+  function drawPaper() {
+    paper.clearRect(0,0,W,H);
+
+    const grad = paper.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(255,255,255,0.03)');
+    grad.addColorStop(1,'rgba(0,0,0,0.05)');
+    paper.fillStyle = grad;
+    paper.fillRect(0,0,W,H);
+
+    for (let i = 0; i < 18000; i++) {
+      const x = rnd() * W;
+      const y = rnd() * H;
+      const a = rnd() * 0.08;
+      const s = rnd() < 0.92 ? 1 : 2;
+      paper.fillStyle = `rgba(40,28,18,${a})`;
+      paper.fillRect(x, y, s, s);
+    }
+
+    for (let i = 0; i < 180; i++) {
+      const x = rnd() * W, y = rnd() * H;
+      const rw = 20 + rnd()*120, rh = 5 + rnd()*28;
+      paper.save();
+      paper.translate(x,y);
+      paper.rotate((rnd()-.5)*0.8);
+      paper.fillStyle = `rgba(120,95,50,${0.02 + rnd()*0.03})`;
+      paper.fillRect(-rw/2,-rh/2,rw,rh);
+      paper.restore();
+    }
+  }
+
+  function thickBrush(ctx, x, y, w, h, angle, color, alpha=1) {
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(angle);
+    const g = ctx.createLinearGradient(-w/2,0,w/2,0);
+    g.addColorStop(0, color.replace('ALPHA', (0).toFixed(3)));
+    g.addColorStop(0.18, color.replace('ALPHA', (alpha*0.75).toFixed(3)));
+    g.addColorStop(0.5, color.replace('ALPHA', alpha.toFixed(3)));
+    g.addColorStop(0.82, color.replace('ALPHA', (alpha*0.75).toFixed(3)));
+    g.addColorStop(1, color.replace('ALPHA', (0).toFixed(3)));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(0,0,w/2,h/2,0,0,Math.PI*2);
+    ctx.fill();
+
+    for(let i=0;i<40;i++){
+      const dx = lerp(-w*0.45,w*0.45,rnd());
+      const dy = (rnd()-.5)*h*0.38;
+      const r = 1 + rnd()*3;
+      ctx.fillStyle = `rgba(255,255,255,${0.02 + rnd()*0.03})`;
+      ctx.beginPath();
+      ctx.arc(dx,dy,r,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawPaint(t){
+    paint.clearRect(0,0,W,H);
+    paint.globalCompositeOperation = 'source-over';
+
+    const sway = Math.sin(t*0.00018)*0.03;
+
+    thickBrush(paint, W*0.22, H*0.22, W*0.36, H*0.11, -0.28 + sway, 'rgba(217,71,31,ALPHA)', .42);
+    thickBrush(paint, W*0.74, H*0.29, W*0.32, H*0.10, 0.24 - sway*1.3, 'rgba(32,58,114,ALPHA)', .36);
+    thickBrush(paint, W*0.35, H*0.74, W*0.40, H*0.13, 0.06 + sway*0.8, 'rgba(106,163,108,ALPHA)', .34);
+
+    paint.save();
+    paint.globalAlpha = .28;
+    paint.filter = 'blur(18px)';
+    paint.fillStyle = '#cf4b24';
+    paint.beginPath();
+    paint.arc(W*0.55, H*0.52, W*0.17 + Math.sin(t*0.00023)*W*0.012, 0, Math.PI*2);
+    paint.fill();
+    paint.restore();
+
+    for(let i=0;i<3;i++){
+      const px = [0.16,0.72,0.29][i]*W;
+      const py = [0.18,0.56,0.69][i]*H;
+      const c = ['#d9471f','#203a72','#101010'][i];
+      paint.save();
+      paint.translate(px,py);
+      paint.rotate([-0.22,0.11,0.05][i] + Math.sin(t*0.0002 + i)*0.02);
+      for(let k=0;k<140;k++){
+        const ang = rnd()*Math.PI*2;
+        const rad = rnd()*55;
+        const x = Math.cos(ang)*rad;
+        const y = Math.sin(ang)*rad*0.68;
+        const r = 3 + rnd()*9;
+        paint.fillStyle = c.replace(')',`,`); // noop safe fallback
+        paint.beginPath();
+        paint.fillStyle = i===0 ? `rgba(217,71,31,${0.025 + rnd()*0.045})`
+                      : i===1 ? `rgba(32,58,114,${0.025 + rnd()*0.045})`
+                              : `rgba(16,16,16,${0.02 + rnd()*0.03})`;
+        paint.arc(x,y,r,0,Math.PI*2);
+        paint.fill();
+      }
+      paint.restore();
+    }
+  }
+
+  function drawInk(t){
+    ink.clearRect(0,0,W,H);
+    ink.lineCap = 'round';
+    ink.lineJoin = 'round';
+
+    const shellX = W*0.49;
+    const shellY = H*0.53;
+    const drift = Math.sin(t*0.0002)*W*0.01;
+
+    ink.save();
+    ink.translate(shellX + drift, shellY);
+    ink.rotate(Math.sin(t*0.00014)*0.015);
+    ink.strokeStyle = 'rgba(16,16,16,0.88)';
+    ink.lineWidth = Math.max(5, W*0.008);
+    ink.beginPath();
+    ink.arc(0,0,W*0.13,0.4,Math.PI*2.22);
+    ink.stroke();
+
+    ink.lineWidth = Math.max(8, W*0.012);
+    ink.strokeStyle = 'rgba(16,16,16,0.97)';
+    ink.beginPath();
+    ink.arc(0,0,W*0.21,0.4,Math.PI*2.07);
+    ink.stroke();
+
+    ink.lineWidth = Math.max(13, W*0.02);
+    ink.strokeStyle = 'rgba(217,71,31,0.75)';
+    ink.beginPath();
+    ink.arc(0,0,W*0.16,0.5,Math.PI*2.0);
+    ink.stroke();
+    ink.restore();
+
+    ink.save();
+    ink.translate(W*0.67 + drift*1.2, H*0.555);
+    ink.rotate(-0.06 + Math.sin(t*0.00021)*0.012);
+    ink.fillStyle = 'rgba(16,16,16,0.95)';
+    ink.beginPath();
+    ink.moveTo(0,0);
+    ink.lineTo(W*0.12,-H*0.01);
+    ink.lineTo(W*0.19,H*0.015);
+    ink.lineTo(W*0.135,H*0.036);
+    ink.lineTo(W*0.03,H*0.038);
+    ink.closePath();
+    ink.fill();
+    ink.restore();
+
+    ink.save();
+    ink.strokeStyle = 'rgba(16,16,16,0.92)';
+    ink.lineWidth = Math.max(7, W*0.01);
+    ink.beginPath();
+    ink.moveTo(W*0.30, H*0.58);
+    ink.lineTo(W*0.80, H*0.58);
+    ink.stroke();
+
+    const lifts = [0.36,0.50,0.65,0.79];
+    lifts.forEach((lx, i) => {
+      const wob = Math.sin(t*0.00035 + i)*H*0.002;
+      ink.beginPath();
+      ink.moveTo(W*lx, H*(0.58 + 0.002));
+      ink.lineTo(W*lx, H*(0.60 + 0.002) + wob);
+      ink.stroke();
+    });
+    ink.restore();
+
+    for(let i=0;i<4;i++){
+      const y = H*(0.16 + i*0.18);
+      ink.save();
+      ink.globalAlpha = 0.08;
+      ink.fillStyle = i%2 ? '#203a72' : '#d9471f';
+      ink.translate(W*(0.12 + i*0.18), y);
+      ink.rotate(-0.18 + i*0.1);
+      ink.fillRect(0,0,W*0.16,H*0.012);
+      ink.restore();
+    }
+  }
+
+  let start = performance.now();
+  function animate(now){
+    const t = now - start;
+
+    posters[0].style.transform = `rotate(${-6 + Math.sin(t*0.00019)*1.8}deg) translateY(${Math.sin(t*0.00023)*8}px)`;
+    posters[1].style.transform = `rotate(${7 + Math.sin(t*0.00017 + 1)*1.5}deg) translateY(${Math.sin(t*0.00021+0.4)*-7}px)`;
+    posters[2].style.transform = `rotate(${3 + Math.sin(t*0.00015 + 2)*1.4}deg) translateY(${Math.sin(t*0.00018+1.2)*6}px)`;
+    posters[3].style.transform = `rotate(${-9 + Math.sin(t*0.00016 + 1.6)*1.3}deg) translateY(${Math.sin(t*0.0002+1.8)*-5}px)`;
+
+    sunburst.setAttribute('transform', `translate(0 0) rotate(${Math.sin(t*0.00009)*4} 540 970) scale(${1 + Math.sin(t*0.00013)*0.018})`);
+    snailMotif.setAttribute('transform', `translate(${Math.sin(t*0.0002)*8} ${Math.sin(t*0.00016+0.7)*6}) rotate(${Math.sin(t*0.00012)*1.2} 540 1040)`);
+    drips.setAttribute('transform', `translate(0 ${Math.sin(t*0.0003)*6})`);
+
+    drawPaint(t);
+    drawInk(t);
+    requestAnimationFrame(animate);
+  }
+
+  resize();
+  drawPaint(0);
+  drawInk(0);
+  requestAnimationFrame(animate);
+  window.addEventListener('resize', resize);
+
+  if (window.self === window.top) {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.016;
+      master.connect(ac.destination);
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      const f1 = ac.createBiquadFilter();
+      const f2 = ac.createBiquadFilter();
+      const g1 = ac.createGain();
+      const g2 = ac.createGain();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.value = 98;
+      osc2.frequency.value = 146.8;
+
+      f1.type = 'lowpass'; f1.frequency.value = 550; f1.Q.value = 0.6;
+      f2.type = 'bandpass'; f2.frequency.value = 420; f2.Q.value = 0.7;
+
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.16;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.037;
+      lfoGain.gain.value = 42;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(f1.frequency);
+      lfoGain.connect(f2.frequency);
+
+      osc1.connect(f1); f1.connect(g1); g1.connect(master);
+      osc2.connect(f2); f2.connect(g2); g2.connect(master);
+
+      const noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random()*2-1) * 0.18;
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+      const noiseFilter = ac.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.value = 1800;
+      const noiseGain = ac.createGain();
+      noiseGain.gain.value = 0.006;
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      const now = ac.currentTime + 0.05;
+      osc1.start(now); osc2.start(now); lfo.start(now); noise.start(now);
+
+      function driftAudio() {
+        const t = ac.currentTime;
+        osc1.frequency.setTargetAtTime(92 + 8*Math.sin(t/17), t, 4.5);
+        osc2.frequency.setTargetAtTime(140 + 11*Math.sin(t/13 + 1.4), t, 4.5);
+        g1.gain.setTargetAtTime(0.20 + 0.03*Math.sin(t/11), t, 3.5);
+        g2.gain.setTargetAtTime(0.15 + 0.02*Math.sin(t/9), t, 3.5);
+        setTimeout(driftAudio, 4000);
+      }
+      driftAudio();
+    } catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
