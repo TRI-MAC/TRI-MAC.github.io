@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026-06-16</title>
+<style>
+  :root{
+    --ink:#102847;
+    --indigo:#163b62;
+    --deep:#0d2140;
+    --teal:#2e7b8b;
+    --sea:#4aa2a5;
+    --foam:#d7e8d7;
+    --coral:#d96d53;
+    --gold:#c6a25c;
+    --paper:#e8d9bb;
+    --shadow:#091628;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;height:100%;background:#09121f;overflow:hidden;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  body{
+    display:grid;place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 8%, rgba(231,215,176,.95), rgba(231,215,176,.18) 14%, rgba(231,215,176,0) 26%),
+      linear-gradient(180deg, #8fb8b8 0%, #6ba0a5 13%, #346c79 34%, #1d4768 58%, #112d51 78%, #0b1d39 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 30px 80px rgba(0,0,0,.45);
+  }
+
+  /* woodblock grain */
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,.025) 0 1px,
+        rgba(0,0,0,.02) 1px 2px,
+        transparent 2px 7px),
+      repeating-linear-gradient(0deg,
+        rgba(255,255,255,.018) 0 1px,
+        transparent 1px 5px);
+    mix-blend-mode:multiply;
+    opacity:.45;
+    pointer-events:none;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(7,17,30,.18) 76%, rgba(7,17,30,.32) 100%);
+    pointer-events:none;
+  }
+
+  svg, canvas, .layer {position:absolute; inset:0;}
+  #plankton{opacity:.95}
+  #mist{
+    mix-blend-mode:screen;
+    opacity:.28;
+    filter:blur(12px);
+  }
+
+  .date{
+    position:absolute;
+    right:20px; bottom:16px;
+    color:rgba(232,217,187,.6);
+    font-size:14px;
+    letter-spacing:.08em;
+    z-index:30;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:26px;
+    bottom:145px;
+    opacity:.58;
+    filter:saturate(.7) hue-rotate(170deg) brightness(.9);
+    z-index:16;
+    transform:rotate(-8deg);
+  }
+
+  .maskFade{
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 70%, transparent 100%);
+            mask-image: radial-gradient(ellipse at center, #000 70%, transparent 100%);
+  }
+
+  @keyframes curtainBreath{
+    0%,100%{transform:scaleY(1) translateY(0)}
+    50%{transform:scaleY(1.02) translateY(-6px)}
+  }
+  #curtains{
+    animation:curtainBreath 18s ease-in-out infinite;
+    transform-origin:top center;
+  }
+
+  @keyframes lightDrift{
+    0%,100%{transform:translateY(0) translateX(0)}
+    50%{transform:translateY(16px) translateX(-8px)}
+  }
+  #light-shafts{
+    animation:lightDrift 24s ease-in-out infinite;
+    transform-origin:top center;
+  }
+
+  @keyframes whaleFloat{
+    0%,100%{transform:translateY(0) translateX(0)}
+    50%{transform:translateY(-18px) translateX(10px)}
+  }
+  #whaleGroup{
+    animation:whaleFloat 20s ease-in-out infinite;
+    transform-origin:50% 50%;
+  }
+
+  @keyframes sealPulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.035)}
+  }
+  #sunSeal{
+    animation:sealPulse 12s ease-in-out infinite;
+    transform-origin:50% 50%;
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="waveGrad1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8ab4b1"/>
+          <stop offset="100%" stop-color="#588391"/>
+        </linearGradient>
+        <linearGradient id="waveGrad2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#4d7f8f"/>
+          <stop offset="100%" stop-color="#264f70"/>
+        </linearGradient>
+        <linearGradient id="waveGrad3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#224666"/>
+          <stop offset="100%" stop-color="#132b49"/>
+        </linearGradient>
+        <linearGradient id="beam1" x1="0" y1="0" x2="0.3" y2="1">
+          <stop offset="0%" stop-color="rgba(240,230,198,.7)"/>
+          <stop offset="55%" stop-color="rgba(240,230,198,.16)"/>
+          <stop offset="100%" stop-color="rgba(240,230,198,0)"/>
+        </linearGradient>
+        <linearGradient id="beam2" x1="0" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stop-color="rgba(220,228,205,.5)"/>
+          <stop offset="50%" stop-color="rgba(220,228,205,.12)"/>
+          <stop offset="100%" stop-color="rgba(220,228,205,0)"/>
+        </linearGradient>
+        <filter id="soften">
+          <feGaussianBlur stdDeviation="2.5"/>
+        </filter>
+        <filter id="paperNoise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed="20260616" result="n"/>
+          <feColorMatrix in="n" type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncA type="table" tableValues="0 0 .08 .14"/>
+          </feComponentTransfer>
+        </filter>
+      </defs>
+
+      <!-- top theatrical cartouche / rising sun seal -->
+      <g id="sunSeal" opacity=".88">
+        <circle cx="540" cy="205" r="118" fill="#eadcb7" stroke="#173552" stroke-width="12"/>
+        <circle cx="540" cy="205" r="84" fill="#c86045" opacity=".92"/>
+        <g fill="#173552" opacity=".8">
+          <rect x="532" y="70" width="16" height="70" rx="8"/>
+          <rect x="532" y="270" width="16" height="70" rx="8"/>
+          <rect x="405" y="197" width="70" height="16" rx="8"/>
+          <rect x="605" y="197" width="70" height="16" rx="8"/>
+          <rect x="447" y="110" width="16" height="58" rx="8" transform="rotate(-45 455 139)"/>
+          <rect x="617" y="242" width="16" height="58" rx="8" transform="rotate(-45 625 271)"/>
+          <rect x="617" y="110" width="16" height="58" rx="8" transform="rotate(45 625 139)"/>
+          <rect x="447" y="242" width="16" height="58" rx="8" transform="rotate(45 455 271)"/>
+        </g>
+      </g>
+
+      <!-- distant light shafts -->
+      <g id="light-shafts" class="maskFade">
+        <polygon points="230,0 430,0 615,1230 455,1230" fill="url(#beam1)" opacity=".55"/>
+        <polygon points="560,0 740,0 870,1180 710,1180" fill="url(#beam2)" opacity=".52"/>
+        <polygon points="90,0 220,0 355,960 260,980" fill="url(#beam2)" opacity=".3"/>
+      </g>
+
+      <!-- stylized layered water bands -->
+      <g id="waterBands">
+        <path d="M0 360 C180 328, 320 378, 470 346 C610 316, 740 340, 1080 286 L1080 550 L0 550 Z"
+              fill="url(#waveGrad1)" opacity=".95" stroke="#163b62" stroke-width="8"/>
+        <path d="M0 505 C220 468, 318 526, 494 488 C676 448, 816 482, 1080 434 L1080 760 L0 760 Z"
+              fill="url(#waveGrad2)" opacity=".94" stroke="#173552" stroke-width="8"/>
+        <path d="M0 720 C190 676, 368 752, 566 704 C734 664, 870 700, 1080 662 L1080 1110 L0 1110 Z"
+              fill="url(#waveGrad3)" opacity=".94" stroke="#102847" stroke-width="8"/>
+        <path d="M0 1000 C220 956, 400 1028, 574 990 C780 946, 934 992, 1080 966 L1080 1490 L0 1490 Z"
+              fill="#16385d" opacity=".96" stroke="#0e2744" stroke-width="8"/>
+        <path d="M0 1360 C200 1308, 338 1384, 570 1344 C772 1308, 880 1360, 1080 1324 L1080 1920 L0 1920 Z"
+              fill="#102847" opacity="1" stroke="#0a1d36" stroke-width="8"/>
+      </g>
+
+      <!-- kabuki curtain-like side framing -->
+      <g id="curtains" opacity=".9">
+        <path d="M0 0 L145 0 C118 190, 168 312, 126 485 C95 620, 138 758, 112 926 C84 1100, 119 1258, 92 1445 C68 1614, 76 1763, 46 1920 L0 1920 Z"
+              fill="#c55445"/>
+        <path d="M1080 0 L935 0 C962 190, 912 312, 954 485 C985 620, 942 758, 968 926 C996 1100, 961 1258, 988 1445 C1012 1614, 1004 1763, 1034 1920 L1080 1920 Z"
+              fill="#c55445"/>
+        <g stroke="#f0d8a9" stroke-width="10" opacity=".75">
+          <line x1="54" y1="0" x2="82" y2="1920"/>
+          <line x1="108" y1="0" x2="126" y2="1920"/>
+          <line x1="1026" y1="0" x2="998" y2="1920"/>
+          <line x1="972" y1="0" x2="954" y2="1920"/>
+        </g>
+      </g>
+
+      <!-- whale -->
+      <g id="whaleGroup">
+        <!-- sound rings -->
+        <g opacity=".22" stroke="#eadcb7" fill="none">
+          <ellipse cx="402" cy="862" rx="84" ry="50" stroke-width="10"/>
+          <ellipse cx="402" cy="862" rx="126" ry="76" stroke-width="7"/>
+          <ellipse cx="402" cy="862" rx="168" ry="102" stroke-width="4"/>
+        </g>
+
+        <!-- tail behind -->
+        <path d="M802 930
+                 C910 914, 972 952, 1020 1018
+                 C948 1014, 898 1036, 854 1090
+                 C842 1022, 822 976, 770 946 Z"
+              fill="#204c73" stroke="#143655" stroke-width="10"/>
+
+        <!-- body -->
+        <path d="M275 966
+                 C324 834, 480 750, 666 758
+                 C785 763, 866 828, 910 930
+                 C857 1020, 729 1103, 573 1122
+                 C432 1140, 326 1099, 260 1028
+                 C240 1007, 236 986, 275 966 Z"
+              fill="#214c74" stroke="#10304e" stroke-width="12"/>
+
+        <!-- back pattern -->
+        <path d="M348 920
+                 C470 845, 659 834, 815 920
+                 C736 956, 692 986, 626 1038
+                 C540 1014, 431 998, 338 1018
+                 C317 986, 319 952, 348 920 Z"
+              fill="#2b6a82" opacity=".82"/>
+
+        <!-- underbelly -->
+        <path d="M292 1010
+                 C368 1077, 492 1097, 617 1078
+                 C722 1061, 805 1019, 871 952
+                 C858 1028, 782 1111, 639 1153
+                 C498 1194, 357 1160, 286 1079
+                 C264 1053, 258 1032, 292 1010 Z"
+              fill="#d9d7c6" opacity=".96" stroke="#173552" stroke-width="8"/>
+
+        <!-- head/mouth -->
+        <path d="M228 1018 C238 998, 257 986, 285 983 C276 1008, 275 1030, 286 1052 C253 1053, 232 1043, 228 1018 Z"
+              fill="#173b61" stroke="#102847" stroke-width="8"/>
+        <circle cx="336" cy="922" r="11" fill="#0d1f35"/>
+        <circle cx="332" cy="919" r="4" fill="#e6d8b8"/>
+
+        <!-- fin -->
+        <path d="M548 1088
+                 C582 1160, 562 1234, 492 1280
+                 C508 1208, 476 1160, 430 1129
+                 C470 1108, 505 1094, 548 1088 Z"
+              fill="#1a4368" stroke="#10304e" stroke-width="10"/>
+
+        <!-- kabuki textile blocks on body -->
+        <g opacity=".92">
+          <polygon points="450,865 532,838 612,872 529,902" fill="#d6634d" stroke="#173552" stroke-width="6"/>
+          <polygon points="613,874 694,856 759,895 679,922" fill="#e6d8b8" stroke="#173552" stroke-width="6"/>
+          <polygon points="515,926 591,905 653,934 577,960" fill="#c49b58" stroke="#173552" stroke-width="6"/>
+          <polygon points="389,959 466,936 528,965 451,991" fill="#eadcb7" stroke="#173552" stroke-width="6"/>
+          <polygon points="631,956 703,938 760,969 689,991" fill="#d6634d" stroke="#173552" stroke-width="6"/>
+        </g>
+
+        <!-- body linework -->
+        <g stroke="#102847" stroke-width="7" fill="none" opacity=".72">
+          <path d="M358 994 C470 973, 616 991, 728 963"/>
+          <path d="M387 1043 C491 1041, 609 1049, 713 1011"/>
+          <path d="M468 887 C560 876, 661 894, 751 935"/>
+        </g>
+
+        <!-- starfish motif, clearly a starfish -->
+        <g transform="translate(786 1198) rotate(12) scale(1.15)" opacity=".82">
+          <path d="M0,-46 L14,-15 L46,-14 L22,7 L31,39 L0,21 L-31,39 L-22,7 L-46,-14 L-14,-15 Z"
+                fill="#d46a54" stroke="#f2d9ad" stroke-width="5" />
+          <circle cx="0" cy="0" r="9" fill="#f2d9ad" opacity=".9"/>
+        </g>
+      </g>
+
+      <!-- foreground sea plants / stage flats -->
+      <g opacity=".95">
+        <path d="M156 1920 C170 1730, 176 1634, 212 1478 C238 1364, 286 1275, 308 1212 C334 1268, 336 1358, 326 1448 C316 1568, 306 1730, 320 1920 Z"
+              fill="#12355a" stroke="#0c2742" stroke-width="10"/>
+        <path d="M908 1920 C898 1776, 884 1658, 850 1516 C826 1412, 790 1329, 744 1248 C724 1326, 724 1422, 734 1526 C744 1650, 758 1774, 746 1920 Z"
+              fill="#12355a" stroke="#0c2742" stroke-width="10"/>
+        <path d="M38 1920 C40 1832, 86 1764, 128 1682 C152 1634, 160 1592, 166 1542 C208 1622, 238 1714, 240 1920 Z"
+              fill="#0f2d4f"/>
+        <path d="M1042 1920 C1040 1832, 994 1764, 952 1682 C928 1634, 920 1592, 914 1542 C872 1622, 842 1714, 840 1920 Z"
+              fill="#0f2d4f"/>
+      </g>
+
+      <!-- subtle paper texture -->
+      <rect x="0" y="0" width="1080" height="1920" filter="url(#paperNoise)" opacity=".65"/>
+    </svg>
+
+    <canvas id="plankton" width="1080" height="1920" class="layer"></canvas>
+    <canvas id="mist" width="1080" height="1920" class="layer maskFade"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+    <div class="date">2026-06-16</div>
+  </div>
+
+<script>
+(() => {
+  const seed = 20260616;
+  function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}}
+  const rand = mulberry32(seed);
+
+  const planktonCanvas = document.getElementById('plankton');
+  const pctx = planktonCanvas.getContext('2d');
+  const mistCanvas = document.getElementById('mist');
+  const mctx = mistCanvas.getContext('2d');
+
+  const W = 1080, H = 1920;
+
+  const specks = [];
+  const count = 220;
+  for(let i=0;i<count;i++){
+    const depth = rand();
+    specks.push({
+      x: rand()*W,
+      y: rand()*H,
+      r: 0.8 + rand()*3.5*(1-depth*0.4),
+      a: 0.08 + rand()*0.42,
+      s: 0.12 + rand()*0.45 + depth*0.35,
+      drift: (rand()-.5)*0.12,
+      phase: rand()*Math.PI*2,
+      hue: rand() < 0.86 ? 48 : 14
+    });
+  }
+
+  const mistBands = [];
+  for(let i=0;i<8;i++){
+    mistBands.push({
+      y: 180 + i*210 + rand()*80,
+      h: 120 + rand()*130,
+      x: rand()*W,
+      w: 340 + rand()*380,
+      dx: (rand()-.5)*0.08,
+      phase: rand()*Math.PI*2
+    });
+  }
+
+  let start = performance.now();
+
+  function draw(t){
+    const time = (t - start) * 0.001;
+
+    pctx.clearRect(0,0,W,H);
+    for(const s of specks){
+      const yy = (s.y + (time*34*s.s)) % (H+40) - 20;
+      const xx = s.x + Math.sin(time*0.35 + s.phase + yy*0.002)*18 + time*10*s.drift;
+      pctx.beginPath();
+      pctx.fillStyle = s.hue === 48
+        ? `rgba(234,220,183,${s.a})`
+        : `rgba(214,112,88,${s.a*0.7})`;
+      pctx.arc(xx, yy, s.r*(0.75 + 0.25*Math.sin(time*0.9+s.phase)), 0, Math.PI*2);
+      pctx.fill();
+    }
+
+    mctx.clearRect(0,0,W,H);
+    for(const b of mistBands){
+      b.x += b.dx;
+      const x = b.x + Math.sin(time*0.18 + b.phase)*50;
+      const y = b.y + Math.sin(time*0.22 + b.phase)*24;
+      const grad = mctx.createRadialGradient(x,y,0,x,y,b.w);
+      grad.addColorStop(0,'rgba(231,218,186,0.09)');
+      grad.addColorStop(0.35,'rgba(171,210,205,0.06)');
+      grad.addColorStop(1,'rgba(171,210,205,0)');
+      mctx.fillStyle = grad;
+      mctx.beginPath();
+      mctx.ellipse(x,y,b.w,b.h,0,0,Math.PI*2);
+      mctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'sine';
+      low.frequency.value = 58;
+
+      const overtone = ctx.createOscillator();
+      overtone.type = 'triangle';
+      overtone.frequency.value = 87;
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.047;
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 6;
+
+      const waveGain = ctx.createGain();
+      waveGain.gain.value = 0.0;
+
+      const overtoneGain = ctx.createGain();
+      overtoneGain.gain.value = 0.0;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 340;
+      filter.Q.value = 0.4;
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.45;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 420;
+      noiseFilter.Q.value = 0.3;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.0035;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(low.frequency);
+
+      low.connect(waveGain);
+      overtone.connect(overtoneGain);
+      waveGain.connect(filter);
+      overtoneGain.connect(filter);
+      filter.connect(master);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      const now = ctx.currentTime;
+      waveGain.gain.setValueAtTime(0.0001, now);
+      overtoneGain.gain.setValueAtTime(0.0001, now);
+
+      function whalePhrase(baseTime){
+        const dur = 9.5;
+        waveGain.gain.cancelScheduledValues(baseTime);
+        overtoneGain.gain.cancelScheduledValues(baseTime);
+
+        waveGain.gain.setValueAtTime(0.0001, baseTime);
+        waveGain.gain.linearRampToValueAtTime(0.022, baseTime + 2.8);
+        waveGain.gain.linearRampToValueAtTime(0.014, baseTime + 6.2);
+        waveGain.gain.linearRampToValueAtTime(0.0001, baseTime + dur);
+
+        overtoneGain.gain.setValueAtTime(0.0001, baseTime);
+        overtoneGain.gain.linearRampToValueAtTime(0.008, baseTime + 3.4);
+        overtoneGain.gain.linearRampToValueAtTime(0.0001, baseTime + dur);
+
+        low.frequency.setValueAtTime(54, baseTime);
+        low.frequency.linearRampToValueAtTime(61, baseTime + 3.8);
+        low.frequency.linearRampToValueAtTime(56, baseTime + dur);
+
+        overtone.frequency.setValueAtTime(82, baseTime);
+        overtone.frequency.linearRampToValueAtTime(90, baseTime + 4.2);
+        overtone.frequency.linearRampToValueAtTime(84, baseTime + dur);
+
+        filter.frequency.setValueAtTime(260, baseTime);
+        filter.frequency.linearRampToValueAtTime(420, baseTime + 4.5);
+        filter.frequency.linearRampToValueAtTime(290, baseTime + dur);
+      }
+
+      let scheduled = now + 0.3;
+      for(let i=0;i<8;i++){
+        whalePhrase(scheduled);
+        scheduled += 12 + (i%2)*1.7;
+      }
+
+      setInterval(() => {
+        const t = ctx.currentTime + 0.2;
+        whalePhrase(t);
+      }, 12800);
+
+      const resume = () => { if (ctx.state !== 'running') ctx.resume(); };
+      document.addEventListener('visibilitychange', resume);
+      low.start();
+      overtone.start();
+      lfo.start();
+      noise.start();
+      resume();
+    }
+  }
+})();
+</script>
+</body>
+</html>
