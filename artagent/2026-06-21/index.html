@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Artwork</title>
+<style>
+  :root{
+    --bg0:#0b0f16;
+    --bg1:#17131f;
+    --ink:#bff6ff;
+    --acid:#9bff42;
+    --vio:#8d63ff;
+    --amber:#ffb347;
+    --pale:#e8f7ff;
+    --mud:#3a3148;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#05070b;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% 15%, rgba(186,255,246,.10), transparent 45%),
+      radial-gradient(70% 70% at 18% 78%, rgba(125,86,255,.15), transparent 40%),
+      linear-gradient(180deg, #0f1620 0%, #1a1220 42%, #191e2a 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 24px 80px rgba(0,0,0,.55);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:-4%;
+    width:108%;
+    height:108%;
+    object-fit:cover;
+    opacity:.78;
+    filter:saturate(1.15) contrast(1.06) brightness(.93) hue-rotate(-8deg);
+    transform:scale(1.04);
+  }
+
+  .veil{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+
+  #backGradient{
+    background:
+      radial-gradient(60% 36% at 50% 18%, rgba(206,255,248,.14), transparent 60%),
+      radial-gradient(85% 55% at 50% 88%, rgba(30,255,176,.08), transparent 60%),
+      linear-gradient(180deg, rgba(14,18,24,.06), rgba(10,12,18,.20) 36%, rgba(13,15,24,.34) 100%);
+  }
+
+  #lattice{
+    opacity:.28;
+    background:
+      linear-gradient(115deg, transparent 0 46%, rgba(198,255,248,.07) 46.4% 47.2%, transparent 47.6% 100%),
+      linear-gradient(65deg, transparent 0 50%, rgba(123,94,255,.08) 50.3% 51.2%, transparent 51.6% 100%);
+    mix-blend-mode:screen;
+    animation:latticeShift 26s ease-in-out infinite;
+  }
+
+  @keyframes latticeShift{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    50%{transform:translate3d(0,-1.8%,0) scale(1.03)}
+  }
+
+  #cells{
+    position:absolute; inset:0;
+    overflow:hidden;
+    filter:blur(.2px);
+  }
+  .cell{
+    position:absolute;
+    border-radius:38% 62% 54% 46% / 44% 35% 65% 56%;
+    border:1px solid rgba(229,250,255,.12);
+    background:
+      radial-gradient(100% 100% at 35% 35%, rgba(255,255,255,.14), rgba(255,255,255,.02) 34%, rgba(157,255,214,.05) 62%, rgba(0,0,0,0) 100%);
+    box-shadow:inset 0 0 20px rgba(205,255,247,.05), 0 0 30px rgba(147,255,228,.04);
+    backdrop-filter: blur(2px);
+    mix-blend-mode:screen;
+    animation:cellPulse var(--d) ease-in-out infinite;
+  }
+  @keyframes cellPulse{
+    0%,100%{transform:translateY(0) scale(1) rotate(0deg)}
+    50%{transform:translateY(-1.2%) scale(1.04) rotate(2deg)}
+  }
+
+  #rainCanvas, #rippleCanvas, #maskCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #maskCanvas{opacity:.55; mix-blend-mode:screen}
+  #rippleCanvas{opacity:.95}
+  #rainCanvas{opacity:.96}
+
+  #planes{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.95;
+  }
+  .plane{
+    position:absolute;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.01));
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 0 24px rgba(255,255,255,.03);
+    transform-origin:center;
+    backdrop-filter: blur(2px);
+    mix-blend-mode:screen;
+    animation:planeBreath var(--dur) ease-in-out infinite;
+  }
+  .plane.a{
+    left:6%; top:7%; width:40%; height:18%;
+    clip-path:polygon(0 18%, 84% 0, 100% 55%, 12% 100%);
+  }
+  .plane.b{
+    right:4%; top:23%; width:28%; height:14%;
+    clip-path:polygon(10% 0, 100% 12%, 82% 100%, 0 74%);
+  }
+  .plane.c{
+    left:-2%; bottom:22%; width:52%; height:15%;
+    clip-path:polygon(0 33%, 94% 0, 100% 100%, 8% 82%);
+  }
+  .plane.d{
+    right:-6%; bottom:10%; width:58%; height:19%;
+    clip-path:polygon(18% 0, 100% 22%, 86% 100%, 0 70%);
+  }
+  @keyframes planeBreath{
+    0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}
+    50%{transform:translate3d(0,-1%,0) rotate(.8deg) scale(1.02)}
+  }
+
+  #thresholds{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.84;
+  }
+  .th{
+    position:absolute;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0), rgba(229,255,255,.17) 18%, rgba(151,255,214,.12) 45%, rgba(255,255,255,0));
+    filter:blur(8px);
+    transform-origin:center;
+    animation:throb var(--t) ease-in-out infinite;
+  }
+  @keyframes throb{
+    0%,100%{opacity:.28; transform:scaleX(.96) scaleY(1)}
+    50%{opacity:.58; transform:scaleX(1.04) scaleY(1.08)}
+  }
+
+  #lightningSVG{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    opacity:.92;
+    mix-blend-mode:screen;
+  }
+
+  .fog{
+    position:absolute; left:-10%; width:120%; height:20%;
+    border-radius:50%;
+    filter:blur(36px);
+    background:radial-gradient(50% 80% at 50% 50%, rgba(214,242,255,.12), rgba(198,220,255,.05) 45%, transparent 70%);
+    animation:fogMove var(--fd) ease-in-out infinite;
+    opacity:.48;
+  }
+  .fog.f1{top:12%}
+  .fog.f2{top:44%}
+  .fog.f3{bottom:8%}
+  @keyframes fogMove{
+    0%,100%{transform:translateX(0) scale(1)}
+    50%{transform:translateX(2.2%) scale(1.05)}
+  }
+
+  #edgeFade{
+    background:
+      linear-gradient(180deg, rgba(4,6,10,.34), transparent 10%, transparent 86%, rgba(4,6,10,.34)),
+      linear-gradient(90deg, rgba(4,6,10,.24), transparent 8%, transparent 92%, rgba(4,6,10,.24));
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(232,247,255,.56);
+    font-size:12px;
+    letter-spacing:.18em;
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:14px;
+    bottom:126px;
+    opacity:.58;
+    filter:saturate(.9) brightness(.78) contrast(1.04);
+    transform:rotate(-7deg);
+    z-index:6;
+  }
+
+  #salamanderGlyph{
+    position:absolute;
+    left:9%;
+    bottom:18%;
+    width:18%;
+    height:8%;
+    opacity:.09;
+    filter:blur(.2px);
+    mix-blend-mode:screen;
+    animation:salShift 21s ease-in-out infinite;
+  }
+  @keyframes salShift{
+    0%,100%{transform:translateX(0) rotate(0deg)}
+    50%{transform:translateX(1.2%) rotate(1.5deg)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <div id="backGradient" class="veil"></div>
+  <div id="lattice" class="veil"></div>
+
+  <div id="cells">
+    <div class="cell" style="left:7%; top:9%; width:17%; height:11%; --d:15s;"></div>
+    <div class="cell" style="left:26%; top:13%; width:26%; height:10%; --d:18s;"></div>
+    <div class="cell" style="right:9%; top:8%; width:21%; height:13%; --d:17s;"></div>
+    <div class="cell" style="left:14%; top:31%; width:18%; height:9%; --d:14s;"></div>
+    <div class="cell" style="right:16%; top:36%; width:24%; height:11%; --d:19s;"></div>
+    <div class="cell" style="left:4%; bottom:25%; width:28%; height:13%; --d:16s;"></div>
+    <div class="cell" style="left:33%; bottom:18%; width:20%; height:10%; --d:13s;"></div>
+    <div class="cell" style="right:4%; bottom:15%; width:30%; height:14%; --d:20s;"></div>
+  </div>
+
+  <div id="planes">
+    <div class="plane a" style="--dur:24s"></div>
+    <div class="plane b" style="--dur:28s"></div>
+    <div class="plane c" style="--dur:22s"></div>
+    <div class="plane d" style="--dur:30s"></div>
+  </div>
+
+  <canvas id="maskCanvas" width="1080" height="1920"></canvas>
+  <canvas id="rippleCanvas" width="1080" height="1920"></canvas>
+  <canvas id="rainCanvas" width="1080" height="1920"></canvas>
+
+  <svg id="lightningSVG" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="boltGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f2ffff" stop-opacity="0.9"/>
+        <stop offset="45%" stop-color="#d8f8ff" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#9cf3ff" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="boltGlow">
+        <feGaussianBlur stdDeviation="7" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <radialGradient id="halo" cx="50%" cy="16%" r="55%">
+        <stop offset="0%" stop-color="#d7fbff" stop-opacity="0.17"/>
+        <stop offset="60%" stop-color="#91efff" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#91efff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="540" cy="320" rx="430" ry="260" fill="url(#halo)">
+      <animate attributeName="opacity" values="0.42;0.58;0.42" dur="18s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <polygon id="bolt1" points="510,170 620,420 560,430 680,760 598,770 708,1170" fill="url(#boltGrad)" filter="url(#boltGlow)" opacity="0.14">
+      <animate attributeName="opacity" values="0.08;0.14;0.08" dur="23s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 8 12; 0 0" dur="23s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon id="bolt2" points="324,210 420,390 370,405 470,620 418,634 498,878" fill="url(#boltGrad)" filter="url(#boltGlow)" opacity="0.08">
+      <animate attributeName="opacity" values="0.04;0.09;0.04" dur="31s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; -6 10; 0 0" dur="31s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon id="bolt3" points="760,190 842,358 804,366 886,596 842,608 920,844" fill="url(#boltGrad)" filter="url(#boltGlow)" opacity="0.07">
+      <animate attributeName="opacity" values="0.03;0.08;0.03" dur="27s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 5 14; 0 0" dur="27s" repeatCount="indefinite"/>
+    </polygon>
+  </svg>
+
+  <svg id="salamanderGlyph" viewBox="0 0 240 100" aria-hidden="true">
+    <g fill="rgba(188,255,210,.85)">
+      <rect x="24" y="44" width="118" height="22" rx="10"></rect>
+      <rect x="132" y="38" width="38" height="18" rx="8" transform="rotate(-8 151 47)"></rect>
+      <rect x="164" y="34" width="22" height="16" rx="7"></rect>
+      <rect x="48" y="58" width="10" height="26" rx="4" transform="rotate(24 53 71)"></rect>
+      <rect x="90" y="60" width="10" height="24" rx="4" transform="rotate(-20 95 72)"></rect>
+      <rect x="128" y="58" width="10" height="24" rx="4" transform="rotate(18 133 70)"></rect>
+      <rect x="152" y="54" width="10" height="24" rx="4" transform="rotate(-20 157 66)"></rect>
+      <rect x="12" y="48" width="26" height="10" rx="5" transform="rotate(20 25 53)"></rect>
+      <circle cx="175" cy="40" r="3"></circle>
+    </g>
+  </svg>
+
+  <div id="thresholds">
+    <div class="th" style="left:11%; top:20%; width:35%; height:6px; transform:rotate(-13deg); --t:17s;"></div>
+    <div class="th" style="right:8%; top:41%; width:31%; height:8px; transform:rotate(21deg); --t:19s;"></div>
+    <div class="th" style="left:21%; bottom:25%; width:37%; height:7px; transform:rotate(9deg); --t:15s;"></div>
+    <div class="th" style="right:11%; bottom:14%; width:30%; height:9px; transform:rotate(-12deg); --t:21s;"></div>
+  </div>
+
+  <div class="fog f1" style="--fd:29s"></div>
+  <div class="fog f2" style="--fd:33s"></div>
+  <div class="fog f3" style="--fd:26s"></div>
+  <div id="edgeFade" class="veil"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-06-21</div>
+</div>
+
+<script>
+(() => {
+  const dateSeed = "2026-06-21";
+  let seed = 0;
+  for (let i = 0; i < dateSeed.length; i++) seed = (seed * 131 + dateSeed.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >>> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const frame = document.getElementById('frame');
+  const rainCanvas = document.getElementById('rainCanvas');
+  const rippleCanvas = document.getElementById('rippleCanvas');
+  const maskCanvas = document.getElementById('maskCanvas');
+  const rctx = rainCanvas.getContext('2d');
+  const pctx = rippleCanvas.getContext('2d');
+  const mctx = maskCanvas.getContext('2d');
+
+  let W = 1080, H = 1920, DPR = 1;
+  function resize() {
+    const rect = frame.getBoundingClientRect();
+    DPR = Math.min(devicePixelRatio || 1, 2);
+    [rainCanvas, rippleCanvas, maskCanvas].forEach(c => {
+      c.width = rect.width * DPR;
+      c.height = rect.height * DPR;
+      c.style.width = rect.width + 'px';
+      c.style.height = rect.height + 'px';
+    });
+    rctx.setTransform(DPR,0,0,DPR,0,0);
+    pctx.setTransform(DPR,0,0,DPR,0,0);
+    mctx.setTransform(DPR,0,0,DPR,0,0);
+    W = rect.width; H = rect.height;
+    initScene();
+  }
+  window.addEventListener('resize', resize);
+
+  const rain = [];
+  const ripples = [];
+  const puddles = [];
+  const columns = [];
+  const lightning = [];
+
+  function initScene() {
+    rain.length = 0;
+    ripples.length = 0;
+    puddles.length = 0;
+    columns.length = 0;
+    lightning.length = 0;
+
+    const count = Math.floor(W * 0.16);
+    for (let i = 0; i < count; i++) {
+      rain.push({
+        x: rand() * W,
+        y: rand() * H,
+        z: 0.4 + rand() * 1.4,
+        len: 18 + rand() * 48,
+        speed: 10 + rand() * 22,
+        drift: -0.8 - rand() * 1.5,
+        alpha: 0.10 + rand() * 0.22
+      });
+    }
+
+    const pCount = 8;
+    for (let i = 0; i < pCount; i++) {
+      const px = 70 + rand() * (W - 140);
+      const py = H * (0.56 + rand() * 0.34);
+      const rx = 55 + rand() * 120;
+      const ry = 10 + rand() * 24;
+      puddles.push({x:px,y:py,rx,ry,phase:rand()*Math.PI*2, tint:rand()});
+    }
+
+    for (let i = 0; i < 11; i++) {
+      columns.push({
+        x: rand() * W,
+        w: 26 + rand() * 110,
+        top: rand() * H * 0.35,
+        h: H * (0.22 + rand() * 0.48),
+        skew: -0.22 + rand() * 0.44,
+        a: 0.03 + rand() * 0.06
+      });
+    }
+
+    scheduleLightning(0);
+  }
+
+  function scheduleLightning(baseTime) {
+    let t = baseTime + 240 + rand() * 300;
+    for (let i = 0; i < 3; i++) {
+      lightning.push({
+        t,
+        d: 120 + rand() * 140,
+        p: 0.12 + rand() * 0.18
+      });
+      t += 430 + rand() * 320;
+    }
+  }
+
+  function spawnRipple(x, y, big=false) {
+    ripples.push({
+      x, y,
+      r: 4 + rand() * 4,
+      max: (big ? 120 : 48) + rand() * (big ? 70 : 36),
+      life: 0,
+      dur: (big ? 160 : 110) + rand() * (big ? 70 : 40),
+      alpha: big ? 0.26 : 0.19
+    });
+  }
+
+  let frameCount = 0;
+  function drawMask(t) {
+    mctx.clearRect(0,0,W,H);
+
+    const sky = mctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0, "rgba(180,238,255,0.05)");
+    sky.addColorStop(.48, "rgba(136,126,255,0.03)");
+    sky.addColorStop(1, "rgba(120,255,192,0.05)");
+    mctx.fillStyle = sky;
+    mctx.fillRect(0,0,W,H);
+
+    columns.forEach((c, i) => {
+      mctx.save();
+      mctx.translate(c.x, c.top);
+      mctx.transform(1,0,c.skew,1,0,0);
+      const g = mctx.createLinearGradient(0,0,c.w,0);
+      g.addColorStop(0, `rgba(240,250,255,${c.a*0.1})`);
+      g.addColorStop(.5, `rgba(170,255,225,${c.a})`);
+      g.addColorStop(1, `rgba(140,120,255,${c.a*0.6})`);
+      mctx.fillStyle = g;
+      mctx.fillRect(0,0,c.w,c.h);
+      mctx.restore();
+    });
+
+    puddles.forEach((p, i) => {
+      const swell = 1 + Math.sin(t*0.0012 + p.phase) * 0.04;
+      mctx.save();
+      mctx.translate(p.x, p.y);
+      mctx.scale(swell, swell);
+      const g = mctx.createRadialGradient(0,-2,3,0,0,p.rx);
+      g.addColorStop(0, "rgba(230,255,255,0.16)");
+      g.addColorStop(.25, p.tint > 0.5 ? "rgba(166,255,228,0.10)" : "rgba(154,190,255,0.10)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      mctx.fillStyle = g;
+      mctx.beginPath();
+      mctx.ellipse(0,0,p.rx,p.ry,0,0,Math.PI*2);
+      mctx.fill();
+      mctx.restore();
+    });
+
+    const topGlow = mctx.createRadialGradient(W*0.52,H*0.16,8,W*0.52,H*0.16,W*0.42);
+    topGlow.addColorStop(0,"rgba(226,255,255,0.18)");
+    topGlow.addColorStop(.35,"rgba(190,255,241,0.08)");
+    topGlow.addColorStop(1,"rgba(0,0,0,0)");
+    mctx.fillStyle = topGlow;
+    mctx.fillRect(0,0,W,H);
+  }
+
+  function drawRain(t, flash) {
+    rctx.clearRect(0,0,W,H);
+
+    const rainBoost = 1 + flash * 0.35;
+
+    for (let i = 0; i < rain.length; i++) {
+      const d = rain[i];
+      d.x += d.drift * d.z * rainBoost;
+      d.y += d.speed * d.z * rainBoost;
+      if (d.y > H + 30 || d.x < -60) {
+        d.x = W + rand()*80;
+        d.y = -80 - rand()*H*0.2;
+      }
+
+      const x2 = d.x + d.drift * 8;
+      const y2 = d.y + d.len;
+      const grad = rctx.createLinearGradient(d.x,d.y,x2,y2);
+      grad.addColorStop(0, `rgba(214,247,255,0)`);
+      grad.addColorStop(.38, `rgba(214,247,255,${d.alpha * 0.85})`);
+      grad.addColorStop(1, `rgba(${flash>0.1?198:124}, ${flash>0.1?253:226}, 255, ${d.alpha * 0.12})`);
+      rctx.strokeStyle = grad;
+      rctx.lineWidth = 0.8 + d.z * 0.9;
+      rctx.beginPath();
+      rctx.moveTo(d.x, d.y);
+      rctx.lineTo(x2, y2);
+      rctx.stroke();
+
+      if (d.y > H * 0.56 && rand() < 0.016 * d.z) {
+        let nearest = puddles[0], best = 1e9;
+        for (let j=0;j<puddles.length;j++){
+          const p = puddles[j];
+          const dx = d.x - p.x, dy = d.y - p.y;
+          const score = Math.abs(dx)/(p.rx+1) + Math.abs(dy)/(p.ry*4+1);
+          if (score < best) {best = score; nearest = p;}
+        }
+        const hitX = nearest.x + (rand()*2-1)*nearest.rx*0.75;
+        const hitY = nearest.y + (rand()*2-1)*nearest.ry*0.3;
+        spawnRipple(hitX, hitY, false);
+      }
+    }
+
+    rctx.fillStyle = `rgba(220,248,255,${0.025 + flash*0.05})`;
+    rctx.fillRect(0,0,W,H);
+  }
+
+  function drawRipples(t, flash) {
+    pctx.clearRect(0,0,W,H);
+
+    puddles.forEach((p, idx) => {
+      const rise = 1 + Math.sin(t*0.0013 + p.phase)*0.06;
+      pctx.save();
+      pctx.translate(p.x, p.y);
+
+      const pool = pctx.createLinearGradient(-p.rx,0,p.rx,0);
+      pool.addColorStop(0, "rgba(84,106,146,0.18)");
+      pool.addColorStop(.4, p.tint > 0.5 ? "rgba(124,255,201,0.16)" : "rgba(135,146,255,0.14)");
+      pool.addColorStop(1, "rgba(255,225,165,0.06)");
+      pctx.fillStyle = pool;
+      pctx.beginPath();
+      pctx.ellipse(0,0,p.rx*rise,p.ry*rise,0,0,Math.PI*2);
+      pctx.fill();
+
+      pctx.strokeStyle = `rgba(232,248,255,${0.12 + flash*0.1})`;
+      pctx.lineWidth = 1.2;
+      pctx.beginPath();
+      pctx.ellipse(0,0,p.rx*0.95,p.ry*0.95,0,0,Math.PI*2);
+      pctx.stroke();
+      pctx.restore();
+    });
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.life++;
+      const q = rp.life / rp.dur;
+      if (q >= 1) { ripples.splice(i,1); continue; }
+      const ease = 1 - Math.pow(1 - q, 2);
+      const rr = rp.r + (rp.max - rp.r) * ease;
+      const a = rp.alpha * (1 - q);
+
+      pctx.strokeStyle = `rgba(222,252,255,${a + flash*0.07})`;
+      pctx.lineWidth = 1.5 - q * 0.8;
+      pctx.beginPath();
+      pctx.ellipse(rp.x, rp.y, rr, rr * 0.18, 0, 0, Math.PI * 2);
+      pctx.stroke();
+
+      if (q < 0.5) {
+        pctx.strokeStyle = `rgba(151,255,224,${a*0.5})`;
+        pctx.lineWidth = 0.8;
+        pctx.beginPath();
+        pctx.ellipse(rp.x, rp.y, rr*0.64, rr*0.12, 0, 0, Math.PI * 2);
+        pctx.stroke();
+      }
+    }
+  }
+
+  let start = performance.now();
+  function tick(now) {
+    const t = now - start;
+    frameCount++;
+
+    if (frameCount % 20 === 0 && rand() < 0.46) {
+      const p = puddles[(rand() * puddles.length) | 0];
+      spawnRipple(p.x + (rand()*2-1)*p.rx*0.55, p.y + (rand()*2-1)*p.ry*0.15, rand() < 0.08);
+    }
+
+    let flash = 0;
+    for (let i = lightning.length - 1; i >= 0; i--) {
+      const L = lightning[i];
+      const dt = t - L.t;
+      if (dt > L.d) {
+        lightning.splice(i,1);
+        continue;
+      }
+      if (dt >= 0) {
+        const x = dt / L.d;
+        flash = Math.max(flash, Math.sin(x * Math.PI) * L.p);
+        if (dt < 18 && rand() < 0.3) {
+          const p = puddles[(rand() * puddles.length) | 0];
+          spawnRipple(p.x + (rand()*2-1)*p.rx*0.3, p.y, true);
+        }
+      }
+    }
+    if (lightning.length < 2) scheduleLightning(t);
+
+    frame.style.boxShadow = `0 0 0 1px rgba(255,255,255,.05), 0 24px 80px rgba(0,0,0,.55), inset 0 0 120px rgba(210,255,248,${0.03 + flash*0.26})`;
+    document.getElementById('backGradient').style.opacity = (1 + flash * 1.6).toFixed(3);
+    document.getElementById('lightningSVG').style.opacity = (0.88 + flash * 1.4).toFixed(3);
+
+    drawMask(t);
+    drawRipples(t, flash);
+    drawRain(t, flash);
+
+    requestAnimationFrame(tick);
+  }
+
+  resize();
+  requestAnimationFrame(tick);
+
+  if (window.self === window.top) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.022;
+      master.connect(ctx.destination);
+
+      const hp = ctx.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = 180;
+      hp.Q.value = 0.3;
+
+      const lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 1200;
+      lp.Q.value = 0.2;
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (rand() * 2 - 1) * 0.7;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const rainGain = ctx.createGain();
+      rainGain.gain.value = 0.012;
+
+      noise.connect(hp);
+      hp.connect(lp);
+      lp.connect(rainGain);
+      rainGain.connect(master);
+      noise.start();
+
+      const drone = ctx.createOscillator();
+      drone.type = "triangle";
+      drone.frequency.value = 46;
+
+      const droneGain = ctx.createGain();
+      droneGain.gain.value = 0.006;
+      drone.connect(droneGain);
+      droneGain.connect(master);
+      drone.start();
+
+      setInterval(() => {
+        if (ctx.state === "suspended") return;
+        const n = ctx.currentTime;
+        drone.frequency.cancelScheduledValues(n);
+        drone.frequency.linearRampToValueAtTime(42 + rand()*18, n + 8);
+        rainGain.gain.cancelScheduledValues(n);
+        rainGain.gain.linearRampToValueAtTime(0.009 + rand()*0.008, n + 10);
+      }, 8000);
+
+      setInterval(() => {
+        if (ctx.state === "suspended") return;
+        if (rand() < 0.36) {
+          const n = ctx.currentTime;
+          const rumble = ctx.createOscillator();
+          rumble.type = "sine";
+          rumble.frequency.value = 72 + rand()*24;
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0, n);
+          g.gain.linearRampToValueAtTime(0.015, n + 0.8);
+          g.gain.exponentialRampToValueAtTime(0.0001, n + 4.8);
+          const lpf = ctx.createBiquadFilter();
+          lpf.type = "lowpass";
+          lpf.frequency.value = 260;
+          rumble.connect(lpf);
+          lpf.connect(g);
+          g.connect(master);
+          rumble.start(n);
+          rumble.stop(n + 5);
+        }
+      }, 11000);
+    } catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
