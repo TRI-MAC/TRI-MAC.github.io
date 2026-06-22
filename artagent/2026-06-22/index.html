@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-22</title>
+<style>
+  :root{
+    --bg:#1d1712;
+    --stone1:#3d3025;
+    --stone2:#5c4733;
+    --stone3:#8b683f;
+    --ochre:#b9792c;
+    --ochre2:#d19848;
+    --clay:#8d4b24;
+    --ash:#d4c19d;
+    --char:#17110d;
+    --char2:#261d16;
+    --moss:#4c4f2f;
+    --bone:#e4d2b0;
+    --water:#0f1715;
+    --water2:#1d2a24;
+    --water3:#2f4037;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#090806;
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% 0%, #6c5339 0%, #4c3828 24%, #2b2119 52%, #15100c 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.03), 0 20px 80px rgba(0,0,0,.55);
+  }
+
+  .layer{position:absolute; inset:0}
+  .soft-edge{
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 76%, rgba(0,0,0,.82) 84%, rgba(0,0,0,.35) 93%, transparent 100%);
+            mask-image: radial-gradient(ellipse at center, #000 76%, rgba(0,0,0,.82) 84%, rgba(0,0,0,.35) 93%, transparent 100%);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:-4%;
+    width:108%;
+    height:108%;
+    object-fit:cover;
+    opacity:.78;
+    filter: sepia(.85) saturate(.7) contrast(1.05) brightness(.92) blur(.2px);
+    mix-blend-mode:soft-light;
+    transform:scale(1.04);
+  }
+
+  #stoneTint{
+    background:
+      radial-gradient(95% 70% at 50% 35%, rgba(212,167,92,.18), transparent 65%),
+      radial-gradient(75% 55% at 50% 55%, rgba(0,0,0,.18), transparent 70%),
+      linear-gradient(180deg, rgba(69,53,37,.42), rgba(22,16,13,.5));
+    mix-blend-mode:multiply;
+  }
+
+  #caveWall{
+    opacity:.9;
+    background:
+      radial-gradient(40% 20% at 20% 14%, rgba(234,196,126,.08), transparent 60%),
+      radial-gradient(26% 16% at 78% 22%, rgba(255,224,164,.06), transparent 65%),
+      radial-gradient(34% 18% at 62% 84%, rgba(255,210,131,.05), transparent 68%),
+      radial-gradient(55% 30% at 50% 52%, rgba(0,0,0,.18), transparent 72%);
+    mix-blend-mode:screen;
+  }
+
+  #poolWrap{
+    position:absolute;
+    inset:8% 9% 11% 9%;
+    border-radius:46% 42% 44% 40% / 30% 33% 38% 35%;
+    overflow:hidden;
+    transform:rotate(-4deg);
+    box-shadow:
+      inset 0 0 0 2px rgba(47,30,18,.5),
+      inset 0 0 60px rgba(0,0,0,.45),
+      0 18px 40px rgba(0,0,0,.35);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 84%, rgba(0,0,0,.72) 92%, transparent 100%);
+            mask-image: radial-gradient(ellipse at center, #000 84%, rgba(0,0,0,.72) 92%, transparent 100%);
+  }
+
+  #poolBase{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(75% 55% at 48% 42%, rgba(55,77,67,.95) 0%, rgba(26,38,33,.95) 55%, rgba(12,18,16,.98) 100%);
+  }
+
+  #rippleCanvas,#fishCanvas,#textureCanvas,#glyphCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+  }
+
+  #waterShade{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(55% 42% at 45% 42%, rgba(130,153,121,.08), transparent 52%),
+      radial-gradient(30% 22% at 68% 54%, rgba(197,181,120,.08), transparent 58%),
+      radial-gradient(24% 18% at 28% 70%, rgba(230,216,176,.05), transparent 65%),
+      linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.12));
+    mix-blend-mode:screen;
+    animation: shadeDrift 24s ease-in-out infinite;
+  }
+
+  #lilySvg{
+    position:absolute; inset:0;
+    opacity:.95;
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,.22));
+  }
+
+  #handLayer{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.34;
+    mix-blend-mode:screen;
+  }
+
+  .hand{
+    position:absolute;
+    width:140px; height:170px;
+    background:
+      radial-gradient(circle at 50% 65%, rgba(211,170,102,.8) 0 17%, transparent 18%),
+      radial-gradient(circle at 22% 44%, rgba(211,170,102,.8) 0 9%, transparent 10%),
+      radial-gradient(circle at 38% 24%, rgba(211,170,102,.8) 0 8%, transparent 9%),
+      radial-gradient(circle at 52% 16%, rgba(211,170,102,.8) 0 8%, transparent 9%),
+      radial-gradient(circle at 66% 22%, rgba(211,170,102,.8) 0 8%, transparent 9%),
+      radial-gradient(circle at 81% 40%, rgba(211,170,102,.8) 0 8%, transparent 9%),
+      radial-gradient(ellipse at 50% 48%, transparent 0 27%, rgba(31,19,12,.85) 28% 41%, transparent 42%);
+    filter: blur(.3px);
+  }
+  .h1{left:-1%; top:7%; transform:rotate(-14deg) scale(1.05)}
+  .h2{right:0; top:10%; transform:rotate(16deg) scale(.92)}
+  .h3{left:5%; bottom:13%; transform:rotate(8deg) scale(1)}
+  .h4{right:4%; bottom:12%; transform:rotate(-11deg) scale(.88)}
+
+  #borderMarks{
+    position:absolute; inset:0;
+    opacity:.68;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  .rock{
+    position:absolute;
+    background:linear-gradient(180deg, rgba(62,43,28,.75), rgba(31,22,15,.95));
+    filter: blur(.15px);
+  }
+  .r1{left:-6%; top:16%; width:28%; height:14%; border-radius:56% 44% 60% 40% / 48% 42% 58% 52%; transform:rotate(-8deg)}
+  .r2{right:-8%; top:24%; width:24%; height:15%; border-radius:42% 58% 44% 56% / 62% 45% 55% 38%; transform:rotate(18deg)}
+  .r3{left:-4%; bottom:22%; width:30%; height:18%; border-radius:49% 51% 40% 60% / 54% 38% 62% 46%; transform:rotate(6deg)}
+  .r4{right:-2%; bottom:20%; width:22%; height:16%; border-radius:58% 42% 54% 46% / 34% 58% 42% 66%; transform:rotate(-16deg)}
+  .r5{left:20%; top:-6%; width:34%; height:11%; border-radius:0 0 50% 50% / 0 0 100% 100%; transform:rotate(-1deg)}
+  .r6{right:18%; bottom:-5%; width:38%; height:12%; border-radius:46% 54% 0 0 / 100% 100% 0 0; transform:rotate(2deg)}
+
+  #charcoalOverlay{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(50% 35% at 50% 46%, transparent 50%, rgba(19,13,10,.28) 72%, rgba(12,8,6,.58) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.18));
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  #dateStamp{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    font-size:14px;
+    letter-spacing:1.5px;
+    color:rgba(225,204,167,.56);
+    z-index:50;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:36px;
+    bottom:116px;
+    opacity:.58;
+    filter: sepia(.9) saturate(.55) brightness(.78) contrast(.95);
+    z-index:22;
+    transform:rotate(-5deg);
+  }
+
+  @keyframes shadeDrift{
+    0%,100%{transform:translate3d(-1.2%,0,0) scale(1)}
+    50%{transform:translate3d(1.2%,1%,0) scale(1.03)}
+  }
+</style>
+</head>
+<body>
+<div id="frame" class="soft-edge">
+  <div id="borderMarks">
+    <div class="rock r1"></div>
+    <div class="rock r2"></div>
+    <div class="rock r3"></div>
+    <div class="rock r4"></div>
+    <div class="rock r5"></div>
+    <div class="rock r6"></div>
+  </div>
+
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <div id="stoneTint" class="layer"></div>
+  <canvas id="textureCanvas" class="layer"></canvas>
+  <div id="caveWall" class="layer"></div>
+
+  <div id="poolWrap">
+    <div id="poolBase"></div>
+    <canvas id="fishCanvas"></canvas>
+    <video id="background-video-clone" autoplay loop muted playsinline src="background.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.72;mix-blend-mode:overlay;filter:sepia(.72) saturate(.76) contrast(1.06) brightness(.9);transform:scale(1.06);"></video>
+    <canvas id="rippleCanvas"></canvas>
+    <svg id="lilySvg" viewBox="0 0 1000 1600" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="soften">
+          <feGaussianBlur stdDeviation="0.8"/>
+        </filter>
+      </defs>
+      <g id="lilyGroup"></g>
+    </svg>
+    <div id="waterShade"></div>
+    <canvas id="glyphCanvas"></canvas>
+  </div>
+
+  <div id="handLayer">
+    <div class="hand h1"></div>
+    <div class="hand h2"></div>
+    <div class="hand h3"></div>
+    <div class="hand h4"></div>
+  </div>
+
+  <div id="charcoalOverlay"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="dateStamp">2026-06-22</div>
+</div>
+
+<script>
+(function(){
+  const seedStr = "2026-06-22";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand(){ seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; }
+  function r(min,max){ return min + rand()*(max-min); }
+
+  const frame = document.getElementById('frame');
+  const textureCanvas = document.getElementById('textureCanvas');
+  const rippleCanvas = document.getElementById('rippleCanvas');
+  const fishCanvas = document.getElementById('fishCanvas');
+  const glyphCanvas = document.getElementById('glyphCanvas');
+  const poolWrap = document.getElementById('poolWrap');
+  const lilyGroup = document.getElementById('lilyGroup');
+
+  function fitCanvas(c){
+    const rect = c.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = rect.width * dpr;
+    c.height = rect.height * dpr;
+    const ctx = c.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx,w:rect.width,h:rect.height};
+  }
+
+  function drawStoneTexture(){
+    const {ctx,w,h} = fitCanvas(textureCanvas);
+    ctx.clearRect(0,0,w,h);
+
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#5c4733');
+    g.addColorStop(.45,'#3b2d22');
+    g.addColorStop(1,'#19130f');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    for(let i=0;i<130;i++){
+      const x=r(0,w), y=r(0,h), rx=r(50,180), ry=r(24,100);
+      const grad=ctx.createRadialGradient(x,y,0,x,y,rx);
+      grad.addColorStop(0, `rgba(${120+r(0,40)|0},${90+r(0,30)|0},${55+r(0,24)|0},${r(.03,.09).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle=grad;
+      ctx.beginPath();
+      ctx.ellipse(x,y,rx,ry,r(-0.7,0.7),0,Math.PI*2);
+      ctx.fill();
+    }
+
+    for(let i=0;i<4200;i++){
+      const x=r(0,w), y=r(0,h), a=r(.025,.08), s=r(.6,1.8);
+      ctx.fillStyle = rand()>.5 ? `rgba(255,231,184,${a})` : `rgba(0,0,0,${a*1.1})`;
+      ctx.fillRect(x,y,s,s);
+    }
+
+    ctx.globalAlpha=.22;
+    for(let i=0;i<70;i++){
+      ctx.fillStyle = rand()>.5 ? '#2a2018' : '#8a6a45';
+      ctx.beginPath();
+      ctx.ellipse(r(0,w), r(0,h), r(16,80), r(8,42), r(-1,1), 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    ctx.globalCompositeOperation='multiply';
+    for(let i=0;i<14;i++){
+      ctx.fillStyle=`rgba(25,18,12,${r(.08,.18)})`;
+      ctx.beginPath();
+      const y=r(0,h);
+      ctx.ellipse(r(0,w), y, r(180,360), r(24,60), r(-.2,.2), 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation='source-over';
+  }
+
+  const lilies = [];
+  for(let i=0;i<8;i++){
+    lilies.push({
+      x:r(170,830), y:r(180,1380), s:r(48,98), rot:r(0,Math.PI*2), drift:r(.1,.35),
+      notch:r(.16,.28), hue: rand()>.65 ? 1 : 0
+    });
+  }
+
+  function buildLilies(){
+    lilyGroup.innerHTML='';
+    lilies.forEach((l,idx)=>{
+      const leaf = document.createElementNS('http://www.w3.org/2000/svg','g');
+      const dark = l.hue ? '#5e6132' : '#4a4e2b';
+      const mid = l.hue ? '#6b7340' : '#5b6335';
+      leaf.setAttribute('transform',`translate(${l.x} ${l.y}) rotate(${l.rot*180/Math.PI})`);
+      leaf.innerHTML = `
+        <ellipse cx="0" cy="0" rx="${l.s}" ry="${l.s*0.76}" fill="${dark}" opacity="0.96"/>
+        <ellipse cx="-${l.s*0.1}" cy="-${l.s*0.08}" rx="${l.s*0.66}" ry="${l.s*0.46}" fill="${mid}" opacity="0.75"/>
+        <path d="M 0 0 L ${l.s*Math.cos(l.notch*Math.PI*2)} ${l.s*0.7*Math.sin(l.notch*Math.PI*2)} A ${l.s} ${l.s*0.76} 0 1 1 ${l.s*Math.cos(-l.notch*Math.PI*2)} ${l.s*0.7*Math.sin(-l.notch*Math.PI*2)} Z" fill="#1f2415" opacity="0.85"/>
+        <ellipse cx="${l.s*0.1}" cy="${-l.s*0.05}" rx="${l.s*0.24}" ry="${l.s*0.12}" fill="rgba(255,240,200,.08)" filter="url(#soften)"/>
+      `;
+      lilyGroup.appendChild(leaf);
+
+      if(idx===2 || idx===5){
+        const flower = document.createElementNS('http://www.w3.org/2000/svg','g');
+        flower.setAttribute('transform',`translate(${l.x + l.s*.15} ${l.y - l.s*.2}) scale(${l.s/72})`);
+        flower.innerHTML = `
+          <polygon points="0,-20 8,-4 24,-2 11,8 15,24 0,14 -15,24 -11,8 -24,-2 -8,-4" fill="#d8c39b" opacity=".9"/>
+          <polygon points="0,-13 5,-2 15,0 7,5 9,15 0,9 -9,15 -7,5 -15,0 -5,-2" fill="#e8d5b0" opacity=".95"/>
+          <circle cx="0" cy="0" r="4.2" fill="#8d4b24"/>
+        `;
+        lilyGroup.appendChild(flower);
+      }
+    });
+  }
+
+  const koiPalette = [
+    ['#d7812f','#f0d9b4','#2f241b'],
+    ['#e1d2bc','#9a5a27','#1b1510'],
+    ['#cc6a1f','#241a13','#e7cfa8'],
+    ['#f1e4ca','#3a2b20','#a6491f']
+  ];
+
+  let fishes = [];
+  function initFishes(w,h){
+    fishes = [];
+    const count = 6;
+    for(let i=0;i<count;i++){
+      const ring = i%2===0 ? 1 : -1;
+      const base = 0.16 + i*(Math.PI*2/count);
+      fishes.push({
+        ring,
+        a: base,
+        speed: r(.00085,.00135) * ring,
+        orbitX: r(w*0.23,w*0.38),
+        orbitY: r(h*0.18,h*0.30),
+        size: r(58,104),
+        thick: r(20,34),
+        phase: r(0,Math.PI*2),
+        colors: koiPalette[i % koiPalette.length]
+      });
+    }
+  }
+
+  function drawFish(ctx, x, y, angle, len, thick, colors, sway){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(angle);
+    ctx.globalAlpha=.92;
+
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.beginPath();
+    ctx.ellipse(6,10,len*0.48,thick*0.55,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = colors[0];
+    ctx.beginPath();
+    ctx.ellipse(0,0,len*0.42,thick*0.5,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = colors[1];
+    ctx.beginPath();
+    ctx.ellipse(-len*0.08,-thick*0.04,len*0.22,thick*0.2,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = colors[2];
+    ctx.beginPath();
+    ctx.ellipse(len*0.1,thick*0.02,len*0.12,thick*0.14,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = colors[1];
+    ctx.beginPath();
+    ctx.moveTo(-len*0.5,0);
+    ctx.lineTo(-len*0.78,-thick*0.34 - sway*4);
+    ctx.lineTo(-len*0.72,0);
+    ctx.lineTo(-len*0.78,thick*0.34 + sway*4);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = colors[0];
+    ctx.beginPath();
+    ctx.moveTo(-len*0.18,-thick*0.05);
+    ctx.lineTo(-len*0.01,-thick*0.56);
+    ctx.lineTo(len*0.08,-thick*0.06);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-len*0.05,thick*0.08);
+    ctx.lineTo(len*0.14,thick*0.56);
+    ctx.lineTo(len*0.18,thick*0.08);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#16100c';
+    ctx.beginPath();
+    ctx.arc(len*0.3,-thick*0.03,2.3,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawRipples(ctx,w,h,t){
+    ctx.clearRect(0,0,w,h);
+    ctx.globalCompositeOperation='source-over';
+
+    for(let i=0;i<10;i++){
+      const phase = (t*0.00014 + i*0.13) % 1;
+      const alpha = 0.06 * (1-phase);
+      const rx = 70 + i*36 + phase*70;
+      const ry = rx*0.44;
+      const x = w*(0.46 + 0.14*Math.sin(i*1.9 + t*0.00012));
+      const y = h*(0.52 + 0.18*Math.cos(i*1.2 + t*0.00011));
+      ctx.strokeStyle = `rgba(226,212,171,${alpha})`;
+      ctx.lineWidth = 4.5*(1-phase)+1.2;
+      ctx.beginPath();
+      ctx.ellipse(x,y,rx,ry,Math.sin(i)*0.7,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    for(let i=0;i<6;i++){
+      const x = w*(0.24 + i*0.11 + 0.02*Math.sin(t*0.00018+i));
+      const y = h*(0.26 + (i%3)*0.19 + 0.01*Math.cos(t*0.00016+i*2));
+      for(let j=0;j<3;j++){
+        const rr = 16 + j*13 + 6*Math.sin(t*0.001 + i + j);
+        ctx.strokeStyle = `rgba(240,231,205,${0.05 - j*0.012})`;
+        ctx.lineWidth = 2.6 - j*0.5;
+        ctx.beginPath();
+        ctx.arc(x,y,rr,0,Math.PI*2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function drawGlyphs(t){
+    const {ctx,w,h} = fitCanvas(glyphCanvas);
+    ctx.clearRect(0,0,w,h);
+    ctx.globalAlpha = .28;
+    ctx.strokeStyle = '#c3965b';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const motifs = [
+      {x:.15,y:.24,s:32},{x:.81,y:.28,s:26},{x:.73,y:.72,s:35},{x:.21,y:.78,s:28}
+    ];
+    motifs.forEach((m,k)=>{
+      const x=w*m.x, y=h*m.y, s=m.s*(1+.05*Math.sin(t*0.0005+k));
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(Math.sin(t*0.0002+k)*0.12);
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(0,0,s,0,Math.PI*2);
+      ctx.stroke();
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-s*1.2,0); ctx.lineTo(s*1.2,0);
+      ctx.moveTo(0,-s*1.2); ctx.lineTo(0,s*1.2);
+      ctx.stroke();
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  let fishCtx, fishW, fishH, rippleCtx, rippleW, rippleH;
+  function resizeAll(){
+    drawStoneTexture();
+    ({ctx:fishCtx,w:fishW,h:fishH} = fitCanvas(fishCanvas));
+    ({ctx:rippleCtx,w:rippleW,h:rippleH} = fitCanvas(rippleCanvas));
+    fitCanvas(glyphCanvas);
+    initFishes(fishW, fishH);
+    buildLilies();
+  }
+  resizeAll();
+  window.addEventListener('resize', resizeAll);
+
+  function animate(t){
+    fishCtx.clearRect(0,0,fishW,fishH);
+
+    const cx = fishW*0.5, cy = fishH*0.52;
+    fishes.forEach((f,idx)=>{
+      const a = f.a + t*f.speed;
+      const ex = f.orbitX * (1 + 0.06*Math.sin(t*0.00033 + idx));
+      const ey = f.orbitY * (1 + 0.07*Math.cos(t*0.00027 + idx*1.3));
+      const x = cx + Math.cos(a)*ex + Math.cos(a*2.1 + idx)*16;
+      const y = cy + Math.sin(a)*ey + Math.sin(a*1.6 + idx)*12;
+      const dx = -Math.sin(a)*ex + -Math.sin(a*2.1 + idx)*33.6/16;
+      const dy =  Math.cos(a)*ey +  Math.cos(a*1.6 + idx)*19.2/12;
+      const ang = Math.atan2(dy, dx);
+      const sway = Math.sin(t*0.005 + f.phase) * 0.9;
+
+      fishCtx.globalAlpha = 0.18;
+      drawFish(fishCtx, x+6, y+12, ang, f.size, f.thick, ['#000','#000','#000'], sway);
+      fishCtx.globalAlpha = 0.9;
+      drawFish(fishCtx, x, y, ang, f.size, f.thick, f.colors, sway);
+    });
+
+    drawRipples(rippleCtx,rippleW,rippleH,t);
+    drawGlyphs(t);
+
+    const lilyNodes = lilyGroup.children;
+    let li = 0;
+    lilies.forEach((l,idx)=>{
+      const rot = (l.rot + Math.sin(t*0.0002 + idx)*0.05) * 180/Math.PI;
+      lilyNodes[li].setAttribute('transform',`translate(${l.x + Math.sin(t*0.00018+idx)*7} ${l.y + Math.cos(t*0.00016+idx)*6}) rotate(${rot})`);
+      li++;
+      if(idx===2 || idx===5){
+        lilyNodes[li].setAttribute('transform',`translate(${l.x + l.s*.15 + Math.sin(t*0.00023+idx)*8} ${l.y - l.s*.2 + Math.cos(t*0.00021+idx)*6}) scale(${l.s/72}) rotate(${Math.sin(t*0.0004+idx)*8})`);
+        li++;
+      }
+    });
+
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
+      try{
+        const actx = new AC();
+        const master = actx.createGain();
+        master.gain.value = 0.016;
+        master.connect(actx.destination);
+
+        const osc1 = actx.createOscillator();
+        const osc2 = actx.createOscillator();
+        const osc3 = actx.createOscillator();
+        const lfo = actx.createOscillator();
+        const lfoGain = actx.createGain();
+        const filt = actx.createBiquadFilter();
+
+        osc1.type='triangle'; osc2.type='sine'; osc3.type='sine'; lfo.type='sine';
+        osc1.frequency.value = 46;
+        osc2.frequency.value = 69;
+        osc3.frequency.value = 92;
+        lfo.frequency.value = 0.028;
+        lfoGain.gain.value = 12;
+        filt.type='lowpass';
+        filt.frequency.value = 520;
+        filt.Q.value = 0.3;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc2.frequency);
+        lfoGain.connect(osc3.frequency);
+
+        const g1 = actx.createGain(), g2 = actx.createGain(), g3 = actx.createGain();
+        g1.gain.value = 0.34; g2.gain.value = 0.18; g3.gain.value = 0.11;
+
+        osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+        g1.connect(filt); g2.connect(filt); g3.connect(filt);
+        filt.connect(master);
+
+        osc1.start(); osc2.start(); osc3.start(); lfo.start();
+
+        function breathe(){
+          const now = actx.currentTime;
+          master.gain.cancelScheduledValues(now);
+          master.gain.setValueAtTime(master.gain.value, now);
+          master.gain.linearRampToValueAtTime(0.011 + rand()*0.012, now + 8);
+          filt.frequency.cancelScheduledValues(now);
+          filt.frequency.setValueAtTime(filt.frequency.value, now);
+          filt.frequency.linearRampToValueAtTime(380 + rand()*280, now + 10);
+          setTimeout(breathe, 8000);
+        }
+        breathe();
+
+        const resume = ()=>{ if (actx.state !== 'running') actx.resume(); };
+        window.addEventListener('load', resume, {once:true});
+      }catch(e){}
+    }
+  }
+})();
+</script>
+</body>
+</html>
