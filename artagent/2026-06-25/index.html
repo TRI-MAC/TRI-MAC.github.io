@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-25</title>
+<style>
+  :root{
+    --bg1:#c47b33;
+    --bg2:#8e4f24;
+    --bg3:#4e2d1d;
+    --bg4:#1a2f34;
+    --sand:#d59d55;
+    --clay:#9b5c2f;
+    --char:#2d1e16;
+    --turq:#42b6ad;
+    --turq2:#75d3c5;
+    --cream:#f1d1a1;
+    --rust:#b66128;
+    --shadow:#132126;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0e0d0a;
+    overflow:hidden;
+    font-family: system-ui, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% 15%, rgba(117,211,197,.18), transparent 42%),
+      linear-gradient(180deg, #d6974f 0%, #b5662d 18%, #7f4728 42%, #3c281f 70%, #16252a 100%);
+  }
+  .layer{position:absolute; inset:0}
+
+  /* Background textile geometry */
+  #bg-svg{
+    width:100%; height:100%;
+    opacity:.95;
+  }
+  .slow-rotate{
+    animation: slowRotate 42s ease-in-out infinite;
+    transform-origin:50% 50%;
+  }
+  .slow-float{
+    animation: slowFloat 18s ease-in-out infinite;
+  }
+  .pulse{
+    animation: pulse 9s ease-in-out infinite;
+  }
+
+  /* Water shafts */
+  .shaft{
+    position:absolute;
+    top:-8%;
+    width:22%;
+    height:70%;
+    background:linear-gradient(180deg, rgba(241,209,161,.18), rgba(117,211,197,.10) 40%, rgba(117,211,197,0) 100%);
+    filter:blur(8px);
+    transform-origin:top center;
+    mix-blend-mode:screen;
+    opacity:.7;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,.95), rgba(0,0,0,.75) 55%, transparent 100%);
+  }
+  .shaft.s1{left:12%; transform:skewX(-13deg) rotate(-7deg); animation: sway1 24s ease-in-out infinite;}
+  .shaft.s2{left:36%; width:18%; transform:skewX(8deg) rotate(5deg); animation: sway2 29s ease-in-out infinite;}
+  .shaft.s3{right:17%; width:25%; transform:skewX(-5deg) rotate(-2deg); animation: sway3 27s ease-in-out infinite;}
+
+  /* Rock architecture */
+  .rock{
+    position:absolute;
+    background:linear-gradient(180deg, rgba(39,26,20,.95), rgba(20,29,32,.98));
+    box-shadow: inset 0 0 60px rgba(0,0,0,.25);
+    filter: drop-shadow(0 8px 18px rgba(0,0,0,.22));
+  }
+  .rock.left{
+    left:-7%;
+    bottom:-2%;
+    width:44%;
+    height:76%;
+    clip-path:polygon(0 0, 64% 8%, 78% 20%, 70% 33%, 88% 44%, 76% 60%, 92% 78%, 71% 100%, 0 100%);
+    opacity:.96;
+  }
+  .rock.right{
+    right:-8%;
+    bottom:-1%;
+    width:46%;
+    height:82%;
+    clip-path:polygon(18% 0, 100% 0, 100% 100%, 23% 100%, 5% 82%, 16% 67%, 0 52%, 17% 37%, 7% 18%);
+    opacity:.95;
+  }
+  .rock.top{
+    left:17%;
+    top:-2%;
+    width:69%;
+    height:20%;
+    clip-path:polygon(0 0, 100% 0, 92% 58%, 74% 70%, 62% 56%, 43% 84%, 27% 66%, 10% 79%);
+    opacity:.72;
+  }
+  .ledge{
+    position:absolute;
+    left:14%;
+    right:12%;
+    bottom:15%;
+    height:14%;
+    background:linear-gradient(180deg, rgba(74,48,30,.95), rgba(30,37,39,.98));
+    clip-path:polygon(0 46%, 12% 30%, 31% 37%, 48% 17%, 69% 28%, 84% 14%, 100% 32%, 100% 100%, 0 100%);
+    box-shadow: inset 0 0 30px rgba(0,0,0,.25), 0 -8px 18px rgba(0,0,0,.15);
+  }
+
+  /* Art image portal */
+  #portal-wrap{
+    position:absolute;
+    left:18%;
+    top:26%;
+    width:56%;
+    height:36%;
+    transform:rotate(-4deg);
+    animation: portalDrift 22s ease-in-out infinite;
+    z-index:20;
+  }
+  #portal-shadow{
+    position:absolute; inset:2.5% 1.5% -2.5% 1.5%;
+    background:radial-gradient(70% 60% at 50% 50%, rgba(0,0,0,.38), transparent 72%);
+    filter:blur(12px);
+    z-index:0;
+  }
+  #frame{
+    position:absolute; inset:0;
+    padding:3.2%;
+    background:
+      linear-gradient(135deg, #e4b36c, #8d5127 45%, #e2a860 100%);
+    clip-path:polygon(7% 0, 93% 0, 100% 7%, 100% 93%, 93% 100%, 7% 100%, 0 93%, 0 7%);
+    box-shadow:
+      0 0 0 6px rgba(68,35,18,.65) inset,
+      0 0 0 14px rgba(219,155,87,.55) inset,
+      0 18px 35px rgba(0,0,0,.28);
+    z-index:2;
+  }
+  #frame::before{
+    content:"";
+    position:absolute; inset:2.1%;
+    clip-path:polygon(6% 0, 94% 0, 100% 6%, 100% 94%, 94% 100%, 6% 100%, 0 94%, 0 6%);
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(66,182,173,.0) 0 12px,
+        rgba(66,182,173,.55) 12px 17px,
+        rgba(66,182,173,.0) 17px 28px),
+      repeating-linear-gradient(0deg,
+        rgba(241,209,161,.0) 0 13px,
+        rgba(241,209,161,.25) 13px 17px,
+        rgba(241,209,161,.0) 17px 30px);
+    mix-blend-mode:screen;
+    opacity:.7;
+  }
+  #art-window{
+    position:absolute; inset:5.8%;
+    overflow:hidden;
+    clip-path:polygon(4% 0, 96% 0, 100% 4%, 100% 96%, 96% 100%, 4% 100%, 0 96%, 0 4%);
+    z-index:1;
+    background:
+      radial-gradient(80% 60% at 50% 18%, rgba(117,211,197,.18), transparent 50%),
+      linear-gradient(180deg, rgba(228,183,110,.18), rgba(15,35,39,.24));
+    box-shadow: inset 0 0 28px rgba(0,0,0,.32);
+  }
+  #art-image{
+    position:absolute;
+    left:-6%;
+    top:-3%;
+    width:112%;
+    height:112%;
+    object-fit:cover;
+    opacity:.98;
+    filter:saturate(.88) contrast(1.08) brightness(.98) sepia(.18) hue-rotate(-10deg);
+    transform:scale(1.04);
+  }
+  #art-window::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(241,209,161,.08), transparent 25%, transparent 70%, rgba(18,42,46,.20)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 2px, rgba(0,0,0,0) 2px 6px);
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+
+  /* Overlap shapes spilling from portal */
+  .spill{
+    position:absolute;
+    z-index:24;
+    opacity:.92;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.18));
+  }
+  .spill.step1{
+    left:12%; top:49%; width:21%; height:10%;
+    background:linear-gradient(90deg, rgba(66,182,173,.95), rgba(117,211,197,.65));
+    clip-path:polygon(0 45%, 20% 15%, 45% 24%, 66% 0, 84% 22%, 100% 14%, 100% 67%, 77% 100%, 58% 78%, 34% 100%, 11% 82%);
+    animation: driftA 20s ease-in-out infinite;
+  }
+  .spill.step2{
+    right:10%; top:38%; width:18%; height:12%;
+    background:linear-gradient(135deg, rgba(214,153,78,.95), rgba(154,92,47,.9));
+    clip-path:polygon(6% 0, 94% 0, 100% 35%, 78% 100%, 18% 100%, 0 61%);
+    animation: driftB 26s ease-in-out infinite;
+  }
+  .spill.step3{
+    left:34%; top:18%; width:12%; height:8%;
+    background:linear-gradient(180deg, rgba(241,209,161,.88), rgba(213,157,85,.76));
+    clip-path:polygon(50% 0, 100% 44%, 77% 100%, 22% 100%, 0 44%);
+    animation: driftC 17s ease-in-out infinite;
+  }
+
+  /* Bioluminescent tiles */
+  .bio{
+    position:absolute;
+    width:14px;height:14px;
+    background:radial-gradient(circle at 50% 50%, rgba(117,211,197,.95) 0 28%, rgba(66,182,173,.75) 29% 48%, rgba(66,182,173,0) 49%);
+    filter:blur(.2px) drop-shadow(0 0 7px rgba(117,211,197,.55));
+    opacity:.85;
+    animation: bioPulse 8s ease-in-out infinite;
+  }
+  .bio.diamond{
+    clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+  }
+  .bio.dot{
+    border-radius:50%;
+  }
+
+  /* Bubbles canvas */
+  #bubbleCanvas{
+    position:absolute; inset:0;
+    z-index:28;
+    pointer-events:none;
+    opacity:.88;
+  }
+
+  /* Foreground textile bands */
+  .band{
+    position:absolute;
+    left:-6%; right:-6%;
+    height:9%;
+    z-index:26;
+    opacity:.82;
+    mask-image:linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .band.top{
+    top:10%;
+    background:
+      repeating-linear-gradient(90deg,
+      #6f3f22 0 34px, #d8a25a 34px 68px, #3a2720 68px 92px, #49b7ab 92px 108px, #e8c48a 108px 140px),
+      linear-gradient(180deg, rgba(255,255,255,.1), rgba(0,0,0,.12));
+    clip-path:polygon(0 38%, 8% 14%, 15% 38%, 25% 6%, 34% 42%, 42% 13%, 50% 39%, 58% 15%, 67% 47%, 75% 7%, 84% 39%, 92% 18%, 100% 44%, 100% 72%, 92% 94%, 84% 70%, 75% 100%, 67% 61%, 58% 86%, 50% 59%, 42% 88%, 34% 58%, 25% 94%, 15% 62%, 8% 84%, 0 60%);
+    animation: bandShift1 34s ease-in-out infinite;
+  }
+  .band.bottom{
+    bottom:5%;
+    background:
+      repeating-linear-gradient(90deg,
+      #2a1f17 0 28px, #c07a35 28px 56px, #4bb7ab 56px 74px, #ecc68e 74px 102px, #793f22 102px 132px),
+      linear-gradient(180deg, rgba(255,255,255,.09), rgba(0,0,0,.18));
+    clip-path:polygon(0 42%, 9% 70%, 17% 39%, 26% 82%, 34% 36%, 43% 68%, 50% 31%, 58% 67%, 66% 26%, 75% 79%, 84% 37%, 92% 73%, 100% 43%, 100% 100%, 0 100%);
+    animation: bandShift2 28s ease-in-out infinite;
+  }
+
+  /* Silt haze */
+  #haze{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(70% 30% at 50% 100%, rgba(241,209,161,.11), transparent 65%),
+      radial-gradient(80% 70% at 50% 50%, transparent 50%, rgba(0,0,0,.10) 100%);
+    z-index:29;
+    pointer-events:none;
+  }
+
+  /* Otter motif, integrated as petroglyph tile */
+  #otter{
+    position:absolute;
+    right:17%;
+    bottom:24%;
+    width:88px;
+    height:40px;
+    z-index:18;
+    opacity:.22;
+    transform:rotate(-8deg);
+    filter:blur(.2px);
+  }
+
+  /* date */
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    color:rgba(241,209,161,.62);
+    font-size:13px;
+    letter-spacing:.12em;
+    z-index:60;
+    user-select:none;
+  }
+
+  /* hidden guinea pig */
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:18px;
+    bottom:172px;
+    opacity:.58;
+    z-index:31;
+    filter:saturate(.7) brightness(.78);
+    transform:rotate(-8deg);
+  }
+
+  @keyframes sway1{0%,100%{transform:skewX(-13deg) rotate(-7deg) translateX(0)}50%{transform:skewX(-10deg) rotate(-4deg) translateX(14px)}}
+  @keyframes sway2{0%,100%{transform:skewX(8deg) rotate(5deg) translateX(0)}50%{transform:skewX(4deg) rotate(2deg) translateX(-10px)}}
+  @keyframes sway3{0%,100%{transform:skewX(-5deg) rotate(-2deg) translateX(0)}50%{transform:skewX(-8deg) rotate(-5deg) translateX(12px)}}
+  @keyframes portalDrift{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(-2deg) translateY(10px)}}
+  @keyframes driftA{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(7px,-7px) rotate(3deg)}}
+  @keyframes driftB{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-8px,5px) rotate(-4deg)}}
+  @keyframes driftC{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(4px,8px) rotate(6deg)}}
+  @keyframes pulse{0%,100%{opacity:.9}50%{opacity:.62}}
+  @keyframes bioPulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.28);opacity:1}}
+  @keyframes bandShift1{0%,100%{transform:translateX(0)}50%{transform:translateX(16px)}}
+  @keyframes bandShift2{0%,100%{transform:translateX(0)}50%{transform:translateX(-18px)}}
+  @keyframes slowRotate{0%,100%{transform:rotate(0deg)}50%{transform:rotate(1.4deg)}}
+  @keyframes slowFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer">
+    <svg id="bg-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#d4994f"/>
+          <stop offset="45%" stop-color="#8a4d25"/>
+          <stop offset="100%" stop-color="#193037"/>
+        </linearGradient>
+        <pattern id="weave" width="120" height="120" patternUnits="userSpaceOnUse">
+          <rect width="120" height="120" fill="none"/>
+          <rect x="0" y="54" width="120" height="12" fill="#e6bf81" opacity=".12"/>
+          <rect x="54" y="0" width="12" height="120" fill="#42b6ad" opacity=".1"/>
+          <path d="M0 60 L24 36 L48 60 L72 36 L96 60 L120 36 L120 48 L96 72 L72 48 L48 72 L24 48 L0 72 Z" fill="#3c2519" opacity=".18"/>
+          <path d="M0 84 L24 60 L48 84 L72 60 L96 84 L120 60 L120 72 L96 96 L72 72 L48 96 L24 72 L0 96 Z" fill="#c98037" opacity=".18"/>
+        </pattern>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#75d3c5" stop-opacity=".85"/>
+          <stop offset="40%" stop-color="#42b6ad" stop-opacity=".34"/>
+          <stop offset="100%" stop-color="#42b6ad" stop-opacity="0"/>
+        </radialGradient>
+        <mask id="edgefade">
+          <rect width="1080" height="1920" fill="url(#fadeFill)"/>
+        </mask>
+        <linearGradient id="fadeFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="black"/>
+          <stop offset="100%" stop-color="black"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="1080" height="1920" fill="url(#weave)" opacity=".35"/>
+      <g class="slow-rotate" opacity=".78">
+        <polygon points="540,150 620,230 540,310 460,230" fill="#42b6ad" opacity=".2"/>
+        <polygon points="540,90 700,250 540,410 380,250" fill="none" stroke="#f0c98d" stroke-width="16" opacity=".28"/>
+        <polygon points="540,35 790,285 540,535 290,285" fill="none" stroke="#6a3d20" stroke-width="26" opacity=".32"/>
+      </g>
+
+      <g opacity=".22">
+        <polygon points="90,420 230,350 370,420 230,490" fill="#edc489"/>
+        <polygon points="710,400 860,320 1010,400 860,480" fill="#43b6ab"/>
+        <polygon points="150,1280 300,1200 450,1280 300,1360" fill="#d5833c"/>
+        <polygon points="740,1320 890,1240 1040,1320 890,1400" fill="#e7bd7d"/>
+      </g>
+
+      <g class="slow-float" opacity=".35">
+        <circle cx="204" cy="664" r="46" fill="url(#glow)"/>
+        <circle cx="888" cy="714" r="58" fill="url(#glow)"/>
+        <circle cx="850" cy="1168" r="38" fill="url(#glow)"/>
+        <circle cx="238" cy="1088" r="34" fill="url(#glow)"/>
+      </g>
+
+      <!-- structural underwater motifs -->
+      <g opacity=".22">
+        <polygon points="520,1660 580,1600 640,1660 580,1720" fill="#42b6ad"/>
+        <polygon points="470,1730 580,1620 690,1730 580,1840" fill="none" stroke="#f0c98d" stroke-width="12"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="shaft s1"></div>
+  <div class="shaft s2"></div>
+  <div class="shaft s3"></div>
+
+  <div class="rock left"></div>
+  <div class="rock right"></div>
+  <div class="rock top"></div>
+
+  <svg id="otter" viewBox="0 0 220 100" aria-hidden="true">
+    <g fill="#e3b878">
+      <ellipse cx="92" cy="52" rx="52" ry="24"/>
+      <circle cx="148" cy="46" r="18"/>
+      <rect x="56" y="68" width="12" height="20" rx="5"/>
+      <rect x="96" y="68" width="12" height="20" rx="5"/>
+      <rect x="138" y="64" width="10" height="18" rx="4"/>
+      <path d="M38 52 C18 42, 6 38, 6 30 C6 20, 18 18, 32 24 C44 30, 48 40, 46 50 Z"/>
+      <circle cx="154" cy="42" r="2.6" fill="#2d1e16"/>
+    </g>
+  </svg>
+
+  <div id="portal-wrap">
+    <div id="portal-shadow"></div>
+    <div id="frame"></div>
+    <div id="art-window">
+      <img id="art-image" src="art.png" alt="" />
+    </div>
+  </div>
+
+  <div class="spill step1"></div>
+  <div class="spill step2"></div>
+  <div class="spill step3"></div>
+
+  <div class="ledge"></div>
+
+  <!-- bioluminescent organisms -->
+  <div class="bio diamond" style="left:9%;top:35%;animation-delay:-1.4s"></div>
+  <div class="bio dot" style="left:13%;top:42%;width:11px;height:11px;animation-delay:-5.7s"></div>
+  <div class="bio diamond" style="left:20%;top:58%;width:12px;height:12px;animation-delay:-2.2s"></div>
+  <div class="bio dot" style="left:24%;top:74%;animation-delay:-3.8s"></div>
+  <div class="bio diamond" style="left:78%;top:32%;width:15px;height:15px;animation-delay:-6.1s"></div>
+  <div class="bio dot" style="left:84%;top:45%;width:10px;height:10px;animation-delay:-1.8s"></div>
+  <div class="bio diamond" style="left:74%;top:64%;width:13px;height:13px;animation-delay:-4.3s"></div>
+  <div class="bio dot" style="left:86%;top:79%;width:12px;height:12px;animation-delay:-7.2s"></div>
+  <div class="bio diamond" style="left:45%;top:84%;width:16px;height:16px;animation-delay:-2.9s"></div>
+  <div class="bio dot" style="left:55%;top:87%;width:9px;height:9px;animation-delay:-5.1s"></div>
+  <div class="bio diamond" style="left:41%;top:22%;width:12px;height:12px;animation-delay:-6.8s"></div>
+
+  <canvas id="bubbleCanvas" width="1080" height="1920"></canvas>
+
+  <div class="band top"></div>
+  <div class="band bottom"></div>
+  <div id="haze"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date">2026-06-25</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-25";
+  let s = 0;
+  for (let i = 0; i < seedStr.length; i++) s = (s * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    s ^= s << 13; s ^= s >>> 17; s ^= s << 5;
+    return ((s >>> 0) / 4294967296);
+  }
+
+  const canvas = document.getElementById('bubbleCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const bubbles = [];
+  const cols = [
+    'rgba(241,209,161,0.35)',
+    'rgba(117,211,197,0.32)',
+    'rgba(214,157,85,0.28)'
+  ];
+
+  for (let i = 0; i < 54; i++) {
+    bubbles.push({
+      x: rand() * W,
+      y: rand() * H,
+      r: 3 + rand() * 10,
+      vy: 0.35 + rand() * 0.95,
+      vx: -0.18 + rand() * 0.36,
+      wob: rand() * Math.PI * 2,
+      amp: 4 + rand() * 10,
+      col: cols[(rand()*cols.length)|0],
+      phase: rand() * Math.PI * 2
+    });
+  }
+
+  const silt = [];
+  for (let i = 0; i < 90; i++) {
+    silt.push({
+      x: rand() * W,
+      y: rand() * H,
+      r: .5 + rand() * 1.8,
+      vx: -0.08 + rand() * 0.16,
+      vy: -0.04 - rand() * 0.08,
+      a: 0.04 + rand() * 0.1
+    });
+  }
+
+  let t = 0;
+  function draw() {
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+
+    // subtle underwater veil
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'rgba(117,211,197,0.03)');
+    g.addColorStop(.5,'rgba(66,182,173,0.015)');
+    g.addColorStop(1,'rgba(19,33,38,0.07)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // bubbles
+    for (const b of bubbles) {
+      b.y -= b.vy;
+      b.x += b.vx + Math.sin(t * 0.9 + b.phase) * 0.18;
+      const ox = Math.sin(t * 1.2 + b.wob) * b.amp;
+
+      if (b.y < -30) {
+        b.y = H + 20 + rand() * 120;
+        b.x = rand() * W;
+      }
+      if (b.x < -40) b.x = W + 20;
+      if (b.x > W + 40) b.x = -20;
+
+      ctx.beginPath();
+      ctx.arc(b.x + ox, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = b.col;
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(b.x + ox - b.r*0.25, b.y - b.r*0.28, b.r*0.22, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.14)';
+      ctx.fill();
+    }
+
+    // silt haze points
+    for (const p of silt) {
+      p.x += p.vx + Math.sin(t + p.y * 0.01) * 0.015;
+      p.y += p.vy;
+      if (p.y < -5) { p.y = H + 6; p.x = rand() * W; }
+      if (p.x < -3) p.x = W + 2;
+      if (p.x > W + 3) p.x = -2;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(241,209,161,${p.a})`;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  if (window.self === window.top) {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.014;
+      master.connect(audioCtx.destination);
+
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 680;
+      lp.Q.value = 0.3;
+      lp.connect(master);
+
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      const nGain = audioCtx.createGain();
+      const noiseFilter = audioCtx.createBiquadFilter();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      lfo.type = 'sine';
+
+      osc1.frequency.value = 55;
+      osc2.frequency.value = 82.5;
+      lfo.frequency.value = 0.055;
+      lfoGain.gain.value = 18;
+
+      const g1 = audioCtx.createGain();
+      const g2 = audioCtx.createGain();
+      g1.gain.value = 0.22;
+      g2.gain.value = 0.1;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc1.frequency);
+      lfoGain.connect(osc2.frequency);
+
+      osc1.connect(g1); osc2.connect(g2);
+      g1.connect(lp); g2.connect(lp);
+
+      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.25;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 340;
+      noiseFilter.Q.value = 0.4;
+      nGain.gain.value = 0.12;
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(nGain);
+      nGain.connect(lp);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+      noise.start();
+
+      const now = audioCtx.currentTime;
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.linearRampToValueAtTime(0.014, now + 4);
+    } catch(e) {}
+  }
+})();
+</script>
+</body>
+</html>
