@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-26</title>
+<style>
+  :root{
+    --bg:#12070b;
+    --gold1:#f6e3a3;
+    --gold2:#cda24d;
+    --gold3:#7f5418;
+    --ruby:#8e1732;
+    --lapis:#1d3f7a;
+    --teal:#0d5f63;
+    --ivory:#f4ead1;
+    --shadow:#2b0f12;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 20%, #4a2916 0%, #1a0c0d 38%, #070607 100%);
+    font-family: Georgia, serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(244,220,162,.18), rgba(0,0,0,0) 30%),
+      linear-gradient(180deg, #3c2415 0%, #1b0d0e 35%, #0b0809 100%);
+    box-shadow:0 0 0 1px rgba(255,224,160,.12), 0 20px 60px rgba(0,0,0,.55);
+  }
+
+  #background-video{
+    position:absolute;
+    inset:4.5% 7% 8% 7%;
+    width:86%;
+    height:84%;
+    object-fit:cover;
+    opacity:.78;
+    filter:saturate(.9) contrast(1.08) brightness(.95) sepia(.25) hue-rotate(-12deg);
+    mix-blend-mode:soft-light;
+    border-radius:42% 42% 8% 8% / 28% 28% 6% 6%;
+    mask-image:radial-gradient(circle at 50% 32%, black 0 57%, rgba(0,0,0,.88) 66%, transparent 88%);
+    -webkit-mask-image:radial-gradient(circle at 50% 32%, black 0 57%, rgba(0,0,0,.88) 66%, transparent 88%);
+    transform:scale(1.02);
+  }
+
+  .gold-ground, .mosaic-overlay, .lantern-glow, .architecture, .moths, .halo-rings, .vignette, .date, #guinea-pig, .tile-svg{
+    position:absolute; inset:0;
+  }
+
+  .gold-ground{
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,235,180,.17), rgba(255,205,120,.05) 22%, rgba(0,0,0,0) 45%),
+      linear-gradient(180deg, rgba(120,64,12,.44), rgba(45,17,7,.1) 28%, rgba(84,46,12,.16) 55%, rgba(18,10,8,.28)),
+      conic-gradient(from 0deg at 50% 42%, rgba(255,225,155,.07), rgba(140,88,26,.05), rgba(255,231,166,.08), rgba(126,77,23,.06), rgba(255,225,155,.07));
+    mix-blend-mode:screen;
+    opacity:.75;
+  }
+
+  .mosaic-overlay{
+    background-image:
+      linear-gradient(rgba(82,52,16,.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(92,57,18,.22) 1px, transparent 1px),
+      linear-gradient(rgba(255,221,146,.045) 0, rgba(255,221,146,.045) 50%, rgba(88,48,12,.04) 50%, rgba(88,48,12,.04) 100%);
+    background-size: 22px 22px, 22px 22px, 8px 8px;
+    opacity:.45;
+    mix-blend-mode:overlay;
+    transform:translateZ(0);
+  }
+
+  .lantern-glow{
+    background:
+      radial-gradient(circle at 50% 31%, rgba(255,242,185,.95) 0 2.6%, rgba(248,214,129,.55) 5%, rgba(230,171,60,.28) 11%, rgba(197,116,28,.11) 18%, rgba(0,0,0,0) 36%);
+    filter:blur(1px);
+  }
+
+  .vignette{
+    background:
+      radial-gradient(circle at 50% 46%, rgba(0,0,0,0) 52%, rgba(12,6,8,.18) 72%, rgba(9,5,7,.58) 100%);
+    pointer-events:none;
+  }
+
+  .date{
+    inset:auto 20px 16px auto;
+    color:rgba(246,234,209,.68);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-align:right;
+    z-index:30;
+  }
+
+  #guinea-pig{
+    inset:auto auto 176px 154px;
+    width:18px;
+    height:auto;
+    opacity:.58;
+    z-index:26;
+    filter:sepia(.55) saturate(.7) brightness(.78) contrast(1.02);
+    transform:rotate(-8deg);
+  }
+
+  .arch-shadow{
+    position:absolute;
+    left:11%;
+    right:11%;
+    top:7%;
+    bottom:6%;
+    border-radius:44% 44% 8% 8% / 25% 25% 4% 4%;
+    box-shadow:
+      inset 0 0 0 2px rgba(255,219,140,.16),
+      inset 0 0 0 16px rgba(87,45,11,.2),
+      inset 0 0 70px rgba(255,211,122,.08),
+      0 0 90px rgba(255,181,76,.05);
+    mask-image:radial-gradient(circle at 50% 40%, black 0 78%, transparent 94%);
+    -webkit-mask-image:radial-gradient(circle at 50% 40%, black 0 78%, transparent 94%);
+    z-index:8;
+  }
+
+  .halo-rings{
+    z-index:7;
+    opacity:.9;
+    animation:haloBreath 28s ease-in-out infinite;
+  }
+
+  @keyframes haloBreath{
+    0%,100%{transform:scale(1) rotate(0deg)}
+    50%{transform:scale(1.025) rotate(2deg)}
+  }
+
+  .moths{
+    z-index:20;
+    overflow:hidden;
+  }
+
+  .moth{
+    position:absolute;
+    width:180px;
+    height:120px;
+    transform-origin:50% 18%;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.22));
+  }
+  .moth svg{width:100%; height:100%; display:block}
+  .moth .wingL, .moth .wingR{
+    transform-origin:50% 16%;
+    animation:flap 6.4s ease-in-out infinite;
+  }
+  .moth .body{
+    filter:drop-shadow(0 0 4px rgba(255,228,159,.25));
+  }
+  .moth .gold{
+    opacity:.95;
+  }
+  .moth.a{left:50%; top:33%; margin-left:-90px; animation:orbitA 34s linear infinite}
+  .moth.b{left:50%; top:33%; margin-left:-72px; width:144px; height:96px; animation:orbitB 28s linear infinite reverse}
+  .moth.c{left:50%; top:33%; margin-left:-64px; width:128px; height:86px; animation:orbitC 22s linear infinite}
+  .moth.d{left:50%; top:33%; margin-left:-52px; width:104px; height:72px; animation:orbitD 19s linear infinite reverse}
+  .moth.e{left:50%; top:33%; margin-left:-86px; width:172px; height:116px; animation:orbitE 40s linear infinite}
+
+  @keyframes flap{
+    0%,100%{transform:scaleY(1) rotate(0deg)}
+    50%{transform:scaleY(.92) rotate(1.8deg)}
+  }
+
+  @keyframes orbitA{
+    0%{transform:rotate(0deg) translateY(-90px) rotate(0deg)}
+    100%{transform:rotate(360deg) translateY(-90px) rotate(-360deg)}
+  }
+  @keyframes orbitB{
+    0%{transform:rotate(72deg) translateY(-138px) rotate(-18deg)}
+    100%{transform:rotate(432deg) translateY(-138px) rotate(-378deg)}
+  }
+  @keyframes orbitC{
+    0%{transform:rotate(160deg) translateY(-176px) rotate(-20deg)}
+    100%{transform:rotate(520deg) translateY(-176px) rotate(-380deg)}
+  }
+  @keyframes orbitD{
+    0%{transform:rotate(230deg) translateY(-116px) rotate(12deg)}
+    100%{transform:rotate(590deg) translateY(-116px) rotate(-348deg)}
+  }
+  @keyframes orbitE{
+    0%{transform:rotate(310deg) translateY(-208px) rotate(14deg)}
+    100%{transform:rotate(670deg) translateY(-208px) rotate(-346deg)}
+  }
+
+  .tile-svg{
+    z-index:6;
+    opacity:.88;
+    mix-blend-mode:screen;
+  }
+
+  canvas#sparkCanvas{
+    position:absolute; inset:0; z-index:18; pointer-events:none;
+  }
+
+  .top-fade, .bottom-fade{
+    position:absolute; left:0; right:0; z-index:24; pointer-events:none;
+  }
+  .top-fade{
+    top:0; height:180px;
+    background:linear-gradient(180deg, rgba(17,8,7,.78), rgba(17,8,7,0));
+  }
+  .bottom-fade{
+    bottom:0; height:220px;
+    background:linear-gradient(0deg, rgba(10,6,8,.85), rgba(10,6,8,0));
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div class="gold-ground"></div>
+
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg class="tile-svg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="fadeCenter" cx="50%" cy="33%" r="56%">
+          <stop offset="0%" stop-color="rgba(255,240,196,0.45)"/>
+          <stop offset="54%" stop-color="rgba(219,168,79,0.18)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+        <linearGradient id="goldLine" x1="0" x2="1">
+          <stop offset="0%" stop-color="#6c4212"/>
+          <stop offset="50%" stop-color="#e9c878"/>
+          <stop offset="100%" stop-color="#6c4212"/>
+        </linearGradient>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g opacity=".9">
+        <path d="M170 1700 L170 610 Q170 375 360 240 Q450 175 540 160 Q630 175 720 240 Q910 375 910 610 L910 1700"
+              fill="none" stroke="url(#goldLine)" stroke-width="18" stroke-linecap="round"/>
+        <path d="M225 1670 L225 640 Q225 438 382 320 Q462 260 540 248 Q618 260 698 320 Q855 438 855 640 L855 1670"
+              fill="none" stroke="rgba(241,214,145,.45)" stroke-width="4"/>
+      </g>
+
+      <g opacity=".55">
+        <circle cx="540" cy="620" r="298" fill="url(#fadeCenter)"/>
+      </g>
+
+      <g filter="url(#softGlow)" opacity=".72">
+        <circle cx="540" cy="610" r="220" fill="none" stroke="#d6b160" stroke-width="14"/>
+        <circle cx="540" cy="610" r="270" fill="none" stroke="rgba(224,186,95,.48)" stroke-width="8"/>
+      </g>
+
+      <g opacity=".9">
+        <polygon points="540,405 572,480 653,488 590,543 610,622 540,580 470,622 490,543 427,488 508,480"
+          fill="#f0d99b"/>
+        <circle cx="540" cy="480" r="18" fill="#fff0c2"/>
+      </g>
+
+      <g opacity=".75">
+        <rect x="155" y="1750" width="770" height="22" fill="#a77027"/>
+        <rect x="142" y="1778" width="796" height="34" fill="#60320e"/>
+      </g>
+
+      <g opacity=".42">
+        <g fill="#d8ac52">
+          <circle cx="206" cy="820" r="9"/><circle cx="874" cy="820" r="9"/>
+          <circle cx="190" cy="970" r="11"/><circle cx="890" cy="970" r="11"/>
+          <circle cx="175" cy="1120" r="8"/><circle cx="905" cy="1120" r="8"/>
+          <circle cx="200" cy="1270" r="10"/><circle cx="880" cy="1270" r="10"/>
+          <circle cx="220" cy="1420" r="8"/><circle cx="860" cy="1420" r="8"/>
+        </g>
+      </g>
+
+      <g opacity=".58">
+        <polygon points="350,1728 390,1660 430,1728" fill="#2f5f8c"/>
+        <polygon points="650,1728 690,1660 730,1728" fill="#8b1836"/>
+        <polygon points="500,1734 540,1664 580,1734" fill="#0f6c66"/>
+      </g>
+    </svg>
+
+    <div class="mosaic-overlay"></div>
+    <div class="arch-shadow"></div>
+    <div class="lantern-glow"></div>
+
+    <svg class="halo-rings" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="ringFade" cx="50%" cy="32%" r="42%">
+          <stop offset="0%" stop-color="rgba(255,238,189,0)"/>
+          <stop offset="54%" stop-color="rgba(255,211,113,.38)"/>
+          <stop offset="77%" stop-color="rgba(165,107,34,.22)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+      <circle cx="540" cy="615" r="356" fill="none" stroke="url(#ringFade)" stroke-width="52"/>
+      <circle cx="540" cy="615" r="430" fill="none" stroke="rgba(222,177,83,.15)" stroke-width="24"/>
+      <circle cx="540" cy="615" r="500" fill="none" stroke="rgba(240,206,128,.08)" stroke-width="16"/>
+    </svg>
+
+    <canvas id="sparkCanvas" width="1080" height="1920"></canvas>
+
+    <div class="moths">
+      <div class="moth a">
+        <svg viewBox="0 0 180 120">
+          <g class="wingL">
+            <path d="M90 46 C68 18, 26 12, 10 46 C6 60, 14 82, 28 92 C45 104, 70 102, 90 76 Z" fill="#7f112d"/>
+            <path d="M86 50 C67 28, 33 25, 22 48 C18 58, 24 72, 36 79 C51 88, 69 86, 84 68 Z" fill="#204b88"/>
+            <path d="M84 54 C66 42, 48 40, 36 50 C46 59, 58 63, 80 62 Z" fill="#ecd89b"/>
+            <circle cx="45" cy="59" r="10" fill="#0d5f63"/>
+            <circle cx="45" cy="59" r="4" fill="#f0d99b"/>
+          </g>
+          <g class="wingR">
+            <path d="M90 46 C112 18, 154 12, 170 46 C174 60, 166 82, 152 92 C135 104, 110 102, 90 76 Z" fill="#7f112d"/>
+            <path d="M94 50 C113 28, 147 25, 158 48 C162 58, 156 72, 144 79 C129 88, 111 86, 96 68 Z" fill="#204b88"/>
+            <path d="M96 54 C114 42, 132 40, 144 50 C134 59, 122 63, 100 62 Z" fill="#ecd89b"/>
+            <circle cx="135" cy="59" r="10" fill="#0d5f63"/>
+            <circle cx="135" cy="59" r="4" fill="#f0d99b"/>
+          </g>
+          <g class="body">
+            <rect x="84" y="38" width="12" height="44" rx="6" fill="#f0d99b"/>
+            <circle cx="90" cy="34" r="8" fill="#f0d99b"/>
+            <rect class="gold" x="88" y="42" width="4" height="34" rx="2" fill="#a77027"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="moth b">
+        <svg viewBox="0 0 180 120">
+          <g class="wingL">
+            <path d="M90 48 C70 22, 34 18, 16 42 C8 55, 13 78, 27 90 C40 100, 67 102, 90 78 Z" fill="#1e4677"/>
+            <path d="M84 54 C66 36, 42 36, 28 47 C34 66, 54 74, 79 69 Z" fill="#ecd89b"/>
+            <path d="M62 30 L72 46 L54 47 Z" fill="#8e1732"/>
+          </g>
+          <g class="wingR">
+            <path d="M90 48 C110 22, 146 18, 164 42 C172 55, 167 78, 153 90 C140 100, 113 102, 90 78 Z" fill="#1e4677"/>
+            <path d="M96 54 C114 36, 138 36, 152 47 C146 66, 126 74, 101 69 Z" fill="#ecd89b"/>
+            <path d="M118 30 L108 46 L126 47 Z" fill="#8e1732"/>
+          </g>
+          <g class="body">
+            <rect x="85" y="40" width="10" height="40" rx="5" fill="#f4ead1"/>
+            <circle cx="90" cy="35" r="7" fill="#f4ead1"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="moth c">
+        <svg viewBox="0 0 180 120">
+          <g class="wingL">
+            <path d="M90 47 C72 26, 41 21, 23 39 C14 49, 16 68, 28 80 C42 93, 63 94, 88 74 Z" fill="#0f6c66"/>
+            <path d="M82 55 C65 44, 47 44, 34 53 C43 63, 57 68, 78 65 Z" fill="#e8c775"/>
+          </g>
+          <g class="wingR">
+            <path d="M90 47 C108 26, 139 21, 157 39 C166 49, 164 68, 152 80 C138 93, 117 94, 92 74 Z" fill="#0f6c66"/>
+            <path d="M98 55 C115 44, 133 44, 146 53 C137 63, 123 68, 102 65 Z" fill="#e8c775"/>
+          </g>
+          <g class="body">
+            <rect x="85" y="40" width="10" height="38" rx="5" fill="#f0d99b"/>
+            <circle cx="90" cy="35" r="7" fill="#f0d99b"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="moth d">
+        <svg viewBox="0 0 180 120">
+          <g class="wingL">
+            <path d="M90 47 C75 30, 49 28, 32 41 C23 51, 25 67, 37 76 C49 86, 66 86, 88 72 Z" fill="#8e1732"/>
+            <circle cx="52" cy="56" r="8" fill="#e6bf6a"/>
+          </g>
+          <g class="wingR">
+            <path d="M90 47 C105 30, 131 28, 148 41 C157 51, 155 67, 143 76 C131 86, 114 86, 92 72 Z" fill="#8e1732"/>
+            <circle cx="128" cy="56" r="8" fill="#e6bf6a"/>
+          </g>
+          <g class="body">
+            <rect x="86" y="42" width="8" height="34" rx="4" fill="#f3e8c8"/>
+            <circle cx="90" cy="37" r="6" fill="#f3e8c8"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="moth e">
+        <svg viewBox="0 0 180 120">
+          <g class="wingL">
+            <path d="M90 46 C68 15, 28 10, 11 43 C4 57, 10 84, 30 96 C49 107, 72 104, 90 75 Z" fill="#21457a"/>
+            <path d="M84 56 C61 30, 34 30, 21 49 C28 60, 46 76, 77 70 Z" fill="#d6b160"/>
+            <path d="M51 37 L67 56 L49 62 L37 48 Z" fill="#0f6c66"/>
+          </g>
+          <g class="wingR">
+            <path d="M90 46 C112 15, 152 10, 169 43 C176 57, 170 84, 150 96 C131 107, 108 104, 90 75 Z" fill="#21457a"/>
+            <path d="M96 56 C119 30, 146 30, 159 49 C152 60, 134 76, 103 70 Z" fill="#d6b160"/>
+            <path d="M129 37 L113 56 L131 62 L143 48 Z" fill="#0f6c66"/>
+          </g>
+          <g class="body">
+            <rect x="84" y="37" width="12" height="46" rx="6" fill="#f0d99b"/>
+            <circle cx="90" cy="33" r="8" fill="#f0d99b"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div class="top-fade"></div>
+    <div class="bottom-fade"></div>
+    <div class="vignette"></div>
+    <div class="date">2026-06-26</div>
+  </div>
+
+<script>
+(function(){
+  const seedStr = "2026-06-26";
+  let s = 0;
+  for(let i=0;i<seedStr.length;i++) s = (s * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand(){
+    s ^= s << 13; s >>>= 0;
+    s ^= s >> 17; s >>>= 0;
+    s ^= s << 5;  s >>>= 0;
+    return (s >>> 0) / 4294967296;
+  }
+
+  const canvas = document.getElementById('sparkCanvas');
+  const ctx = canvas.getContext('2d');
+  const sparks = [];
+  const W = canvas.width, H = canvas.height;
+  const cx = 540, cy = 610;
+
+  for(let i=0;i<46;i++){
+    const a = rand() * Math.PI * 2;
+    const r = 50 + rand() * 420;
+    sparks.push({
+      orbit:r,
+      angle:a,
+      speed:0.00065 + rand()*0.0011,
+      size:1.5 + rand()*5.5,
+      phase:rand()*Math.PI*2,
+      hue:rand() < 0.6 ? 44 : (rand()<0.5?350:210),
+      alpha:0.16 + rand()*0.28
+    });
+  }
+
+  function drawMosaicDot(x,y,r,color,alpha){
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+
+    for(const p of sparks){
+      p.angle += p.speed * 16;
+      const pulse = 0.85 + 0.15*Math.sin(t*0.0012 + p.phase);
+      const wob = 12*Math.sin(t*0.0007 + p.phase*1.7);
+      const x = cx + Math.cos(p.angle) * (p.orbit + wob);
+      const y = cy + Math.sin(p.angle) * (p.orbit*0.52 + wob*0.45);
+
+      const tile = p.size * pulse;
+      const c = p.hue === 44
+        ? `rgba(240,214,143,1)`
+        : p.hue === 350
+        ? `rgba(145,23,50,1)`
+        : `rgba(29,63,122,1)`;
+
+      drawMosaicDot(x, y, tile, c, p.alpha);
+      drawMosaicDot(x+1.5, y-1, tile*0.44, 'rgba(255,246,208,1)', p.alpha*0.58);
+    }
+
+    const grad = ctx.createRadialGradient(cx, cy, 8, cx, cy, 220);
+    grad.addColorStop(0, 'rgba(255,246,210,.28)');
+    grad.addColorStop(.25, 'rgba(244,214,128,.12)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 220, 0, Math.PI*2);
+    ctx.fill();
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audioCtx = new AudioCtx();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.018;
+      master.connect(audioCtx.destination);
+
+      const low = audioCtx.createOscillator();
+      low.type = 'triangle';
+      low.frequency.value = 146.83;
+
+      const high = audioCtx.createOscillator();
+      high.type = 'sine';
+      high.frequency.value = 293.66;
+
+      const lGain = audioCtx.createGain();
+      const hGain = audioCtx.createGain();
+      lGain.gain.value = 0.25;
+      hGain.gain.value = 0.12;
+
+      const lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.041;
+
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 0.05;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 950;
+      filter.Q.value = 0.6;
+
+      low.connect(lGain).connect(filter);
+      high.connect(hGain).connect(filter);
+      filter.connect(master);
+      lfo.connect(lfoGain).connect(master.gain);
+
+      low.start();
+      high.start();
+      lfo.start();
+
+      function breathe(){
+        const now = audioCtx.currentTime;
+        hGain.gain.cancelScheduledValues(now);
+        lGain.gain.cancelScheduledValues(now);
+        hGain.gain.linearRampToValueAtTime(0.08 + rand()*0.08, now + 6);
+        lGain.gain.linearRampToValueAtTime(0.18 + rand()*0.12, now + 6);
+        high.frequency.linearRampToValueAtTime(220 + rand()*120, now + 8);
+        low.frequency.linearRampToValueAtTime(110 + rand()*60, now + 8);
+      }
+      breathe();
+      setInterval(breathe, 7000);
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "date": "2026-06-26",
+  "generator_provider": "openai",
+  "generator_model": "gpt-5.4",
+  "critic_provider": "gemini",
+  "critic_model": "gemini-3.1-pro-preview",
+  "critique": "The intricate stained-glass wing designs of the SVG moths brilliantly execute a clockwork cyber-nature fusion as they flutter and orbit the glowing, mosaic-layered central halo. However, the reliance"
+}
