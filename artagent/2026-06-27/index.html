@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-06-27</title>
+<style>
+  :root{
+    --bg0:#0a0711;
+    --bg1:#170b25;
+    --bg2:#071922;
+    --ink:#d8f0ff;
+    --hot:#ff4fd8;
+    --acid:#b7ff2b;
+    --cyan:#37d8ff;
+    --amber:#ffb14a;
+    --violet:#7c57ff;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(183,255,43,.12), transparent 28%),
+      radial-gradient(circle at 80% 30%, rgba(255,79,216,.10), transparent 30%),
+      radial-gradient(circle at 45% 78%, rgba(55,216,255,.09), transparent 35%),
+      linear-gradient(160deg,var(--bg0),var(--bg1) 44%,var(--bg2));
+    display:grid;
+    place-items:center;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    max-width:1080px;
+    max-height:1920px;
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(255,255,255,.04), transparent 25%),
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0) 18%, rgba(0,0,0,.12) 100%),
+      linear-gradient(165deg,#09050f 0%, #130a1d 38%, #08161f 100%);
+    box-shadow:0 0 60px rgba(0,0,0,.45);
+  }
+
+  .fade-edge{
+    position:absolute; inset:-2%;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.08) 74%, rgba(0,0,0,.34) 100%);
+    mix-blend-mode:multiply;
+  }
+
+  #bgSVG, #overlaySVG, #cellCanvas, #fxCanvas, #glyphCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block;
+  }
+
+  #cellCanvas{ filter:saturate(1.18) contrast(1.08); }
+  #glyphCanvas{ mix-blend-mode:screen; opacity:.56; }
+  #fxCanvas{ mix-blend-mode:screen; opacity:.55; }
+
+  .plane{
+    position:absolute;
+    border-radius:38% 62% 47% 53% / 43% 44% 56% 57%;
+    filter: blur(18px);
+    opacity:.18;
+    mix-blend-mode:screen;
+    animation: breathe 22s ease-in-out infinite;
+  }
+  .p1{
+    width:48%; height:20%;
+    left:6%; top:10%;
+    background:linear-gradient(90deg, rgba(55,216,255,.0), rgba(55,216,255,.8), rgba(183,255,43,.0));
+    transform:rotate(-18deg);
+    animation-delay:-5s;
+  }
+  .p2{
+    width:54%; height:22%;
+    right:2%; top:34%;
+    background:linear-gradient(90deg, rgba(255,79,216,.0), rgba(255,79,216,.75), rgba(124,87,255,.0));
+    transform:rotate(14deg);
+    animation-delay:-11s;
+  }
+  .p3{
+    width:62%; height:26%;
+    left:18%; bottom:8%;
+    background:linear-gradient(90deg, rgba(255,177,74,.0), rgba(255,177,74,.75), rgba(55,216,255,.0));
+    transform:rotate(-8deg);
+    animation-delay:-17s;
+  }
+
+  .veil{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 12%, rgba(255,255,255,.02) 54%, rgba(0,0,0,.10)),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.028) 0 1px, rgba(0,0,0,0) 1px 6px);
+    opacity:.32;
+    mix-blend-mode:overlay;
+    animation: veilshift 18s linear infinite;
+  }
+
+  .aperture{
+    position:absolute;
+    left:50%; top:50%;
+    width:86%; height:86%;
+    transform:translate(-50%,-50%) rotate(0deg);
+    border-radius:42% 58% 53% 47% / 50% 41% 59% 50%;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:
+      inset 0 0 80px rgba(255,255,255,.03),
+      0 0 60px rgba(55,216,255,.06);
+    mask-image:radial-gradient(circle at center, black 0 72%, transparent 92%);
+    opacity:.55;
+    animation: slowturn 36s linear infinite;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:38px;
+    bottom:118px;
+    opacity:.58;
+    filter:saturate(.7) hue-rotate(120deg) brightness(.82);
+    z-index:20;
+    transform:rotate(-6deg);
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(230,245,255,.55);
+    font-size:12px;
+    letter-spacing:.18em;
+    z-index:30;
+    user-select:none;
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:translateY(0) scale(1) rotate(var(--r,0deg))}
+    50%{transform:translateY(-1.8%) scale(1.07) rotate(calc(var(--r,0deg) + 3deg))}
+  }
+  @keyframes veilshift{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-1.2%)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes slowturn{
+    from{transform:translate(-50%,-50%) rotate(0deg) scale(1)}
+    50%{transform:translate(-50%,-50%) rotate(180deg) scale(1.015)}
+    to{transform:translate(-50%,-50%) rotate(360deg) scale(1)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <svg id="bgSVG" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="bandA" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#0e1020"/>
+          <stop offset="45%" stop-color="#23113a"/>
+          <stop offset="100%" stop-color="#071b22"/>
+        </linearGradient>
+        <radialGradient id="well" cx="50%" cy="52%" r="48%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+          <stop offset="55%" stop-color="rgba(255,255,255,0.04)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </radialGradient>
+      </defs>
+      <rect width="1080" height="1920" fill="url(#bandA)"/>
+      <g opacity="0.95">
+        <path d="M60 320 L510 180 L915 342 L996 630 L736 882 L260 850 L90 612 Z"
+              fill="rgba(255,255,255,0.035)" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+        <path d="M176 1030 L544 892 L883 1005 L928 1322 L700 1588 L316 1553 L146 1294 Z"
+              fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+        <path d="M254 324 L818 316 L901 606 L738 827 L334 819 L198 594 Z"
+              fill="none" stroke="rgba(183,255,43,0.07)" stroke-width="4"/>
+        <path d="M241 1052 L826 1048 L861 1333 L657 1520 L292 1487 L203 1266 Z"
+              fill="none" stroke="rgba(55,216,255,0.07)" stroke-width="4"/>
+      </g>
+      <ellipse cx="540" cy="960" rx="360" ry="640" fill="url(#well)" opacity=".8"/>
+      <g opacity=".28">
+        <polygon points="540,78 576,164 676,200 592,254 602,358 540,295 478,358 488,254 404,200 504,164"
+                 fill="#b7ff2b"/>
+        <polygon points="112,1646 204,1588 298,1660 222,1764 102,1738" fill="#37d8ff"/>
+        <polygon points="949,1494 1010,1410 1042,1526 988,1618 902,1572" fill="#ff4fd8"/>
+      </g>
+    </svg>
+
+    <div class="plane p1" style="--r:-18deg"></div>
+    <div class="plane p2" style="--r:14deg"></div>
+    <div class="plane p3" style="--r:-8deg"></div>
+
+    <canvas id="cellCanvas" width="1080" height="1920"></canvas>
+    <canvas id="glyphCanvas" width="1080" height="1920"></canvas>
+    <canvas id="fxCanvas" width="1080" height="1920"></canvas>
+
+    <div class="aperture"></div>
+
+    <svg id="overlaySVG" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="skinA" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(255,79,216,0.0)"/>
+          <stop offset="50%" stop-color="rgba(255,79,216,0.28)"/>
+          <stop offset="100%" stop-color="rgba(255,79,216,0.0)"/>
+        </linearGradient>
+        <linearGradient id="skinB" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(55,216,255,0.0)"/>
+          <stop offset="50%" stop-color="rgba(55,216,255,0.22)"/>
+          <stop offset="100%" stop-color="rgba(55,216,255,0.0)"/>
+        </linearGradient>
+      </defs>
+      <g opacity=".72">
+        <path d="M124 250 L390 280 L525 210 L735 250 L908 398 L928 606 L829 738 L611 760 L510 840 L376 760 L192 738 L106 612 L120 410 Z"
+              fill="none" stroke="url(#skinA)" stroke-width="28" stroke-linejoin="round"/>
+        <path d="M216 1148 L424 1078 L596 1115 L794 1090 L893 1222 L870 1439 L736 1564 L540 1602 L322 1557 L203 1418 L214 1238 Z"
+              fill="none" stroke="url(#skinB)" stroke-width="34" stroke-linejoin="round"/>
+      </g>
+    </svg>
+
+    <div class="veil"></div>
+    <div class="fade-edge"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div id="date">2026-06-27</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-27";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const canvas = document.getElementById('cellCanvas');
+  const ctx = canvas.getContext('2d');
+  const fx = document.getElementById('fxCanvas');
+  const fctx = fx.getContext('2d');
+  const glyph = document.getElementById('glyphCanvas');
+  const gctx = glyph.getContext('2d');
+
+  const W = canvas.width, H = canvas.height;
+
+  const cols = 11;
+  const rows = 18;
+  const cell = 78;
+  const gap = 14;
+  const gridW = cols * cell + (cols - 1) * gap;
+  const gridH = rows * cell + (rows - 1) * gap;
+  const ox = Math.round((W - gridW) / 2);
+  const oy = Math.round((H - gridH) / 2);
+
+  let grid = new Array(rows).fill(0).map(()=>new Array(cols).fill(0));
+  let next = new Array(rows).fill(0).map(()=>new Array(cols).fill(0));
+  let age = new Array(rows).fill(0).map(()=>new Array(cols).fill(0));
+
+  function seededPattern() {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const nx = (x - cols/2) / cols;
+        const ny = (y - rows/2) / rows;
+        const radial = 1 - Math.min(1, Math.hypot(nx*1.25, ny));
+        const stripe = (Math.sin((x*0.94 + y*0.67 + rand()*2.0)) + 1) * 0.5;
+        const chance = 0.16 + radial * 0.34 + stripe * 0.12;
+        grid[y][x] = rand() < chance ? 1 : 0;
+        age[y][x] = grid[y][x] ? rand()*0.6 : 0;
+      }
+    }
+    // seed a few recognisable structures to keep it alive
+    const seeds = [
+      [2,3],[3,4],[4,2],[4,3],[4,4],
+      [7,8],[8,8],[9,8],[9,7],[8,6],
+      [13,2],[14,2],[15,2],[15,3],[14,4],
+      [11,7],[12,7],[13,7],[13,6],[12,5]
+    ];
+    for (const [y,x] of seeds) if (y<rows && x<cols) grid[y][x] = 1;
+  }
+  seededPattern();
+
+  function count(x,y){
+    let n=0;
+    for(let j=-1;j<=1;j++){
+      for(let i=-1;i<=1;i++){
+        if(i===0 && j===0) continue;
+        const xx=(x+i+cols)%cols;
+        const yy=(y+j+rows)%rows;
+        n += grid[yy][xx];
+      }
+    }
+    return n;
+  }
+
+  let generation = 0;
+  let morph = 0;
+  const stepFrames = 84; // slow update
+  let frame = 0;
+
+  function stepLife(){
+    generation++;
+    let aliveCount = 0;
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const n = count(x,y);
+        const alive = grid[y][x] === 1;
+        next[y][x] = (alive && (n===2||n===3)) || (!alive && n===3) ? 1 : 0;
+        if(next[y][x]) aliveCount++;
+      }
+    }
+
+    if (aliveCount < 16 || aliveCount > cols*rows*0.52 || generation % 22 === 0) {
+      // inject a deterministic perturbation to avoid dead ends
+      const cx = 2 + Math.floor(rand()*(cols-4));
+      const cy = 2 + Math.floor(rand()*(rows-4));
+      const shape = [
+        [0,1],[1,2],[2,0],[2,1],[2,2]
+      ];
+      for(const [sy,sx] of shape){
+        next[(cy+sy)%rows][(cx+sx)%cols] = 1;
+      }
+      if (rand() < 0.5) next[(cy+1)%rows][(cx+0)%cols] = 1;
+    }
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        grid[y][x] = next[y][x];
+        if(grid[y][x]) age[y][x] = Math.min(1, age[y][x] + 0.17);
+        else age[y][x] = Math.max(0, age[y][x] - 0.14);
+      }
+    }
+  }
+
+  function palette(t, a, x, y){
+    const k = (Math.sin(t*0.00043 + x*0.61 - y*0.37) + 1)/2;
+    const r = Math.floor(70 + 185 * Math.pow(a,0.55) * (0.25 + 0.75*k));
+    const g = Math.floor(45 + 210 * ((1-k)*0.45 + a*0.75));
+    const b = Math.floor(95 + 155 * (0.45 + 0.55*Math.sin(t*0.00031 + y*0.45 + x*0.28 + 1.4)));
+    return [r,g,b];
+  }
+
+  function roundedPoly(cx, cy, r, sides, rot){
+    const pts = [];
+    for(let i=0;i<sides;i++){
+      const a = rot + i * Math.PI * 2 / sides;
+      pts.push([cx + Math.cos(a)*r, cy + Math.sin(a)*r]);
+    }
+    ctx.beginPath();
+    for(let i=0;i<sides;i++){
+      const p0 = pts[i];
+      const p1 = pts[(i+1)%sides];
+      const mx = (p0[0]+p1[0])/2, my = (p0[1]+p1[1])/2;
+      if(i===0) ctx.moveTo(mx,my);
+      else ctx.lineTo(mx,my);
+    }
+    ctx.closePath();
+  }
+
+  function drawGlyphField(t){
+    gctx.clearRect(0,0,W,H);
+    gctx.save();
+    gctx.globalCompositeOperation = 'screen';
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const cx = ox + x*(cell+gap) + cell/2;
+        const cy = oy + y*(cell+gap) + cell/2;
+        const alive = grid[y][x] || age[y][x] > 0.02;
+        if(!alive) continue;
+
+        const pulse = 0.5 + 0.5*Math.sin(t*0.002 + x*0.7 + y*0.35);
+        const s = 8 + age[y][x]*18 + pulse*8;
+        const hueMix = (x*17 + y*11 + generation*9) % 360;
+        gctx.strokeStyle = `hsla(${hueMix},95%,70%,0.16)`;
+        gctx.lineWidth = 1.5;
+
+        gctx.beginPath();
+        gctx.moveTo(cx-s, cy);
+        gctx.lineTo(cx, cy-s*0.66);
+        gctx.lineTo(cx+s, cy);
+        gctx.lineTo(cx, cy+s*0.66);
+        gctx.closePath();
+        gctx.stroke();
+
+        gctx.beginPath();
+        gctx.rect(cx-s*0.32, cy-s*0.32, s*0.64, s*0.64);
+        gctx.stroke();
+      }
+    }
+    gctx.restore();
+  }
+
+  function drawFX(t){
+    fctx.clearRect(0,0,W,H);
+    fctx.save();
+    fctx.globalCompositeOperation = 'screen';
+
+    // structural beams
+    for(let i=0;i<4;i++){
+      const yy = H*(0.18 + i*0.21);
+      const drift = Math.sin(t*0.0002 + i*1.6) * 90;
+      const grad = fctx.createLinearGradient(0, yy, W, yy+drift);
+      grad.addColorStop(0, 'rgba(255,79,216,0)');
+      grad.addColorStop(0.22, 'rgba(255,79,216,0.04)');
+      grad.addColorStop(0.52, 'rgba(183,255,43,0.08)');
+      grad.addColorStop(0.78, 'rgba(55,216,255,0.05)');
+      grad.addColorStop(1, 'rgba(55,216,255,0)');
+      fctx.fillStyle = grad;
+      fctx.beginPath();
+      fctx.moveTo(80, yy-24);
+      fctx.lineTo(W-120, yy+drift-8);
+      fctx.lineTo(W-140, yy+drift+26);
+      fctx.lineTo(60, yy+12);
+      fctx.closePath();
+      fctx.fill();
+    }
+
+    // nested focus polygons
+    const cx = W/2, cy = H/2;
+    for(let k=0;k<5;k++){
+      const rr = 190 + k*94 + Math.sin(t*0.00035 + k)*10;
+      const sides = 6 + (k%3);
+      fctx.strokeStyle = `rgba(${k%2?55:255},${k%2?216:120},${k%2?255:74},${0.05-k*0.006})`;
+      fctx.lineWidth = 4-k*0.4;
+      fctx.beginPath();
+      for(let i=0;i<sides;i++){
+        const a = t*0.00005*(k%2?1:-1) + i*Math.PI*2/sides;
+        const px = cx + Math.cos(a)*rr*0.86;
+        const py = cy + Math.sin(a)*rr*1.18;
+        if(i===0) fctx.moveTo(px,py); else fctx.lineTo(px,py);
+      }
+      fctx.closePath();
+      fctx.stroke();
+    }
+    fctx.restore();
+  }
+
+  function draw(t){
+    frame++;
+    morph = (frame % stepFrames) / stepFrames;
+    if(frame % stepFrames === 0) stepLife();
+
+    ctx.clearRect(0,0,W,H);
+
+    // central atmosphere
+    const bg = ctx.createRadialGradient(W/2,H/2,120,W/2,H/2,860);
+    bg.addColorStop(0,'rgba(255,255,255,0.045)');
+    bg.addColorStop(.28,'rgba(130,70,255,0.055)');
+    bg.addColorStop(.68,'rgba(0,0,0,0)');
+    bg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const gx = ox + x*(cell+gap);
+        const gy = oy + y*(cell+gap);
+        const cx = gx + cell/2;
+        const cy = gy + cell/2;
+
+        const a = age[y][x];
+        const live = grid[y][x] === 1;
+        const pulse = 0.78 + 0.22*Math.sin(t*0.0016 + x*0.52 + y*0.33 + a*2.0);
+        const wave = 0.5 + 0.5*Math.sin(t*0.0008 + (x-y)*0.75);
+        const scale = live ? (0.84 + 0.18*morph + pulse*0.07) : (0.18 + a*0.52 + wave*0.04);
+
+        const [r,g,b] = palette(t,a,x,y);
+
+        // cast plate shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        roundedPoly(cx+6, cy+11, cell*0.43*scale, 6 + ((x+y)%3), wave*0.8);
+        ctx.fill();
+
+        // diffuse glow
+        const glow = ctx.createRadialGradient(cx,cy,2,cx,cy,cell*0.72);
+        glow.addColorStop(0, `rgba(${r},${g},${b},${0.30*a + 0.12})`);
+        glow.addColorStop(0.55, `rgba(${r},${g},${b},${0.16*a + 0.08})`);
+        glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(cx,cy,cell*0.76,0,Math.PI*2);
+        ctx.fill();
+
+        // main cell body: not square pixels, but strange crystalline lozenges
+        ctx.save();
+        ctx.translate(cx,cy);
+        ctx.rotate((x*0.15 - y*0.11) + Math.sin(t*0.00042 + x)*0.08);
+        ctx.scale(1, 1.08 + 0.08*Math.sin(t*0.0009 + y));
+        const sides = 6 + ((x*3+y)%4===0 ? 1 : 0);
+        roundedPoly(0,0,cell*0.38*scale,sides,Math.PI/4 + wave*0.6);
+        ctx.fillStyle = `rgba(${r},${g},${b},${0.18 + a*0.68})`;
+        ctx.fill();
+
+        ctx.lineWidth = 2 + a*1.5;
+        ctx.strokeStyle = `rgba(255,255,255,${0.08 + a*0.18})`;
+        ctx.stroke();
+
+        // internal notch geometry
+        ctx.beginPath();
+        const ir = cell*0.16*(0.8 + pulse*0.5 + a*0.6);
+        for(let i=0;i<4;i++){
+          const ang = Math.PI/4 + i*Math.PI/2;
+          const px = Math.cos(ang)*ir;
+          const py = Math.sin(ang)*ir*(1.1 + 0.15*Math.sin(t*0.001 + x+y));
+          if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = `rgba(10,8,20,${0.20 + 0.35*a})`;
+        ctx.fill();
+
+        // side signal tabs
+        ctx.fillStyle = `rgba(${Math.min(255,r+60)},${Math.min(255,g+30)},${Math.min(255,b+30)},${0.10 + 0.24*a})`;
+        const tab = cell*0.085*(1 + wave*0.3);
+        ctx.fillRect(-tab*0.5, -cell*0.31, tab, tab*1.55);
+        ctx.fillRect(-tab*0.5, cell*0.18, tab, tab*1.55);
+        ctx.restore();
+
+        // neighbor bridges for living cells
+        if(live){
+          const neighbors = [[1,0],[0,1]];
+          neighbors.forEach(([dx,dy])=>{
+            const nx = (x+dx+cols)%cols, ny = (y+dy+rows)%rows;
+            if(grid[ny][nx]){
+              const tx = ox + nx*(cell+gap) + cell/2;
+              const ty = oy + ny*(cell+gap) + cell/2;
+              const grad = ctx.createLinearGradient(cx,cy,tx,ty);
+              grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
+              grad.addColorStop(0.5, `rgba(${r},${g},${b},${0.13 + 0.10*a})`);
+              grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+              ctx.strokeStyle = grad;
+              ctx.lineWidth = 10*(0.5 + a*0.8);
+              ctx.beginPath();
+              ctx.moveTo(cx,cy);
+              ctx.lineTo(tx,ty);
+              ctx.stroke();
+            }
+          });
+        }
+      }
+    }
+
+    // alien lattice markers around board
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    for(let i=0;i<rows;i++){
+      const yy = oy + i*(cell+gap) + cell/2;
+      ctx.fillStyle = i%2 ? 'rgba(255,79,216,0.18)' : 'rgba(55,216,255,0.18)';
+      ctx.beginPath();
+      ctx.moveTo(ox-54,yy);
+      ctx.lineTo(ox-20,yy-16);
+      ctx.lineTo(ox+4,yy);
+      ctx.lineTo(ox-20,yy+16);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(ox+gridW+54,yy);
+      ctx.lineTo(ox+gridW+20,yy-16);
+      ctx.lineTo(ox+gridW-4,yy);
+      ctx.lineTo(ox+gridW+20,yy+16);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+
+    drawGlyphField(t);
+    drawFX(t);
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    let audioStarted = false;
+    const startAudio = () => {
+      if (audioStarted) return;
+      audioStarted = true;
+      try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ac = new AC();
+
+        const master = ac.createGain();
+        master.gain.value = 0.018;
+        master.connect(ac.destination);
+
+        const lfo = ac.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.041;
+
+        const lfoGain = ac.createGain();
+        lfoGain.gain.value = 18;
+
+        const osc1 = ac.createOscillator();
+        osc1.type = 'triangle';
+        osc1.frequency.value = 92;
+
+        const osc2 = ac.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.value = 138;
+
+        const g1 = ac.createGain();
+        const g2 = ac.createGain();
+        g1.gain.value = 0.17;
+        g2.gain.value = 0.11;
+
+        const filter = ac.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 540;
+        filter.Q.value = 0.35;
+
+        const slow = ac.createOscillator();
+        slow.type = 'sine';
+        slow.frequency.value = 0.019;
+        const slowGain = ac.createGain();
+        slowGain.gain.value = 180;
+
+        slow.connect(slowGain);
+        slowGain.connect(filter.frequency);
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc2.frequency);
+
+        osc1.connect(g1); g1.connect(filter);
+        osc2.connect(g2); g2.connect(filter);
+        filter.connect(master);
+
+        osc1.start(); osc2.start(); lfo.start(); slow.start();
+      }catch(e){}
+      window.removeEventListener('pointerdown', startAudio);
+      window.removeEventListener('keydown', startAudio);
+    };
+    window.addEventListener('pointerdown', startAudio, {once:true});
+    window.addEventListener('keydown', startAudio, {once:true});
+  }
+})();
+</script>
+</body>
+</html>
