@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-29</title>
+<style>
+  :root{
+    --bg:#f1e5c9;
+    --sand:#dcc59a;
+    --mustard:#c79a2b;
+    --rust:#b55c34;
+    --teal:#2d7a78;
+    --deepteal:#1f5958;
+    --olive:#647048;
+    --ink:#2f2a24;
+    --paper:#efe4c8;
+    --shadow:rgba(66,43,22,.20);
+    --date:#3d382f;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#cbb48b;
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(100vh,177.777vw);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 900px at 20% 10%, #f5ecd4 0%, #eadbb9 42%, #d3bc8f 100%);
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+
+  #texture, #underCanvas, #archCanvas, #overlayCanvas, #dustCanvas, #snakeCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block;
+  }
+  #texture{ opacity:.16; mix-blend-mode:multiply; }
+  #underCanvas{ opacity:.95; }
+  #archCanvas{ opacity:.95; }
+  #overlayCanvas{ opacity:.9; pointer-events:none; }
+  #dustCanvas{ opacity:.18; pointer-events:none; }
+  #snakeCanvas{ opacity:.55; pointer-events:none; }
+
+  .sun{
+    position:absolute;
+    width:46%;
+    aspect-ratio:1/1;
+    left:50%;
+    top:11%;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, #f6d980 0 36%, #eab85a 37% 54%, rgba(228,170,74,.0) 55% 100%);
+    filter:blur(.1px);
+    opacity:.85;
+  }
+  .sun::before{
+    content:"";
+    position:absolute; inset:-22%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle, rgba(230,160,58,.18) 0 45%, rgba(230,160,58,0) 72%);
+    animation:breathe 24s ease-in-out infinite;
+  }
+
+  .back-planes, .front-planes, .collage-scraps, .tapes, .rays{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+
+  .ray{
+    position:absolute;
+    left:50%; top:18%;
+    width:4px; height:58%;
+    transform-origin:50% 0%;
+    background:linear-gradient(to bottom, rgba(214,155,44,.24), rgba(214,155,44,0));
+    border-radius:3px;
+    filter:blur(.15px);
+  }
+
+  .shape{
+    position:absolute;
+    background:var(--teal);
+    opacity:.95;
+    box-shadow:0 10px 20px rgba(50,35,18,.08);
+  }
+
+  .arch{
+    border-radius:220px 220px 12px 12px / 180px 180px 12px 12px;
+  }
+  .oval{
+    border-radius:50%;
+  }
+  .rounded{
+    border-radius:18px;
+  }
+
+  .back-planes .s1{ left:-8%; top:58%; width:38%; height:22%; background:#d8a245; transform:rotate(-8deg); animation:drift1 30s ease-in-out infinite; }
+  .back-planes .s2{ right:-6%; top:47%; width:44%; height:26%; background:#2f7e7b; transform:rotate(7deg); animation:drift2 36s ease-in-out infinite; }
+  .back-planes .s3{ left:12%; top:33%; width:25%; height:10%; background:#8a6e49; transform:rotate(-14deg); opacity:.6; }
+  .back-planes .s4{ right:8%; top:28%; width:18%; height:14%; background:#c65f39; border-radius:120px 120px 20px 20px / 100px 100px 20px 20px; opacity:.72; animation:breathe 26s ease-in-out infinite; }
+  .back-planes .s5{ left:58%; top:67%; width:18%; height:18%; background:#efe5cb; border:2px solid rgba(70,52,34,.08); transform:rotate(18deg); opacity:.55; }
+
+  .horizon{
+    position:absolute;
+    left:-10%; right:-10%; bottom:22%;
+    height:17%;
+    background:
+      linear-gradient(to bottom, rgba(181,113,62,.0), rgba(181,113,62,.12) 25%, rgba(144,92,53,.18) 100%);
+    clip-path:polygon(0 45%, 14% 52%, 28% 40%, 41% 56%, 56% 36%, 71% 52%, 84% 42%, 100% 58%, 100% 100%, 0 100%);
+    filter:blur(1px);
+    opacity:.65;
+  }
+
+  .plinth{
+    position:absolute;
+    left:8%; right:8%; bottom:0;
+    height:21%;
+    background:
+      linear-gradient(to bottom, rgba(114,93,61,.06), rgba(101,81,54,.22)),
+      linear-gradient(90deg, #b89a6b, #cfb081 30%, #bda06f 60%, #a98959 100%);
+    clip-path:polygon(0 28%, 22% 20%, 39% 28%, 62% 18%, 81% 24%, 100% 16%, 100% 100%, 0 100%);
+    opacity:.82;
+  }
+
+  .city-mask{
+    position:absolute;
+    left:0; right:0; top:27%; bottom:13%;
+    overflow:hidden;
+    mask-image:linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+  }
+
+  #art-wrap{
+    position:absolute;
+    left:19%;
+    top:46%;
+    width:54%;
+    height:26%;
+    transform:rotate(-6.2deg);
+    animation:artFloat 28s ease-in-out infinite;
+    z-index:10;
+  }
+  #paper-shadow{
+    position:absolute; inset:4% -1% -3% 3%;
+    background:rgba(58,37,20,.20);
+    filter:blur(18px);
+    transform:rotate(1.8deg) scale(1.01,.98);
+    border-radius:8px;
+  }
+  #paper{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, #f3ead4 0%, #ecdfc1 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.45) inset,
+      0 0 0 1px rgba(96,70,40,.06);
+    filter:saturate(.95);
+  }
+  #paper::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.20), transparent 35%),
+      radial-gradient(circle at 70% 60%, rgba(121,90,46,.06), transparent 40%);
+    mix-blend-mode:multiply;
+  }
+  #paper::after{
+    content:"";
+    position:absolute; inset:-1.2% -1.2%;
+    background:#e8d8b2;
+    z-index:-1;
+    clip-path:polygon(2% 4%, 7% 2%, 12% 5%, 18% 1%, 26% 4%, 33% 2%, 40% 5%, 47% 2%, 55% 4%, 63% 1%, 72% 4%, 81% 2%, 89% 5%, 96% 3%, 98% 10%, 97% 18%, 99% 27%, 96% 35%, 98% 44%, 96% 54%, 99% 63%, 97% 73%, 98% 82%, 95% 90%, 90% 96%, 82% 98%, 73% 95%, 65% 99%, 56% 96%, 47% 98%, 39% 95%, 30% 99%, 21% 96%, 13% 98%, 6% 95%, 2% 89%, 4% 81%, 1% 72%, 5% 64%, 2% 56%, 4% 47%, 1% 39%, 4% 30%, 2% 21%, 5% 13%);
+    opacity:.9;
+    filter:blur(.2px);
+  }
+
+  #art-image{
+    position:absolute;
+    left:5%; top:5%;
+    width:90%; height:90%;
+    object-fit:cover;
+    display:block;
+    border:none;
+    filter:sepia(.2) saturate(1.1) contrast(1.03) hue-rotate(-8deg) brightness(1.02);
+    box-shadow:0 0 0 1px rgba(85,59,31,.12);
+  }
+
+  .tape{
+    position:absolute;
+    background:rgba(237,214,153,.78);
+    box-shadow:0 1px 2px rgba(60,45,20,.12);
+    backdrop-filter:blur(.5px);
+    border:1px solid rgba(150,125,72,.14);
+  }
+  .t1{ width:16%; height:5%; left:4%; top:-1%; transform:rotate(-9deg); }
+  .t2{ width:18%; height:5%; right:2%; top:4%; transform:rotate(11deg); }
+  .t3{ width:17%; height:5%; left:14%; bottom:-1%; transform:rotate(7deg); }
+  .t4{ width:14%; height:5%; right:10%; bottom:1%; transform:rotate(-12deg); }
+
+  .scrap{
+    position:absolute;
+    background:#eadcbc;
+    box-shadow:0 5px 12px rgba(50,33,18,.12);
+    border:1px solid rgba(94,72,49,.08);
+  }
+  .scrap.a{
+    left:10%; top:42%; width:19%; height:9%;
+    transform:rotate(-12deg);
+    background:
+      radial-gradient(circle at 22% 50%, #c55e34 0 10%, transparent 11%),
+      radial-gradient(circle at 44% 50%, #c55e34 0 10%, transparent 11%),
+      radial-gradient(circle at 66% 50%, #c55e34 0 10%, transparent 11%),
+      radial-gradient(circle at 88% 50%, #c55e34 0 10%, transparent 11%),
+      #e8d9b8;
+    opacity:.95;
+  }
+  .scrap.b{
+    right:8%; top:58%; width:16%; height:13%;
+    transform:rotate(9deg);
+    background:
+      linear-gradient(180deg, #d0b37d 0 33%, #2e7978 33% 66%, #b95c34 66% 100%);
+  }
+  .scrap.c{
+    left:26%; top:69%; width:14%; height:5%;
+    transform:rotate(4deg);
+    background:
+      repeating-linear-gradient(90deg, #efdfbe 0 7%, #c8a44e 7% 14%, #efdfbe 14% 21%);
+  }
+  .scrap.d{
+    right:26%; top:38%; width:10%; height:18%;
+    transform:rotate(-8deg);
+    background:
+      linear-gradient(90deg, #f0e1bf 0 46%, #366e67 46% 54%, #f0e1bf 54% 100%);
+    opacity:.9;
+  }
+
+  .front-planes .f1{
+    left:-8%; bottom:17%; width:30%; height:18%;
+    background:#2e7978;
+    clip-path:polygon(0 100%, 0 44%, 38% 28%, 55% 44%, 73% 12%, 100% 36%, 100% 100%);
+    opacity:.9;
+    animation:drift2 34s ease-in-out infinite;
+  }
+  .front-planes .f2{
+    right:-6%; bottom:14%; width:34%; height:20%;
+    background:#bf713b;
+    clip-path:polygon(0 100%, 0 40%, 21% 22%, 44% 41%, 69% 12%, 100% 34%, 100% 100%);
+    opacity:.88;
+    animation:drift1 31s ease-in-out infinite;
+  }
+  .front-planes .f3{
+    left:39%; bottom:11%; width:24%; height:9%;
+    background:#f0e3c6;
+    border-radius:60px;
+    opacity:.74;
+  }
+
+  .window-grid{
+    position:absolute;
+    inset:0;
+    opacity:.28;
+    mix-blend-mode:multiply;
+    mask-image:linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image:linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    font-size:14px;
+    letter-spacing:.08em;
+    color:var(--date);
+    opacity:.55;
+    z-index:30;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:7px;
+    bottom:121px;
+    opacity:.56;
+    filter:sepia(.5) saturate(.8) hue-rotate(12deg) brightness(.78);
+    z-index:8;
+    transform:rotate(-4deg);
+  }
+
+  .snake-motif{
+    position:absolute;
+    left:6%;
+    top:22%;
+    width:13%;
+    height:24%;
+    opacity:.2;
+    z-index:3;
+    animation:breathe 22s ease-in-out infinite;
+    filter:blur(.2px);
+  }
+
+  @keyframes artFloat{
+    0%,100%{ transform:rotate(-6.2deg) translateY(0px) translateX(0px); }
+    50%{ transform:rotate(-4.7deg) translateY(-12px) translateX(6px); }
+  }
+  @keyframes drift1{
+    0%,100%{ transform:translateX(0) translateY(0) rotate(-8deg);}
+    50%{ transform:translateX(10px) translateY(-10px) rotate(-5deg);}
+  }
+  @keyframes drift2{
+    0%,100%{ transform:translateX(0) translateY(0) rotate(7deg);}
+    50%{ transform:translateX(-14px) translateY(8px) rotate(4deg);}
+  }
+  @keyframes breathe{
+    0%,100%{ transform:scale(1); opacity:.85; }
+    50%{ transform:scale(1.04); opacity:1; }
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div class="sun"></div>
+    <div class="rays" id="rays"></div>
+
+    <canvas id="underCanvas" width="1080" height="1920"></canvas>
+
+    <div class="back-planes">
+      <div class="shape rounded s1"></div>
+      <div class="shape rounded s2"></div>
+      <div class="shape rounded s3"></div>
+      <div class="shape arch s4"></div>
+      <div class="shape rounded s5"></div>
+    </div>
+
+    <div class="horizon"></div>
+
+    <div class="city-mask">
+      <canvas id="archCanvas" width="1080" height="1920"></canvas>
+      <div class="window-grid" id="windowGrid"></div>
+    </div>
+
+    <div id="art-wrap">
+      <div id="paper-shadow"></div>
+      <div id="paper">
+        <img id="art-image" src="art.png" alt="" />
+      </div>
+      <div class="tapes">
+        <div class="tape t1"></div>
+        <div class="tape t2"></div>
+        <div class="tape t3"></div>
+        <div class="tape t4"></div>
+      </div>
+    </div>
+
+    <div class="collage-scraps">
+      <div class="scrap a"></div>
+      <div class="scrap b"></div>
+      <div class="scrap c"></div>
+      <div class="scrap d"></div>
+    </div>
+
+    <svg class="snake-motif" viewBox="0 0 100 200" aria-hidden="true">
+      <path d="M47 10
+               C64 18, 68 34, 60 49
+               C52 64, 35 69, 37 87
+               C39 104, 61 109, 63 129
+               C65 151, 48 162, 39 177
+               L56 184
+               C72 165, 82 147, 79 127
+               C76 104, 56 96, 55 84
+               C54 72, 68 61, 74 46
+               C81 28, 73 10, 55 4 Z"
+            fill="#355f51"/>
+      <circle cx="57" cy="18" r="3.1" fill="#efe0bf"/>
+      <circle cx="58" cy="17.5" r="1.2" fill="#2f2a24"/>
+    </svg>
+
+    <div class="front-planes">
+      <div class="shape f1"></div>
+      <div class="shape f2"></div>
+      <div class="shape f3"></div>
+    </div>
+
+    <div class="plinth"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <canvas id="snakeCanvas" width="1080" height="1920"></canvas>
+    <canvas id="overlayCanvas" width="1080" height="1920"></canvas>
+    <canvas id="dustCanvas" width="1080" height="1920"></canvas>
+    <canvas id="texture" width="1080" height="1920"></canvas>
+
+    <div id="date">2026-06-29</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-29";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(xmur3(seedStr)());
+  const W = 1080, H = 1920;
+
+  function drawTexture() {
+    const c = document.getElementById('texture');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<28000;i++){
+      const x = rand()*W, y = rand()*H;
+      const a = rand()*0.05;
+      const s = rand()<0.85 ? 1 : 2;
+      ctx.fillStyle = `rgba(70,48,24,${a})`;
+      ctx.fillRect(x,y,s,s);
+    }
+    for(let i=0;i<80;i++){
+      const x = rand()*W, y = rand()*H, r = 20 + rand()*110;
+      const g = ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,`rgba(255,255,255,${0.018+rand()*0.016})`);
+      g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function buildRays() {
+    const wrap = document.getElementById('rays');
+    const n = 22;
+    for(let i=0;i<n;i++){
+      const d = document.createElement('div');
+      d.className = 'ray';
+      d.style.transform = `translateX(-50%) rotate(${(-62 + i*(124/(n-1))).toFixed(2)}deg)`;
+      d.style.opacity = (0.12 + (i%3)*0.03).toFixed(2);
+      d.style.height = `${48 + (i%5)*3}%`;
+      wrap.appendChild(d);
+    }
+  }
+
+  function drawUnder() {
+    const c = document.getElementById('underCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#f3e7c7');
+    g.addColorStop(0.42,'#e4d1a6');
+    g.addColorStop(1,'#caa775');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    for(let i=0;i<8;i++){
+      const y = 180 + i*120;
+      ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,.06)' : 'rgba(121,86,46,.035)';
+      ctx.fillRect(0,y,W,40+rand()*20);
+    }
+
+    const cols = ['#d5ad5a','#2d7775','#bc6035','#8b6d4b','#efe2c2'];
+    for(let i=0;i<14;i++){
+      const x = 70 + i*72 + (i%2)*10;
+      const y = 1020 + (i%3)*30;
+      const h = 220 + (i%5)*28;
+      ctx.fillStyle = cols[i%cols.length];
+      ctx.beginPath();
+      ctx.moveTo(x,y+h);
+      ctx.lineTo(x+20,y+30);
+      ctx.lineTo(x+54,y);
+      ctx.lineTo(x+74,y+46);
+      ctx.lineTo(x+74,y+h);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawCity(t=0){
+    const c = document.getElementById('archCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+
+    const palettes = ['#2d7a78','#c79a2b','#b55c34','#866847','#efe1bf','#5f6a43'];
+    const baseY = 1320;
+
+    function tower(x,w,h,color,archTop=true,windowCols=3,bridge=false){
+      const y = baseY - h;
+      ctx.save();
+      ctx.translate(x,y + Math.sin(t*0.00018 + x*0.01)*8);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      if(archTop){
+        ctx.moveTo(0,h);
+        ctx.lineTo(0,78);
+        ctx.quadraticCurveTo(0,0,w/2,0);
+        ctx.quadraticCurveTo(w,0,w,78);
+        ctx.lineTo(w,h);
+      }else{
+        ctx.rect(0,0,w,h);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(42,38,32,.18)';
+      for(let iy=0; iy<Math.floor((h-120)/70); iy++){
+        for(let ix=0; ix<windowCols; ix++){
+          const ww = w/(windowCols+1.6);
+          const wx = 18 + ix*(ww+12);
+          const wy = 96 + iy*70;
+          ctx.fillRect(wx,wy,ww,38);
+        }
+      }
+
+      ctx.fillStyle = 'rgba(255,248,221,.25)';
+      ctx.fillRect(10, 18, w-20, 8);
+
+      if(bridge){
+        ctx.fillStyle = color;
+        ctx.fillRect(w*0.2, h*0.62, w*1.1, 22);
+        for(let k=0;k<5;k++){
+          ctx.fillRect(w*0.22 + k*(w*0.19), h*0.62+22, 10, 52);
+        }
+      }
+      ctx.restore();
+    }
+
+    tower(80,110,520,palettes[0],true,2,false);
+    tower(180,150,380,palettes[4],false,3,true);
+    tower(295,120,640,palettes[1],true,2,false);
+    tower(390,170,470,palettes[2],true,3,true);
+    tower(545,105,740,palettes[3],false,2,false);
+    tower(620,165,560,palettes[0],true,3,true);
+    tower(765,130,660,palettes[1],true,2,false);
+    tower(850,150,430,palettes[4],false,3,false);
+
+    ctx.fillStyle = '#355f51';
+    ctx.beginPath();
+    ctx.moveTo(120,1320);
+    ctx.lineTo(220,1230);
+    ctx.lineTo(360,1230);
+    ctx.lineTo(360,1252);
+    ctx.lineTo(240,1252);
+    ctx.lineTo(170,1320);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#b86a3f';
+    ctx.beginPath();
+    ctx.moveTo(650,1180);
+    ctx.lineTo(850,1110);
+    ctx.lineTo(880,1132);
+    ctx.lineTo(700,1202);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#efe2c2';
+    ctx.beginPath();
+    ctx.moveTo(714,1204);
+    ctx.lineTo(906,1134);
+    ctx.lineTo(906,1154);
+    ctx.lineTo(714,1224);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.globalAlpha = .12;
+    ctx.fillStyle = '#3f3428';
+    ctx.fillRect(0, baseY, W, 350);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawOverlay(t=0){
+    const c = document.getElementById('overlayCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+
+    // large cut-paper architectural crescents / supports
+    const bob = Math.sin(t*0.00022)*10;
+    ctx.save();
+    ctx.translate(0,bob);
+
+    const leftGrad = ctx.createLinearGradient(0,0,280,0);
+    leftGrad.addColorStop(0,'rgba(47,89,88,.0)');
+    leftGrad.addColorStop(0.4,'rgba(47,89,88,.72)');
+    leftGrad.addColorStop(1,'rgba(47,89,88,.0)');
+    ctx.fillStyle = leftGrad;
+    ctx.beginPath();
+    ctx.ellipse(130,1060,170,500,0,0,Math.PI*2);
+    ctx.fill();
+
+    const rightGrad = ctx.createLinearGradient(800,0,1080,0);
+    rightGrad.addColorStop(0,'rgba(196,121,53,.0)');
+    rightGrad.addColorStop(0.5,'rgba(196,121,53,.70)');
+    rightGrad.addColorStop(1,'rgba(196,121,53,.0)');
+    ctx.fillStyle = rightGrad;
+    ctx.beginPath();
+    ctx.ellipse(948,1110,180,550,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+
+    // foreground bridges crossing over art image
+    ctx.fillStyle = 'rgba(239,227,198,.9)';
+    ctx.beginPath();
+    ctx.moveTo(235,980);
+    ctx.lineTo(520,930);
+    ctx.lineTo(529,952);
+    ctx.lineTo(242,1002);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(45,122,120,.88)';
+    ctx.beginPath();
+    ctx.moveTo(610,1218);
+    ctx.lineTo(876,1170);
+    ctx.lineTo(887,1195);
+    ctx.lineTo(620,1240);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(47,42,36,.12)';
+    for(let i=0;i<6;i++){
+      const x = 280 + i*44;
+      ctx.fillRect(x,944 + i*3,8,110);
+    }
+    for(let i=0;i<5;i++){
+      const x = 650 + i*47;
+      ctx.fillRect(x,1184 - i*2,8,95);
+    }
+  }
+
+  function drawDust(t=0){
+    const c = document.getElementById('dustCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<42;i++){
+      const x = (i*61 + (t*0.006)*(0.3+i%5)) % (W+120) - 60;
+      const y = 180 + ((i*137)%1300);
+      const r = 8 + (i%4)*6;
+      const g = ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,'rgba(255,248,224,.18)');
+      g.addColorStop(1,'rgba(255,248,224,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function drawSnakeBand(t=0){
+    const c = document.getElementById('snakeCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.save();
+    ctx.translate(0, Math.sin(t*0.00025)*5);
+
+    // thick snake-like ribbon integrated as architectural motif
+    const y0 = 1535;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(53,95,81,.55)';
+    ctx.lineWidth = 34;
+    ctx.beginPath();
+    ctx.moveTo(80, y0);
+    ctx.lineTo(250, y0-24);
+    ctx.lineTo(390, y0+18);
+    ctx.lineTo(560, y0-16);
+    ctx.lineTo(720, y0+12);
+    ctx.lineTo(920, y0-18);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(239,226,194,.35)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(90, y0-3);
+    ctx.lineTo(250, y0-27);
+    ctx.lineTo(390, y0+15);
+    ctx.lineTo(560, y0-19);
+    ctx.lineTo(720, y0+9);
+    ctx.lineTo(910, y0-21);
+    ctx.stroke();
+
+    // subtle diamond pattern
+    ctx.fillStyle = 'rgba(239,226,194,.18)';
+    for(let i=0;i<18;i++){
+      const x = 120 + i*43;
+      const y = y0 + Math.sin(i*0.9)*12;
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(Math.PI/4);
+      ctx.fillRect(-6,-6,12,12);
+      ctx.restore();
+    }
+
+    // tiny head
+    ctx.fillStyle = 'rgba(53,95,81,.75)';
+    ctx.beginPath();
+    ctx.moveTo(944,y0-20);
+    ctx.lineTo(976,y0-8);
+    ctx.lineTo(944,y0+4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(245,236,211,.45)';
+    ctx.beginPath();
+    ctx.arc(952,y0-9,2.2,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function animate(ts){
+    drawCity(ts);
+    drawOverlay(ts);
+    drawDust(ts);
+    drawSnakeBand(ts);
+    requestAnimationFrame(animate);
+  }
+
+  drawTexture();
+  buildRays();
+  drawUnder();
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.value = 130.81;
+      osc2.frequency.value = 196.00;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 620;
+      filter.Q.value = 0.8;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.027;
+      lfoGain.gain.value = 34;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const g1 = ctx.createGain();
+      const g2 = ctx.createGain();
+      g1.gain.value = 0.28;
+      g2.gain.value = 0.18;
+
+      osc1.connect(g1); osc2.connect(g2);
+      g1.connect(filter); g2.connect(filter);
+      filter.connect(master);
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.22;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 480;
+      noiseFilter.Q.value = 0.25;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.011;
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      const now = ctx.currentTime + 0.05;
+      osc1.start(now); osc2.start(now); lfo.start(now); noise.start(now);
+
+      function schedule(){
+        const n = ctx.currentTime;
+        const a = 110, b = 130.81, c = 146.83, d = 196.00;
+        const seq = [b,c,b,a,b,d,c,b];
+        const dur = 6;
+        const ix = Math.floor((n/dur)%seq.length);
+        osc1.frequency.cancelScheduledValues(n);
+        osc2.frequency.cancelScheduledValues(n);
+        osc1.frequency.linearRampToValueAtTime(seq[ix], n + 5.5);
+        osc2.frequency.linearRampToValueAtTime(seq[(ix+3)%seq.length]*0.75, n + 5.5);
+        master.gain.linearRampToValueAtTime(0.014 + 0.007*Math.sin(n*0.07), n + 5.5);
+        setTimeout(schedule, 5200);
+      }
+      schedule();
+    }
+  }
+})();
+</script>
+</body>
+</html>
