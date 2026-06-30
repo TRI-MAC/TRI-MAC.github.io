@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-06-30</title>
+<style>
+  :root{
+    --bg1:#f2e6c6;
+    --bg2:#d7c08a;
+    --bg3:#8d6a2d;
+    --bg4:#2c1d10;
+    --gold1:#f7e9a8;
+    --gold2:#d8b55b;
+    --gold3:#8f6a24;
+    --ruby:#7b1830;
+    --emerald:#295244;
+    --ink:#24180d;
+    --ivory:#f7f0dd;
+    --shadow:#120d08;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 20%, #5b4321 0%, #2c1d10 38%, #130d08 100%);
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255,236,183,.92) 0%, rgba(231,205,143,.92) 22%, rgba(167,126,55,.86) 52%, rgba(54,34,17,.98) 100%),
+      linear-gradient(180deg, #eadcb1, #b88d40 55%, #3a2412 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,240,180,.18),
+      0 0 80px rgba(0,0,0,.45),
+      inset 0 0 0 2px rgba(255,235,180,.14),
+      inset 0 0 80px rgba(30,16,4,.25);
+  }
+
+  .vignette,
+  .glowMask{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  .vignette{
+    background:
+      radial-gradient(circle at 50% 40%, transparent 42%, rgba(30,18,6,.1) 60%, rgba(12,8,4,.4) 83%, rgba(8,5,2,.7) 100%);
+    mix-blend-mode:multiply;
+  }
+  .glowMask{
+    background:
+      radial-gradient(circle at 50% 34%, rgba(255,244,198,.18), transparent 46%),
+      radial-gradient(circle at 50% 75%, rgba(70,31,8,.18), transparent 55%);
+  }
+
+  #ceiling{
+    position:absolute;
+    left:0; top:0; width:100%; height:28%;
+    background:
+      linear-gradient(180deg, rgba(255,243,202,.45), rgba(255,243,202,0)),
+      radial-gradient(ellipse at 50% 0%, rgba(255,248,222,.28), rgba(255,248,222,0) 68%);
+    opacity:.9;
+  }
+
+  .pilaster{
+    position:absolute;
+    top:0; bottom:0;
+    width:11%;
+    background:
+      linear-gradient(90deg,
+        rgba(70,44,15,.72) 0%,
+        rgba(167,125,49,.65) 12%,
+        rgba(244,224,153,.78) 24%,
+        rgba(156,114,40,.7) 52%,
+        rgba(247,229,163,.7) 76%,
+        rgba(91,58,18,.7) 100%);
+    opacity:.48;
+    filter:blur(.1px);
+  }
+  .pilaster.left{left:0}
+  .pilaster.right{right:0}
+
+  .arch{
+    position:absolute;
+    left:8%;
+    top:4%;
+    width:84%;
+    height:37%;
+    border-radius:50% 50% 8% 8% / 84% 84% 10% 10%;
+    border:2px solid rgba(246,227,158,.46);
+    box-shadow:
+      inset 0 0 0 12px rgba(117,82,28,.12),
+      inset 0 0 0 22px rgba(242,218,144,.14);
+    opacity:.65;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 35%, black 0 74%, transparent 94%);
+            mask-image: radial-gradient(ellipse at 50% 35%, black 0 74%, transparent 94%);
+  }
+
+  svg#ornament{
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  .orn{
+    fill:none;
+    stroke:url(#goldStroke);
+    stroke-width:2.2;
+    opacity:.65;
+    filter:url(#softGlow);
+  }
+  .ornFill{
+    fill:url(#goldFill);
+    opacity:.52;
+    filter:url(#softGlow);
+  }
+  .fine{
+    stroke-width:1.1;
+    opacity:.46;
+  }
+
+  #webCanvas, #dustCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    color:rgba(247,238,213,.52);
+    font-size:14px;
+    letter-spacing:.12em;
+    z-index:20;
+    text-shadow:0 1px 2px rgba(0,0,0,.35);
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:16px;
+    bottom:84px;
+    opacity:.58;
+    filter:sepia(.6) saturate(.45) brightness(.78) contrast(.92) drop-shadow(0 1px 1px rgba(0,0,0,.35));
+    z-index:7;
+    transform:rotate(-8deg);
+  }
+
+  .ambient{
+    position:absolute;
+    inset:-10%;
+    background:
+      radial-gradient(circle at 50% 32%, rgba(255,244,204,.12), transparent 24%),
+      radial-gradient(circle at 50% 54%, rgba(130,85,20,.08), transparent 32%);
+    animation: breathe 18s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(1); opacity:.9}
+    50%{transform:scale(1.035); opacity:1}
+  }
+
+  .curtainShade{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(90deg, rgba(36,24,13,.18), transparent 16%, transparent 84%, rgba(36,24,13,.18)),
+      linear-gradient(180deg, rgba(255,248,226,.08), transparent 20%, transparent 80%, rgba(28,17,8,.08));
+    pointer-events:none;
+    mix-blend-mode:multiply;
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="ceiling"></div>
+  <div class="pilaster left"></div>
+  <div class="pilaster right"></div>
+  <div class="arch"></div>
+  <canvas id="webCanvas" width="1080" height="1920"></canvas>
+  <canvas id="dustCanvas" width="1080" height="1920"></canvas>
+
+  <svg id="ornament" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="goldStroke" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fff1b7"/>
+        <stop offset="22%" stop-color="#d9b560"/>
+        <stop offset="50%" stop-color="#8c6723"/>
+        <stop offset="78%" stop-color="#f7e4a0"/>
+        <stop offset="100%" stop-color="#9a7128"/>
+      </linearGradient>
+      <linearGradient id="goldFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f7e9ae" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#8d6924" stop-opacity=".9"/>
+      </linearGradient>
+      <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.5" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <g opacity=".7">
+      <path class="orn" d="M110 1580 C170 1510, 245 1480, 310 1460" />
+      <path class="orn" d="M970 1580 C910 1510, 835 1480, 770 1460" />
+      <circle class="ornFill" cx="540" cy="262" r="14"/>
+      <circle class="ornFill" cx="540" cy="262" r="33" fill="none"/>
+      <path class="orn fine" d="M430 214 Q540 150 650 214" />
+      <path class="orn fine" d="M398 240 Q540 170 682 240" />
+      <path class="orn" d="M210 1440 Q252 1392 304 1368 Q275 1420 245 1464" />
+      <path class="orn" d="M870 1440 Q828 1392 776 1368 Q805 1420 835 1464" />
+      <path class="orn fine" d="M186 240 L186 1676" />
+      <path class="orn fine" d="M894 240 L894 1676" />
+      <path class="orn fine" d="M122 320 Q182 262 232 314" />
+      <path class="orn fine" d="M958 320 Q898 262 848 314" />
+      <path class="orn fine" d="M126 1612 Q186 1670 236 1618" />
+      <path class="orn fine" d="M954 1612 Q894 1670 844 1618" />
+      <g opacity=".45">
+        <circle class="ornFill" cx="160" cy="966" r="7"/>
+        <circle class="ornFill" cx="920" cy="966" r="7"/>
+        <circle class="ornFill" cx="210" cy="420" r="6"/>
+        <circle class="ornFill" cx="870" cy="420" r="6"/>
+      </g>
+    </g>
+  </svg>
+
+  <div class="ambient"></div>
+  <div class="curtainShade"></div>
+  <div class="glowMask"></div>
+  <div class="vignette"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date">2026-06-30</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-06-30";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    };
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(xmur3(seedStr)());
+
+  const webCanvas = document.getElementById("webCanvas");
+  const dustCanvas = document.getElementById("dustCanvas");
+  const ctx = webCanvas.getContext("2d");
+  const dtx = dustCanvas.getContext("2d");
+
+  const W = 1080, H = 1920;
+  webCanvas.width = dustCanvas.width = W;
+  webCanvas.height = dustCanvas.height = H;
+
+  const center = { x: 540, y: 780 };
+  const outerR = 410;
+  const innerR = 72;
+  const spokes = 18; // symmetry, Beaux-Arts discipline
+  const turns = 24;
+  const spiderAnchor = { x: 540, y: 264 };
+
+  const anchorPoints = [];
+  for(let i=0;i<spokes;i++){
+    const a = -Math.PI/2 + (Math.PI*2 * i / spokes);
+    const mod = 1 + 0.04*Math.sin(i*2.2);
+    anchorPoints.push({
+      x: center.x + Math.cos(a) * outerR * mod,
+      y: center.y + Math.sin(a) * outerR * (1 + 0.09*Math.cos(i*1.4))
+    });
+  }
+
+  const spiralPoints = [];
+  for(let s=0;s<spokes;s++){
+    spiralPoints[s] = [];
+    const a = -Math.PI/2 + (Math.PI*2 * s / spokes);
+    for(let t=0;t<=turns;t++){
+      const r = innerR + (outerR-innerR) * (t/turns);
+      const scallop = 1 + 0.045*Math.sin(t*1.15 + s*0.8) + 0.018*Math.cos(t*2.5 - s*0.6);
+      const rr = r * scallop;
+      spiralPoints[s].push({
+        x: center.x + Math.cos(a) * rr,
+        y: center.y + Math.sin(a) * rr * (1 + 0.02*Math.cos(t*0.8))
+      });
+    }
+  }
+
+  const segments = [];
+  for(let s=0;s<spokes;s++){
+    // radial
+    for(let t=0;t<turns;t++){
+      segments.push({
+        type:"radial",
+        a: spiralPoints[s][t],
+        b: spiralPoints[s][t+1],
+        order: t*spokes + s
+      });
+    }
+  }
+  let order = spokes*(turns+1);
+  for(let t=2;t<=turns;t++){
+    for(let s=0;s<spokes;s++){
+      const sn = (s+1)%spokes;
+      segments.push({
+        type:"ring",
+        a: spiralPoints[s][t],
+        b: spiralPoints[sn][t],
+        order: order++
+      });
+    }
+  }
+
+  segments.sort((p,q)=>p.order-q.order);
+
+  const ringDrops = [];
+  for(let t=4;t<=turns;t+=2){
+    for(let s=0;s<spokes;s++){
+      if(rand() < 0.42){
+        const p = spiralPoints[s][t];
+        ringDrops.push({
+          x:p.x + (rand()-0.5)*8,
+          y:p.y + (rand()-0.5)*8,
+          r: 3 + rand()*7,
+          phase: rand()*Math.PI*2,
+          amp: 0.6 + rand()*1.7
+        });
+      }
+    }
+  }
+
+  const medallions = [];
+  for(let i=0;i<8;i++){
+    const a = -Math.PI/2 + i*Math.PI/4;
+    const r = 525;
+    medallions.push({
+      x:center.x + Math.cos(a)*r,
+      y:center.y + Math.sin(a)*r*0.9,
+      rot:a
+    });
+  }
+
+  const dust = [];
+  for(let i=0;i<180;i++){
+    dust.push({
+      x: rand()*W,
+      y: rand()*H,
+      r: rand()*2.2 + 0.4,
+      a: rand()*0.22 + 0.04,
+      p: rand()*Math.PI*2
+    });
+  }
+
+  function drawBackgroundTexture(t){
+    dtx.clearRect(0,0,W,H);
+
+    const g = dtx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"rgba(247,233,173,0.03)");
+    g.addColorStop(0.35,"rgba(136,92,26,0.04)");
+    g.addColorStop(1,"rgba(28,16,8,0.09)");
+    dtx.fillStyle = g;
+    dtx.fillRect(0,0,W,H);
+
+    for(let i=0;i<dust.length;i++){
+      const p = dust[i];
+      const yy = (p.y + Math.sin(t*0.00018 + p.p)*8 + H) % H;
+      dtx.beginPath();
+      dtx.fillStyle = `rgba(255,239,194,${p.a})`;
+      dtx.arc(p.x, yy, p.r + Math.sin(t*0.0007+p.p)*0.2, 0, Math.PI*2);
+      dtx.fill();
+    }
+
+    dtx.save();
+    dtx.globalAlpha = 0.08;
+    dtx.fillStyle = "#5a3b15";
+    for(let y=0;y<H;y+=8){
+      dtx.fillRect(0,y,W,1);
+    }
+    dtx.restore();
+  }
+
+  function drawMedallion(x,y,rot,t){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot + Math.sin(t*0.00012 + x*0.01)*0.02);
+
+    const pulse = 1 + 0.03*Math.sin(t*0.001 + x*0.02);
+    ctx.scale(pulse,pulse);
+
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.strokeStyle = i===0 ? "rgba(255,238,176,0.12)" : i===1 ? "rgba(144,104,35,0.18)" : "rgba(255,241,191,0.2)";
+      ctx.lineWidth = [18,8,2][i];
+      ctx.arc(0,0,34+i*10,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    for(let k=0;k<8;k++){
+      ctx.save();
+      ctx.rotate(k*Math.PI/4);
+      ctx.beginPath();
+      ctx.moveTo(0,-18);
+      ctx.lineTo(8,-46);
+      ctx.lineTo(0,-58);
+      ctx.lineTo(-8,-46);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(239,215,145,0.22)";
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawAnchorCrown(t){
+    ctx.save();
+    ctx.translate(spiderAnchor.x, spiderAnchor.y);
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(246,229,166,0.18)";
+    ctx.arc(0,0,58,0,Math.PI*2);
+    ctx.fill();
+
+    for(let i=0;i<12;i++){
+      const a = -Math.PI/2 + i*Math.PI/6;
+      const r1 = 44, r2 = 84 + 4*Math.sin(t*0.0007+i);
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a-0.08)*r1, Math.sin(a-0.08)*r1);
+      ctx.lineTo(Math.cos(a)*r2, Math.sin(a)*r2);
+      ctx.lineTo(Math.cos(a+0.08)*r1, Math.sin(a+0.08)*r1);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(244,221,147,0.16)";
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(255,240,193,0.34)";
+    ctx.lineWidth = 2;
+    ctx.moveTo(0,0);
+    ctx.lineTo(0, center.y - spiderAnchor.y - innerR + 10);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSpider(progress, t){
+    const total = segments.length;
+    const idx = Math.min(total-1, Math.floor(progress * total));
+    const seg = segments[idx];
+    const local = (progress * total) - idx;
+    const x = seg.a.x + (seg.b.x - seg.a.x)*local;
+    const y = seg.a.y + (seg.b.y - seg.a.y)*local;
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,239,201,0.24)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(spiderAnchor.x, spiderAnchor.y);
+    ctx.lineTo(x,y);
+    ctx.stroke();
+
+    ctx.translate(x,y);
+    ctx.rotate(Math.atan2(seg.b.y-seg.a.y, seg.b.x-seg.a.x));
+
+    const shimmer = 0.85 + 0.15*Math.sin(t*0.004);
+    ctx.fillStyle = `rgba(75,35,18,${0.92*shimmer})`;
+    ctx.strokeStyle = "rgba(246,224,157,0.36)";
+
+    ctx.beginPath();
+    ctx.ellipse(0,0,11,14,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(-13,0,7,7,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.lineWidth = 1.3;
+    for(let side=-1; side<=1; side+=2){
+      for(let i=0;i<4;i++){
+        const yy = -8 + i*5;
+        ctx.beginPath();
+        ctx.moveTo(-4, yy);
+        ctx.lineTo(-18, yy + side*(8+i*1.2));
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function dewHighlight(drop, t){
+    const tw = 0.72 + 0.28*Math.sin(t*0.0012 + drop.phase);
+    const x = drop.x;
+    const y = drop.y + Math.sin(t*0.0005 + drop.phase)*drop.amp;
+
+    const rg = ctx.createRadialGradient(x-drop.r*0.35, y-drop.r*0.45, 0, x, y, drop.r*2.2);
+    rg.addColorStop(0, `rgba(255,251,237,${0.36*tw})`);
+    rg.addColorStop(.35, `rgba(247,234,190,${0.22*tw})`);
+    rg.addColorStop(1, "rgba(255,240,180,0)");
+
+    ctx.fillStyle = rg;
+    ctx.beginPath();
+    ctx.arc(x,y,drop.r*2.2,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(245,250,255,${0.56*tw})`;
+    ctx.ellipse(x,y,drop.r*0.92,drop.r*1.08,0,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,255,255,${0.66*tw})`;
+    ctx.arc(x-drop.r*0.24,y-drop.r*0.24,Math.max(1,drop.r*0.24),0,Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawWeb(progress, t){
+    ctx.clearRect(0,0,W,H);
+
+    drawAnchorCrown(t);
+    medallions.forEach(m => drawMedallion(m.x,m.y,m.rot,t));
+
+    const built = progress * segments.length;
+
+    for(let i=0;i<segments.length;i++){
+      if(i > built) break;
+      const seg = segments[i];
+      let frac = 1;
+      if(i > built-1) frac = Math.max(0, built - i);
+
+      const ax = seg.a.x, ay = seg.a.y, bx = seg.b.x, by = seg.b.y;
+      const ex = ax + (bx-ax)*frac, ey = ay + (by-ay)*frac;
+
+      const grad = ctx.createLinearGradient(ax,ay,ex,ey);
+      grad.addColorStop(0,"rgba(255,245,211,0.52)");
+      grad.addColorStop(.5, seg.type==="ring" ? "rgba(210,175,92,0.52)" : "rgba(255,251,235,0.6)");
+      grad.addColorStop(1,"rgba(157,116,43,0.42)");
+
+      ctx.strokeStyle = grad;
+      ctx.lineCap = "round";
+
+      ctx.lineWidth = seg.type==="radial" ? 1.7 : 1.45;
+      ctx.beginPath();
+      ctx.moveTo(ax,ay);
+      ctx.lineTo(ex,ey);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255,251,233,0.12)";
+      ctx.lineWidth = .5;
+      ctx.beginPath();
+      ctx.moveTo(ax,ay);
+      ctx.lineTo(ex,ey);
+      ctx.stroke();
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for(let i=0;i<ringDrops.length;i++){
+      const d = ringDrops[i];
+      const threshold = (d.y / H) * 0.75 + 0.18;
+      if(progress > threshold) dewHighlight(d,t);
+    }
+    ctx.restore();
+
+    const centralGlow = ctx.createRadialGradient(center.x,center.y,15,center.x,center.y,190);
+    centralGlow.addColorStop(0,"rgba(255,248,219,0.22)");
+    centralGlow.addColorStop(.5,"rgba(222,186,95,0.1)");
+    centralGlow.addColorStop(1,"rgba(255,244,192,0)");
+    ctx.fillStyle = centralGlow;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, 190, 0, Math.PI*2);
+    ctx.fill();
+
+    drawSpider(progress, t);
+  }
+
+  function loop(now){
+    drawBackgroundTexture(now);
+
+    const cycle = 92_000; // slow loop
+    const p = (now % cycle) / cycle;
+    // ease in/out so construction resets gracefully
+    const progress = 0.5 - 0.5*Math.cos(p * Math.PI * 2);
+
+    drawWeb(progress, now);
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+
+  if (window.self === window.top) {
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const filt = ac.createBiquadFilter();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+
+      osc1.type = "triangle";
+      osc2.type = "sine";
+      osc1.frequency.value = 147;
+      osc2.frequency.value = 220;
+      filt.type = "lowpass";
+      filt.frequency.value = 620;
+      filt.Q.value = 0.8;
+
+      lfo.type = "sine";
+      lfo.frequency.value = 0.037;
+      lfoGain.gain.value = 110;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filt.frequency);
+
+      osc1.connect(filt);
+      osc2.connect(filt);
+      filt.connect(master);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+
+      function drift(){
+        const t = ac.currentTime;
+        osc1.frequency.linearRampToValueAtTime(140 + rand()*18, t + 18);
+        osc2.frequency.linearRampToValueAtTime(210 + rand()*26, t + 18);
+        master.gain.linearRampToValueAtTime(0.015 + rand()*0.008, t + 18);
+        setTimeout(drift, 16000);
+      }
+      drift();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
