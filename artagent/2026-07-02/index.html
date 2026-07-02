@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-07-02</title>
+<style>
+  :root{
+    --bg1:#261912;
+    --bg2:#4a2f1f;
+    --bg3:#8f6948;
+    --gold:#d8b36a;
+    --umber:#5a3927;
+    --cream:#e7d8bd;
+    --olive:#6b6842;
+    --wine:#6e3a34;
+    --shadow:#17100b;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#0d0907;
+    font-family:Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  .frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw * 1.7777778));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 18%, #b6956d 0%, #8f6948 18%, #5b3e2a 40%, #2f1e14 72%, #160f0b 100%);
+    box-shadow:0 0 40px rgba(0,0,0,.45);
+  }
+
+  .vignette, .edgefade, .aerial, .foreground, .date, #art-image, #guinea-pig, svg, canvas, .glaze, .columnLight, .imageAura {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+  #gl{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    opacity:.92;
+    filter:saturate(1.02) contrast(1.06) brightness(1.02);
+    mix-blend-mode:multiply;
+  }
+
+  .architectural{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(to top, rgba(27,17,11,.88) 0 9%, transparent 18%),
+      linear-gradient(to right, transparent 0 16%, rgba(44,29,19,.55) 22%, rgba(125,96,63,.18) 27%, transparent 33% 67%, rgba(125,96,63,.18) 73%, rgba(44,29,19,.55) 78%, transparent 84%),
+      radial-gradient(70% 28% at 50% 87%, rgba(230,210,172,.12), transparent 70%),
+      linear-gradient(to bottom, rgba(235,217,183,.10), rgba(0,0,0,0) 14%);
+    opacity:.9;
+  }
+
+  .columnLight{
+    background:
+      radial-gradient(18% 70% at 26% 48%, rgba(241,225,189,.22), transparent 72%),
+      radial-gradient(18% 70% at 74% 48%, rgba(241,225,189,.18), transparent 72%);
+    filter:blur(8px);
+    opacity:.65;
+  }
+
+  #art-image{
+    inset:auto;
+    width:64%;
+    height:auto;
+    left:15%;
+    top:30%;
+    transform:rotate(-4.5deg);
+    opacity:.97;
+    object-fit:cover;
+    filter:
+      hue-rotate(-12deg)
+      saturate(.82)
+      contrast(1.04)
+      brightness(.96)
+      sepia(.18)
+      drop-shadow(0 18px 26px rgba(16,10,7,.46));
+    box-shadow:0 0 0 1px rgba(223,201,157,.18);
+    animation: imageBreath 22s ease-in-out infinite;
+  }
+
+  .imageAura{
+    inset:auto;
+    width:72%;
+    height:38%;
+    left:10%;
+    top:27%;
+    background:
+      radial-gradient(60% 55% at 46% 40%, rgba(224,197,145,.17), rgba(153,111,71,.10) 45%, transparent 72%);
+    filter:blur(18px);
+    animation: imageBreath 22s ease-in-out infinite;
+  }
+
+  .glaze{
+    background:
+      radial-gradient(70% 28% at 50% 20%, rgba(255,240,215,.12), transparent 70%),
+      radial-gradient(90% 44% at 52% 57%, rgba(92,58,37,.10), transparent 74%),
+      linear-gradient(to bottom, rgba(255,246,224,.04), rgba(90,60,36,.02) 36%, rgba(18,10,7,.15) 100%);
+    mix-blend-mode:screen;
+    opacity:.75;
+  }
+
+  .foreground{
+    z-index:9;
+  }
+
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(14px);
+    opacity:.85;
+    mix-blend-mode:multiply;
+    animation: drift 26s ease-in-out infinite;
+  }
+  .blob.b1{
+    width:52%;
+    height:16%;
+    left:6%;
+    top:43%;
+    background:radial-gradient(closest-side, rgba(116,58,43,.78), rgba(124,78,58,.55) 58%, transparent 100%);
+    transform:rotate(-14deg);
+  }
+  .blob.b2{
+    width:34%;
+    height:28%;
+    left:55%;
+    top:20%;
+    background:radial-gradient(closest-side, rgba(143,99,66,.60), rgba(93,58,36,.46) 54%, transparent 100%);
+    animation-duration:31s;
+  }
+  .blob.b3{
+    width:48%;
+    height:15%;
+    left:35%;
+    top:58%;
+    background:radial-gradient(closest-side, rgba(77,47,33,.82), rgba(125,92,60,.40) 57%, transparent 100%);
+    transform:rotate(8deg);
+    animation-duration:29s;
+  }
+  .blob.b4{
+    width:30%;
+    height:12%;
+    left:12%;
+    top:68%;
+    background:radial-gradient(closest-side, rgba(186,143,95,.38), rgba(112,78,49,.26) 62%, transparent 100%);
+    transform:rotate(-9deg);
+    animation-duration:34s;
+  }
+
+  .drip{
+    position:absolute;
+    width:2.2%;
+    background:linear-gradient(to bottom, rgba(102,55,37,.70), rgba(83,48,31,.20));
+    border-radius:0 0 20px 20px;
+    filter:blur(.2px);
+    opacity:.62;
+    transform-origin:top center;
+    animation: sway 19s ease-in-out infinite;
+  }
+  .drip:after{
+    content:"";
+    position:absolute;
+    bottom:-10px; left:50%;
+    width:18px; height:18px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, rgba(129,77,52,.78), rgba(86,51,33,.35) 70%, transparent 72%);
+    filter:blur(1px);
+  }
+
+  .vignette{
+    background:
+      radial-gradient(140% 110% at 50% 34%, transparent 43%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.24) 82%, rgba(0,0,0,.48) 100%);
+    z-index:20;
+  }
+
+  .edgefade{
+    z-index:21;
+    -webkit-mask-image: radial-gradient(130% 110% at 50% 50%, #000 62%, transparent 92%);
+    mask-image: radial-gradient(130% 110% at 50% 50%, #000 62%, transparent 92%);
+    background:rgba(0,0,0,.08);
+  }
+
+  .date{
+    z-index:30;
+    inset:auto 20px 14px auto;
+    width:auto;
+    height:auto;
+    color:rgba(239,224,194,.58);
+    font-size:14px;
+    letter-spacing:.12em;
+    text-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  #guinea-pig{
+    z-index:12;
+    inset:auto;
+    right:112px;
+    bottom:162px;
+    width:18px;
+    opacity:.56;
+    filter:sepia(.25) saturate(.6) brightness(.84) contrast(.9);
+  }
+
+  @keyframes drift{
+    0%,100%{transform:translateY(0) rotate(-6deg) scale(1)}
+    50%{transform:translateY(14px) rotate(4deg) scale(1.03)}
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(0deg) scaleY(1)}
+    50%{transform:rotate(1.6deg) scaleY(1.04)}
+  }
+  @keyframes imageBreath{
+    0%,100%{transform:rotate(-4.5deg) translateY(0px) scale(1)}
+    50%{transform:rotate(-3.3deg) translateY(-8px) scale(1.012)}
+  }
+  @keyframes orbitSlow{
+    0%,100%{transform:rotate(0deg)}
+    50%{transform:rotate(180deg)}
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <canvas id="gl"></canvas>
+
+  <div class="architectural"></div>
+  <div class="columnLight"></div>
+  <div class="imageAura"></div>
+  <img id="art-image" src="art.png" alt="" />
+
+  <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" style="z-index:6;">
+    <defs>
+      <linearGradient id="goldLine" x1="0" x2="1">
+        <stop offset="0" stop-color="rgba(234,214,172,0)"/>
+        <stop offset=".2" stop-color="rgba(223,193,130,.55)"/>
+        <stop offset=".5" stop-color="rgba(248,230,195,.82)"/>
+        <stop offset=".8" stop-color="rgba(223,193,130,.55)"/>
+        <stop offset="1" stop-color="rgba(234,214,172,0)"/>
+      </linearGradient>
+      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(240,220,184,.46)"/>
+        <stop offset="58%" stop-color="rgba(197,160,102,.18)"/>
+        <stop offset="100%" stop-color="rgba(197,160,102,0)"/>
+      </radialGradient>
+      <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <filter id="sfumato" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2.6"/>
+      </filter>
+    </defs>
+
+    <g opacity=".58">
+      <ellipse cx="540" cy="540" rx="320" ry="220" fill="url(#halo)" filter="url(#soft)"/>
+      <path d="M260 1120 L540 300 L820 1120" fill="none" stroke="url(#goldLine)" stroke-width="4"/>
+      <path d="M170 1450 L540 300 L910 1450" fill="none" stroke="url(#goldLine)" stroke-width="2.5" opacity=".55"/>
+      <path d="M340 1540 L540 300 L740 1540" fill="none" stroke="url(#goldLine)" stroke-width="2" opacity=".45"/>
+    </g>
+
+    <g opacity=".33">
+      <ellipse cx="540" cy="1140" rx="420" ry="94" fill="rgba(38,23,15,.58)" filter="url(#sfumato)"/>
+      <ellipse cx="540" cy="1182" rx="360" ry="70" fill="rgba(90,58,38,.24)" filter="url(#sfumato)"/>
+    </g>
+
+    <g opacity=".78">
+      <path d="M156 916
+               C260 860, 350 856, 452 886
+               C497 900, 540 932, 592 944
+               C680 966, 762 944, 874 862
+               L900 902
+               C788 1006, 686 1032, 584 1006
+               C538 994, 490 960, 446 950
+               C346 926, 252 948, 178 990 Z"
+            fill="rgba(111,63,43,.46)" filter="url(#sfumato)"/>
+      <path d="M112 1248
+               C238 1188, 380 1178, 486 1214
+               C578 1245, 634 1304, 744 1308
+               C820 1310, 896 1284, 966 1234
+               L966 1338
+               C876 1380, 798 1392, 718 1382
+               C592 1366, 522 1300, 418 1288
+               C296 1272, 206 1296, 130 1346 Z"
+            fill="rgba(86,48,31,.44)" filter="url(#sfumato)"/>
+    </g>
+
+    <g class="orbiter" style="transform-origin:540px 960px; animation:orbitSlow 70s linear infinite;">
+      <g opacity=".16">
+        <circle cx="540" cy="960" r="560" fill="none" stroke="rgba(227,205,162,.22)" stroke-width="2" stroke-dasharray="2 22"/>
+        <circle cx="540" cy="960" r="435" fill="none" stroke="rgba(227,205,162,.16)" stroke-width="2" stroke-dasharray="2 16"/>
+      </g>
+    </g>
+
+    <g opacity=".18">
+      <path d="M496 458 L566 430 L628 474 L620 550 L550 582 L482 546 Z" fill="rgba(48,27,18,.9)"/>
+      <path d="M506 476 L560 454 L606 486 L600 540 L548 564 L500 536 Z" fill="rgba(29,16,10,.78)"/>
+    </g>
+  </svg>
+
+  <div class="foreground">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="blob b4"></div>
+    <div class="drip" style="left:33%; top:44%; height:172px;"></div>
+    <div class="drip" style="left:61%; top:27%; height:114px; animation-duration:24s;"></div>
+    <div class="drip" style="left:68%; top:58%; height:132px; animation-duration:21s;"></div>
+  </div>
+
+  <div class="glaze"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div class="vignette"></div>
+  <div class="edgefade"></div>
+  <div class="date">2026-07-02</div>
+</div>
+
+<script>
+(() => {
+  const dateSeed = "2026-07-02";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(hashString(dateSeed + "-renaissance-shader"));
+
+  const canvas = document.getElementById('gl');
+  const gl = canvas.getContext('webgl', {antialias:true, premultipliedAlpha:true});
+  if(!gl) return;
+
+  const vert = `
+    attribute vec2 position;
+    void main(){
+      gl_Position = vec4(position, 0.0, 1.0);
+    }
+  `;
+
+  const frag = `
+    precision highp float;
+    uniform vec2 u_res;
+    uniform float u_time;
+    uniform float u_seed;
+
+    float hash(vec2 p){
+      p = fract(p*vec2(123.34, 345.45));
+      p += dot(p, p + 34.23);
+      return fract(p.x*p.y);
+    }
+
+    float noise(vec2 p){
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      float a = hash(i);
+      float b = hash(i + vec2(1.0,0.0));
+      float c = hash(i + vec2(0.0,1.0));
+      float d = hash(i + vec2(1.0,1.0));
+      vec2 u = f*f*(3.0-2.0*f);
+      return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+    }
+
+    float fbm(vec2 p){
+      float v = 0.0;
+      float a = 0.5;
+      for(int i=0;i<5;i++){
+        v += a * noise(p);
+        p = p*2.03 + vec2(11.7, 4.3);
+        a *= 0.5;
+      }
+      return v;
+    }
+
+    mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }
+
+    float vesica(vec2 p, float d, float r){
+      float c1 = length(p - vec2(-d*0.5,0.0)) - r;
+      float c2 = length(p - vec2( d*0.5,0.0)) - r;
+      return max(c1,c2);
+    }
+
+    float arch(vec2 p, vec2 scale){
+      p /= scale;
+      float dome = length(vec2(p.x, max(p.y,0.0))) - 1.0;
+      float stem = max(abs(p.x)-1.0, abs(p.y+1.0)-1.0);
+      return min(max(dome, p.y), stem);
+    }
+
+    vec3 palette(float t){
+      vec3 a = vec3(0.19,0.12,0.08);
+      vec3 b = vec3(0.62,0.46,0.30);
+      vec3 c = vec3(0.89,0.81,0.68);
+      vec3 d = vec3(0.33,0.22,0.15);
+      return a + b*cos(6.28318*(c*t + d));
+    }
+
+    void main(){
+      vec2 uv = gl_FragCoord.xy / u_res.xy;
+      vec2 p = (gl_FragCoord.xy*2.0 - u_res.xy) / min(u_res.x, u_res.y);
+      float t = u_time * 0.16 + u_seed * 0.3;
+
+      p.y += 0.1;
+      vec2 q = p;
+      q *= rot(0.06*sin(t*0.7));
+
+      float perspective = 1.0/(1.15 + q.y*0.9);
+      vec2 floorP = vec2(q.x * perspective, perspective*1.55);
+      float tiles = abs(fract(floorP.x*7.0)-0.5);
+      float aisle = smoothstep(0.18, 0.0, abs(q.x)*(1.1+q.y*0.35));
+      float n = fbm(q*2.2 + vec2(0.0, t*0.35));
+      float haze = smoothstep(1.05,-0.25,q.y) * (0.45 + 0.55*n);
+
+      float a1 = arch(q + vec2(0.0,0.10), vec2(0.64,0.56));
+      float a2 = arch(q + vec2(0.0,0.18), vec2(0.43,0.38));
+      float v = vesica((q+vec2(0.0,0.18))*vec2(1.0,1.18), 0.28, 0.34);
+
+      float rose = 0.0;
+      vec2 rp = q + vec2(0.0, -0.08);
+      float ang = atan(rp.y, rp.x);
+      float rad = length(rp);
+      rose = smoothstep(0.22,0.215, abs(rad - (0.17 + 0.032*cos(8.0*ang + t*0.6))));
+      rose += smoothstep(0.11,0.106, abs(rad - (0.08 + 0.015*cos(4.0*ang - t*0.5))));
+
+      float lightCone = smoothstep(0.85, -0.15, length((q-vec2(0.0,-0.25))*vec2(0.82,1.22)));
+      float centerGlow = smoothstep(0.44, 0.0, v);
+      float innerArch = smoothstep(0.02, -0.02, a2);
+      float outerArch = smoothstep(0.03, -0.03, a1) - innerArch;
+
+      float fresco = fbm(q*3.6 + vec2(2.0, -1.0) + vec2(0.0, t*0.14));
+      float plaster = fbm(q*9.0 + vec2(5.7, 1.2));
+      float marbling = 0.5 + 0.5*sin(12.0*q.x + 4.0*fbm(q*2.5) + t*0.8);
+
+      vec3 col = vec3(0.0);
+      vec3 ground = mix(vec3(0.17,0.10,0.07), vec3(0.40,0.28,0.18), smoothstep(-0.95,0.65,q.y));
+      col += ground;
+
+      vec3 wall = mix(vec3(0.30,0.20,0.13), vec3(0.69,0.55,0.39), haze);
+      col = mix(col, wall, 0.62);
+
+      float panelBands = smoothstep(0.49,0.45,abs(q.x)) * smoothstep(0.85,-0.3,q.y);
+      col += panelBands * vec3(0.08,0.05,0.03);
+
+      col += outerArch * vec3(0.18,0.12,0.08);
+      col += innerArch * vec3(0.30,0.20,0.12);
+      col += centerGlow * vec3(0.60,0.46,0.28) * (0.58 + 0.42*fresco);
+      col += lightCone * vec3(0.26,0.20,0.13);
+
+      float floorGrid = smoothstep(0.48,0.39,tiles) * smoothstep(0.12,-0.85,q.y) * (1.0-aisle*0.7);
+      col += floorGrid * vec3(0.14,0.10,0.07);
+
+      float gold = rose * (0.5 + 0.5*marbling);
+      col += gold * vec3(0.78,0.64,0.38);
+
+      float cracks = smoothstep(0.62,0.75,plaster) * 0.06;
+      col -= cracks;
+
+      vec3 warmMist = palette(0.12 + n*0.18);
+      col = mix(col, warmMist, 0.08);
+
+      float spotlight = exp(-3.6*length(q-vec2(0.0,0.02))*length(q-vec2(0.0,0.02)));
+      col += spotlight * vec3(0.13,0.10,0.07);
+
+      float topFade = smoothstep(1.28,0.18, length((q-vec2(0.0,-0.62))*vec2(0.9,1.3)));
+      col += topFade * vec3(0.14,0.11,0.08);
+
+      col *= 0.92 + 0.08*fbm(q*14.0 + u_seed*5.0);
+
+      col = pow(max(col, 0.0), vec3(0.92));
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  function compile(type, source){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, source);
+    gl.compileShader(s);
+    return s;
+  }
+
+  const vs = compile(gl.VERTEX_SHADER, vert);
+  const fs = compile(gl.FRAGMENT_SHADER, frag);
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1,-1, 1,-1, -1,1,
+    -1,1, 1,-1, 1,1
+  ]), gl.STATIC_DRAW);
+
+  const loc = gl.getAttribLocation(prog, 'position');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const uRes = gl.getUniformLocation(prog, 'u_res');
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uSeed = gl.getUniformLocation(prog, 'u_seed');
+  gl.uniform1f(uSeed, rand()*10.0);
+
+  function resize(){
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let start = performance.now();
+  function draw(now){
+    const t = (now - start) * 0.001;
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, t);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.012;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc3.type = 'sine';
+      osc1.frequency.value = 130.81;
+      osc2.frequency.value = 196.00;
+      osc3.frequency.value = 261.63;
+
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.035;
+      lfoGain.gain.value = 12;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 720;
+      filter.Q.value = 0.4;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const g1 = ctx.createGain();
+      const g2 = ctx.createGain();
+      const g3 = ctx.createGain();
+      g1.gain.value = 0.24;
+      g2.gain.value = 0.12;
+      g3.gain.value = 0.07;
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(filter); g2.connect(filter); g3.connect(filter);
+      filter.connect(master);
+
+      const nowT = ctx.currentTime + 0.05;
+      osc1.start(nowT); osc2.start(nowT); osc3.start(nowT); lfo.start(nowT);
+
+      function retune(){
+        const base = 130.81;
+        const ratios = [1, 1.125, 1.25, 1.333, 1.5];
+        const r1 = ratios[Math.floor(rand()*ratios.length)];
+        const r2 = ratios[Math.floor(rand()*ratios.length)];
+        osc1.frequency.setTargetAtTime(base*r1, ctx.currentTime, 6.5);
+        osc2.frequency.setTargetAtTime(base*1.5*r2, ctx.currentTime, 7.0);
+        osc3.frequency.setTargetAtTime(base*2.0, ctx.currentTime, 8.0);
+      }
+      retune();
+      setInterval(retune, 12000);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
