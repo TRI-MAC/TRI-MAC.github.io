@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Art 2026-07-04</title>
+<style>
+  :root{
+    --bg1:#f5d94a;
+    --bg2:#f06a33;
+    --ink:#111013;
+    --green:#147a56;
+    --mint:#61d7b8;
+    --pink:#ff4f8c;
+    --cream:#f7efe2;
+    --paper:#ead9bd;
+    --paper2:#cfb896;
+    --spray:#2a2629;
+    --gold:#e5a728;
+    --teal:#209d93;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#1e1a1b;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 800px at 20% 12%, rgba(255,240,170,.75), transparent 52%),
+      radial-gradient(900px 1000px at 78% 84%, rgba(31,155,136,.28), transparent 48%),
+      linear-gradient(180deg, #f1be3b 0%, #ee7b39 34%, #d6463f 67%, #1a1517 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 40px 100px rgba(0,0,0,.45);
+  }
+  #grain, #spray, #fieldCanvas, #paperLayer, #svgLayer, #frontSvg, #paintCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+  #grain{
+    opacity:.16;
+    mix-blend-mode:multiply;
+  }
+  #spray{
+    opacity:.22;
+    mix-blend-mode:multiply;
+    filter:contrast(120%);
+  }
+  #paintCanvas{
+    opacity:.92;
+  }
+  .zone{
+    position:absolute;
+    top:8%;
+    bottom:9%;
+    border-radius:10px;
+    overflow:hidden;
+    transform-origin:center;
+  }
+  .zone::before{
+    content:"";
+    position:absolute; inset:-2%;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 32%),
+      radial-gradient(circle at 70% 76%, rgba(0,0,0,.18), transparent 36%),
+      linear-gradient(145deg, rgba(255,255,255,.1), rgba(0,0,0,.1));
+    mix-blend-mode:soft-light;
+    pointer-events:none;
+  }
+  .zone.left{
+    left:6%;
+    width:42%;
+    background:
+      linear-gradient(180deg, rgba(245,232,207,.82), rgba(212,177,115,.78)),
+      repeating-linear-gradient(90deg, rgba(74,52,33,.05) 0 3px, rgba(0,0,0,0) 3px 14px);
+    box-shadow:
+      0 14px 35px rgba(0,0,0,.28),
+      inset 0 0 0 2px rgba(19,16,16,.14);
+    animation: zoneBreath 24s ease-in-out infinite;
+  }
+  .zone.mid{
+    left:46.5%;
+    width:22%;
+    background:
+      linear-gradient(180deg, rgba(20,122,86,.90), rgba(12,70,58,.96));
+    box-shadow:
+      0 20px 40px rgba(0,0,0,.3),
+      inset 0 0 0 2px rgba(245,229,188,.18);
+    animation: zoneBreath2 28s ease-in-out infinite;
+  }
+  .zone.right{
+    right:6%;
+    width:23%;
+    background:
+      linear-gradient(180deg, rgba(247,239,226,.95), rgba(236,183,91,.85));
+    box-shadow:
+      0 16px 35px rgba(0,0,0,.28),
+      inset 0 0 0 2px rgba(20,14,15,.16);
+    animation: zoneBreath3 30s ease-in-out infinite;
+  }
+  #art-image{
+    position:absolute;
+    left:8%;
+    top:14%;
+    width:31%;
+    height:45%;
+    object-fit:cover;
+    z-index:16;
+    opacity:.96;
+    filter:saturate(1.2) contrast(1.08) sepia(.08) hue-rotate(-8deg) brightness(.99) drop-shadow(0 18px 24px rgba(0,0,0,.24));
+    transform:rotate(-2.2deg);
+    box-shadow:
+      0 0 0 10px rgba(240,223,190,.18),
+      0 14px 30px rgba(0,0,0,.24);
+    animation: artFloat 26s ease-in-out infinite;
+  }
+  #portrait-image{
+    position:absolute;
+    left:31%;
+    bottom:7.5%;
+    width:46%;
+    height:auto;
+    z-index:22;
+    filter:
+      saturate(1.08)
+      contrast(1.08)
+      hue-rotate(-6deg)
+      brightness(.98)
+      drop-shadow(0 24px 18px rgba(18,10,8,.28))
+      drop-shadow(0 0 24px rgba(255,148,98,.16));
+    transform:translateY(0) rotate(-1deg);
+    animation: portraitRise 18s ease-in-out infinite;
+  }
+  .torn{
+    position:absolute;
+    background:
+      linear-gradient(180deg, rgba(238,225,201,.92), rgba(206,176,132,.88));
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+    z-index:14;
+    opacity:.98;
+  }
+  .torn.a{
+    left:4%; top:10%; width:40%; height:8%;
+    clip-path:polygon(0 16%, 8% 0, 21% 12%, 35% 4%, 52% 18%, 64% 3%, 79% 17%, 91% 6%, 100% 20%, 100% 76%, 93% 92%, 82% 80%, 66% 98%, 51% 82%, 33% 96%, 17% 84%, 0 100%);
+    transform:rotate(-4deg);
+  }
+  .torn.b{
+    left:57%; top:18%; width:28%; height:30%;
+    clip-path:polygon(4% 0, 22% 8%, 43% 0, 63% 10%, 87% 4%, 100% 18%, 96% 39%, 100% 55%, 91% 71%, 100% 89%, 78% 100%, 58% 94%, 39% 100%, 23% 90%, 7% 100%, 0 81%, 5% 64%, 0 41%, 6% 24%);
+    transform:rotate(7deg);
+    opacity:.68;
+    z-index:18;
+  }
+  .torn.c{
+    left:19%; bottom:20%; width:53%; height:11%;
+    clip-path:polygon(0 22%, 11% 0, 28% 20%, 43% 6%, 59% 21%, 76% 8%, 90% 24%, 100% 11%, 100% 77%, 89% 100%, 72% 81%, 58% 92%, 41% 76%, 22% 98%, 9% 78%, 0 100%);
+    transform:rotate(2deg);
+    z-index:24;
+    opacity:.88;
+  }
+  .tape{
+    position:absolute;
+    background:
+      linear-gradient(180deg, rgba(255,241,183,.68), rgba(222,198,123,.58));
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+    mix-blend-mode:multiply;
+    z-index:23;
+  }
+  .tape.t1{ left:10%; top:12%; width:13%; height:2.6%; transform:rotate(-14deg);}
+  .tape.t2{ left:34%; top:51%; width:12%; height:2.3%; transform:rotate(9deg);}
+  .tape.t3{ left:58%; top:58%; width:16%; height:2.4%; transform:rotate(-8deg);}
+  .tape.t4{ left:66%; top:22%; width:10%; height:2.2%; transform:rotate(18deg);}
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:15px;
+    color:rgba(255,245,230,.62);
+    font-size:12px;
+    letter-spacing:.12em;
+    z-index:40;
+    mix-blend-mode:soft-light;
+  }
+  #guinea-pig{
+    position:absolute;
+    right:11px;
+    top:1006px;
+    width:18px;
+    height:auto;
+    opacity:.62;
+    z-index:12;
+    filter:saturate(.75) contrast(1.05) brightness(.8);
+  }
+  .edgeFade{
+    position:absolute; inset:0; z-index:35; pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(28,20,22,.18), transparent 8%, transparent 90%, rgba(18,12,13,.18)),
+      linear-gradient(90deg, rgba(24,18,19,.08), transparent 7%, transparent 93%, rgba(24,18,19,.1));
+  }
+  @keyframes zoneBreath{
+    0%,100%{transform:translateY(0) rotate(-0.2deg)}
+    50%{transform:translateY(-10px) rotate(0.8deg)}
+  }
+  @keyframes zoneBreath2{
+    0%,100%{transform:translateY(0) scaleY(1)}
+    50%{transform:translateY(8px) scaleY(1.02)}
+  }
+  @keyframes zoneBreath3{
+    0%,100%{transform:translateY(0) rotate(.3deg)}
+    50%{transform:translateY(-7px) rotate(-.5deg)}
+  }
+  @keyframes artFloat{
+    0%,100%{transform:rotate(-2.2deg) translateY(0)}
+    50%{transform:rotate(-1deg) translateY(-8px)}
+  }
+  @keyframes portraitRise{
+    0%,100%{transform:translateY(0) rotate(-1deg)}
+    50%{transform:translateY(-10px) rotate(.5deg)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="paintCanvas" width="1080" height="1920"></canvas>
+
+  <div class="zone left"></div>
+  <div class="zone mid"></div>
+  <div class="zone right"></div>
+
+  <div class="torn a"></div>
+  <div class="torn b"></div>
+
+  <img id="art-image" src="art.png" alt="" />
+  <img id="portrait-image" src="portrait.png" alt="" />
+
+  <div class="torn c"></div>
+  <div class="tape t1"></div>
+  <div class="tape t2"></div>
+  <div class="tape t3"></div>
+  <div class="tape t4"></div>
+
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="petalFill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ff5c95"/>
+        <stop offset="55%" stop-color="#f7cf52"/>
+        <stop offset="100%" stop-color="#14947c"/>
+      </linearGradient>
+      <linearGradient id="darkBand" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#151116" stop-opacity="0"/>
+        <stop offset="18%" stop-color="#151116" stop-opacity=".82"/>
+        <stop offset="82%" stop-color="#151116" stop-opacity=".82"/>
+        <stop offset="100%" stop-color="#151116" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#ffd764" stop-opacity=".38"/>
+        <stop offset="60%" stop-color="#ff6b3b" stop-opacity=".12"/>
+        <stop offset="100%" stop-color="#ff6b3b" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="soft">
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+      <filter id="rough">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="17"/>
+        <feDisplacementMap in="SourceGraphic" scale="9"/>
+      </filter>
+      <mask id="edgeMask">
+        <rect width="1080" height="1920" fill="url(#fadeFill)"/>
+      </mask>
+      <linearGradient id="fadeFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="black" stop-opacity="0"/>
+        <stop offset="8%" stop-color="white" stop-opacity="1"/>
+        <stop offset="92%" stop-color="white" stop-opacity="1"/>
+        <stop offset="100%" stop-color="black" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <ellipse cx="600" cy="1160" rx="360" ry="510" fill="url(#halo)" opacity=".8"/>
+
+    <g id="nouveauBands" mask="url(#edgeMask)">
+      <path d="M80 1550 C 250 1440, 350 1360, 510 1320 C 680 1270, 790 1295, 960 1205"
+            fill="none" stroke="#171317" stroke-width="68" stroke-linecap="round" opacity=".82"/>
+      <path d="M110 1576 C 280 1462, 384 1388, 548 1352 C 698 1318, 814 1320, 982 1230"
+            fill="none" stroke="#ff5f55" stroke-width="34" stroke-linecap="round" opacity=".84"/>
+      <path d="M76 846 C 280 796, 332 698, 500 686 C 710 674, 770 760, 1002 708"
+            fill="none" stroke="#171317" stroke-width="56" stroke-linecap="round" opacity=".7"/>
+      <path d="M102 870 C 302 824, 354 728, 514 720 C 708 710, 792 784, 1004 738"
+            fill="none" stroke="#1e9f8f" stroke-width="27" stroke-linecap="round" opacity=".92"/>
+    </g>
+
+    <g opacity=".7">
+      <ellipse cx="806" cy="535" rx="160" ry="230" fill="none" stroke="#181316" stroke-width="34"/>
+      <ellipse cx="806" cy="535" rx="121" ry="188" fill="none" stroke="#f8d249" stroke-width="16"/>
+      <ellipse cx="300" cy="1375" rx="208" ry="300" fill="none" stroke="#181316" stroke-width="30"/>
+      <ellipse cx="300" cy="1375" rx="164" ry="244" fill="none" stroke="#ff4f8c" stroke-width="14"/>
+    </g>
+
+    <g id="geckoGlyph" transform="translate(762 994) rotate(-17)" opacity=".3">
+      <path d="M0 0
+               C 30 -40, 85 -70, 130 -56
+               C 170 -44, 185 -10, 171 20
+               C 152 60, 118 85, 102 126
+               C 88 162, 110 204, 154 215
+               C 104 232, 68 214, 51 180
+               C 34 145, 34 102, 20 80
+               C 6 58, -30 42, -58 58
+               C -30 22, -18 12, 0 0 Z"
+            fill="#181316"/>
+      <circle cx="128" cy="-28" r="16" fill="#181316"/>
+      <circle cx="148" cy="-33" r="11" fill="#181316"/>
+      <g fill="#181316">
+        <ellipse cx="-42" cy="66" rx="18" ry="11"/>
+        <ellipse cx="17" cy="152" rx="18" ry="11"/>
+        <ellipse cx="123" cy="142" rx="18" ry="11"/>
+        <ellipse cx="161" cy="44" rx="18" ry="11"/>
+      </g>
+    </g>
+  </svg>
+
+  <canvas id="fieldCanvas" width="1080" height="1920"></canvas>
+
+  <svg id="frontSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="blur8"><feGaussianBlur stdDeviation="8"/></filter>
+      <filter id="blur18"><feGaussianBlur stdDeviation="18"/></filter>
+    </defs>
+    <g opacity=".9">
+      <path d="M210 1510 C 350 1410, 550 1360, 760 1290 C 910 1240, 970 1180, 1030 1090"
+            fill="none" stroke="#111014" stroke-width="78" stroke-linecap="round"/>
+      <path d="M218 1514 C 370 1420, 553 1392, 760 1320 C 902 1270, 975 1210, 1030 1120"
+            fill="none" stroke="#f2d04f" stroke-width="26" stroke-linecap="round" opacity=".95"/>
+      <path d="M482 300 C 584 410, 675 522, 725 680 C 768 810, 772 905, 760 1046"
+            fill="none" stroke="#131014" stroke-width="54" stroke-linecap="round" opacity=".82"/>
+      <path d="M485 314 C 583 430, 661 550, 705 694 C 742 817, 746 912, 735 1047"
+            fill="none" stroke="#ff4f8c" stroke-width="18" stroke-linecap="round" opacity=".84"/>
+    </g>
+
+    <g opacity=".75">
+      <ellipse cx="703" cy="1110" rx="220" ry="310" fill="none" stroke="#f7eddf" stroke-width="8"/>
+      <ellipse cx="703" cy="1110" rx="263" ry="372" fill="none" stroke="#171216" stroke-width="20"/>
+    </g>
+
+    <g id="drips" fill="#161216" opacity=".72">
+      <path d="M160 304 C 170 390, 150 461, 170 542 C 180 582, 195 621, 188 670 C 178 734, 137 752, 142 812 C 145 851, 166 882, 168 930 C 170 971, 154 1005, 160 1046 C 166 1086, 193 1107, 193 1150 C 193 1188, 177 1228, 185 1265 C 190 1291, 205 1308, 216 1334 L 236 1329 C 222 1298, 217 1282, 214 1256 C 209 1216, 226 1183, 225 1149 C 224 1105, 197 1081, 192 1044 C 187 1007, 201 970, 199 930 C 196 879, 173 846, 171 810 C 166 753, 204 734, 213 676 C 222 622, 205 583, 198 542 C 184 458, 205 381, 192 300 Z"/>
+      <path d="M864 186 C 860 252, 886 310, 880 375 C 875 434, 839 474, 834 536 C 829 595, 854 640, 854 700 C 854 765, 820 804, 818 858 C 816 910, 836 955, 834 1008 C 832 1043, 820 1077, 816 1110 L 841 1110 C 845 1072, 858 1044, 862 1008 C 868 952, 848 909, 849 858 C 850 801, 883 764, 886 700 C 889 635, 865 592, 870 536 C 875 471, 912 431, 914 376 C 917 311, 892 252, 892 186 Z"/>
+    </g>
+    <g opacity=".22" filter="url(#blur18)">
+      <ellipse cx="645" cy="1140" rx="280" ry="420" fill="#ff6b4d"/>
+      <ellipse cx="360" cy="590" rx="240" ry="260" fill="#f4dd8f"/>
+    </g>
+  </svg>
+
+  <canvas id="grain" width="1080" height="1920"></canvas>
+  <canvas id="spray" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div class="edgeFade"></div>
+  <div id="date">2026-07-04</div>
+</div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  function hashString(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const seed = hashString("2026-07-04-artnouveau-graffiti-magnetic")();
+  const rnd = mulberry32(seed);
+
+  // Grain
+  const grain = document.getElementById('grain');
+  const gctx = grain.getContext('2d');
+  const img = gctx.createImageData(W,H);
+  for(let i=0;i<img.data.length;i+=4){
+    const v = 210 + Math.floor((rnd()-0.5)*60);
+    img.data[i]=v; img.data[i+1]=v-8; img.data[i+2]=v-12; img.data[i+3]=18;
+  }
+  gctx.putImageData(img,0,0);
+
+  // Spray texture
+  const spray = document.getElementById('spray');
+  const sctx = spray.getContext('2d');
+  sctx.clearRect(0,0,W,H);
+  for(let k=0;k<18;k++){
+    const cx = rnd()*W, cy = rnd()*H;
+    const rad = 80 + rnd()*180;
+    const grd = sctx.createRadialGradient(cx,cy,0,cx,cy,rad);
+    grd.addColorStop(0, `rgba(10,10,12,${0.10+rnd()*0.10})`);
+    grd.addColorStop(0.5, `rgba(10,10,12,${0.04+rnd()*0.07})`);
+    grd.addColorStop(1, 'rgba(10,10,12,0)');
+    sctx.fillStyle = grd;
+    sctx.beginPath(); sctx.arc(cx,cy,rad,0,Math.PI*2); sctx.fill();
+  }
+  for(let i=0;i<9000;i++){
+    const x=rnd()*W, y=rnd()*H;
+    const a=0.03+rnd()*0.10;
+    sctx.fillStyle=`rgba(22,18,19,${a})`;
+    const r = rnd()<0.88 ? 1 : 2;
+    sctx.beginPath(); sctx.arc(x,y,r,0,Math.PI*2); sctx.fill();
+  }
+
+  // Painted background and botanical forms
+  const paint = document.getElementById('paintCanvas');
+  const pctx = paint.getContext('2d');
+
+  function petal(x,y,rx,ry,rot,c1,c2,alpha){
+    pctx.save();
+    pctx.translate(x,y);
+    pctx.rotate(rot);
+    const grad = pctx.createLinearGradient(-rx,-ry,rx,ry);
+    grad.addColorStop(0,c1);
+    grad.addColorStop(1,c2);
+    pctx.fillStyle = grad;
+    pctx.globalAlpha = alpha;
+    pctx.beginPath();
+    pctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);
+    pctx.fill();
+    pctx.restore();
+  }
+
+  function leafBand(x,y,len,thick,rot,colorA,colorB){
+    pctx.save();
+    pctx.translate(x,y);
+    pctx.rotate(rot);
+    const grad = pctx.createLinearGradient(0,-thick,0,thick);
+    grad.addColorStop(0,colorA);
+    grad.addColorStop(1,colorB);
+    pctx.strokeStyle = grad;
+    pctx.lineWidth = thick;
+    pctx.lineCap='round';
+    pctx.beginPath();
+    pctx.moveTo(-len*0.45, 0);
+    pctx.bezierCurveTo(-len*0.15,-thick*1.2,len*0.1,-thick*0.9,len*0.45,0);
+    pctx.stroke();
+    pctx.restore();
+  }
+
+  // large painterly blooms
+  petal(252, 490, 180, 270, -0.24, 'rgba(255,91,135,.28)', 'rgba(246,200,75,.12)', .95);
+  petal(812, 348, 150, 230, .38, 'rgba(29,150,133,.18)', 'rgba(255,101,76,.12)', .92);
+  petal(826, 1288, 220, 330, .12, 'rgba(255,219,85,.18)', 'rgba(246,89,98,.10)', .94);
+  petal(350, 1490, 260, 220, -.56, 'rgba(28,161,134,.16)', 'rgba(255,76,124,.12)', .92);
+
+  // Collage scratches / tags
+  pctx.save();
+  pctx.globalAlpha = .20;
+  pctx.strokeStyle = '#151116';
+  pctx.lineWidth = 7;
+  pctx.lineCap = 'round';
+  const tagPaths = [
+    [[112,690],[182,644],[226,690],[174,746],[244,804]],
+    [[720,234],[782,198],[832,242],[792,285],[864,324]],
+    [[770,1572],[842,1506],[906,1562],[850,1605],[926,1660]]
+  ];
+  tagPaths.forEach(path=>{
+    pctx.beginPath();
+    pctx.moveTo(path[0][0], path[0][1]);
+    for(let i=1;i<path.length;i++) pctx.lineTo(path[i][0], path[i][1]);
+    pctx.stroke();
+  });
+  pctx.restore();
+
+  for(let i=0;i<14;i++){
+    const x=140+rnd()*820, y=180+rnd()*1540;
+    const len=120+rnd()*290;
+    const thick=16+rnd()*38;
+    leafBand(x,y,len,thick,(rnd()-0.5)*1.7,
+      rnd()<0.5?'rgba(20,22,24,.72)':'rgba(255,83,126,.65)',
+      rnd()<0.5?'rgba(20,122,86,.35)':'rgba(247,204,77,.32)'
+    );
+  }
+
+  // Magnetic field particles
+  const canvas = document.getElementById('fieldCanvas');
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const anchors = [
+    {x:315,y:560,s:1},
+    {x:760,y:540,s:-1},
+    {x:370,y:1360,s:-1},
+    {x:790,y:1210,s:1}
+  ];
+  const colors = ['#151116','#111015','#ff4f8c','#f5d049','#1ba394','#f4efe8'];
+
+  for(let i=0;i<2600;i++){
+    const zonePick = rnd();
+    let x,y;
+    if(zonePick<0.4){ x = 90 + rnd()*380; y = 180 + rnd()*980; }
+    else if(zonePick<0.68){ x = 500 + rnd()*220; y = 150 + rnd()*1500; }
+    else { x = 760 + rnd()*230; y = 180 + rnd()*1400; }
+    particles.push({
+      x,y,
+      seed:rnd()*1000,
+      size: 1 + rnd()*2.8,
+      color: colors[(rnd()*colors.length)|0],
+      alpha: 0.16 + rnd()*0.46
+    });
+  }
+
+  function field(x,y,t){
+    let fx=0, fy=0;
+    for(const a of anchors){
+      const ax = a.x + Math.sin(t*0.00014 + a.x*0.003)*36;
+      const ay = a.y + Math.cos(t*0.00011 + a.y*0.002)*42;
+      const dx = x-ax, dy = y-ay;
+      const d2 = Math.max(1400, dx*dx + dy*dy);
+      const inv = a.s * 240000 / d2;
+      fx += -dy * inv;
+      fy +=  dx * inv;
+      const radial = a.s * 42000 / d2;
+      fx += dx * radial * 0.08;
+      fy += dy * radial * 0.08;
+    }
+    fx += Math.sin(y*0.010 + t*0.0003)*3.0;
+    fy += Math.cos(x*0.008 - t*0.00026)*2.4;
+    return {fx,fy};
+  }
+
+  function draw(){
+    const t = performance.now();
+    ctx.clearRect(0,0,W,H);
+
+    // subtle long bands behind particles
+    ctx.save();
+    ctx.globalAlpha = .1;
+    for(let i=0;i<4;i++){
+      const yy = 360 + i*370 + Math.sin(t*0.00015 + i)*26;
+      const grad = ctx.createLinearGradient(0,yy-50,W,yy+50);
+      grad.addColorStop(0,'rgba(0,0,0,0)');
+      grad.addColorStop(0.18,'rgba(17,16,19,.25)');
+      grad.addColorStop(0.5,'rgba(255,208,77,.08)');
+      grad.addColorStop(0.82,'rgba(17,16,19,.25)');
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,yy-58,W,116);
+    }
+    ctx.restore();
+
+    for(const p of particles){
+      const ox = Math.sin(t*0.00021 + p.seed)*8;
+      const oy = Math.cos(t*0.00019 + p.seed*1.7)*8;
+      const px = p.x + ox, py = p.y + oy;
+      const f = field(px,py,t);
+      const ang = Math.atan2(f.fy,f.fx);
+      const mag = Math.min(1.2, Math.hypot(f.fx,f.fy)*0.07);
+      const len = 7 + mag*20 + Math.sin(t*0.0005 + p.seed)*2.4;
+      const w = p.size*(0.7 + mag*0.7);
+
+      ctx.save();
+      ctx.translate(px,py);
+      ctx.rotate(ang);
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.ellipse(0,0,len*0.55,w,0,0,Math.PI*2);
+      ctx.fill();
+
+      if(p.color === '#ff4f8c' || p.color === '#f5d049' || p.color === '#1ba394'){
+        ctx.globalAlpha = p.alpha*0.14;
+        ctx.beginPath();
+        ctx.ellipse(0,0,len*0.95,w*2.4,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // Rosette hubs / magnet nodes
+    const nodeCols = [
+      ['rgba(255,79,140,.50)','rgba(21,17,22,0)'],
+      ['rgba(245,208,73,.46)','rgba(21,17,22,0)'],
+      ['rgba(27,163,148,.42)','rgba(21,17,22,0)'],
+      ['rgba(245,239,232,.34)','rgba(21,17,22,0)']
+    ];
+    anchors.forEach((a,idx)=>{
+      const ax = a.x + Math.sin(t*0.00014 + a.x*0.003)*36;
+      const ay = a.y + Math.cos(t*0.00011 + a.y*0.002)*42;
+      const rg = ctx.createRadialGradient(ax,ay,0,ax,ay,120);
+      rg.addColorStop(0,nodeCols[idx%4][0]);
+      rg.addColorStop(1,nodeCols[idx%4][1]);
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(ax,ay,120,0,Math.PI*2); ctx.fill();
+
+      ctx.save();
+      ctx.translate(ax,ay);
+      ctx.rotate(t*0.0001*(idx%2?1:-1));
+      ctx.strokeStyle = idx%2 ? 'rgba(24,18,22,.58)' : 'rgba(247,216,82,.52)';
+      ctx.lineWidth = idx%2 ? 12 : 7;
+      for(let r=26;r<100;r+=22){
+        ctx.beginPath();
+        ctx.arc(0,0,r,0,Math.PI*2);
+        ctx.stroke();
+      }
+      for(let j=0;j<8;j++){
+        const a0 = j*Math.PI/4;
+        const rr = 94;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a0)*38,Math.sin(a0)*38);
+        ctx.lineTo(Math.cos(a0)*rr,Math.sin(a0)*rr);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  if (window.self === window.top) {
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      const filt = ac.createBiquadFilter();
+      const shaper = ac.createWaveShaper();
+
+      shaper.curve = new Float32Array([ -1,-0.5,0,0.4,1 ]);
+      shaper.oversample = '2x';
+
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      lfo.type = 'sine';
+
+      osc1.frequency.value = 86;
+      osc2.frequency.value = 129;
+      lfo.frequency.value = 0.047;
+      lfoGain.gain.value = 17;
+
+      filt.type = 'bandpass';
+      filt.frequency.value = 780;
+      filt.Q.value = 0.6;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filt.frequency);
+
+      osc1.connect(filt);
+      osc2.connect(filt);
+      filt.connect(shaper);
+      shaper.connect(master);
+
+      osc1.start();
+      osc2.start();
+      lfo.start();
+
+      setInterval(()=>{
+        const now = ac.currentTime;
+        const base = [86,96,108,129][Math.floor(rnd()*4)];
+        osc1.frequency.linearRampToValueAtTime(base, now + 8);
+        osc2.frequency.linearRampToValueAtTime(base*1.5, now + 8);
+        filt.frequency.linearRampToValueAtTime(500 + rnd()*700, now + 9);
+      }, 7000);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
