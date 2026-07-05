@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-07-05</title>
+<style>
+  :root{
+    --bg0:#120f17;
+    --bg1:#1e2030;
+    --bg2:#2d4b57;
+    --bg3:#7b5f62;
+    --sun1:#ff6aa6;
+    --sun2:#ff9f7a;
+    --sun3:#ffd16a;
+    --neonCyan:#70f0ff;
+    --neonMag:#ff57bf;
+    --neonLav:#b38cff;
+    --teal:#4c8087;
+    --concrete:#4d4b54;
+    --rust:#7f5f55;
+    --ink:#0b0d12;
+    --gold:#ffd6a2;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,116,165,.08), transparent 30%),
+      linear-gradient(180deg,#0a0b11 0%, #11111a 35%, #171827 60%, #0d0f16 100%);
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, #3e4967 0%, #5b6584 7%, #7b6881 16%, #d36b89 28%, #f8927d 38%, #f6be72 46%, #6b5667 47%, #352d3c 56%, #1b2232 68%, #0d121d 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 30px 80px rgba(0,0,0,.55);
+  }
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.12), transparent 18%),
+      linear-gradient(0deg, rgba(0,0,0,.35), transparent 20%),
+      radial-gradient(circle at 50% 30%, rgba(255,166,116,.12), transparent 28%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, rgba(0,0,0,0) 1px 4px);
+    mix-blend-mode:screen;
+    opacity:.7;
+    pointer-events:none;
+  }
+  #frame::after{
+    content:"";
+    position:absolute; inset:-5%;
+    background:
+      radial-gradient(circle at 50% 45%, transparent 55%, rgba(0,0,0,.22) 82%, rgba(0,0,0,.52) 100%);
+    pointer-events:none;
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+  #background-video{
+    position:absolute;
+    left:15%;
+    top:23%;
+    width:70%;
+    height:50%;
+    object-fit:cover;
+    opacity:.82;
+    filter:saturate(1.15) contrast(1.06) brightness(.9) hue-rotate(318deg);
+    mix-blend-mode:screen;
+    clip-path:polygon(6% 0,94% 0,100% 11%,100% 89%,94% 100%,6% 100%,0 89%,0 11%);
+    transform-origin:center;
+    animation: videoBreath 32s ease-in-out infinite;
+    box-shadow:
+      0 0 0 1px rgba(255,155,195,.3),
+      0 0 30px rgba(255,111,174,.18),
+      0 0 80px rgba(111,240,255,.09);
+  }
+  @keyframes videoBreath{
+    0%,100%{transform:scale(1.02) translateY(0)}
+    50%{transform:scale(1.06) translateY(-1.2%)}
+  }
+
+  .skyGlow{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 32%, rgba(255,229,148,.8) 0 6%, rgba(255,176,124,.7) 6% 12%, rgba(255,104,157,.45) 12% 18%, rgba(255,77,150,.12) 18% 26%, transparent 26%),
+      linear-gradient(180deg, rgba(255,155,170,.18) 0 26%, transparent 30%);
+    opacity:.9;
+    animation: glowPulse 18s ease-in-out infinite;
+  }
+  @keyframes glowPulse{
+    0%,100%{transform:scale(1); opacity:.82}
+    50%{transform:scale(1.03); opacity:.96}
+  }
+
+  .sunRings{
+    position:absolute;
+    left:50%; top:32%;
+    width:54%;
+    height:54%;
+    transform:translate(-50%,-50%);
+    opacity:.58;
+    filter:blur(.15px);
+    mask-image:radial-gradient(circle, rgba(0,0,0,1) 0 57%, rgba(0,0,0,.7) 72%, transparent 96%);
+    animation: ringShift 36s linear infinite;
+  }
+  @keyframes ringShift{
+    from{transform:translate(-50%,-50%) rotate(0deg)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+  }
+
+  .gridPlane{
+    position:absolute;
+    left:-8%; right:-8%; bottom:-4%;
+    height:40%;
+    transform:perspective(600px) rotateX(72deg);
+    transform-origin:center bottom;
+    background:
+      repeating-linear-gradient(90deg, rgba(112,240,255,.44) 0 2px, transparent 2px 8.5%),
+      repeating-linear-gradient(180deg, rgba(112,240,255,.36) 0 2px, transparent 2px 10%);
+    opacity:.48;
+    filter:drop-shadow(0 0 10px rgba(112,240,255,.18));
+    animation:gridHum 20s ease-in-out infinite;
+  }
+  @keyframes gridHum{
+    0%,100%{opacity:.42; transform:perspective(600px) rotateX(72deg) translateY(0)}
+    50%{opacity:.56; transform:perspective(600px) rotateX(72deg) translateY(1%)}
+  }
+
+  svg{display:block;width:100%;height:100%}
+
+  #citySvg{
+    position:absolute; inset:0;
+    opacity:1;
+  }
+
+  .canalFog{
+    position:absolute;
+    left:0; right:0; bottom:18%;
+    height:20%;
+    background:
+      linear-gradient(180deg, rgba(99,196,209,.04), rgba(33,59,67,.18) 42%, rgba(10,17,24,.45)),
+      radial-gradient(circle at 30% 40%, rgba(255,120,168,.08), transparent 20%),
+      radial-gradient(circle at 75% 45%, rgba(112,240,255,.08), transparent 18%);
+    filter:blur(10px);
+    opacity:.9;
+    animation:fogSlide 26s ease-in-out infinite;
+  }
+  @keyframes fogSlide{
+    0%,100%{transform:translateX(-1%)}
+    50%{transform:translateX(1.5%)}
+  }
+
+  .vhs{
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0 1px, rgba(0,0,0,0) 1px 3px),
+      linear-gradient(90deg, rgba(255,0,140,.03), transparent 18%, transparent 82%, rgba(0,255,255,.03));
+    mix-blend-mode:screen;
+    opacity:.55;
+    animation:vhsDrift 12s steps(4,end) infinite;
+  }
+  @keyframes vhsDrift{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(.5px)}
+    50%{transform:translateX(-.8px)}
+    75%{transform:translateX(.3px)}
+  }
+
+  .edgeShade{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, rgba(5,8,12,.46), transparent 11%, transparent 89%, rgba(5,8,12,.5)),
+      linear-gradient(180deg, rgba(5,8,12,.14), transparent 10%, transparent 88%, rgba(5,8,12,.46));
+    pointer-events:none;
+  }
+
+  .date{
+    position:absolute;
+    right:18px;
+    bottom:12px;
+    font-size:14px;
+    letter-spacing:.18em;
+    color:rgba(212,231,245,.48);
+    text-transform:uppercase;
+    z-index:20;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:87px;
+    bottom:363px;
+    opacity:.58;
+    filter:saturate(.7) brightness(.85) hue-rotate(170deg);
+    z-index:12;
+    transform:scaleX(-1);
+  }
+
+  #signs{
+    position:absolute; inset:0;
+    mix-blend-mode:screen;
+    opacity:.72;
+    animation:signBreath 14s ease-in-out infinite;
+  }
+  @keyframes signBreath{
+    0%,100%{opacity:.6}
+    50%{opacity:.78}
+  }
+
+  canvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div class="skyGlow layer"></div>
+
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+    <svg class="sunRings" viewBox="0 0 100 100" aria-hidden="true">
+      <defs>
+        <linearGradient id="ringGrad" x1="0" x2="1">
+          <stop offset="0%" stop-color="#70f0ff" stop-opacity=".9"/>
+          <stop offset="50%" stop-color="#ff70b4" stop-opacity=".85"/>
+          <stop offset="100%" stop-color="#ffd16a" stop-opacity=".8"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="22" fill="none" stroke="url(#ringGrad)" stroke-width="2.6"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="url(#ringGrad)" stroke-width="1.4" stroke-dasharray="6 3"/>
+      <circle cx="50" cy="50" r="34" fill="none" stroke="url(#ringGrad)" stroke-width="1.2" stroke-dasharray="2 4"/>
+      <circle cx="50" cy="50" r="39" fill="none" stroke="url(#ringGrad)" stroke-width=".9" stroke-dasharray="12 6"/>
+    </svg>
+
+    <div class="gridPlane layer"></div>
+
+    <svg id="citySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="towerFace1" x1="0" x2="1">
+          <stop offset="0%" stop-color="#10141d"/>
+          <stop offset="100%" stop-color="#232838"/>
+        </linearGradient>
+        <linearGradient id="towerFace2" x1="0" x2="1">
+          <stop offset="0%" stop-color="#243140"/>
+          <stop offset="100%" stop-color="#0d1119"/>
+        </linearGradient>
+        <linearGradient id="towerFace3" x1="0" x2="1">
+          <stop offset="0%" stop-color="#3b414b"/>
+          <stop offset="100%" stop-color="#191d25"/>
+        </linearGradient>
+        <linearGradient id="tealPipe" x1="0" x2="1">
+          <stop offset="0%" stop-color="#4f7680"/>
+          <stop offset="100%" stop-color="#7a5d63"/>
+        </linearGradient>
+        <linearGradient id="canalGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#26404a"/>
+          <stop offset="35%" stop-color="#172632"/>
+          <stop offset="100%" stop-color="#091019"/>
+        </linearGradient>
+        <linearGradient id="reflectGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,120,170,.32)"/>
+          <stop offset="100%" stop-color="rgba(112,240,255,0)"/>
+        </linearGradient>
+        <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="10"/>
+        </filter>
+        <filter id="neonBlur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4"/>
+        </filter>
+      </defs>
+
+      <rect x="0" y="950" width="1080" height="970" fill="url(#canalGrad)"/>
+
+      <g opacity=".95">
+        <polygon points="0,740 165,620 220,1420 0,1500" fill="url(#towerFace1)"/>
+        <polygon points="165,620 314,575 370,1372 220,1420" fill="url(#towerFace2)"/>
+        <polygon points="62,870 180,835 214,1410 92,1438" fill="#11161f"/>
+        <polygon points="860,592 1080,650 1080,1510 910,1440" fill="url(#towerFace1)"/>
+        <polygon points="728,575 860,592 910,1440 734,1385" fill="url(#towerFace3)"/>
+        <polygon points="390,650 740,640 788,1410 350,1450" fill="url(#towerFace2)"/>
+      </g>
+
+      <g opacity=".68">
+        <rect x="198" y="712" width="10" height="494" fill="#4e616a"/>
+        <rect x="205" y="720" width="120" height="16" fill="#3d5660"/>
+        <rect x="520" y="702" width="12" height="565" fill="#61737d"/>
+        <rect x="531" y="713" width="170" height="18" fill="#53656f"/>
+        <rect x="736" y="692" width="11" height="518" fill="#66727a"/>
+        <rect x="748" y="705" width="132" height="17" fill="#556671"/>
+        <rect x="320" y="806" width="350" height="12" fill="#2f3944"/>
+        <rect x="120" y="920" width="248" height="18" fill="#37434d"/>
+        <rect x="676" y="865" width="212" height="14" fill="#394853"/>
+      </g>
+
+      <g opacity=".42">
+        <rect x="218" y="780" width="72" height="180" fill="#0b1016"/>
+        <rect x="229" y="790" width="12" height="148" fill="#273645"/>
+        <rect x="250" y="790" width="12" height="148" fill="#273645"/>
+        <rect x="271" y="790" width="12" height="148" fill="#273645"/>
+
+        <rect x="560" y="750" width="98" height="232" fill="#0d1219"/>
+        <rect x="576" y="767" width="14" height="192" fill="#2f4050"/>
+        <rect x="604" y="767" width="14" height="192" fill="#2f4050"/>
+        <rect x="632" y="767" width="14" height="192" fill="#2f4050"/>
+
+        <rect x="786" y="746" width="60" height="168" fill="#0a0f16"/>
+        <rect x="798" y="758" width="10" height="140" fill="#2f3e4b"/>
+        <rect x="818" y="758" width="10" height="140" fill="#2f3e4b"/>
+      </g>
+
+      <g opacity=".95">
+        <rect x="0" y="1120" width="1080" height="38" fill="#1a202a"/>
+        <rect x="0" y="1148" width="1080" height="14" fill="#365664"/>
+      </g>
+
+      <g opacity=".92">
+        <polygon points="0,1162 365,1162 312,1600 0,1600" fill="#111822"/>
+        <polygon points="715,1162 1080,1162 1080,1600 768,1600" fill="#10161f"/>
+      </g>
+
+      <g opacity=".8">
+        <polygon points="275,1162 800,1162 715,1700 365,1700" fill="#162534"/>
+        <polygon points="340,1190 735,1190 668,1660 406,1660" fill="#21394a"/>
+      </g>
+
+      <g opacity=".5">
+        <rect x="445" y="1225" width="188" height="18" fill="#7de4ff"/>
+        <rect x="460" y="1247" width="155" height="8" fill="#ff7fbc"/>
+        <rect x="132" y="1218" width="110" height="14" fill="#64d0dd"/>
+        <rect x="845" y="1230" width="124" height="16" fill="#ff74aa"/>
+      </g>
+
+      <g opacity=".5" filter="url(#softBlur)">
+        <ellipse cx="540" cy="1415" rx="250" ry="26" fill="#ff72b2"/>
+        <ellipse cx="550" cy="1438" rx="290" ry="34" fill="#4cc5db"/>
+      </g>
+
+      <g opacity=".28">
+        <polygon points="452,1310 638,1310 610,1510 475,1510" fill="#ff8bb4"/>
+        <polygon points="130,1288 248,1288 228,1462 145,1462" fill="#65dce5"/>
+        <polygon points="838,1300 966,1300 944,1488 852,1488" fill="#ff8bb4"/>
+      </g>
+
+      <g opacity=".6">
+        <rect x="210" y="1004" width="6" height="128" fill="#86b9c5"/>
+        <circle cx="213" cy="1138" r="7" fill="#93f3ff"/>
+        <rect x="772" y="988" width="6" height="158" fill="#8f9fa8"/>
+        <circle cx="775" cy="1152" r="7" fill="#ff8cbf"/>
+        <rect x="594" y="955" width="6" height="178" fill="#a29aa2"/>
+        <circle cx="597" cy="1139" r="8" fill="#8af0ff"/>
+      </g>
+    </svg>
+
+    <svg id="signs" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="signGlow">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge>
+            <feMergeNode in="b"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <g filter="url(#signGlow)">
+        <rect x="168" y="770" width="108" height="28" fill="#ff69b7" opacity=".85"/>
+        <rect x="173" y="777" width="48" height="6" fill="#ffe0f0" opacity=".8"/>
+        <rect x="234" y="777" width="30" height="6" fill="#70f0ff" opacity=".8"/>
+
+        <rect x="577" y="724" width="132" height="30" fill="#70f0ff" opacity=".8"/>
+        <rect x="586" y="732" width="80" height="7" fill="#effcff" opacity=".65"/>
+
+        <rect x="777" y="726" width="82" height="25" fill="#ff86c3" opacity=".75"/>
+        <rect x="784" y="733" width="32" height="6" fill="#fff1f7" opacity=".6"/>
+
+        <rect x="430" y="1210" width="210" height="5" fill="#70f0ff" opacity=".62"/>
+        <rect x="446" y="1230" width="186" height="3" fill="#ff74aa" opacity=".58"/>
+      </g>
+    </svg>
+
+    <canvas id="backCanvas" width="1080" height="1920"></canvas>
+    <div class="canalFog layer"></div>
+    <canvas id="frontCanvas" width="1080" height="1920"></canvas>
+    <div class="vhs layer"></div>
+    <div class="edgeShade layer"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div class="date">2026-07-05</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-07-05";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand(){
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const back = document.getElementById('backCanvas');
+  const front = document.getElementById('frontCanvas');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+  const W = back.width, H = back.height;
+
+  const rainCols = [];
+  for(let i=0;i<36;i++){
+    rainCols.push({
+      x: 90 + rand()*900,
+      y: 760 + rand()*420,
+      len: 90 + rand()*170,
+      speed: .4 + rand()*.45,
+      alpha: .05 + rand()*.08,
+      cyan: rand()>.5
+    });
+  }
+
+  const drips = [];
+  for(let i=0;i<14;i++){
+    drips.push({
+      x: [214,597,775,201,528,742,880][i % 7] + (rand()*10-5),
+      top: 900 + rand()*180,
+      phase: rand()*Math.PI*2,
+      size: 2 + rand()*5
+    });
+  }
+
+  const windows = [];
+  const towers = [
+    {x:30,y:760,w:120,h:410},
+    {x:230,y:800,w:84,h:220},
+    {x:414,y:715,w:270,h:290},
+    {x:782,y:748,w:70,h:180}
+  ];
+  towers.forEach(t=>{
+    const cols = Math.max(2, Math.floor(t.w/24));
+    const rows = Math.max(4, Math.floor(t.h/34));
+    for(let cx=0; cx<cols; cx++){
+      for(let ry=0; ry<rows; ry++){
+        if(rand()>.42){
+          windows.push({
+            x:t.x + 8 + cx*(t.w-16)/cols,
+            y:t.y + 10 + ry*(t.h-20)/rows,
+            w:8 + rand()*9,
+            h:14 + rand()*15,
+            hue: rand()>.52 ? 'cyan' : 'mag',
+            pulse: rand()*Math.PI*2
+          });
+        }
+      }
+    }
+  });
+
+  const noise = document.createElement('canvas');
+  noise.width = W; noise.height = H;
+  const nctx = noise.getContext('2d');
+  const img = nctx.createImageData(W,H);
+  for(let i=0;i<img.data.length;i+=4){
+    const v = 18 + rand()*34;
+    img.data[i] = v;
+    img.data[i+1] = v;
+    img.data[i+2] = v + rand()*10;
+    img.data[i+3] = 20 + rand()*18;
+  }
+  nctx.putImageData(img,0,0);
+
+  function drawBack(t){
+    bctx.clearRect(0,0,W,H);
+
+    bctx.globalAlpha = .16;
+    bctx.drawImage(noise,0,0);
+    bctx.globalAlpha = 1;
+
+    for(const w of windows){
+      const a = .18 + .16*(.5 + .5*Math.sin(t*0.00035 + w.pulse));
+      bctx.fillStyle = w.hue === 'cyan' ? `rgba(112,240,255,${a})` : `rgba(255,110,182,${a})`;
+      bctx.fillRect(w.x,w.y,w.w,w.h);
+    }
+
+    for(const r of rainCols){
+      const off = (t*0.03*r.speed) % 200;
+      bctx.strokeStyle = r.cyan ? `rgba(112,240,255,${r.alpha})` : `rgba(255,145,190,${r.alpha*.8})`;
+      bctx.lineWidth = 2;
+      bctx.beginPath();
+      bctx.moveTo(r.x, r.y + off);
+      bctx.lineTo(r.x-8, r.y + off + r.len);
+      bctx.stroke();
+      bctx.beginPath();
+      bctx.moveTo(r.x, r.y - 220 + off);
+      bctx.lineTo(r.x-8, r.y - 220 + off + r.len);
+      bctx.stroke();
+    }
+
+    const shimmerY = 1300;
+    for(let i=0;i<12;i++){
+      const x = 110 + i*78 + Math.sin(t*0.00045+i)*8;
+      const ww = 24 + (i%3)*10;
+      const hh = 170 + (i%4)*18;
+      const grad = bctx.createLinearGradient(x, shimmerY, x, shimmerY+hh);
+      grad.addColorStop(0, i%2 ? 'rgba(255,126,182,.18)' : 'rgba(112,240,255,.18)');
+      grad.addColorStop(1, 'rgba(112,240,255,0)');
+      bctx.fillStyle = grad;
+      bctx.fillRect(x, shimmerY, ww, hh);
+    }
+  }
+
+  function drawFront(t){
+    fctx.clearRect(0,0,W,H);
+
+    fctx.save();
+    fctx.globalCompositeOperation = 'screen';
+    for(const d of drips){
+      const swing = Math.sin(t*0.0011 + d.phase);
+      const y = d.top + 36 + (swing*16+16);
+      const x = d.x + Math.sin(t*0.0008 + d.phase)*3;
+      const grad = fctx.createLinearGradient(x,y-18,x,y+20);
+      grad.addColorStop(0,'rgba(210,250,255,0)');
+      grad.addColorStop(.55,'rgba(170,245,255,.33)');
+      grad.addColorStop(1,'rgba(255,125,188,0)');
+      fctx.fillStyle = grad;
+      fctx.fillRect(x-1.5, y-18, 3, 30);
+
+      fctx.beginPath();
+      fctx.fillStyle = d.phase > 3 ? 'rgba(255,128,185,.35)' : 'rgba(120,242,255,.32)';
+      fctx.arc(x, y+18, d.size, 0, Math.PI*2);
+      fctx.fill();
+    }
+    fctx.restore();
+
+    fctx.save();
+    fctx.globalCompositeOperation = 'screen';
+    let rise = Math.sin(t*0.0002)*5;
+    const bands = [
+      {y:1215+rise,c:'rgba(112,240,255,.09)',h:7},
+      {y:1238+rise*.7,c:'rgba(255,118,176,.08)',h:4},
+      {y:1266+rise*.5,c:'rgba(112,240,255,.06)',h:3},
+    ];
+    bands.forEach(b=>{
+      fctx.fillStyle = b.c;
+      fctx.fillRect(0,b.y,W,b.h);
+    });
+    fctx.restore();
+
+    fctx.save();
+    fctx.fillStyle = 'rgba(0,0,0,.22)';
+    fctx.beginPath();
+    fctx.moveTo(0,1162); fctx.lineTo(365,1162); fctx.lineTo(312,1600); fctx.lineTo(0,1600); fctx.closePath();
+    fctx.fill();
+    fctx.beginPath();
+    fctx.moveTo(715,1162); fctx.lineTo(W,1162); fctx.lineTo(W,1600); fctx.lineTo(768,1600); fctx.closePath();
+    fctx.fill();
+    fctx.restore();
+  }
+
+  function frame(t){
+    drawBack(t);
+    drawFront(t);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.016;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'sawtooth';
+      low.frequency.value = 44;
+
+      const lowGain = ctx.createGain();
+      lowGain.gain.value = 0.018;
+
+      const high = ctx.createOscillator();
+      high.type = 'triangle';
+      high.frequency.value = 176;
+
+      const highGain = ctx.createGain();
+      highGain.gain.value = 0.005;
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.047;
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 8;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 420;
+      filter.Q.value = 0.7;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      low.connect(lowGain).connect(filter);
+      high.connect(highGain).connect(filter);
+      filter.connect(master);
+
+      low.start();
+      high.start();
+      lfo.start();
+
+      const now = ctx.currentTime;
+      high.frequency.setValueAtTime(176, now);
+      high.frequency.linearRampToValueAtTime(132, now + 18);
+      high.frequency.linearRampToValueAtTime(176, now + 36);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) master.gain.value = 0.0;
+        else master.gain.value = 0.016;
+      });
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
