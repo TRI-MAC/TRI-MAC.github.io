@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-07-06</title>
+<style>
+  :root{
+    --bg1:#140c0a;
+    --bg2:#2a120d;
+    --gold:#d5a84c;
+    --amber:#c57a1e;
+    --crimson:#8b1f1d;
+    --wine:#5a1015;
+    --ivory:#eadab4;
+    --shadow:#080505;
+    --bronze:#7e4b20;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#050404;
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #stage{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 22%, rgba(110,43,18,.55) 0%, rgba(58,17,12,.35) 30%, rgba(16,8,7,.1) 55%, rgba(5,4,4,.0) 70%),
+      linear-gradient(180deg,var(--bg2) 0%, #120a08 36%, #090707 78%, #050404 100%);
+    box-shadow:0 0 80px rgba(0,0,0,.7);
+  }
+
+  .layer{position:absolute; inset:0; pointer-events:none;}
+
+  #backCanvas, #frontCanvas{
+    width:100%; height:100%; display:block;
+  }
+
+  .vignette{
+    background:
+      radial-gradient(90% 70% at 50% 38%, rgba(0,0,0,0) 42%, rgba(0,0,0,.18) 66%, rgba(0,0,0,.58) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.22));
+    mix-blend-mode:multiply;
+  }
+
+  .ceilingGlow{
+    opacity:.9;
+    background:
+      radial-gradient(58% 28% at 50% 10%, rgba(233,192,112,.38), rgba(188,113,32,.14) 45%, rgba(0,0,0,0) 70%);
+    animation: breatheGlow 18s ease-in-out infinite;
+  }
+
+  .architectural{
+    opacity:.95;
+  }
+
+  .architectural::before,
+  .architectural::after{
+    content:"";
+    position:absolute;
+    top:-6%;
+    width:34%;
+    height:118%;
+    background:
+      linear-gradient(90deg, rgba(20,10,8,.0), rgba(0,0,0,.2) 12%, rgba(123,78,33,.22) 18%, rgba(44,20,14,.82) 30%, rgba(11,7,6,.96) 50%, rgba(93,57,24,.28) 68%, rgba(0,0,0,.18) 84%, rgba(20,10,8,.0)),
+      linear-gradient(180deg, rgba(239,199,121,.08), rgba(0,0,0,0) 14%, rgba(0,0,0,.12) 100%);
+    filter:blur(.2px);
+  }
+  .architectural::before{left:-8%; transform:perspective(900px) rotateY(18deg);}
+  .architectural::after{right:-8%; transform:perspective(900px) rotateY(-18deg);}
+
+  .archShadow{
+    position:absolute;
+    left:10%;
+    right:10%;
+    top:-8%;
+    height:34%;
+    border-radius:0 0 50% 50%/0 0 100% 100%;
+    background:
+      radial-gradient(70% 120% at 50% 100%, rgba(207,150,65,.18), rgba(0,0,0,0) 40%),
+      radial-gradient(80% 100% at 50% 100%, rgba(8,6,6,.92) 30%, rgba(8,6,6,.2) 62%, rgba(8,6,6,0) 76%);
+    filter:blur(8px);
+    opacity:.9;
+  }
+
+  #filmWrap{
+    position:absolute;
+    left:13%;
+    top:-18%;
+    width:39%;
+    height:136%;
+    transform:rotate(-10deg);
+    animation: filmTravel 34s linear infinite;
+    filter: drop-shadow(0 24px 24px rgba(0,0,0,.48)) drop-shadow(0 0 10px rgba(188,122,41,.1));
+  }
+
+  #filmStrip{
+    position:absolute;
+    inset:0;
+    border-radius:24px;
+    overflow:hidden;
+    background:
+      linear-gradient(90deg, rgba(8,6,5,.98) 0 12%, rgba(34,19,12,.98) 12% 17%, rgba(62,36,20,.95) 17% 83%, rgba(34,19,12,.98) 83% 88%, rgba(8,6,5,.98) 88% 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(117,75,33,.65),
+      inset 0 0 50px rgba(0,0,0,.55),
+      0 0 0 1px rgba(210,169,94,.18);
+  }
+
+  #filmPerfs{
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle at 6% 2.8%, rgba(0,0,0,0) 0 1.1%, rgba(225,191,133,.18) 1.12%, rgba(0,0,0,.0) 1.9%),
+      radial-gradient(circle at 94% 2.8%, rgba(0,0,0,0) 0 1.1%, rgba(225,191,133,.18) 1.12%, rgba(0,0,0,.0) 1.9%);
+    background-size:100% 8.333%;
+    opacity:.9;
+    mix-blend-mode:screen;
+  }
+
+  #filmFrames{
+    position:absolute;
+    left:20%;
+    right:20%;
+    top:2%;
+    bottom:2%;
+    display:flex;
+    flex-direction:column;
+    gap:2.2%;
+  }
+
+  .frame{
+    position:relative;
+    flex:1 0 auto;
+    min-height:11.4%;
+    border-radius:10px;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, rgba(214,171,92,.12), rgba(0,0,0,.0) 14%),
+      radial-gradient(120% 100% at 50% 28%, rgba(178,74,35,.14), rgba(31,14,12,.12) 44%, rgba(15,8,7,.9) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(219,176,104,.18),
+      inset 0 -12px 30px rgba(0,0,0,.35),
+      0 2px 6px rgba(0,0,0,.25);
+  }
+
+  .miniScene{
+    position:absolute; inset:0;
+  }
+
+  .frame .miniGlow{
+    position:absolute; left:8%; top:10%; width:84%; height:80%;
+    background:radial-gradient(circle at 50% 35%, rgba(223,182,99,.18), rgba(0,0,0,0) 60%);
+  }
+
+  .frame .miniOrb{
+    position:absolute; width:26%; aspect-ratio:1;
+    left:35%; top:28%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,241,204,.9) 0 10%, rgba(214,168,87,.92) 18%, rgba(145,77,29,.9) 45%, rgba(38,12,10,.98) 72%);
+    box-shadow:0 0 14px rgba(214,168,87,.18);
+  }
+
+  .frame .miniRay{
+    position:absolute;
+    left:50%; top:46%;
+    width:2px; height:44%;
+    transform-origin:center -8%;
+    background:linear-gradient(180deg, rgba(236,204,140,.0), rgba(223,183,108,.68) 30%, rgba(126,58,19,.0));
+    opacity:.55;
+  }
+
+  .frame .miniCurtain{
+    position:absolute;
+    top:-4%; width:28%; height:116%;
+    background:
+      linear-gradient(90deg, rgba(66,11,13,.0), rgba(113,20,24,.8) 35%, rgba(55,8,11,.96) 100%);
+    filter:blur(2px);
+    opacity:.68;
+  }
+  .frame .miniCurtain.left{left:-8%; transform:rotate(-6deg)}
+  .frame .miniCurtain.right{right:-8%; transform:scaleX(-1) rotate(-6deg)}
+
+  #art-image{
+    position:absolute;
+    right:18%;
+    top:33%;
+    width:44%;
+    height:auto;
+    opacity:.96;
+    z-index:8;
+    border:none;
+    background:none;
+    transform:rotate(6deg);
+    filter:
+      sepia(.24)
+      saturate(1.28)
+      contrast(1.06)
+      brightness(.97)
+      drop-shadow(0 18px 24px rgba(0,0,0,.5))
+      drop-shadow(0 0 16px rgba(218,175,97,.16));
+    animation: artBreath 16s ease-in-out infinite;
+  }
+
+  .imageHalo{
+    position:absolute;
+    right:12%;
+    top:25%;
+    width:58%;
+    height:38%;
+    z-index:6;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 48% 45%, rgba(228,191,111,.2), rgba(160,84,34,.08) 28%, rgba(0,0,0,0) 66%);
+    filter:blur(18px);
+    opacity:.8;
+    animation: haloDrift 18s ease-in-out infinite;
+  }
+
+  .rays{
+    position:absolute;
+    right:4%;
+    top:16%;
+    width:70%;
+    height:52%;
+    z-index:5;
+    mask-image:radial-gradient(circle at 50% 50%, black 0 62%, transparent 98%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, black 0 62%, transparent 98%);
+    opacity:.7;
+    transform-origin:58% 46%;
+    animation: slowRotate 50s linear infinite;
+  }
+  .ray{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:2.4%;
+    height:48%;
+    transform-origin:50% 0%;
+    background:
+      linear-gradient(180deg, rgba(250,229,179,0), rgba(223,184,108,.75) 28%, rgba(139,63,19,.42) 68%, rgba(0,0,0,0));
+    border-radius:999px;
+    filter:blur(.4px);
+  }
+
+  .ovalFrame{
+    position:absolute;
+    right:14%;
+    top:29%;
+    width:50%;
+    height:33%;
+    z-index:7;
+    border-radius:50%;
+    border:1px solid rgba(219,177,105,.28);
+    box-shadow:
+      0 0 0 8px rgba(92,48,18,.08),
+      0 0 0 18px rgba(161,104,42,.05),
+      inset 0 0 24px rgba(255,225,160,.06);
+    transform:rotate(6deg);
+    animation: frameTilt 18s ease-in-out infinite;
+    mask-image:radial-gradient(circle at 50% 50%, black 0 80%, transparent 97%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, black 0 80%, transparent 97%);
+  }
+
+  .foregroundCurtains{
+    z-index:12;
+  }
+  .foregroundCurtains::before,
+  .foregroundCurtains::after{
+    content:"";
+    position:absolute;
+    top:-8%;
+    width:25%;
+    height:82%;
+    opacity:.92;
+    filter:blur(1px);
+    background:
+      linear-gradient(90deg, rgba(50,8,11,.0), rgba(94,12,18,.76) 20%, rgba(116,18,22,.84) 38%, rgba(63,8,11,.96) 76%, rgba(25,5,6,.98)),
+      repeating-linear-gradient(180deg, rgba(235,195,118,.06) 0 1.2%, rgba(0,0,0,0) 1.2% 8.6%);
+  }
+  .foregroundCurtains::before{
+    left:-6%;
+    transform:rotate(-5deg);
+    border-radius:0 0 42% 18%;
+  }
+  .foregroundCurtains::after{
+    right:-7%;
+    transform:scaleX(-1) rotate(-7deg);
+    border-radius:0 0 42% 18%;
+  }
+
+  .balustrade{
+    position:absolute;
+    left:-6%;
+    right:-6%;
+    bottom:-2%;
+    height:20%;
+    z-index:11;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.1) 18%, rgba(48,21,14,.65) 18%, rgba(18,9,8,.95) 100%);
+    clip-path:polygon(0 36%,100% 22%,100% 100%,0 100%);
+    box-shadow:0 -18px 35px rgba(0,0,0,.32);
+  }
+  .balustrade::before{
+    content:"";
+    position:absolute; inset:12% 8% 18% 8%;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(155,101,46,.0) 0 4%,
+        rgba(155,101,46,.22) 4% 5.2%,
+        rgba(21,11,10,.0) 5.2% 9.3%);
+    opacity:.8;
+  }
+
+  .dust{
+    position:absolute; inset:0; z-index:10;
+    background:
+      radial-gradient(circle at 16% 22%, rgba(236,209,159,.09) 0 .45%, rgba(0,0,0,0) .55%),
+      radial-gradient(circle at 70% 29%, rgba(236,209,159,.07) 0 .36%, rgba(0,0,0,0) .5%),
+      radial-gradient(circle at 41% 62%, rgba(236,209,159,.08) 0 .4%, rgba(0,0,0,0) .56%),
+      radial-gradient(circle at 82% 74%, rgba(236,209,159,.08) 0 .34%, rgba(0,0,0,0) .5%),
+      radial-gradient(circle at 28% 84%, rgba(236,209,159,.05) 0 .3%, rgba(0,0,0,0) .45%);
+    background-size:100% 100%;
+    filter:blur(.3px);
+    opacity:.9;
+    animation:dustShift 22s ease-in-out infinite;
+  }
+
+  .date{
+    position:absolute;
+    right:14px;
+    bottom:10px;
+    z-index:20;
+    color:rgba(235,217,179,.55);
+    font-size:13px;
+    letter-spacing:.12em;
+    text-transform:none;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:53.6%;
+    bottom:11.4%;
+    opacity:.58;
+    z-index:13;
+    filter:sepia(.5) saturate(.7) brightness(.72) contrast(.9);
+    transform:rotate(-6deg);
+  }
+
+  @keyframes filmTravel{
+    0%{ transform:translateY(0%) rotate(-10deg); }
+    100%{ transform:translateY(-8.333%) rotate(-10deg); }
+  }
+  @keyframes slowRotate{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(360deg)}
+  }
+  @keyframes artBreath{
+    0%,100%{transform:rotate(6deg) translateY(0px) scale(1)}
+    50%{transform:rotate(5deg) translateY(-10px) scale(1.018)}
+  }
+  @keyframes haloDrift{
+    0%,100%{transform:translateY(0px) scale(1)}
+    50%{transform:translateY(-12px) scale(1.04)}
+  }
+  @keyframes frameTilt{
+    0%,100%{transform:rotate(6deg) scale(1)}
+    50%{transform:rotate(4deg) scale(1.012)}
+  }
+  @keyframes breatheGlow{
+    0%,100%{opacity:.82}
+    50%{opacity:1}
+  }
+  @keyframes dustShift{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="backCanvas" class="layer"></canvas>
+
+    <div class="layer ceilingGlow"></div>
+    <div class="layer architectural"></div>
+    <div class="archShadow"></div>
+
+    <div id="filmWrap">
+      <div id="filmStrip"></div>
+      <div id="filmPerfs"></div>
+      <div id="filmFrames"></div>
+    </div>
+
+    <div class="imageHalo"></div>
+    <div class="rays" id="rays"></div>
+    <div class="ovalFrame"></div>
+    <img id="art-image" src="art.png" alt="" />
+
+    <svg class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true" style="z-index:9">
+      <defs>
+        <radialGradient id="goldGlow" cx="50%" cy="45%" r="60%">
+          <stop offset="0%" stop-color="#f2d493" stop-opacity=".7"/>
+          <stop offset="35%" stop-color="#c78933" stop-opacity=".3"/>
+          <stop offset="75%" stop-color="#2c120d" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="crimsonBand" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#591015" stop-opacity=".0"/>
+          <stop offset="30%" stop-color="#7f1620" stop-opacity=".6"/>
+          <stop offset="65%" stop-color="#c16e2a" stop-opacity=".18"/>
+          <stop offset="100%" stop-color="#1d0b08" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+
+      <g opacity=".85">
+        <ellipse cx="730" cy="742" rx="285" ry="245" fill="url(#goldGlow)">
+          <animateTransform attributeName="transform" type="translate" values="0 0; -8 -18; 0 0" dur="18s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+
+      <g opacity=".65">
+        <path d="M410,1240 C590,1080 770,1110 966,930 L1008,1000 C834,1186 640,1228 462,1390 Z"
+              fill="url(#crimsonBand)">
+          <animateTransform attributeName="transform" type="translate" values="0 0; 12 -14; 0 0" dur="20s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <g opacity=".58">
+        <path d="M332,1530 C490,1386 652,1372 870,1218 L894,1270 C730,1414 564,1476 376,1640 Z"
+              fill="url(#crimsonBand)">
+          <animateTransform attributeName="transform" type="translate" values="0 0; -10 12; 0 0" dur="22s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <g opacity=".24" stroke="#e8c983" stroke-width="3" fill="none">
+        <ellipse cx="730" cy="742" rx="255" ry="205" transform="rotate(6 730 742)">
+          <animate attributeName="rx" values="255;268;255" dur="16s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="205;214;205" dur="16s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="730" cy="742" rx="224" ry="178" transform="rotate(6 730 742)">
+          <animate attributeName="rx" values="224;232;224" dur="19s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+    </svg>
+
+    <div class="layer foregroundCurtains"></div>
+    <div class="dust"></div>
+    <div class="balustrade"></div>
+
+    <canvas id="frontCanvas" class="layer" style="z-index:14"></canvas>
+    <div class="layer vignette" style="z-index:15"></div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <div class="date">2026-07-06</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-07-06";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const stage = document.getElementById('stage');
+  const back = document.getElementById('backCanvas');
+  const front = document.getElementById('frontCanvas');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+
+  function sizeCanvases(){
+    const rect = stage.getBoundingClientRect();
+    [back, front].forEach(c => {
+      c.width = Math.round(rect.width * devicePixelRatio);
+      c.height = Math.round(rect.height * devicePixelRatio);
+      c.style.width = rect.width + 'px';
+      c.style.height = rect.height + 'px';
+    });
+  }
+  sizeCanvases();
+  addEventListener('resize', sizeCanvases);
+
+  const rays = document.getElementById('rays');
+  for(let i=0;i<22;i++){
+    const d = document.createElement('div');
+    d.className='ray';
+    d.style.transform = `translate(-50%,-6%) rotate(${i*(360/22)}deg)`;
+    d.style.opacity = (0.38 + (i%4)*0.08).toFixed(2);
+    d.style.height = (36 + (i%5)*4) + '%';
+    d.style.width = (1.2 + (i%3)*0.45) + '%';
+    rays.appendChild(d);
+  }
+
+  const filmFrames = document.getElementById('filmFrames');
+  const frameCount = 12;
+  for(let i=0;i<frameCount;i++){
+    const fr = document.createElement('div');
+    fr.className = 'frame';
+    const scene = document.createElement('div');
+    scene.className = 'miniScene';
+
+    const glow = document.createElement('div');
+    glow.className = 'miniGlow';
+    scene.appendChild(glow);
+
+    const leftCurt = document.createElement('div');
+    leftCurt.className = 'miniCurtain left';
+    scene.appendChild(leftCurt);
+
+    const rightCurt = document.createElement('div');
+    rightCurt.className = 'miniCurtain right';
+    scene.appendChild(rightCurt);
+
+    const orb = document.createElement('div');
+    orb.className = 'miniOrb';
+    const scale = 0.88 + i * 0.022;
+    const shift = i * 1.7;
+    orb.style.transform = `translate(${shift}px, ${-i*0.8}px) scale(${scale})`;
+    orb.style.filter = `hue-rotate(${i*3}deg) saturate(${1 + i*0.015})`;
+    scene.appendChild(orb);
+
+    for(let r=0;r<8;r++){
+      const ray = document.createElement('div');
+      ray.className = 'miniRay';
+      ray.style.transform = `translate(-50%,-8%) rotate(${r*45 + i*3}deg)`;
+      ray.style.height = `${42 + (r%3)*6}%`;
+      scene.appendChild(ray);
+    }
+
+    fr.appendChild(scene);
+    filmFrames.appendChild(fr);
+  }
+
+  const motes = [];
+  for(let i=0;i<48;i++){
+    motes.push({
+      x:rnd(), y:rnd(), z:0.4+rnd()*0.9, r:0.8+rnd()*2.2, a:0.03+rnd()*0.08,
+      phase:rnd()*Math.PI*2
+    });
+  }
+
+  const urchins = [];
+  for(let i=0;i<5;i++){
+    urchins.push({
+      x: 0.64 + rnd()*0.24,
+      y: 0.30 + rnd()*0.22,
+      r: 18 + rnd()*34,
+      spikes: 20 + Math.floor(rnd()*12),
+      rot: rnd()*Math.PI*2,
+      speed: (rnd()*0.2 + 0.08) * (rnd() > 0.5 ? 1 : -1),
+      alpha: 0.12 + rnd()*0.12
+    });
+  }
+
+  function drawUrchin(ctx, cx, cy, r, spikes, rot, alpha, scaleY=1){
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rot);
+    ctx.scale(1, scaleY);
+    for(let i=0;i<spikes;i++){
+      const a = i / spikes * Math.PI * 2;
+      const len = r * (1.2 + 0.35*Math.sin(i*1.7));
+      ctx.save();
+      ctx.rotate(a);
+      const grad = ctx.createLinearGradient(0, 0, 0, -len);
+      grad.addColorStop(0, `rgba(218,179,108,${alpha*.6})`);
+      grad.addColorStop(0.35, `rgba(128,55,23,${alpha*.8})`);
+      grad.addColorStop(1, `rgba(18,8,8,0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(-r*0.06, -r*0.12);
+      ctx.lineTo(r*0.06, -r*0.12);
+      ctx.lineTo(r*0.018, -len);
+      ctx.lineTo(-r*0.018, -len);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    const core = ctx.createRadialGradient(-r*0.2,-r*0.25,r*0.1,0,0,r);
+    core.addColorStop(0, `rgba(244,228,193,${alpha*2.2})`);
+    core.addColorStop(0.18, `rgba(196,144,66,${alpha*1.8})`);
+    core.addColorStop(0.58, `rgba(90,34,21,${alpha*1.3})`);
+    core.addColorStop(1, `rgba(14,7,7,${alpha})`);
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.arc(0,0,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  let start = performance.now();
+  function animate(now){
+    const t = (now - start) * 0.001;
+    const w = back.width, h = back.height;
+
+    bctx.clearRect(0,0,w,h);
+    bctx.save();
+
+    const bgGrad = bctx.createRadialGradient(w*0.52, h*0.18, w*0.03, w*0.52, h*0.18, w*0.8);
+    bgGrad.addColorStop(0,'rgba(182,111,40,0.12)');
+    bgGrad.addColorStop(0.25,'rgba(70,28,17,0.08)');
+    bgGrad.addColorStop(1,'rgba(0,0,0,0)');
+    bctx.fillStyle = bgGrad;
+    bctx.fillRect(0,0,w,h);
+
+    for(const m of motes){
+      const x = m.x*w + Math.sin(t*0.11 + m.phase) * 18 * m.z * devicePixelRatio;
+      const y = m.y*h + Math.cos(t*0.09 + m.phase*0.7) * 14 * m.z * devicePixelRatio;
+      const rr = m.r * devicePixelRatio * (1 + 0.18*Math.sin(t*0.8 + m.phase));
+      const g = bctx.createRadialGradient(x,y,0,x,y,rr*3.5);
+      g.addColorStop(0,`rgba(238,214,167,${m.a})`);
+      g.addColorStop(0.35,`rgba(201,145,67,${m.a*0.45})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      bctx.fillStyle = g;
+      bctx.beginPath();
+      bctx.arc(x,y,rr*3.5,0,Math.PI*2);
+      bctx.fill();
+    }
+
+    for(let i=0;i<urchins.length;i++){
+      const u = urchins[i];
+      const x = u.x*w + Math.sin(t*0.19 + i)*18*devicePixelRatio;
+      const y = u.y*h + Math.cos(t*0.16 + i*0.8)*14*devicePixelRatio;
+      drawUrchin(bctx, x, y, u.r*devicePixelRatio, u.spikes, u.rot + t*u.speed, u.alpha, 0.96);
+    }
+
+    bctx.restore();
+
+    fctx.clearRect(0,0,w,h);
+    fctx.save();
+
+    const sweep = fctx.createLinearGradient(w*0.25, h*0.65, w*0.78, h*0.28);
+    sweep.addColorStop(0,'rgba(0,0,0,0)');
+    sweep.addColorStop(0.45,'rgba(233,191,111,0.06)');
+    sweep.addColorStop(0.55,'rgba(126,57,19,0.02)');
+    sweep.addColorStop(1,'rgba(0,0,0,0)');
+    fctx.fillStyle = sweep;
+    fctx.beginPath();
+    const offset = Math.sin(t*0.2)*30*devicePixelRatio;
+    fctx.moveTo(w*0.28+offset,h*0.9);
+    fctx.lineTo(w*0.92+offset,h*0.44);
+    fctx.lineTo(w*0.98+offset,h*0.5);
+    fctx.lineTo(w*0.34+offset,h*0.96);
+    fctx.closePath();
+    fctx.fill();
+
+    for(let j=0;j<2;j++){
+      const cx = w*(0.67 + j*0.08);
+      const cy = h*(0.39 + j*0.08);
+      drawUrchin(fctx, cx, cy, (16+j*7)*devicePixelRatio, 18+j*4, -t*0.12 + j, 0.1, 1);
+    }
+
+    fctx.restore();
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const freqs = [55, 82.41, 110];
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        osc.type = i === 1 ? 'triangle' : 'sine';
+        osc.frequency.value = f;
+        gain.gain.value = 0.004 + i*0.002;
+        lfo.frequency.value = 0.03 + i*0.011;
+        lfoGain.gain.value = 1.2 + i*0.8;
+        lfo.connect(lfoGain).connect(osc.frequency);
+        osc.connect(gain).connect(master);
+        osc.start();
+        lfo.start();
+      });
+
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (rnd()*2-1)*0.16;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 900;
+      noiseFilter.Q.value = 0.35;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.0025;
+
+      const noiseLfo = ctx.createOscillator();
+      const noiseLfoGain = ctx.createGain();
+      noiseLfo.frequency.value = 0.021;
+      noiseLfoGain.gain.value = 380;
+      noiseLfo.connect(noiseLfoGain).connect(noiseFilter.frequency);
+
+      noise.connect(noiseFilter).connect(noiseGain).connect(master);
+      noise.start();
+      noiseLfo.start();
+
+      if (ctx.state === 'suspended') {
+        const resume = () => { ctx.resume(); removeEventListener('pointerdown', resume); removeEventListener('keydown', resume); };
+        addEventListener('pointerdown', resume, {once:true});
+        addEventListener('keydown', resume, {once:true});
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>
