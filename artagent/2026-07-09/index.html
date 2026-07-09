@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-07-09</title>
+<style>
+  :root{
+    --bg:#0b0a0f;
+    --ink:#111015;
+    --red:#ff3b1f;
+    --hot:#ff7b00;
+    --acid:#e7ff2a;
+    --cyan:#31f0ff;
+    --mag:#ff28b8;
+    --lime:#82ff4d;
+    --white:#f2efe8;
+    --steel:#70737d;
+    --shadow:#000000;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:
+      radial-gradient(circle at 50% 10%, #2a1821 0%, #140f18 30%, #09090c 70%, #050507 100%);
+    overflow:hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg,#23151b 0%,#130d12 22%,#18141a 45%,#0f1114 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 25px 80px rgba(0,0,0,.55);
+  }
+
+  /* wall texture + paint haze */
+  #wall{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 18%, rgba(255,67,31,.22), transparent 28%),
+      radial-gradient(circle at 78% 16%, rgba(49,240,255,.14), transparent 26%),
+      radial-gradient(circle at 52% 78%, rgba(231,255,42,.11), transparent 32%),
+      linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.18));
+    filter:saturate(1.15) contrast(1.08);
+    pointer-events:none;
+  }
+  #wall::before, #wall::after{
+    content:"";
+    position:absolute; inset:-10%;
+    pointer-events:none;
+  }
+  #wall::before{
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,.015) 0 2px,
+        rgba(0,0,0,0) 2px 11px),
+      repeating-linear-gradient(0deg,
+        rgba(255,255,255,.012) 0 1px,
+        rgba(0,0,0,0) 1px 9px);
+    opacity:.35;
+    mix-blend-mode:soft-light;
+    transform:rotate(-1.2deg) scale(1.03);
+  }
+  #wall::after{
+    background:
+      radial-gradient(circle at 15% 30%, rgba(255,255,255,.08) 0 1px, transparent 2px),
+      radial-gradient(circle at 61% 48%, rgba(255,255,255,.05) 0 1px, transparent 2px),
+      radial-gradient(circle at 70% 82%, rgba(0,0,0,.12) 0 2px, transparent 3px),
+      radial-gradient(circle at 39% 67%, rgba(0,0,0,.08) 0 1px, transparent 3px);
+    background-size: 140px 140px, 180px 180px, 220px 220px, 200px 200px;
+    opacity:.45;
+    mix-blend-mode:overlay;
+  }
+
+  #background-video{
+    position:absolute;
+    left:8%;
+    top:10%;
+    width:84%;
+    height:56%;
+    object-fit:cover;
+    opacity:.84;
+    filter:saturate(1.25) contrast(1.05) brightness(.92) hue-rotate(-8deg);
+    clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);
+    mix-blend-mode:screen;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,.05),
+      0 0 50px rgba(255,82,30,.18),
+      0 15px 60px rgba(0,0,0,.5);
+  }
+
+  #videoMask{
+    position:absolute;
+    left:6%;
+    top:8%;
+    width:88%;
+    height:60%;
+    pointer-events:none;
+    background:
+      linear-gradient(115deg, rgba(255,255,255,.09), rgba(255,255,255,0) 22%),
+      linear-gradient(180deg, rgba(255,120,0,.12), rgba(0,0,0,0) 30%, rgba(0,0,0,.12) 100%);
+    clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);
+    mix-blend-mode:screen;
+    opacity:.8;
+  }
+
+  #videoFrame{
+    position:absolute;
+    left:4%;
+    top:6%;
+    width:92%;
+    height:64%;
+    pointer-events:none;
+    background:
+      linear-gradient(90deg, rgba(255,59,31,.85), rgba(255,59,31,0) 8%),
+      linear-gradient(180deg, rgba(49,240,255,.65), rgba(49,240,255,0) 10%),
+      linear-gradient(270deg, rgba(231,255,42,.7), rgba(231,255,42,0) 8%),
+      linear-gradient(0deg, rgba(255,40,184,.75), rgba(255,40,184,0) 11%);
+    filter:blur(1px);
+    opacity:.75;
+    transform:rotate(-2deg);
+    clip-path:polygon(8% 3%,98% 1%,92% 98%,2% 97%);
+    animation: frameShift 18s ease-in-out infinite;
+  }
+
+  #bands{
+    position:absolute; inset:0;
+    pointer-events:none;
+    mix-blend-mode:screen;
+    opacity:.9;
+  }
+  .band{
+    position:absolute;
+    left:-10%;
+    width:120%;
+    height:14%;
+    filter:blur(.2px);
+  }
+  .band.b1{
+    top:20%;
+    background:linear-gradient(90deg, transparent 0%, rgba(255,59,31,.08) 8%, rgba(255,59,31,.55) 24%, rgba(255,235,120,.4) 52%, rgba(255,59,31,.12) 82%, transparent 100%);
+    transform:rotate(-7deg);
+    animation: slideA 22s ease-in-out infinite;
+    clip-path:polygon(0 28%, 16% 0, 100% 10%, 100% 66%, 76% 100%, 0 88%);
+  }
+  .band.b2{
+    top:58%;
+    background:linear-gradient(90deg, transparent 0%, rgba(49,240,255,.05) 6%, rgba(49,240,255,.45) 26%, rgba(255,40,184,.42) 56%, rgba(49,240,255,.08) 82%, transparent 100%);
+    transform:rotate(8deg);
+    animation: slideB 26s ease-in-out infinite;
+    clip-path:polygon(0 30%, 20% 6%, 100% 0, 100% 72%, 80% 100%, 0 84%);
+  }
+  .band.b3{
+    top:72%;
+    background:linear-gradient(90deg, transparent 0%, rgba(231,255,42,.07) 10%, rgba(231,255,42,.35) 28%, rgba(255,123,0,.35) 62%, rgba(231,255,42,.08) 84%, transparent 100%);
+    transform:rotate(-4deg);
+    animation: slideC 30s ease-in-out infinite;
+    clip-path:polygon(0 18%, 10% 0, 100% 14%, 100% 84%, 88% 100%, 0 80%);
+  }
+
+  /* drips */
+  #drips{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .drip{
+    position:absolute;
+    top:-2%;
+    width:clamp(10px,1.1vw,15px);
+    border-radius:0 0 14px 14px;
+    transform-origin:top center;
+    opacity:.78;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));
+    animation: drip sway var(--dur) ease-in-out infinite;
+    animation-delay:var(--delay);
+  }
+  .drip::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-10px;
+    width:18px; height:18px;
+    margin-left:-9px;
+    border-radius:50%;
+    background:inherit;
+    filter:blur(.2px);
+  }
+
+  /* poster scraps */
+  #posters{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .poster{
+    position:absolute;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,241,233,.92));
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.22),
+      0 0 0 1px rgba(0,0,0,.08);
+    opacity:.95;
+    overflow:hidden;
+    mix-blend-mode:normal;
+  }
+  .poster::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.05) 0 2px, transparent 2px 8px),
+      radial-gradient(circle at 20% 30%, rgba(255,59,31,.18), transparent 24%),
+      radial-gradient(circle at 70% 60%, rgba(49,240,255,.15), transparent 28%),
+      radial-gradient(circle at 45% 75%, rgba(255,40,184,.12), transparent 18%);
+    mix-blend-mode:multiply;
+  }
+  .poster::after{
+    content:"";
+    position:absolute;
+    inset:auto 0 0 0;
+    height:18%;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.12));
+  }
+  .poster.p1{
+    left:5%;
+    top:61%;
+    width:28%;
+    height:16%;
+    transform:rotate(-9deg);
+    clip-path:polygon(0 3%, 95% 0, 100% 92%, 6% 100%);
+    animation: posterWobble1 21s ease-in-out infinite;
+  }
+  .poster.p2{
+    right:6%;
+    top:63%;
+    width:24%;
+    height:13%;
+    transform:rotate(7deg);
+    clip-path:polygon(5% 0, 100% 8%, 94% 100%, 0 92%);
+    animation: posterWobble2 24s ease-in-out infinite;
+  }
+  .poster.p3{
+    left:31%;
+    top:70%;
+    width:38%;
+    height:14%;
+    transform:rotate(-2deg);
+    clip-path:polygon(0 10%, 100% 0, 96% 100%, 4% 92%);
+    animation: posterWobble3 27s ease-in-out infinite;
+  }
+
+  /* svg layer */
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #terrainCanvas, #sprayCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:18px;
+    bottom:172px;
+    opacity:.58;
+    filter:saturate(.8) brightness(.82) drop-shadow(0 1px 1px rgba(0,0,0,.5));
+    z-index:30;
+  }
+
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    color:rgba(242,239,232,.5);
+    font-size:14px;
+    letter-spacing:1.5px;
+    z-index:40;
+    user-select:none;
+  }
+
+  #fadeEdge{
+    position:absolute; inset:0;
+    pointer-events:none;
+    box-shadow:
+      inset 0 0 140px rgba(0,0,0,.18),
+      inset 0 -120px 140px rgba(0,0,0,.22);
+  }
+
+  @keyframes slideA{
+    0%,100%{transform:translateX(-2%) rotate(-7deg) scaleX(1)}
+    50%{transform:translateX(2%) rotate(-5deg) scaleX(1.02)}
+  }
+  @keyframes slideB{
+    0%,100%{transform:translateX(2%) rotate(8deg) scaleX(1)}
+    50%{transform:translateX(-2%) rotate(6deg) scaleX(1.03)}
+  }
+  @keyframes slideC{
+    0%,100%{transform:translateX(-1%) rotate(-4deg) scaleX(1)}
+    50%{transform:translateX(2%) rotate(-2deg) scaleX(1.02)}
+  }
+  @keyframes frameShift{
+    0%,100%{transform:rotate(-2deg) scale(1)}
+    50%{transform:rotate(-1deg) scale(1.01)}
+  }
+  @keyframes posterWobble1{
+    0%,100%{transform:rotate(-9deg) translateY(0)}
+    50%{transform:rotate(-7deg) translateY(-4px)}
+  }
+  @keyframes posterWobble2{
+    0%,100%{transform:rotate(7deg) translateY(0)}
+    50%{transform:rotate(5deg) translateY(-3px)}
+  }
+  @keyframes posterWobble3{
+    0%,100%{transform:rotate(-2deg) translateY(0)}
+    50%{transform:rotate(0deg) translateY(-2px)}
+  }
+  @keyframes drip{
+    0%,100%{transform:scaleY(.98)}
+    50%{transform:scaleY(1.06)}
+  }
+  @keyframes sway{
+    0%,100%{margin-left:0}
+    50%{margin-left:1px}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="wall"></div>
+
+    <div id="videoFrame"></div>
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+    <div id="videoMask"></div>
+
+    <canvas id="terrainCanvas" width="1080" height="1920"></canvas>
+
+    <div id="bands">
+      <div class="band b1"></div>
+      <div class="band b2"></div>
+      <div class="band b3"></div>
+    </div>
+
+    <div id="posters">
+      <div class="poster p1"></div>
+      <div class="poster p2"></div>
+      <div class="poster p3"></div>
+    </div>
+
+    <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="sprayGrad1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff3b1f" stop-opacity=".95"/>
+          <stop offset="55%" stop-color="#ff7b00" stop-opacity=".72"/>
+          <stop offset="100%" stop-color="#fff28c" stop-opacity=".18"/>
+        </linearGradient>
+        <linearGradient id="sprayGrad2" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#31f0ff" stop-opacity=".8"/>
+          <stop offset="60%" stop-color="#31f0ff" stop-opacity=".22"/>
+          <stop offset="100%" stop-color="#31f0ff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="sprayGrad3" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#e7ff2a" stop-opacity=".65"/>
+          <stop offset="100%" stop-color="#ff28b8" stop-opacity=".22"/>
+        </linearGradient>
+        <filter id="softBlur">
+          <feGaussianBlur stdDeviation="9"/>
+        </filter>
+        <filter id="grainy">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="709" result="n"/>
+          <feColorMatrix type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncA type="table" tableValues="0 0 .1 .18"/>
+          </feComponentTransfer>
+        </filter>
+        <filter id="roughPaint">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="26" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="12"/>
+        </filter>
+        <mask id="edgeFade">
+          <rect x="0" y="0" width="1080" height="1920" fill="url(#fadeG)"/>
+        </mask>
+        <radialGradient id="fadeG" cx="50%" cy="50%" r="68%">
+          <stop offset="72%" stop-color="white"/>
+          <stop offset="92%" stop-color="rgba(255,255,255,.75)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+
+      <!-- angular landscape shards -->
+      <g opacity=".9" filter="url(#roughPaint)">
+        <polygon points="0,1080 240,980 392,1032 530,936 704,1006 858,940 1080,1012 1080,1320 0,1370" fill="url(#sprayGrad1)" opacity=".46"/>
+        <polygon points="0,1240 220,1196 398,1266 620,1168 820,1248 1080,1190 1080,1520 0,1620" fill="#101319" opacity=".78"/>
+        <polygon points="0,1380 168,1324 360,1416 556,1348 736,1456 928,1386 1080,1450 1080,1720 0,1780" fill="url(#sprayGrad2)" opacity=".24"/>
+        <polygon points="0,1558 250,1496 430,1560 660,1500 860,1592 1080,1530 1080,1920 0,1920" fill="#ff3b1f" opacity=".18"/>
+      </g>
+
+      <!-- raven stencil motif -->
+      <g transform="translate(760 250) rotate(12)" opacity=".9">
+        <path d="M0 75 L90 25 L186 68 L149 92 L225 126 L146 134 L168 198 L100 158 L38 202 L50 136 L0 122 L58 98 Z"
+              fill="#0c0d10"/>
+        <path d="M96 72 L130 58 L150 78 L127 96 Z" fill="#f2efe8" opacity=".12"/>
+        <path d="M145 135 L198 127 L162 142 Z" fill="#ff3b1f" opacity=".35"/>
+      </g>
+
+      <!-- spray halos -->
+      <g mask="url(#edgeFade)">
+        <ellipse cx="255" cy="310" rx="250" ry="140" fill="url(#sprayGrad1)" opacity=".22" filter="url(#softBlur)"/>
+        <ellipse cx="850" cy="520" rx="210" ry="120" fill="url(#sprayGrad2)" opacity=".22" filter="url(#softBlur)"/>
+        <ellipse cx="550" cy="1260" rx="320" ry="180" fill="url(#sprayGrad3)" opacity=".18" filter="url(#softBlur)"/>
+      </g>
+
+      <!-- block letters abstracted as forms, not readable title -->
+      <g opacity=".18" filter="url(#grainy)">
+        <polygon points="94,250 212,230 206,312 158,324 152,406 82,412" fill="#fff2c6"/>
+        <polygon points="272,244 374,252 396,334 342,334 338,414 270,408" fill="#ff7b00"/>
+        <polygon points="424,258 528,230 574,282 564,392 494,406 446,362 488,326 492,296 426,308" fill="#31f0ff"/>
+      </g>
+    </svg>
+
+    <div id="drips"></div>
+    <canvas id="sprayCanvas" width="1080" height="1920"></canvas>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+
+    <div id="fadeEdge"></div>
+    <div id="date">2026-07-09</div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-07-09";
+  function xmur3(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  function sfc32(a,b,c,d){
+    return function(){
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
+      let t = (a + b) | 0;
+      a = b ^ b >>> 9;
+      b = c + (c << 3) | 0;
+      c = (c << 21 | c >>> 11);
+      d = d + 1 | 0;
+      t = t + d | 0;
+      c = c + t | 0;
+      return (t >>> 0) / 4294967296;
+    }
+  }
+  const seed = xmur3(seedStr);
+  const rand = sfc32(seed(), seed(), seed(), seed());
+
+  const drips = document.getElementById('drips');
+  const dripColors = ['#ff3b1f','#31f0ff','#e7ff2a','#ff28b8','#ff7b00','#f2efe8'];
+  const dripXs = [5,12,19,27,36,44,53,61,70,79,87,94];
+  dripXs.forEach((x,i)=>{
+    const d = document.createElement('div');
+    d.className = 'drip';
+    const h = 90 + rand()*260;
+    d.style.left = x + '%';
+    d.style.height = h + 'px';
+    d.style.background = dripColors[i % dripColors.length];
+    d.style.setProperty('--dur', (14 + rand()*10) + 's');
+    d.style.setProperty('--delay', (-rand()*8) + 's');
+    d.style.opacity = 0.55 + rand()*0.25;
+    drips.appendChild(d);
+  });
+
+  // 2D value noise terrain + spray overlays
+  const terrain = document.getElementById('terrainCanvas');
+  const tctx = terrain.getContext('2d');
+  const spray = document.getElementById('sprayCanvas');
+  const sctx = spray.getContext('2d');
+
+  const W = terrain.width, H = terrain.height;
+
+  const perm = new Uint8Array(512);
+  const p = new Uint8Array(256);
+  for(let i=0;i<256;i++) p[i]=i;
+  for(let i=255;i>0;i--){
+    const j = Math.floor(rand()*(i+1));
+    const tmp = p[i]; p[i]=p[j]; p[j]=tmp;
+  }
+  for(let i=0;i<512;i++) perm[i]=p[i&255];
+
+  function fade(t){ return t*t*t*(t*(t*6-15)+10); }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function grad(hash,x,y){
+    const h = hash & 7;
+    const u = h<4 ? x : y;
+    const v = h<4 ? y : x;
+    return ((h&1)?-u:u) + ((h&2)?-v:v);
+  }
+  function noise2(x,y){
+    const X = Math.floor(x)&255;
+    const Y = Math.floor(y)&255;
+    x -= Math.floor(x); y -= Math.floor(y);
+    const u = fade(x), v = fade(y);
+    const A = perm[X] + Y, B = perm[X+1] + Y;
+    return lerp(
+      lerp(grad(perm[A],x,y), grad(perm[B],x-1,y), u),
+      lerp(grad(perm[A+1],x,y-1), grad(perm[B+1],x-1,y-1), u),
+      v
+    );
+  }
+  function fbm(x,y,oct=5){
+    let val=0, amp=.5, freq=1, sum=0;
+    for(let i=0;i<oct;i++){
+      val += amp*noise2(x*freq,y*freq);
+      sum += amp;
+      amp *= .5;
+      freq *= 2.02;
+    }
+    return val/sum;
+  }
+
+  const palette = [
+    [255,59,31],
+    [255,123,0],
+    [231,255,42],
+    [49,240,255],
+    [255,40,184]
+  ];
+
+  function mixColor(t){
+    const idx = Math.floor(t*(palette.length-1));
+    const frac = t*(palette.length-1)-idx;
+    const c1 = palette[idx];
+    const c2 = palette[Math.min(idx+1,palette.length-1)];
+    return [
+      Math.round(c1[0] + (c2[0]-c1[0])*frac),
+      Math.round(c1[1] + (c2[1]-c1[1])*frac),
+      Math.round(c1[2] + (c2[2]-c1[2])*frac)
+    ];
+  }
+
+  let last = 0;
+  function render(ms){
+    const t = ms * 0.00006;
+    tctx.clearRect(0,0,W,H);
+    sctx.clearRect(0,0,W,H);
+
+    // large terrain bands
+    for(let layer=0; layer<6; layer++){
+      const yBase = 850 + layer*120;
+      tctx.beginPath();
+      tctx.moveTo(0,H);
+      const step = 28;
+      for(let x=0; x<=W+step; x+=step){
+        const nx = x * 0.0023;
+        const n = fbm(nx + t*(0.6 + layer*0.08), layer*0.37 + t*0.2, 5);
+        const n2 = fbm(nx*0.7 - t*0.35, 10 + layer*0.14, 4);
+        const y = yBase - n*130 - n2*65 - Math.sin((x/W)*Math.PI*(1.6+layer*.12))*30;
+        tctx.lineTo(x,y);
+      }
+      tctx.lineTo(W,H);
+      tctx.closePath();
+
+      let grad = tctx.createLinearGradient(0,yBase-150,0,yBase+220);
+      if(layer===0){
+        grad.addColorStop(0,'rgba(255,123,0,0.55)');
+        grad.addColorStop(1,'rgba(25,17,20,0.0)');
+      } else if(layer===1){
+        grad.addColorStop(0,'rgba(255,59,31,0.34)');
+        grad.addColorStop(1,'rgba(10,10,14,0.68)');
+      } else if(layer===2){
+        grad.addColorStop(0,'rgba(49,240,255,0.22)');
+        grad.addColorStop(1,'rgba(8,8,12,0.72)');
+      } else if(layer===3){
+        grad.addColorStop(0,'rgba(231,255,42,0.16)');
+        grad.addColorStop(1,'rgba(8,8,10,0.8)');
+      } else if(layer===4){
+        grad.addColorStop(0,'rgba(255,40,184,0.16)');
+        grad.addColorStop(1,'rgba(15,16,20,0.84)');
+      } else {
+        grad.addColorStop(0,'rgba(242,239,232,0.08)');
+        grad.addColorStop(1,'rgba(6,6,8,0.9)');
+      }
+      tctx.fillStyle = grad;
+      tctx.fill();
+
+      tctx.save();
+      tctx.globalAlpha = .14;
+      tctx.lineWidth = 8 + layer;
+      tctx.strokeStyle = layer % 2 ? 'rgba(255,245,210,.22)' : 'rgba(0,0,0,.35)';
+      tctx.stroke();
+      tctx.restore();
+    }
+
+    // spray cloud ridges
+    for(let i=0;i<42;i++){
+      const px = ((i*29.7)%W);
+      const py = 220 + (i%7)*95 + Math.sin(t*35 + i)*18;
+      const r = 34 + (i%5)*18 + Math.sin(t*28+i*0.3)*8;
+      const n = fbm(i*0.1+t*4, py*0.002+t*3, 3)*0.5+0.5;
+      const c = mixColor(n);
+      const g = sctx.createRadialGradient(px,py,0,px,py,r*2.8);
+      g.addColorStop(0,`rgba(${c[0]},${c[1]},${c[2]},0.18)`);
+      g.addColorStop(.45,`rgba(${c[0]},${c[1]},${c[2]},0.08)`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      sctx.fillStyle = g;
+      sctx.beginPath();
+      sctx.arc(px,py,r*2.8,0,Math.PI*2);
+      sctx.fill();
+    }
+
+    // stencil blocks on terrain
+    for(let row=0; row<5; row++){
+      for(let i=0; i<14; i++){
+        const x = 40 + i*76 + ((row%2)*18);
+        const y = 1110 + row*95 + Math.sin(t*20 + i*0.5 + row)*8;
+        const w = 44 + (i%3)*8;
+        const h = 10 + (row%3)*4;
+        const n = fbm(x*0.01+t*2,y*0.01,2)*0.5+0.5;
+        const c = mixColor(n);
+        sctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.18 + row*0.02})`;
+        sctx.fillRect(x,y,w,h);
+      }
+    }
+
+    // raven eye-like marker integrated in lower terrain
+    sctx.save();
+    sctx.translate(165, 1495 + Math.sin(t*24)*8);
+    sctx.rotate(-0.14);
+    sctx.fillStyle = 'rgba(8,8,10,0.82)';
+    sctx.beginPath();
+    sctx.moveTo(0,28); sctx.lineTo(78,0); sctx.lineTo(162,24); sctx.lineTo(120,46); sctx.lineTo(168,76); sctx.lineTo(96,68); sctx.lineTo(44,88); sctx.lineTo(56,56);
+    sctx.closePath(); sctx.fill();
+    sctx.fillStyle = 'rgba(255,59,31,0.4)';
+    sctx.beginPath();
+    sctx.arc(92,40,7,0,Math.PI*2);
+    sctx.fill();
+    sctx.restore();
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  // subtle ambient audio only when top-level
+  if (window.self === window.top) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'sawtooth';
+      low.frequency.value = 43.65;
+
+      const mid = ctx.createOscillator();
+      mid.type = 'triangle';
+      mid.frequency.value = 87.31;
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.043;
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 8;
+
+      const lowGain = ctx.createGain();
+      lowGain.gain.value = 0.16;
+
+      const midGain = ctx.createGain();
+      midGain.gain.value = 0.08;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 380;
+      filter.Q.value = 0.6;
+
+      const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (rand()*2-1) * 0.45;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 620;
+      noiseFilter.Q.value = 0.8;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.02;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      low.connect(lowGain);
+      mid.connect(midGain);
+      lowGain.connect(filter);
+      midGain.connect(filter);
+      filter.connect(master);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      const startAudio = () => {
+        if (ctx.state === 'suspended') ctx.resume();
+        low.start();
+        mid.start();
+        lfo.start();
+        noise.start();
+
+        // very slow modulation loop
+        setInterval(() => {
+          const now = ctx.currentTime;
+          const base = 43.65 * (1 + (Math.floor((now/18)%4)*0.04));
+          low.frequency.linearRampToValueAtTime(base, now + 8);
+          mid.frequency.linearRampToValueAtTime(base*2.01, now + 8);
+          noiseGain.gain.linearRampToValueAtTime(0.012 + rand()*0.012, now + 10);
+          filter.frequency.linearRampToValueAtTime(280 + rand()*220, now + 10);
+        }, 9000);
+
+        window.removeEventListener('load', startAudio);
+      };
+      window.addEventListener('load', startAudio, {once:true});
+    }
+  }
+})();
+</script>
+</body>
+</html>
