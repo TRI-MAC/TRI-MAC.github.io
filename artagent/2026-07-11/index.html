@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-07-11</title>
+<style>
+  :root{
+    --paper:#f4eddc;
+    --paper2:#e6d8bb;
+    --ink:#171411;
+    --ink-soft:#3e3428;
+    --indigo:#31486b;
+    --mist:#9fb5c4;
+    --moss:#66724f;
+    --rust:#8e5239;
+    --rice:#fbf6e9;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#cfc3a7;
+    overflow:hidden;
+    font-family: Georgia, serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255,250,238,.95), rgba(244,237,220,.9) 22%, rgba(230,216,187,.86) 52%, rgba(207,188,150,.92) 100%);
+    box-shadow:0 18px 50px rgba(0,0,0,.28);
+  }
+
+  /* soft paper edges */
+  #frame::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.18), transparent 12%, transparent 88%, rgba(0,0,0,.05)),
+      linear-gradient(90deg, rgba(60,38,12,.07), transparent 8%, transparent 92%, rgba(60,38,12,.08));
+    pointer-events:none;
+    mix-blend-mode:multiply;
+  }
+
+  #frame::after{
+    content:"";
+    position:absolute; inset:-8%;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 58%, rgba(115,84,45,.09) 78%, rgba(80,52,22,.18) 100%);
+    filter:blur(18px);
+  }
+
+  #background-video{
+    position:absolute;
+    left:7%;
+    top:8%;
+    width:86%;
+    height:84%;
+    object-fit:cover;
+    opacity:.76;
+    filter:saturate(.88) contrast(1.02) brightness(.92) sepia(.22);
+    mix-blend-mode:multiply;
+    clip-path:ellipse(43% 39% at 50% 44%);
+    transform-origin:50% 48%;
+    animation: breatheVideo 22s ease-in-out infinite;
+  }
+
+  #videoVeil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 52% 42%, rgba(255,255,255,.16), transparent 22%),
+      radial-gradient(circle at 50% 44%, rgba(52,77,101,.14), transparent 30%),
+      linear-gradient(180deg, rgba(250,246,234,.15), rgba(88,72,47,.06) 70%, rgba(48,40,26,.08));
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  #wash{
+    position:absolute; inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 18% 16%, rgba(255,255,255,.45), transparent 18%),
+      radial-gradient(circle at 74% 10%, rgba(72,102,133,.10), transparent 18%),
+      radial-gradient(circle at 88% 70%, rgba(95,74,48,.08), transparent 22%),
+      radial-gradient(circle at 15% 84%, rgba(74,95,62,.08), transparent 16%);
+    opacity:.9;
+    filter:blur(12px);
+  }
+
+  svg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    overflow:visible;
+  }
+
+  #silkLayer{
+    mix-blend-mode:multiply;
+    opacity:.96;
+  }
+
+  #inkWashLayer{
+    mix-blend-mode:multiply;
+    opacity:.85;
+  }
+
+  #dewCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    opacity:.95;
+  }
+
+  #grain{
+    position:absolute; inset:0;
+    opacity:.22;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  .date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    font-size:12px;
+    color:rgba(28,22,17,.55);
+    letter-spacing:.08em;
+    z-index:20;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    right:10px;
+    top:1470px;
+    opacity:.58;
+    filter:sepia(.4) saturate(.5) brightness(.88);
+    z-index:7;
+    transform:rotate(-8deg);
+  }
+
+  @keyframes breatheVideo{
+    0%,100%{ transform:scale(1.02) translateY(0px);}
+    50%{ transform:scale(1.06) translateY(-8px);}
+  }
+
+  .slowSpin{
+    transform-origin:50% 44%;
+    animation: slowSpin 90s linear infinite;
+  }
+  @keyframes slowSpin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+
+  .pulseA{
+    animation:pulseA 12s ease-in-out infinite;
+    transform-origin:50% 44%;
+  }
+  @keyframes pulseA{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.018)}
+  }
+
+  .driftInk{
+    animation:driftInk 24s ease-in-out infinite;
+  }
+  @keyframes driftInk{
+    0%,100%{transform:translateY(0px) translateX(0px)}
+    50%{transform:translateY(7px) translateX(-4px)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <div id="videoVeil"></div>
+  <div id="wash"></div>
+
+  <svg viewBox="0 0 1080 1920" aria-hidden="true">
+    <defs>
+      <filter id="paperBlur"><feGaussianBlur stdDeviation="10"/></filter>
+      <filter id="inkFeather"><feGaussianBlur stdDeviation="1.2"/></filter>
+      <filter id="softBlur"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="bigBlur"><feGaussianBlur stdDeviation="18"/></filter>
+      <radialGradient id="moonWash" cx="50%" cy="36%" r="42%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.75)"/>
+        <stop offset="35%" stop-color="rgba(236,230,214,0.55)"/>
+        <stop offset="72%" stop-color="rgba(147,169,186,0.18)"/>
+        <stop offset="100%" stop-color="rgba(147,169,186,0)"/>
+      </radialGradient>
+      <radialGradient id="dewGrad" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+        <stop offset="25%" stop-color="#dbe7ef" stop-opacity=".82"/>
+        <stop offset="55%" stop-color="#9fb5c4" stop-opacity=".36"/>
+        <stop offset="100%" stop-color="#9fb5c4" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="webInk" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#2a241d"/>
+        <stop offset="50%" stop-color="#3b342c"/>
+        <stop offset="100%" stop-color="#1b1814"/>
+      </linearGradient>
+      <linearGradient id="branchInk" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#171411"/>
+        <stop offset="100%" stop-color="#4a3e30"/>
+      </linearGradient>
+      <mask id="edgeFade">
+        <rect width="1080" height="1920" fill="black"/>
+        <radialGradient id="maskGrad" cx="50%" cy="44%" r="48%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="78%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+        <circle cx="540" cy="840" r="760" fill="url(#maskGrad)"/>
+      </mask>
+    </defs>
+
+    <g id="inkWashLayer" class="driftInk">
+      <ellipse cx="545" cy="850" rx="390" ry="485" fill="url(#moonWash)" filter="url(#paperBlur)" opacity=".75"/>
+      <ellipse cx="465" cy="760" rx="300" ry="360" fill="#7f97a6" opacity=".08" filter="url(#bigBlur)"/>
+      <ellipse cx="650" cy="970" rx="335" ry="420" fill="#65553f" opacity=".06" filter="url(#bigBlur)"/>
+
+      <ellipse cx="225" cy="265" rx="190" ry="145" fill="#f7f2e6" opacity=".5" filter="url(#paperBlur)"/>
+      <ellipse cx="875" cy="300" rx="175" ry="120" fill="#d7e1e7" opacity=".32" filter="url(#paperBlur)"/>
+
+      <ellipse cx="150" cy="1425" rx="125" ry="210" fill="#687651" opacity=".16" filter="url(#softBlur)"/>
+      <ellipse cx="975" cy="1305" rx="140" ry="235" fill="#8d523d" opacity=".14" filter="url(#softBlur)"/>
+    </g>
+
+    <!-- branches framing the web -->
+    <g opacity=".98" filter="url(#inkFeather)">
+      <path d="M130 1850 C165 1670, 210 1495, 300 1315 C350 1214, 414 1128, 501 1038" stroke="url(#branchInk)" stroke-width="22" fill="none" stroke-linecap="round"/>
+      <path d="M980 1750 C918 1580, 858 1438, 776 1305 C713 1203, 645 1129, 565 1068" stroke="url(#branchInk)" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <path d="M274 1362 C232 1338, 210 1311, 194 1273" stroke="#2a231c" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M787 1282 C834 1261, 864 1236, 889 1190" stroke="#2a231c" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M242 1518 C198 1508, 170 1490, 145 1451" stroke="#2a231c" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M826 1438 C876 1435, 910 1418, 944 1386" stroke="#2a231c" stroke-width="8" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- web -->
+    <g id="silkLayer" mask="url(#edgeFade)" class="pulseA">
+      <g id="webGroup"></g>
+    </g>
+
+    <!-- dew foreground haze -->
+    <g opacity=".55">
+      <ellipse cx="540" cy="1590" rx="300" ry="90" fill="#f5efde" filter="url(#bigBlur)"/>
+    </g>
+
+    <!-- spider / stag beetle motif absent; concept doesn't require extra creature -->
+    <!-- corner leaves -->
+    <g opacity=".65" filter="url(#softBlur)">
+      <ellipse cx="120" cy="1700" rx="66" ry="150" fill="#6d7b57" transform="rotate(-20 120 1700)"/>
+      <ellipse cx="180" cy="1618" rx="44" ry="104" fill="#788564" transform="rotate(18 180 1618)"/>
+      <ellipse cx="965" cy="1640" rx="56" ry="132" fill="#8c5d41" transform="rotate(22 965 1640)"/>
+    </g>
+  </svg>
+
+  <canvas id="dewCanvas" width="1080" height="1920"></canvas>
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div class="date">2026-07-11</div>
+</div>
+
+<script>
+(() => {
+  const seedStr = "2026-07-11";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967295;
+  }
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const webGroup = document.getElementById('webGroup');
+
+  const cx = 540, cy = 860;
+  const maxR = 470;
+  const radialCount = 19;
+  const ringCount = 17;
+
+  const radialAngles = [];
+  for(let i=0;i<radialCount;i++){
+    const base = (-1.92 + (i/(radialCount-1))*3.82);
+    const jitter = (rand()-0.5)*0.12;
+    radialAngles.push(base + jitter);
+  }
+
+  function p(angle, r){
+    return {x: cx + Math.cos(angle)*r, y: cy + Math.sin(angle)*r*1.12};
+  }
+
+  function addLine(x1,y1,x2,y2,w,op,color,dash){
+    const el = document.createElementNS(svgNS,'line');
+    el.setAttribute('x1',x1); el.setAttribute('y1',y1);
+    el.setAttribute('x2',x2); el.setAttribute('y2',y2);
+    el.setAttribute('stroke',color || 'url(#webInk)');
+    el.setAttribute('stroke-width',w);
+    el.setAttribute('stroke-linecap','round');
+    el.setAttribute('opacity',op);
+    if(dash) el.setAttribute('stroke-dasharray',dash);
+    webGroup.appendChild(el);
+    return el;
+  }
+
+  function addPoly(points,w,op,color){
+    const el = document.createElementNS(svgNS,'polyline');
+    el.setAttribute('points',points.map(pt=>pt.x.toFixed(1)+","+pt.y.toFixed(1)).join(" "));
+    el.setAttribute('fill','none');
+    el.setAttribute('stroke',color || 'url(#webInk)');
+    el.setAttribute('stroke-width',w);
+    el.setAttribute('stroke-linecap','round');
+    el.setAttribute('stroke-linejoin','round');
+    el.setAttribute('opacity',op);
+    webGroup.appendChild(el);
+    return el;
+  }
+
+  const radii = [];
+  for(let r=0;r<ringCount;r++){
+    const t = r/(ringCount-1);
+    const rr = 55 + Math.pow(t,1.18) * (maxR-55);
+    radii.push(rr);
+  }
+
+  const strands = [];
+  for(let i=0;i<radialCount;i++){
+    const a = radialAngles[i];
+    const end = p(a, maxR * (0.92 + rand()*0.06));
+    strands.push(addLine(cx,cy,end.x,end.y,2.5 + rand()*1.1,0.74 + rand()*0.18,null));
+  }
+
+  for(let r=0;r<radii.length;r++){
+    const pts = [];
+    const rr = radii[r];
+    for(let i=0;i<radialCount;i++){
+      const a = radialAngles[i];
+      const local = rr * (0.985 + (rand()-0.5)*0.06);
+      const pt = p(a, local);
+      pt.x += (rand()-0.5) * (6 + rr*0.008);
+      pt.y += (rand()-0.5) * (6 + rr*0.008);
+      pts.push(pt);
+    }
+    pts.push(pts[0]);
+    addPoly(pts, 1.3 + r*0.05, 0.36 + (r/radii.length)*0.33, r % 3 === 0 ? '#3b342c' : 'url(#webInk)');
+  }
+
+  for(let i=0;i<radialCount-1;i++){
+    for(let r=2;r<radii.length-1;r+=3){
+      if(rand() < 0.72){
+        const a1 = radialAngles[i], a2 = radialAngles[i+1];
+        const rr = radii[r] * (0.98 + rand()*0.05);
+        const p1 = p(a1, rr), p2 = p(a2, rr * (0.985 + rand()*0.03));
+        addLine(p1.x,p1.y,p2.x,p2.y,0.9,0.18,'#65594c', `${8+Math.floor(rand()*8)} ${12+Math.floor(rand()*12)}`);
+      }
+    }
+  }
+
+  // suspended spider silhouette
+  const spider = document.createElementNS(svgNS,'g');
+  spider.setAttribute('opacity','0.82');
+  spider.setAttribute('class','slowSpin');
+  spider.innerHTML = `
+    <line x1="${cx+7}" y1="${cy-194}" x2="${cx+5}" y2="${cy-88}" stroke="#1a1713" stroke-width="1.6" opacity=".55"/>
+    <ellipse cx="${cx}" cy="${cy-52}" rx="18" ry="26" fill="#171411"/>
+    <ellipse cx="${cx}" cy="${cy-84}" rx="11" ry="12" fill="#171411"/>
+    <line x1="${cx-10}" y1="${cy-82}" x2="${cx-44}" y2="${cy-102}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx+10}" y1="${cy-82}" x2="${cx+42}" y2="${cy-103}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx-12}" y1="${cy-72}" x2="${cx-52}" y2="${cy-74}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx+12}" y1="${cy-72}" x2="${cx+50}" y2="${cy-75}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx-12}" y1="${cy-60}" x2="${cx-50}" y2="${cy-44}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx+12}" y1="${cy-60}" x2="${cx+50}" y2="${cy-42}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx-10}" y1="${cy-48}" x2="${cx-37}" y2="${cy-18}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+    <line x1="${cx+10}" y1="${cy-48}" x2="${cx+35}" y2="${cy-19}" stroke="#171411" stroke-width="3" stroke-linecap="round"/>
+  `;
+  webGroup.appendChild(spider);
+
+  // animated build reveal
+  const all = [...webGroup.children];
+  all.forEach((el, i) => {
+    const len = el.tagName === 'line'
+      ? Math.hypot(
+          parseFloat(el.getAttribute('x2'))-parseFloat(el.getAttribute('x1')),
+          parseFloat(el.getAttribute('y2'))-parseFloat(el.getAttribute('y1'))
+        )
+      : (el.getAttribute('points') || '').split(' ').length * 18;
+
+    if (el !== spider) {
+      el.style.strokeDasharray = `${len}`;
+      el.style.strokeDashoffset = `${len}`;
+      el.style.animation = `drawLoop 36s linear infinite`;
+      el.style.animationDelay = `${(i * 0.34).toFixed(2)}s`;
+    }
+  });
+
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes drawLoop{
+      0% { stroke-dashoffset: var(--len, 1000); opacity:0; }
+      8% { opacity: .0; }
+      22% { opacity: inherit; }
+      58% { stroke-dashoffset: 0; opacity: inherit; }
+      84% { stroke-dashoffset: 0; opacity: inherit; }
+      100% { stroke-dashoffset: 0; opacity: inherit; }
+    }
+  `;
+  document.head.appendChild(style);
+  all.forEach(el=>{
+    const arr = el.style.strokeDasharray;
+    if(arr) el.style.setProperty('--len', arr);
+  });
+
+  // dew canvas
+  const dewCanvas = document.getElementById('dewCanvas');
+  const ctx = dewCanvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function fitCanvas(canvas){
+    const cssW = canvas.clientWidth || 1080;
+    const cssH = canvas.clientHeight || 1920;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    const c = canvas.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fitCanvas(dewCanvas);
+
+  const dews = [];
+  for(let i=0;i<120;i++){
+    const ang = radialAngles[Math.floor(rand()*radialAngles.length)];
+    const rr = radii[2 + Math.floor(rand()*(radii.length-3))] * (0.96 + rand()*0.08);
+    const pt = p(ang + (rand()-0.5)*0.045, rr);
+    dews.push({
+      x: pt.x + (rand()-0.5)*8,
+      y: pt.y + (rand()-0.5)*8,
+      r: 1.6 + rand()*5.4,
+      ph: rand()*Math.PI*2,
+      amp: 0.16 + rand()*0.42
+    });
+  }
+
+  function drawDew(t){
+    ctx.clearRect(0,0,1080,1920);
+    for(const d of dews){
+      const tw = 0.72 + Math.sin(t*0.00042 + d.ph) * d.amp;
+      const alpha = 0.22 + ((tw+1)*0.5)*0.34;
+      const rr = d.r;
+      const g = ctx.createRadialGradient(d.x - rr*0.35, d.y - rr*0.4, rr*0.2, d.x, d.y, rr*1.8);
+      g.addColorStop(0, `rgba(255,255,255,${0.92*alpha})`);
+      g.addColorStop(0.35, `rgba(223,235,244,${0.62*alpha})`);
+      g.addColorStop(0.7, `rgba(159,181,196,${0.22*alpha})`);
+      g.addColorStop(1, `rgba(159,181,196,0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, rr*1.7, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = `rgba(255,255,255,${0.6*alpha})`;
+      ctx.beginPath();
+      ctx.arc(d.x - rr*0.3, d.y - rr*0.35, Math.max(0.6, rr*0.38), 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // soft ink shadow under web basin
+    const grad = ctx.createRadialGradient(540, 970, 80, 540, 970, 390);
+    grad.addColorStop(0,'rgba(47,39,30,0.05)');
+    grad.addColorStop(1,'rgba(47,39,30,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(540,970,380,260,0,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // grain
+  const grain = document.getElementById('grain');
+  fitCanvas(grain);
+  const gctx = grain.getContext('2d');
+  const img = gctx.createImageData(grain.width, grain.height);
+  for(let i=0;i<img.data.length;i+=4){
+    const v = 215 + Math.floor(rand()*40);
+    img.data[i]=v; img.data[i+1]=v-7; img.data[i+2]=v-18; img.data[i+3]=22;
+  }
+  gctx.putImageData(img,0,0);
+
+  function animate(t){
+    drawDew(t);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // subtle procedural audio when top-level only
+  if (window.self === window.top) {
+    const start = () => {
+      if (start.done) return;
+      start.done = true;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ac = new AC();
+      const master = ac.createGain();
+      master.gain.value = 0.016;
+      master.connect(ac.destination);
+
+      const o1 = ac.createOscillator();
+      const o2 = ac.createOscillator();
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      const f1 = ac.createBiquadFilter();
+      const f2 = ac.createBiquadFilter();
+
+      o1.type = 'sine';
+      o2.type = 'triangle';
+      o1.frequency.value = 146.83;
+      o2.frequency.value = 220.0;
+      f1.type = 'lowpass'; f1.frequency.value = 700;
+      f2.type = 'lowpass'; f2.frequency.value = 520;
+      lfo.type = 'sine'; lfo.frequency.value = 0.045;
+      lfoGain.gain.value = 18;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(o1.frequency);
+
+      const g1 = ac.createGain();
+      const g2 = ac.createGain();
+      g1.gain.value = 0.32;
+      g2.gain.value = 0.16;
+
+      o1.connect(f1); f1.connect(g1); g1.connect(master);
+      o2.connect(f2); f2.connect(g2); g2.connect(master);
+
+      o1.start(); o2.start(); lfo.start();
+    };
+    setTimeout(start, 600);
+  }
+})();
+</script>
+</body>
+</html>
