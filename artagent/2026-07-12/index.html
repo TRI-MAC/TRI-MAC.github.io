@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Generative Art 2026-07-12</title>
+<style>
+  :root{
+    --bg1:#120d1a;
+    --bg2:#241235;
+    --gold:#d4a93a;
+    --gold2:#f0d986;
+    --lapis:#23408e;
+    --ruby:#7e1430;
+    --emerald:#0f5a49;
+    --parch:#c4a56a;
+    --ink:#140d10;
+    --ivory:#efe1b9;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#09060d;
+    overflow:hidden;
+    font-family:Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(140% 90% at 50% 15%, #4b2c13 0%, #241235 30%, #140d1a 68%, #09060d 100%);
+    box-shadow:0 0 0 1px rgba(240,217,134,.18), 0 10px 50px rgba(0,0,0,.45);
+  }
+
+  /* layered background */
+  #bgCanvas, #illusionCanvas, #textureCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+  }
+  #bgCanvas{opacity:.95}
+  #textureCanvas{opacity:.18; mix-blend-mode:screen}
+  #illusionCanvas{opacity:.92}
+
+  .vignette, .haloFade{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  .vignette{
+    background:
+      radial-gradient(120% 120% at 50% 50%, rgba(0,0,0,0) 45%, rgba(0,0,0,.12) 68%, rgba(0,0,0,.44) 100%);
+  }
+  .haloFade{
+    background:
+      radial-gradient(85% 70% at 50% 45%, rgba(255,240,190,.08) 0%, rgba(255,240,190,.03) 35%, rgba(255,240,190,0) 72%);
+    filter:blur(12px);
+    animation:breath 16s ease-in-out infinite;
+  }
+
+  /* integrated art image */
+  #artWrap{
+    position:absolute;
+    left:14%;
+    top:28%;
+    width:55%;
+    height:31%;
+    transform:rotate(-4deg);
+    z-index:5;
+    animation:panelFloat 24s ease-in-out infinite;
+  }
+  #artBackGlow{
+    position:absolute; inset:-4%;
+    background:
+      radial-gradient(75% 70% at 50% 45%, rgba(212,169,58,.28), rgba(126,20,48,.16) 40%, rgba(35,64,142,.10) 60%, transparent 78%);
+    filter:blur(18px);
+    opacity:.75;
+  }
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.97;
+    filter:hue-rotate(-8deg) saturate(1.28) contrast(1.14) brightness(1.02) sepia(.14);
+    box-shadow:
+      0 0 0 1px rgba(240,217,134,.22),
+      0 18px 50px rgba(0,0,0,.45),
+      0 0 24px rgba(212,169,58,.12);
+  }
+  #artMask{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(90deg, rgba(20,13,16,.12), transparent 18%, transparent 80%, rgba(20,13,16,.2)),
+      linear-gradient(180deg, rgba(240,217,134,.08), transparent 28%, transparent 74%, rgba(36,18,53,.18));
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+
+  /* painterly bleed across image */
+  .paintBleed{
+    position:absolute;
+    border-radius:45% 55% 52% 48% / 40% 46% 54% 60%;
+    filter:blur(1.5px);
+    opacity:.88;
+    z-index:7;
+    transform-origin:center;
+  }
+  #bleed1{
+    left:5%; top:23%; width:44%; height:10%;
+    background:
+      linear-gradient(90deg, rgba(126,20,48,.96), rgba(185,58,69,.86), rgba(126,20,48,.35));
+    box-shadow:0 0 18px rgba(126,20,48,.16);
+    animation:bleedSway1 17s ease-in-out infinite;
+  }
+  #bleed2{
+    left:49%; top:34%; width:22%; height:17%;
+    background:
+      radial-gradient(circle at 30% 45%, rgba(212,169,58,.95), rgba(173,114,28,.88) 62%, rgba(91,53,17,.4) 100%);
+    border-radius:57% 43% 46% 54% / 53% 40% 60% 47%;
+    animation:bleedSway2 22s ease-in-out infinite;
+  }
+  #bleed3{
+    left:18%; top:52%; width:56%; height:9%;
+    background:
+      linear-gradient(90deg, rgba(15,90,73,.05), rgba(15,90,73,.92), rgba(35,64,142,.74), rgba(15,90,73,.1));
+    border-radius:60% 40% 42% 58% / 45% 55% 45% 55%;
+    animation:bleedSway3 19s ease-in-out infinite;
+  }
+  #bleed4{
+    left:57%; top:18%; width:19%; height:22%;
+    background:
+      radial-gradient(circle at 55% 45%, rgba(35,64,142,.95), rgba(50,72,160,.8) 55%, rgba(35,64,142,.15) 100%);
+    opacity:.78;
+    animation:bleedSway2 26s ease-in-out infinite reverse;
+  }
+
+  /* manuscript ornaments */
+  #ornaments{
+    position:absolute; inset:0; z-index:9; pointer-events:none;
+  }
+  #ornaments svg{
+    width:100%; height:100%; display:block;
+  }
+  .metal{
+    filter:drop-shadow(0 0 2px rgba(240,217,134,.25));
+  }
+
+  /* optical impossible object chamber */
+  #centerGroup{
+    position:absolute;
+    right:10%;
+    top:18%;
+    width:50%;
+    height:56%;
+    z-index:6;
+    animation:centerDrift 28s ease-in-out infinite;
+  }
+
+  /* foreground glazing */
+  #screenGlaze{
+    position:absolute; inset:0; z-index:10; pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(255,236,190,.05), rgba(255,236,190,0) 18%, rgba(255,236,190,0) 82%, rgba(255,236,190,.04)),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 1px, rgba(0,0,0,0) 1px 4px);
+    mix-blend-mode:soft-light;
+    opacity:.6;
+  }
+
+  #date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(239,225,185,.72);
+    font-size:13px;
+    letter-spacing:.08em;
+    z-index:12;
+    text-shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:73px;
+    bottom:118px;
+    opacity:.56;
+    z-index:11;
+    filter:sepia(.4) hue-rotate(8deg) saturate(.7) brightness(.82);
+    transform:rotate(-7deg);
+  }
+
+  @keyframes breath{
+    0%,100%{transform:scale(1); opacity:.92}
+    50%{transform:scale(1.03); opacity:.72}
+  }
+  @keyframes panelFloat{
+    0%,100%{transform:rotate(-4deg) translateY(0) scale(1)}
+    50%{transform:rotate(-2deg) translateY(-10px) scale(1.01)}
+  }
+  @keyframes bleedSway1{
+    0%,100%{transform:translateX(0) rotate(-2deg) scaleX(1)}
+    50%{transform:translateX(10px) rotate(1deg) scaleX(1.04)}
+  }
+  @keyframes bleedSway2{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(8px) scale(1.03)}
+  }
+  @keyframes bleedSway3{
+    0%,100%{transform:translateX(0) scaleX(1)}
+    50%{transform:translateX(-10px) scaleX(1.03)}
+  }
+  @keyframes centerDrift{
+    0%,100%{transform:translateY(0px) rotate(0deg)}
+    50%{transform:translateY(8px) rotate(.8deg)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="bgCanvas" width="1080" height="1920"></canvas>
+  <canvas id="illusionCanvas" width="1080" height="1920"></canvas>
+
+  <div id="artWrap">
+    <div id="artBackGlow"></div>
+    <img id="art-image" src="art.png" alt="">
+    <div id="artMask"></div>
+  </div>
+
+  <div id="bleed1" class="paintBleed"></div>
+  <div id="bleed2" class="paintBleed"></div>
+  <div id="bleed3" class="paintBleed"></div>
+  <div id="bleed4" class="paintBleed"></div>
+
+  <div id="centerGroup"></div>
+
+  <div id="ornaments">
+    <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldGrad" x1="0" x2="1">
+          <stop offset="0%" stop-color="#8f641d"/>
+          <stop offset="24%" stop-color="#d4a93a"/>
+          <stop offset="50%" stop-color="#f3dfa0"/>
+          <stop offset="76%" stop-color="#c6922e"/>
+          <stop offset="100%" stop-color="#7a5519"/>
+        </linearGradient>
+        <linearGradient id="blueGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#3960c2"/>
+          <stop offset="100%" stop-color="#193170"/>
+        </linearGradient>
+        <mask id="edgeFade">
+          <rect width="1080" height="1920" fill="black"/>
+          <rect x="70" y="70" width="940" height="1780" rx="36" fill="white"/>
+          <rect x="0" y="0" width="1080" height="1920" fill="url(#fadeGrad)"/>
+        </mask>
+        <radialGradient id="fadeGrad" cx="50%" cy="50%" r="70%">
+          <stop offset="72%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+      </defs>
+
+      <!-- illuminated border -->
+      <g opacity="0.95">
+        <rect x="38" y="38" width="1004" height="1844" rx="28" fill="none" stroke="url(#goldGrad)" stroke-width="8"/>
+        <rect x="62" y="62" width="956" height="1796" rx="22" fill="none" stroke="#5a1631" stroke-width="10"/>
+        <rect x="78" y="78" width="924" height="1764" rx="18" fill="none" stroke="url(#goldGrad)" stroke-width="4"/>
+      </g>
+
+      <!-- corner panels -->
+      <g class="metal" opacity="0.96">
+        <g transform="translate(106,106)">
+          <circle r="34" fill="url(#goldGrad)"/>
+          <rect x="28" y="-8" width="118" height="16" rx="8" fill="url(#goldGrad)"/>
+          <rect x="-8" y="28" width="16" height="118" rx="8" fill="url(#goldGrad)"/>
+          <circle cx="82" cy="0" r="12" fill="#7e1430"/>
+          <circle cx="0" cy="82" r="12" fill="#23408e"/>
+        </g>
+        <g transform="translate(974,106) scale(-1,1)">
+          <circle r="34" fill="url(#goldGrad)"/>
+          <rect x="28" y="-8" width="118" height="16" rx="8" fill="url(#goldGrad)"/>
+          <rect x="-8" y="28" width="16" height="118" rx="8" fill="url(#goldGrad)"/>
+          <circle cx="82" cy="0" r="12" fill="#7e1430"/>
+          <circle cx="0" cy="82" r="12" fill="#23408e"/>
+        </g>
+        <g transform="translate(106,1814) scale(1,-1)">
+          <circle r="34" fill="url(#goldGrad)"/>
+          <rect x="28" y="-8" width="118" height="16" rx="8" fill="url(#goldGrad)"/>
+          <rect x="-8" y="28" width="16" height="118" rx="8" fill="url(#goldGrad)"/>
+          <circle cx="82" cy="0" r="12" fill="#7e1430"/>
+          <circle cx="0" cy="82" r="12" fill="#23408e"/>
+        </g>
+        <g transform="translate(974,1814) scale(-1,-1)">
+          <circle r="34" fill="url(#goldGrad)"/>
+          <rect x="28" y="-8" width="118" height="16" rx="8" fill="url(#goldGrad)"/>
+          <rect x="-8" y="28" width="16" height="118" rx="8" fill="url(#goldGrad)"/>
+          <circle cx="82" cy="0" r="12" fill="#7e1430"/>
+          <circle cx="0" cy="82" r="12" fill="#23408e"/>
+        </g>
+      </g>
+
+      <!-- knotwork-like lattice with hard geometry -->
+      <g opacity="0.58">
+        <g fill="none" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round">
+          <path d="M165 252 H915"/>
+          <path d="M165 1668 H915"/>
+          <path d="M156 312 V1608"/>
+          <path d="M924 312 V1608"/>
+        </g>
+        <g fill="none" stroke="#f0d986" stroke-width="3" opacity="0.9">
+          <rect x="145" y="290" width="790" height="1340" rx="10"/>
+          <rect x="180" y="325" width="720" height="1270" rx="8"/>
+        </g>
+      </g>
+
+      <!-- jewel medallions -->
+      <g opacity="0.92">
+        <g transform="translate(540,180)">
+          <polygon points="0,-38 32,0 0,38 -32,0" fill="#23408e" stroke="url(#goldGrad)" stroke-width="6"/>
+          <circle r="10" fill="#f0d986"/>
+        </g>
+        <g transform="translate(540,1740)">
+          <polygon points="0,-38 32,0 0,38 -32,0" fill="#7e1430" stroke="url(#goldGrad)" stroke-width="6"/>
+          <circle r="10" fill="#f0d986"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <canvas id="textureCanvas" width="1080" height="1920"></canvas>
+  <div class="haloFade"></div>
+  <div class="vignette"></div>
+  <div id="screenGlaze"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-07-12</div>
+</div>
+
+<script>
+(function(){
+  const seedStr = "2026-07-12";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = ((seed * 131) + seedStr.charCodeAt(i)) >>> 0;
+  function rand(){
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  const bg = document.getElementById('bgCanvas');
+  const btx = bg.getContext('2d');
+
+  const tex = document.getElementById('textureCanvas');
+  const ttx = tex.getContext('2d');
+
+  const ill = document.getElementById('illusionCanvas');
+  const ctx = ill.getContext('2d');
+
+  const W = 1080, H = 1920;
+  const cx = 540, cy = 980;
+
+  function drawParchmentGlow(time){
+    btx.clearRect(0,0,W,H);
+
+    const g1 = btx.createLinearGradient(0,0,0,H);
+    g1.addColorStop(0, "#3a1d16");
+    g1.addColorStop(0.22, "#201130");
+    g1.addColorStop(0.58, "#1a1030");
+    g1.addColorStop(1, "#0b0810");
+    btx.fillStyle = g1;
+    btx.fillRect(0,0,W,H);
+
+    const rg = btx.createRadialGradient(cx, 780, 80, cx, 860, 980);
+    rg.addColorStop(0, "rgba(240,217,134,0.22)");
+    rg.addColorStop(0.3, "rgba(212,169,58,0.10)");
+    rg.addColorStop(0.65, "rgba(35,64,142,0.08)");
+    rg.addColorStop(1, "rgba(0,0,0,0)");
+    btx.fillStyle = rg;
+    btx.fillRect(0,0,W,H);
+
+    const columns = 10;
+    const top = 180, bottom = 1740;
+    const step = (W-220) / columns;
+    for(let i=0;i<=columns;i++){
+      const x = 110 + i*step;
+      const alpha = 0.04 + 0.02*Math.sin(time*0.00016 + i*0.8);
+      btx.fillStyle = `rgba(240,217,134,${alpha})`;
+      btx.fillRect(x, top, 2, bottom-top);
+    }
+
+    for(let y=0;y<12;y++){
+      const yy = 220 + y*128;
+      btx.fillStyle = `rgba(126,20,48,${0.025 + 0.015*Math.sin(time*0.00022 + y)})`;
+      btx.fillRect(120, yy, 840, 4);
+    }
+  }
+
+  function drawTexture(){
+    ttx.clearRect(0,0,W,H);
+    for(let i=0;i<3200;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const a = rand()*0.09;
+      const r = rand()<0.5 ? 1 : 2;
+      ttx.fillStyle = `rgba(${220+Math.floor(rand()*25)},${190+Math.floor(rand()*45)},${120+Math.floor(rand()*35)},${a})`;
+      ttx.fillRect(x,y,r,r);
+    }
+    for(let i=0;i<160;i++){
+      const y = rand()*H;
+      const h = 1 + rand()*2;
+      ttx.fillStyle = `rgba(255,230,180,${0.018 + rand()*0.02})`;
+      ttx.fillRect(80,y,920,h);
+    }
+  }
+  drawTexture();
+
+  function poly(points, fill, stroke, lineWidth){
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for(let i=1;i<points.length;i++) ctx.lineTo(points[i][0], points[i][1]);
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if(stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth || 1; ctx.stroke(); }
+  }
+
+  function drawImpossibleTriangle(time){
+    const t = time * 0.00022;
+    const scale = 0.96 + 0.03*Math.sin(t*1.1);
+    const rot = Math.sin(t*0.7)*0.08;
+
+    ctx.save();
+    ctx.translate(640, 920);
+    ctx.rotate(rot);
+    ctx.scale(scale, scale);
+
+    const R = 280;
+    const thick = 96;
+    const h = Math.sqrt(3)/2 * R*2;
+
+    const A = [0, -R];
+    const B = [R*0.866, R*0.5];
+    const C = [-R*0.866, R*0.5];
+
+    function beam(p1,p2,offset,color1,color2){
+      const dx = p2[0]-p1[0], dy = p2[1]-p1[1];
+      const len = Math.hypot(dx,dy);
+      const nx = -dy/len * offset, ny = dx/len * offset;
+      const pts = [
+        [p1[0]+nx, p1[1]+ny],
+        [p2[0]+nx, p2[1]+ny],
+        [p2[0]-nx, p2[1]-ny],
+        [p1[0]-nx, p1[1]-ny]
+      ];
+      const grad = ctx.createLinearGradient(p1[0],p1[1],p2[0],p2[1]);
+      grad.addColorStop(0,color1);
+      grad.addColorStop(1,color2);
+      poly(pts, grad, "rgba(240,217,134,0.85)", 3);
+      return pts;
+    }
+
+    const side1 = beam(A,B, thick/2, "#f0d986", "#b68127");
+    const side2 = beam(B,C, thick/2, "#23408e", "#5d83db");
+    const side3 = beam(C,A, thick/2, "#7e1430", "#d86d84");
+
+    // impossible overlaps
+    poly([
+      [A[0]+20, A[1]+30],
+      [A[0]+116, A[1]+84],
+      [A[0]+74, A[1]+154],
+      [A[0]-22, A[1]+104]
+    ], "#f0d986", "rgba(120,82,18,.8)", 2);
+
+    poly([
+      [B[0]-145, B[1]-52],
+      [B[0]-50, B[1]-3],
+      [B[0]-85, B[1]+68],
+      [B[0]-180, B[1]+18]
+    ], "#5f7fd8", "rgba(16,25,60,.65)", 2);
+
+    poly([
+      [C[0]+44, C[1]-3],
+      [C[0]+138, C[1]-52],
+      [C[0]+174, C[1]+18],
+      [C[0]+78, C[1]+67]
+    ], "#b42d50", "rgba(60,10,24,.65)", 2);
+
+    // gold facets
+    for(let i=0;i<3;i++){
+      const ang = i*Math.PI*2/3 + t*0.4;
+      const x = Math.cos(ang)*78;
+      const y = Math.sin(ang)*54;
+      poly([[x,y-20],[x+22,y],[x,y+20],[x-22,y]], "rgba(240,217,134,0.7)", "rgba(255,245,210,0.35)", 1.5);
+    }
+
+    // illusion center
+    const rg = ctx.createRadialGradient(0,30,10,0,30,130);
+    rg.addColorStop(0,"rgba(255,247,210,0.85)");
+    rg.addColorStop(0.4,"rgba(212,169,58,0.38)");
+    rg.addColorStop(1,"rgba(212,169,58,0)");
+    ctx.fillStyle = rg;
+    ctx.beginPath();
+    ctx.arc(0,28,130,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawAmbiguousFloor(time){
+    const t = time*0.00018;
+    ctx.save();
+    ctx.translate(cx, 1200 + Math.sin(t)*6);
+
+    const rows = 8, cols = 6;
+    const tileW = 96, tileH = 56;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const x = (c - cols/2 + 0.5) * tileW + (r%2 ? tileW*0.5 : 0);
+        const y = r * tileH * 0.82;
+        const pulse = 0.08 + 0.05*Math.sin(t*3 + r*0.6 + c*0.7);
+
+        poly([[x,y],[x+tileW/2,y-tileH/2],[x+tileW,y],[x+tileW/2,y+tileH/2]],
+          `rgba(35,64,142,${0.5+pulse})`,
+          "rgba(240,217,134,0.18)", 1);
+
+        poly([[x,y],[x+tileW/2,y+tileH/2],[x+tileW/2,y+tileH],[x,y+tileH/2]],
+          `rgba(126,20,48,${0.38+pulse})`,
+          "rgba(240,217,134,0.10)", 1);
+
+        poly([[x+tileW,y],[x+tileW/2,y+tileH/2],[x+tileW/2,y+tileH],[x+tileW,y+tileH/2]],
+          `rgba(212,169,58,${0.30+pulse})`,
+          "rgba(240,217,134,0.09)", 1);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawRosettes(time){
+    const t = time * 0.00025;
+    const centers = [
+      [220, 420, 84, "#7e1430"],
+      [860, 520, 98, "#23408e"],
+      [790, 1460, 72, "#0f5a49"]
+    ];
+    centers.forEach((c, idx)=>{
+      const [x,y,r,col] = c;
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(t*(idx%2? -1:1)*0.8);
+      for(let i=0;i<12;i++){
+        ctx.rotate(Math.PI/6);
+        poly([[0,-r],[18,-r-28],[36,-r],[18,-r+18]], col, "rgba(240,217,134,0.65)", 2);
+      }
+      ctx.beginPath();
+      ctx.arc(0,0,r*0.42,0,Math.PI*2);
+      ctx.fillStyle="rgba(240,217,134,0.72)";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0,0,r*0.2,0,Math.PI*2);
+      ctx.fillStyle="rgba(20,13,16,0.5)";
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawGlyphBlocks(time){
+    const t = time * 0.001;
+    const ys = [360, 710, 1560];
+    ys.forEach((y, row)=>{
+      for(let i=0;i<9;i++){
+        const x = 190 + i*78 + (row===1 ? 30 : 0);
+        const h = 18 + 12*Math.sin(t + i*0.6 + row);
+        ctx.fillStyle = row===0 ? "rgba(240,217,134,0.38)" : row===1 ? "rgba(35,64,142,0.34)" : "rgba(126,20,48,0.34)";
+        ctx.fillRect(x, y, 48, h);
+        ctx.fillStyle = "rgba(240,217,134,0.18)";
+        ctx.fillRect(x, y+h+6, 28, 4);
+      }
+    });
+  }
+
+  function draw(){
+    const time = performance.now();
+    drawParchmentGlow(time);
+
+    ctx.clearRect(0,0,W,H);
+    drawRosettes(time);
+    drawGlyphBlocks(time);
+    drawAmbiguousFloor(time);
+    drawImpossibleTriangle(time);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // small procedural audio when top-level only
+  if (window.self === window.top) {
+    let started = false;
+    const startAudio = () => {
+      if (started) return;
+      started = true;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ac = new AC();
+
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const lfo = ac.createOscillator();
+      const lfoGain = ac.createGain();
+      lfo.frequency.value = 0.05;
+      lfoGain.gain.value = 18;
+
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const osc3 = ac.createOscillator();
+      osc1.type = "triangle";
+      osc2.type = "sine";
+      osc3.type = "sine";
+      osc1.frequency.value = 164.81;
+      osc2.frequency.value = 247.22;
+      osc3.frequency.value = 329.63;
+
+      const g1 = ac.createGain();
+      const g2 = ac.createGain();
+      const g3 = ac.createGain();
+      g1.gain.value = 0.016;
+      g2.gain.value = 0.010;
+      g3.gain.value = 0.008;
+
+      const filter = ac.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 620;
+      filter.Q.value = 0.4;
+
+      const convolver = ac.createConvolver();
+      const len = ac.sampleRate * 2.6;
+      const ir = ac.createBuffer(2, len, ac.sampleRate);
+      for(let ch=0; ch<2; ch++){
+        const data = ir.getChannelData(ch);
+        for(let i=0;i<len;i++){
+          const env = Math.pow(1 - i/len, 2.4);
+          data[i] = (Math.random()*2-1) * env * 0.22;
+        }
+      }
+      convolver.buffer = ir;
+
+      const wet = ac.createGain();
+      wet.gain.value = 0.18;
+      const dry = ac.createGain();
+      dry.gain.value = 0.82;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(filter); g2.connect(filter); g3.connect(filter);
+      filter.connect(dry); filter.connect(convolver);
+      convolver.connect(wet);
+      dry.connect(master); wet.connect(master);
+
+      osc1.start(); osc2.start(); osc3.start(); lfo.start();
+
+      setInterval(()=>{
+        const now = ac.currentTime;
+        const notes = [146.83, 164.81, 196.00, 220.00, 247.22, 293.66];
+        const n1 = notes[Math.floor(Math.random()*notes.length)];
+        const n2 = notes[(Math.floor(Math.random()*notes.length)+2)%notes.length];
+        osc1.frequency.linearRampToValueAtTime(n1, now + 8);
+        osc2.frequency.linearRampToValueAtTime(n1*1.5, now + 9);
+        osc3.frequency.linearRampToValueAtTime(n2, now + 10);
+      }, 9000);
+    };
+    startAudio();
+  }
+})();
+</script>
+</body>
+</html>
