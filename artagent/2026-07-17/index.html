@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Generative Art 2026-07-17</title>
+<style>
+  :root{
+    --bg:#05070b;
+    --char:#111214;
+    --sand:#7d5f3d;
+    --ochre:#b8873f;
+    --rust:#8e4a2f;
+    --bone:#e8e2d2;
+    --turq:#38d9d3;
+    --cyan:#89f7ff;
+    --red:#bf5338;
+    --grid:#0f2c33;
+    --scan:rgba(120,255,248,.055);
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    background:#000;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:system-ui, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 9 / 16));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 900px at 50% 8%, rgba(55,217,211,.15), transparent 60%),
+      linear-gradient(180deg, #030508 0%, #071018 25%, #10161b 46%, #1d1916 64%, #201811 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.6);
+  }
+
+  .layer,.hud,svg,canvas,img{position:absolute; inset:0; display:block}
+  #snowCanvas,#patternCanvas,#foxCanvas{width:100%;height:100%}
+  #patternCanvas{opacity:.96}
+  #snowCanvas{opacity:.95}
+  #foxCanvas{opacity:1}
+
+  #skyGlow{
+    position:absolute; inset:-6%;
+    background:
+      radial-gradient(circle at 50% 16%, rgba(73,255,241,.16), rgba(73,255,241,0) 28%),
+      radial-gradient(circle at 50% 20%, rgba(139,247,255,.07), rgba(139,247,255,0) 42%);
+    filter:blur(10px);
+    animation:breatheGlow 10s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  #scanlines{
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(180deg,
+        transparent 0 4px,
+        rgba(130,255,251,.028) 4px 5px,
+        transparent 5px 9px);
+    mix-blend-mode:screen;
+    opacity:.55;
+    pointer-events:none;
+  }
+
+  #vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 45%, transparent 45%, rgba(0,0,0,.16) 72%, rgba(0,0,0,.42) 100%);
+    pointer-events:none;
+  }
+
+  #date{
+    position:absolute;
+    right:20px;
+    bottom:14px;
+    color:rgba(210,240,245,.58);
+    font-size:13px;
+    letter-spacing:.16em;
+    z-index:30;
+    text-shadow:0 0 12px rgba(86,235,228,.2);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:78px;
+    bottom:320px;
+    opacity:.58;
+    filter:saturate(.5) hue-rotate(130deg) brightness(.82) contrast(1.05);
+    z-index:18;
+    transform:rotate(-8deg);
+  }
+
+  #hudSvg{
+    z-index:22;
+    opacity:.7;
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+
+  .hudline{
+    stroke:rgba(101,243,235,.45);
+    stroke-width:2;
+    fill:none;
+    stroke-linecap:square;
+  }
+  .hudsoft{
+    stroke:rgba(101,243,235,.22);
+    stroke-width:1;
+    fill:none;
+  }
+  .hudpulse{
+    animation:hudpulse 8s ease-in-out infinite;
+    transform-origin:center;
+  }
+  .driftA{animation:driftA 18s ease-in-out infinite}
+  .driftB{animation:driftB 22s ease-in-out infinite}
+  .driftC{animation:driftC 12s ease-in-out infinite}
+
+  @keyframes breatheGlow{
+    0%,100%{transform:scale(1) translateY(0); opacity:.95}
+    50%{transform:scale(1.04) translateY(10px); opacity:1}
+  }
+  @keyframes hudpulse{
+    0%,100%{opacity:.58}
+    50%{opacity:.9}
+  }
+  @keyframes driftA{
+    0%,100%{transform:translateY(0px)}
+    50%{transform:translateY(-10px)}
+  }
+  @keyframes driftB{
+    0%,100%{transform:translate(0,0)}
+    50%{transform:translate(-8px,10px)}
+  }
+  @keyframes driftC{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(6px)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="patternCanvas" width="1080" height="1920"></canvas>
+  <div id="skyGlow"></div>
+  <canvas id="foxCanvas" width="1080" height="1920"></canvas>
+  <canvas id="snowCanvas" width="1080" height="1920"></canvas>
+
+  <svg id="hudSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="turqFade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="20%" stop-color="#5effef"/>
+        <stop offset="80%" stop-color="#5effef"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </linearGradient>
+      <linearGradient id="vertFade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+        <stop offset="20%" stop-color="#5effef"/>
+        <stop offset="80%" stop-color="#5effef"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </linearGradient>
+      <filter id="softGlow">
+        <feGaussianBlur stdDeviation="5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <g class="hudpulse" filter="url(#softGlow)">
+      <line x1="110" y1="250" x2="970" y2="250" class="hudsoft"/>
+      <line x1="180" y1="1580" x2="900" y2="1580" class="hudsoft"/>
+      <line x1="270" y1="220" x2="270" y2="1660" class="hudsoft"/>
+      <line x1="810" y1="220" x2="810" y2="1660" class="hudsoft"/>
+    </g>
+
+    <g class="driftA">
+      <path d="M170 1340 L270 1340 L270 1440" class="hudline"/>
+      <path d="M910 1380 L810 1380 L810 1480" class="hudline"/>
+      <path d="M435 270 L540 220 L645 270" class="hudline"/>
+    </g>
+
+    <g class="driftB" filter="url(#softGlow)">
+      <circle cx="540" cy="305" r="92" class="hudsoft"/>
+      <circle cx="540" cy="305" r="134" class="hudsoft"/>
+      <circle cx="540" cy="305" r="176" class="hudsoft" opacity=".35"/>
+    </g>
+
+    <g class="driftC">
+      <rect x="468" y="1010" width="144" height="44" rx="0" ry="0" class="hudsoft"/>
+      <line x1="495" y1="1032" x2="585" y2="1032" class="hudline"/>
+      <line x1="430" y1="980" x2="650" y2="980" class="hudsoft"/>
+    </g>
+  </svg>
+
+  <div id="scanlines"></div>
+  <div id="vignette"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-07-17</div>
+</div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  const seedString = "2026-07-17";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5; seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function ease(t){ return 0.5 - 0.5*Math.cos(Math.PI*t); }
+  function poly(ctx, pts, fill, stroke=null, lw=1, alpha=1){
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    if(stroke){ ctx.lineWidth = lw; ctx.strokeStyle = stroke; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  const pattern = document.getElementById('patternCanvas');
+  const pctx = pattern.getContext('2d');
+
+  function drawPatternBackground(t){
+    pctx.clearRect(0,0,W,H);
+
+    const g = pctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#06080c');
+    g.addColorStop(.20,'#081018');
+    g.addColorStop(.45,'#13181c');
+    g.addColorStop(.75,'#2a2116');
+    g.addColorStop(1,'#20150f');
+    pctx.fillStyle = g;
+    pctx.fillRect(0,0,W,H);
+
+    // woven sky structure
+    pctx.save();
+    pctx.translate(W/2, 320);
+    const pulse = Math.sin(t*0.00035)*0.5+0.5;
+    for(let r=360; r>=110; r-=38){
+      pctx.globalAlpha = 0.06 + (360-r)/420 * 0.12;
+      pctx.beginPath();
+      pctx.arc(0,0,r,0,Math.PI*2);
+      pctx.lineWidth = 20;
+      pctx.strokeStyle = r%76===0 ? '#39d8d2' : '#8b6b3f';
+      pctx.stroke();
+    }
+    for(let i=0;i<24;i++){
+      const a = i/24*Math.PI*2 + t*0.00004;
+      const r1 = 112, r2 = 320 + pulse*20;
+      pctx.strokeStyle = i%3===0 ? 'rgba(98,248,238,.22)' : 'rgba(173,126,60,.18)';
+      pctx.lineWidth = i%2===0 ? 8 : 4;
+      pctx.beginPath();
+      pctx.moveTo(Math.cos(a)*r1, Math.sin(a)*r1);
+      pctx.lineTo(Math.cos(a)*r2, Math.sin(a)*r2);
+      pctx.stroke();
+    }
+    pctx.restore();
+
+    // stepped textile bands
+    const bands = [
+      {y:1160, h:78, c1:'#8e4a2f', c2:'#2bd7d0'},
+      {y:1248, h:88, c1:'#74552d', c2:'#d7c59a'},
+      {y:1348, h:96, c1:'#4d3221', c2:'#36dcd7'},
+      {y:1462, h:118, c1:'#a06d38', c2:'#1a2428'}
+    ];
+    bands.forEach((b,bi)=>{
+      pctx.save();
+      pctx.globalAlpha = .9;
+      pctx.fillStyle = b.c1;
+      pctx.fillRect(0,b.y,W,b.h);
+      const step = 72;
+      for(let x=-step; x<W+step; x+=step){
+        const off = (bi%2)*step/2;
+        const xx = x+off;
+        poly(pctx, [[xx,b.y+b.h/2],[xx+step/2,b.y],[xx+step,b.y+b.h/2],[xx+step/2,b.y+b.h]], b.c2, null, 0, .76);
+        poly(pctx, [[xx+16,b.y+b.h/2],[xx+step/2,b.y+16],[xx+step-16,b.y+b.h/2],[xx+step/2,b.y+b.h-16]], b.c1, null, 0, .95);
+      }
+      pctx.restore();
+    });
+
+    // snowfield planes
+    const wind = Math.sin(t*0.00018);
+    poly(pctx,
+      [[0,1140],[180,1100],[370,1118],[560,1060],[820,1106],[1080,1045],[1080,1920],[0,1920]],
+      '#d5d7d2'
+    );
+    poly(pctx,
+      [[0,1290],[240,1245],[420,1260],[610,1210],[820,1266],[1080,1225],[1080,1920],[0,1920]],
+      '#eeeadf'
+    );
+    poly(pctx,
+      [[0,1472],[190,1432],[410,1456],[615,1418],[790,1450],[1080,1400],[1080,1920],[0,1920]],
+      '#f7f1e5'
+    );
+
+    // digital contour glyphs embedded in snow
+    pctx.save();
+    pctx.globalAlpha = .18;
+    pctx.strokeStyle = '#50f0e8';
+    pctx.lineWidth = 2;
+    for(let y=1180; y<1700; y+=110){
+      pctx.beginPath();
+      for(let x=140; x<960; x+=140){
+        pctx.rect(x + ((y/110)%2)*18, y + Math.sin(x*0.01+t*0.0003+y)*4, 64, 18);
+      }
+      pctx.stroke();
+    }
+    pctx.restore();
+
+    // woven diamond motifs left and right
+    function motif(cx,cy,s,rot=0){
+      pctx.save();
+      pctx.translate(cx,cy);
+      pctx.rotate(rot);
+      poly(pctx, [[0,-s],[s,0],[0,s],[-s,0]], 'rgba(50,219,211,.22)', '#50efe7', 3, .9);
+      poly(pctx, [[0,-s*0.55],[s*0.55,0],[0,s*0.55],[-s*0.55,0]], 'rgba(14,18,22,.75)', '#d9c28c', 2, .9);
+      poly(pctx, [[0,-s*0.22],[s*0.22,0],[0,s*0.22],[-s*0.22,0]], '#c45a39', null, 0, .95);
+      pctx.restore();
+    }
+    motif(154,885,52,Math.PI/4);
+    motif(926,940,68,Math.PI/4);
+    motif(870,520,36,Math.PI/4);
+    motif(220,430,42,Math.PI/4);
+
+    // subtle grain blocks
+    const img = pctx.getImageData(0,0,W,H);
+    const d = img.data;
+    for(let i=0;i<d.length;i+=4){
+      const n = (rnd()-.5)*10;
+      d[i]+=n; d[i+1]+=n; d[i+2]+=n;
+    }
+    pctx.putImageData(img,0,0);
+  }
+
+  const foxCanvas = document.getElementById('foxCanvas');
+  const fctx = foxCanvas.getContext('2d');
+
+  const pathPts = [
+    {x:780,y:1100},
+    {x:710,y:1158},
+    {x:640,y:1210},
+    {x:590,y:1264},
+    {x:520,y:1326},
+    {x:450,y:1388},
+    {x:385,y:1458}
+  ];
+
+  function pathPoint(u){
+    const n = pathPts.length-1;
+    const m = u*n;
+    const i = Math.min(n-1, Math.floor(m));
+    const t = m-i;
+    const a = pathPts[i], b = pathPts[i+1];
+    return {x:lerp(a.x,b.x,t), y:lerp(a.y,b.y,t)};
+  }
+
+  function pathAngle(u){
+    const p1 = pathPoint(Math.max(0,u-0.01));
+    const p2 = pathPoint(Math.min(1,u+0.01));
+    return Math.atan2(p2.y-p1.y,p2.x-p1.x);
+  }
+
+  function drawFootprints(progress){
+    for(let i=0;i<13;i++){
+      const u = i/12 * Math.min(progress,1);
+      const p = pathPoint(u);
+      const ang = pathAngle(u) + Math.PI/2;
+      const spread = 22;
+      const side = i%2===0 ? -1 : 1;
+      const fx = p.x + Math.cos(ang)*spread*side;
+      const fy = p.y + Math.sin(ang)*spread*side;
+      fctx.save();
+      fctx.translate(fx,fy);
+      fctx.rotate(pathAngle(u)+ (side*0.22));
+      fctx.globalAlpha = .55 * Math.min(1, progress*1.3 - i*0.06 + .35);
+      fctx.fillStyle = 'rgba(86,102,114,.58)';
+      fctx.beginPath();
+      fctx.ellipse(0,0,15,8,0,0,Math.PI*2);
+      fctx.fill();
+      fctx.beginPath();
+      fctx.ellipse(-8,-8,4,3,0,0,Math.PI*2);
+      fctx.ellipse(-1,-11,4,3,0,0,Math.PI*2);
+      fctx.ellipse(6,-8,4,3,0,0,Math.PI*2);
+      fctx.fill();
+      fctx.restore();
+    }
+  }
+
+  function drawFox(t){
+    fctx.clearRect(0,0,W,H);
+    const cycle = 24000;
+    const phase = (t % cycle) / cycle;
+    const move = ease((phase<.92)? phase/.92 : 1);
+    const p = pathPoint(move);
+    const dir = pathAngle(move);
+    const bob = Math.sin(phase*Math.PI*10)*4;
+    const breath = Math.sin(t*0.0015)*1.8;
+    const tailSwing = Math.sin(phase*Math.PI*10 + 1.6)*0.16;
+    const legPhase = Math.sin(phase*Math.PI*10);
+
+    drawFootprints(move);
+
+    // cast shadow
+    fctx.save();
+    fctx.translate(p.x, p.y+22);
+    fctx.rotate(dir);
+    fctx.scale(1.08, .55);
+    fctx.fillStyle = 'rgba(0,0,0,.18)';
+    fctx.beginPath();
+    fctx.ellipse(0,10,116,44,0,0,Math.PI*2);
+    fctx.fill();
+    fctx.restore();
+
+    fctx.save();
+    fctx.translate(p.x, p.y + bob);
+    fctx.rotate(dir);
+
+    // body diamond / textile fox
+    poly(fctx,
+      [[-116,0],[-38,-42],[56,-36],[110,0],[42,36],[-52,40]],
+      '#b85e37','#ebdbb2',4,1
+    );
+    poly(fctx,
+      [[-66,0],[-20,-24],[34,-20],[66,0],[24,20],[-22,22]],
+      '#1c2227','#31ded5',3,.92
+    );
+    poly(fctx,
+      [[-8,-7],[12,-18],[34,-8],[16,8]],
+      '#d8c88e',null,0,.92
+    );
+
+    // chest
+    poly(fctx,
+      [[30,20],[68,8],[78,28],[50,46],[18,40]],
+      '#efe4ca',null,0,.95
+    );
+
+    // tail
+    fctx.save();
+    fctx.translate(-92,2);
+    fctx.rotate(-0.4 + tailSwing);
+    poly(fctx,
+      [[-10,0],[-106,-28],[-154,-14],[-170,8],[-118,26],[-30,14]],
+      '#9a4f31','#dfc692',4,1
+    );
+    poly(fctx,
+      [[-126,-18],[-168,-7],[-154,9],[-114,12]],
+      '#f2ece0',null,0,.95
+    );
+    poly(fctx,
+      [[-52,-8],[-100,-20],[-110,-2],[-62,6]],
+      '#34dbd5',null,0,.55
+    );
+    fctx.restore();
+
+    // head
+    fctx.save();
+    fctx.translate(106,-8-breath*.3);
+    poly(fctx,
+      [[-56,-18],[-10,-48],[44,-34],[66,-4],[38,26],[-20,24],[-50,2]],
+      '#bf5f38','#edd8ac',4,1
+    );
+    poly(fctx,
+      [[-6,-6],[32,-24],[40,-4],[22,18],[-12,16],[-22,2]],
+      '#f2e7cd',null,0,.95
+    );
+    // ears
+    poly(fctx, [[-24,-28],[-12,-74],[10,-30]], '#c75133','#eedeb6',3,1);
+    poly(fctx, [[16,-34],[28,-78],[48,-32]], '#c75133','#eedeb6',3,1);
+    poly(fctx, [[-18,-36],[-11,-58],[0,-34]], '#1c2327',null,0,.9);
+    poly(fctx, [[22,-40],[29,-61],[39,-37]], '#1c2327',null,0,.9);
+    // eye
+    fctx.fillStyle = '#0a0d0e';
+    fctx.fillRect(16,-4,11,4);
+    fctx.fillStyle = '#63fff1';
+    fctx.globalAlpha = .85;
+    fctx.fillRect(17,-5,8,2);
+    fctx.globalAlpha = 1;
+    // snout
+    poly(fctx, [[44,-6],[76,2],[46,12]], '#f6eddc', '#dfd0b0', 2, 1);
+    fctx.fillStyle = '#0d0f10';
+    fctx.beginPath(); fctx.arc(72,3,3.8,0,Math.PI*2); fctx.fill();
+    fctx.restore();
+
+    // legs
+    const legs = [
+      {x:-42,y:28,off: legPhase*6},
+      {x:-6,y:30,off:-legPhase*6},
+      {x:34,y:26,off:-legPhase*5},
+      {x:74,y:20,off: legPhase*5}
+    ];
+    legs.forEach((L,i)=>{
+      fctx.save();
+      fctx.translate(L.x, L.y + Math.abs(L.off)*0.2);
+      poly(fctx,
+        [[-8,0],[8,0],[10,54+L.off],[-4,54+L.off]],
+        i<2 ? '#7c4c31' : '#945634', '#d7c086', 2, 1
+      );
+      poly(fctx,
+        [[-6,52+L.off],[11,52+L.off],[14,62+L.off],[-10,62+L.off]],
+        '#f1eadc',null,0,1
+      );
+      fctx.restore();
+    });
+
+    // cyber breath
+    fctx.save();
+    fctx.translate(182,-12);
+    const ba = .18 + .08*Math.sin(t*0.0016);
+    fctx.strokeStyle = `rgba(108,255,245,${ba})`;
+    fctx.lineWidth = 5;
+    fctx.beginPath();
+    fctx.moveTo(0,0);
+    fctx.lineTo(36,-3);
+    fctx.lineTo(64,4);
+    fctx.stroke();
+    fctx.restore();
+
+    // rim light
+    fctx.globalCompositeOperation = 'screen';
+    fctx.strokeStyle = 'rgba(94,255,242,.32)';
+    fctx.lineWidth = 8;
+    fctx.beginPath();
+    fctx.moveTo(-94,-8); fctx.lineTo(-28,-40); fctx.lineTo(60,-34); fctx.lineTo(156,-22);
+    fctx.stroke();
+    fctx.restore();
+
+    // foreground snow notch crossing fox feet for integration
+    fctx.save();
+    fctx.globalAlpha = .92;
+    poly(fctx,
+      [[p.x-170,p.y+58],[p.x-56,p.y+44],[p.x+26,p.y+50],[p.x+110,p.y+36],[p.x+170,p.y+44],[p.x+194,p.y+70],[p.x-186,p.y+76]],
+      '#f7f1e5', null, 0, 1
+    );
+    fctx.restore();
+  }
+
+  const snowCanvas = document.getElementById('snowCanvas');
+  const sctx = snowCanvas.getContext('2d');
+  const flakes = [];
+  for(let i=0;i<78;i++){
+    flakes.push({
+      x:rnd()*W, y:rnd()*H, z:rnd(),
+      s:4+rnd()*10,
+      vx:-0.12-rnd()*0.45,
+      vy:0.3+rnd()*0.85,
+      a:0.35+rnd()*0.45,
+      r:rnd()*Math.PI*2
+    });
+  }
+
+  function drawSnow(t){
+    sctx.clearRect(0,0,W,H);
+    const wind = Math.sin(t*0.00022)*0.7;
+
+    flakes.forEach((f,i)=>{
+      let x = (f.x + (t*0.03)*(f.vx+wind*f.z)*10) % (W+80);
+      let y = (f.y + (t*0.03)*(f.vy+f.z*0.6)*10) % (H+80);
+      if(x< -40) x += W+80;
+      if(y< -40) y += H+80;
+      x -= 40; y -= 40;
+      const size = f.s*(0.45+f.z*0.9);
+      const rot = f.r + t*0.0002*(f.z-.5);
+
+      sctx.save();
+      sctx.translate(x,y);
+      sctx.rotate(rot);
+      sctx.globalAlpha = f.a*(0.45+f.z*0.8);
+      sctx.strokeStyle = i%6===0 ? 'rgba(98,248,238,.72)' : 'rgba(255,250,242,.84)';
+      sctx.lineWidth = 1.6 + f.z*1.3;
+      for(let k=0;k<4;k++){
+        sctx.rotate(Math.PI/4);
+        sctx.beginPath();
+        sctx.moveTo(-size*0.45,0);
+        sctx.lineTo(size*0.45,0);
+        sctx.stroke();
+      }
+      sctx.restore();
+    });
+
+    // wind veil
+    const gy = 1180 + Math.sin(t*0.0002)*18;
+    const grad = sctx.createLinearGradient(0,gy-120,0,gy+180);
+    grad.addColorStop(0,'rgba(130,245,248,0)');
+    grad.addColorStop(.5,'rgba(130,245,248,.06)');
+    grad.addColorStop(1,'rgba(255,255,255,0)');
+    sctx.fillStyle = grad;
+    sctx.fillRect(0,gy-180,W,260);
+  }
+
+  function frame(ts){
+    drawPatternBackground(ts);
+    drawFox(ts);
+    drawSnow(ts);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  if (window.self === window.top) {
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'triangle';
+      low.frequency.value = 57.5;
+
+      const high = ctx.createOscillator();
+      high.type = 'sine';
+      high.frequency.value = 229;
+
+      const lfo = ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.07;
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 7;
+
+      const filt = ctx.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.value = 560;
+      filt.Q.value = 0.4;
+
+      const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1)*0.28;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      noise.loop = true;
+
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 900;
+      noiseFilter.Q.value = 0.8;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.006;
+
+      low.connect(filt);
+      high.connect(filt);
+      filt.connect(master);
+      lfo.connect(lfoGain);
+      lfoGain.connect(high.frequency);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(master);
+
+      low.start();
+      high.start();
+      lfo.start();
+      noise.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
