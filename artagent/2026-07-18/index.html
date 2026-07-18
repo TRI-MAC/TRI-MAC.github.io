@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-07-18</title>
+<style>
+  :root{
+    --bg1:#08233a;
+    --bg2:#123f62;
+    --bg3:#021521;
+    --gold:#e6c56d;
+    --gold2:#b88b2d;
+    --ivory:#f2e8cc;
+    --rose:#c78aa0;
+    --teal:#6ed7db;
+    --cyan:#8af2ff;
+    --deep:#06111a;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 900px at 50% -10%, rgba(241,220,151,.22), transparent 55%),
+      radial-gradient(700px 900px at 50% 14%, rgba(85,178,198,.18), transparent 60%),
+      linear-gradient(180deg, #17486a 0%, #0b2941 20%, #0b2134 45%, #081724 72%, #041018 100%);
+    box-shadow:0 0 0 1px rgba(255,240,200,.12), 0 25px 80px rgba(0,0,0,.55);
+  }
+  #frame:before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,232,164,.08), transparent 30%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 2px, rgba(0,0,0,0) 2px 8px);
+    mix-blend-mode:screen;
+    opacity:.55;
+    pointer-events:none;
+  }
+  #frame:after{
+    content:"";
+    position:absolute; inset:-2%;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 58%, rgba(0,0,0,.14) 76%, rgba(0,0,0,.34) 100%);
+    pointer-events:none;
+  }
+
+  .layer,.ornament,svg,canvas,img{position:absolute}
+
+  #backCanvas,#frontCanvas{inset:0; width:100%; height:100%}
+
+  #art-image{
+    left:12%;
+    top:21%;
+    width:63%;
+    height:40%;
+    object-fit:cover;
+    opacity:.97;
+    filter:hue-rotate(170deg) saturate(1.2) contrast(1.08) brightness(.98);
+    transform:rotate(-5deg);
+    box-shadow:
+      0 18px 30px rgba(0,0,0,.24),
+      0 0 0 1px rgba(233,214,163,.2),
+      0 0 40px rgba(140,243,255,.12);
+    animation:imageDrift 22s ease-in-out infinite;
+  }
+
+  .image-haze{
+    position:absolute;
+    left:8%;
+    top:17%;
+    width:72%;
+    height:49%;
+    background:
+      radial-gradient(circle at 35% 40%, rgba(119,238,255,.13), transparent 36%),
+      radial-gradient(circle at 70% 60%, rgba(245,215,146,.15), transparent 42%),
+      linear-gradient(140deg, rgba(17,55,77,.06), rgba(4,12,20,.18));
+    filter:blur(18px);
+    opacity:.95;
+    animation:hazeShift 18s ease-in-out infinite;
+  }
+
+  .paint-blob{
+    position:absolute;
+    border-radius:48% 52% 44% 56% / 54% 39% 61% 46%;
+    filter:blur(1.2px);
+    opacity:.92;
+    mix-blend-mode:screen;
+  }
+  .blob1{
+    left:3%; top:33%; width:42%; height:12%;
+    background:linear-gradient(90deg, rgba(33,119,147,.0), rgba(102,233,244,.45), rgba(226,200,122,.55), rgba(33,119,147,.0));
+    transform:rotate(-7deg);
+    animation:bleedA 20s ease-in-out infinite;
+  }
+  .blob2{
+    left:47%; top:48%; width:40%; height:10%;
+    background:linear-gradient(90deg, rgba(218,182,85,.0), rgba(218,182,85,.48), rgba(130,238,255,.32), rgba(218,182,85,.0));
+    transform:rotate(8deg);
+    animation:bleedB 24s ease-in-out infinite;
+  }
+  .blob3{
+    left:18%; top:15%; width:55%; height:9%;
+    background:linear-gradient(90deg, rgba(129,239,255,0), rgba(129,239,255,.25), rgba(248,226,161,.3), rgba(129,239,255,0));
+    transform:rotate(-11deg);
+    opacity:.65;
+    animation:bleedC 26s ease-in-out infinite;
+  }
+
+  .drip{
+    position:absolute;
+    width:16px;
+    border-radius:0 0 14px 14px;
+    background:linear-gradient(180deg, rgba(224,197,116,.7), rgba(100,222,235,.18) 70%, rgba(100,222,235,0));
+    filter:blur(.4px);
+    transform-origin:top center;
+    animation:dripSway 13s ease-in-out infinite;
+    opacity:.7;
+  }
+
+  #ornate{
+    inset:0;
+    pointer-events:none;
+  }
+
+  .date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    color:rgba(244,235,205,.58);
+    font-size:13px;
+    letter-spacing:.08em;
+    z-index:40;
+    text-shadow:0 1px 0 rgba(0,0,0,.4);
+  }
+
+  #guinea-pig{
+    width:18px;
+    height:auto;
+    right:73px;
+    bottom:151px;
+    opacity:.58;
+    filter:saturate(.7) hue-rotate(150deg) brightness(.86);
+    z-index:14;
+  }
+
+  .veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.05), transparent 34%),
+      radial-gradient(ellipse at 50% 75%, rgba(18,65,91,.22), transparent 42%);
+    mix-blend-mode:screen;
+    opacity:.7;
+    animation:veilMove 30s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  @keyframes imageDrift{
+    0%,100%{transform:translateY(0px) rotate(-5deg) scale(1)}
+    50%{transform:translateY(12px) rotate(-3deg) scale(1.015)}
+  }
+  @keyframes hazeShift{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(8px,12px) scale(1.04)}
+  }
+  @keyframes bleedA{
+    0%,100%{transform:translateX(-1%) rotate(-7deg) scaleX(1)}
+    50%{transform:translateX(3%) rotate(-4deg) scaleX(1.08)}
+  }
+  @keyframes bleedB{
+    0%,100%{transform:translateX(0%) rotate(8deg) scaleX(1)}
+    50%{transform:translateX(-4%) rotate(11deg) scaleX(1.05)}
+  }
+  @keyframes bleedC{
+    0%,100%{transform:translateX(0%) rotate(-11deg)}
+    50%{transform:translateX(2%) rotate(-7deg)}
+  }
+  @keyframes dripSway{
+    0%,100%{transform:rotate(-1.5deg) scaleY(1)}
+    50%{transform:rotate(1.5deg) scaleY(1.08)}
+  }
+  @keyframes veilMove{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(16px)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="backCanvas" width="1080" height="1920"></canvas>
+
+    <div class="image-haze"></div>
+    <img id="art-image" src="art.png" alt="" />
+
+    <div class="paint-blob blob1"></div>
+    <div class="paint-blob blob2"></div>
+    <div class="paint-blob blob3"></div>
+
+    <div class="drip" style="left:20%;top:39%;height:140px;"></div>
+    <div class="drip" style="left:34%;top:20%;height:110px;opacity:.55"></div>
+    <div class="drip" style="left:58%;top:49%;height:130px;"></div>
+    <div class="drip" style="left:68%;top:15%;height:90px;opacity:.48"></div>
+
+    <svg id="ornate" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldLine" x1="0" x2="1">
+          <stop offset="0%" stop-color="rgba(230,197,109,0)"/>
+          <stop offset="20%" stop-color="rgba(230,197,109,.8)"/>
+          <stop offset="50%" stop-color="rgba(250,233,183,.95)"/>
+          <stop offset="80%" stop-color="rgba(184,139,45,.72)"/>
+          <stop offset="100%" stop-color="rgba(230,197,109,0)"/>
+        </linearGradient>
+        <radialGradient id="domeGlow">
+          <stop offset="0%" stop-color="rgba(143,240,255,.35)"/>
+          <stop offset="55%" stop-color="rgba(143,240,255,.08)"/>
+          <stop offset="100%" stop-color="rgba(143,240,255,0)"/>
+        </radialGradient>
+        <filter id="soft">
+          <feGaussianBlur stdDeviation="3"/>
+        </filter>
+        <mask id="edgeFade">
+          <rect width="1080" height="1920" fill="url(#fadeFill)"/>
+        </mask>
+        <radialGradient id="fadeFill" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="78%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+      </defs>
+
+      <g opacity=".95" mask="url(#edgeFade)">
+        <ellipse cx="540" cy="325" rx="290" ry="160" fill="url(#domeGlow)" />
+        <path d="M220 255 Q540 60 860 255" fill="none" stroke="url(#goldLine)" stroke-width="8"/>
+        <path d="M175 295 Q540 108 905 295" fill="none" stroke="url(#goldLine)" stroke-width="3.5" opacity=".65"/>
+        <path d="M250 196 Q540 84 830 196" fill="none" stroke="url(#goldLine)" stroke-width="2" opacity=".55"/>
+
+        <g opacity=".82">
+          <circle cx="540" cy="140" r="18" fill="rgba(247,227,165,.85)"/>
+          <circle cx="540" cy="140" r="36" fill="none" stroke="rgba(247,227,165,.4)" stroke-width="2"/>
+          <circle cx="540" cy="140" r="64" fill="none" stroke="rgba(247,227,165,.15)" stroke-width="1.5"/>
+        </g>
+
+        <g opacity=".6">
+          <path d="M72 480 C110 420 125 360 130 290" fill="none" stroke="rgba(242,232,204,.5)" stroke-width="3"/>
+          <path d="M1008 480 C970 420 955 360 950 290" fill="none" stroke="rgba(242,232,204,.5)" stroke-width="3"/>
+        </g>
+
+        <g opacity=".88">
+          <path d="M90 540 Q150 500 205 540 Q150 580 90 540Z" fill="rgba(198,157,66,.28)" stroke="rgba(245,225,168,.72)" stroke-width="2.2"/>
+          <path d="M990 540 Q930 500 875 540 Q930 580 990 540Z" fill="rgba(198,157,66,.28)" stroke="rgba(245,225,168,.72)" stroke-width="2.2"/>
+          <circle cx="148" cy="540" r="15" fill="rgba(132,238,248,.48)"/>
+          <circle cx="932" cy="540" r="15" fill="rgba(132,238,248,.48)"/>
+        </g>
+
+        <g opacity=".45">
+          <path d="M146 1290 Q290 1210 430 1290" fill="none" stroke="rgba(226,196,106,.42)" stroke-width="3"/>
+          <path d="M650 1290 Q790 1210 934 1290" fill="none" stroke="rgba(226,196,106,.42)" stroke-width="3"/>
+          <path d="M220 1350 Q540 1460 860 1350" fill="none" stroke="rgba(115,223,236,.22)" stroke-width="5"/>
+        </g>
+      </g>
+    </svg>
+
+    <div class="veil"></div>
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+    <canvas id="frontCanvas" width="1080" height="1920"></canvas>
+    <div class="date">2026-07-18</div>
+  </div>
+
+<script>
+(() => {
+  const seedString = "2026-07-18";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rnd() {
+    seed = (1664525 * seed + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+
+  const back = document.getElementById('backCanvas');
+  const front = document.getElementById('frontCanvas');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+
+  const W = back.width, H = back.height;
+  const centerX = W/2;
+
+  const jellys = [];
+  const cols = [
+    ['rgba(127,242,255,0.28)','rgba(255,235,182,0.22)','rgba(135,223,230,0.08)'],
+    ['rgba(255,214,141,0.24)','rgba(127,242,255,0.20)','rgba(255,239,201,0.08)'],
+    ['rgba(186,150,255,0.16)','rgba(122,239,255,0.25)','rgba(255,222,150,0.08)']
+  ];
+
+  function makeJelly(x, y, s, speed, phase, cset, arch){
+    const tentacles = [];
+    const tCount = 7 + Math.floor(rnd()*6);
+    for(let i=0;i<tCount;i++){
+      tentacles.push({
+        ox:(i-(tCount-1)/2)*(s*0.1) + (rnd()-0.5)*s*0.06,
+        len:s*(0.7 + rnd()*1.3),
+        swing:rnd()*Math.PI*2,
+        width:1.8 + rnd()*3.2
+      });
+    }
+    return {x,y,s,speed,phase,cset,tentacles,arch};
+  }
+
+  for(let i=0;i<9;i++){
+    const side = i%2===0 ? -1 : 1;
+    const lane = 220 + (i%4)*110;
+    const x = centerX + side*lane*(0.58 + rnd()*0.3);
+    const y = -120 + i*235 + rnd()*50;
+    const s = 70 + rnd()*90;
+    jellys.push(makeJelly(x,y,s, 0.18+rnd()*0.18, rnd()*Math.PI*2, cols[i%cols.length], side));
+  }
+  for(let i=0;i<5;i++){
+    const x = 280 + rnd()*520;
+    const y = 220 + i*320 + rnd()*100;
+    const s = 42 + rnd()*52;
+    jellys.push(makeJelly(x,y,s, 0.14+rnd()*0.12, rnd()*Math.PI*2, cols[(i+1)%cols.length], 0));
+  }
+
+  function drawBackground(t){
+    bctx.clearRect(0,0,W,H);
+
+    const grad = bctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'#1b5573');
+    grad.addColorStop(0.22,'#12425f');
+    grad.addColorStop(0.55,'#0a2438');
+    grad.addColorStop(1,'#041019');
+    bctx.fillStyle = grad;
+    bctx.fillRect(0,0,W,H);
+
+    for(let i=0;i<12;i++){
+      const y = (i/11)*H;
+      bctx.fillStyle = `rgba(255,230,170,${0.018 + 0.006*Math.sin(t*0.00018+i)})`;
+      bctx.fillRect(120,y, W-240, 1.5);
+    }
+
+    const archY = 180;
+    for(let k=0;k<4;k++){
+      bctx.strokeStyle = `rgba(228,198,109,${0.1 - k*0.02})`;
+      bctx.lineWidth = 12 - k*2.5;
+      bctx.beginPath();
+      bctx.ellipse(centerX, archY+10*k, 350+30*k, 120+18*k, 0, Math.PI, 0, true);
+      bctx.stroke();
+    }
+
+    const glow = bctx.createRadialGradient(centerX, 240, 10, centerX, 240, 320);
+    glow.addColorStop(0,'rgba(255,231,165,.18)');
+    glow.addColorStop(0.4,'rgba(135,237,252,.08)');
+    glow.addColorStop(1,'rgba(0,0,0,0)');
+    bctx.fillStyle = glow;
+    bctx.fillRect(0,0,W,700);
+
+    for(let i=0;i<36;i++){
+      const px = (i<18? 115:965) + Math.sin(i*3.1)*18;
+      const py = 260 + (i%18)*76;
+      const rr = 9 + (i%3)*4;
+      bctx.beginPath();
+      bctx.fillStyle = i%2 ? 'rgba(239,220,168,.16)' : 'rgba(118,232,244,.12)';
+      bctx.arc(px, py, rr, 0, Math.PI*2);
+      bctx.fill();
+      bctx.beginPath();
+      bctx.strokeStyle = 'rgba(241,225,181,.18)';
+      bctx.lineWidth = 1.5;
+      bctx.arc(px, py, rr+9, 0, Math.PI*2);
+      bctx.stroke();
+    }
+  }
+
+  function jellyBellPath(ctx, x, y, r, pulse){
+    ctx.beginPath();
+    ctx.moveTo(x-r*0.96, y+2);
+    ctx.quadraticCurveTo(x-r*0.72, y-r*(0.88+pulse*0.06), x, y-r*(0.86+pulse*0.08));
+    ctx.quadraticCurveTo(x+r*0.72, y-r*(0.88+pulse*0.06), x+r*0.96, y+2);
+    ctx.quadraticCurveTo(x+r*0.68, y+r*0.23, x, y+r*0.14);
+    ctx.quadraticCurveTo(x-r*0.68, y+r*0.23, x-r*0.96, y+2);
+    ctx.closePath();
+  }
+
+  function drawJelly(ctx, j, t, frontLayer){
+    const pulse = 0.5 + 0.5*Math.sin(t*0.0014 + j.phase);
+    const bob = Math.sin(t*0.0007 + j.phase)*18;
+    const x = j.x + Math.sin(t*0.00028 + j.phase*1.3) * (22 + j.s*0.03);
+    const y = ((j.y + t*j.speed) % (H + 500)) - 250 + bob;
+    const r = j.s * (0.92 + pulse*0.08);
+
+    ctx.save();
+
+    const glow = ctx.createRadialGradient(x, y-r*0.1, 0, x, y, r*2.4);
+    glow.addColorStop(0, j.cset[0]);
+    glow.addColorStop(0.35, j.cset[1]);
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, r*2.0, 0, Math.PI*2);
+    ctx.fill();
+
+    for(let idx=0; idx<j.tentacles.length; idx++){
+      const te = j.tentacles[idx];
+      const sway = Math.sin(t*0.001 + te.swing + j.phase) * (8 + idx*0.5);
+      const segs = 7;
+      let px = x + te.ox;
+      let py = y + r*0.06;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      for(let s=1;s<=segs;s++){
+        const yy = py + (te.len/segs)*s;
+        const xx = x + te.ox + Math.sin(t*0.0012 + te.swing + s*0.48 + j.phase) * sway * (s/segs);
+        ctx.lineTo(xx, yy);
+      }
+      ctx.strokeStyle = `rgba(132,239,255,${frontLayer?0.18:0.11})`;
+      ctx.lineWidth = te.width*(frontLayer?1.1:.8);
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      for(let s=1;s<=segs;s++){
+        const yy = py + (te.len/segs)*s;
+        const xx = x + te.ox + Math.sin(t*0.0011 + te.swing + s*0.45 + j.phase + 0.7) * sway * 0.6 * (s/segs);
+        ctx.lineTo(xx, yy);
+      }
+      ctx.strokeStyle = `rgba(244,225,171,${frontLayer?0.1:0.06})`;
+      ctx.lineWidth = Math.max(1, te.width*0.35);
+      ctx.stroke();
+    }
+
+    jellyBellPath(ctx, x, y, r, pulse);
+    const bellGrad = ctx.createLinearGradient(x, y-r, x, y+r*0.5);
+    bellGrad.addColorStop(0, 'rgba(246,238,215,0.55)');
+    bellGrad.addColorStop(0.35, 'rgba(136,240,255,0.22)');
+    bellGrad.addColorStop(1, 'rgba(240,203,124,0.14)');
+    ctx.fillStyle = bellGrad;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(246,232,188,0.5)';
+    ctx.lineWidth = frontLayer ? 2.3 : 1.6;
+    ctx.stroke();
+
+    for(let rr=0; rr<3; rr++){
+      ctx.beginPath();
+      ctx.ellipse(x, y-r*0.06 + rr*5, r*(0.42+rr*0.08), r*(0.14+rr*0.04), 0, 0, Math.PI);
+      ctx.strokeStyle = `rgba(255,241,206,${0.18-rr*0.04})`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+
+    if(frontLayer){
+      ctx.beginPath();
+      ctx.ellipse(x, y-r*0.28, r*0.24, r*0.1, -0.18, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.22)';
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  function drawFrontDecor(t){
+    fctx.clearRect(0,0,W,H);
+
+    for(let i=0;i<jellys.length;i++){
+      if(jellys[i].s < 95) continue;
+      drawJelly(fctx, jellys[i], t + 300*i, true);
+    }
+
+    fctx.save();
+    for(let i=0;i<8;i++){
+      const y = 1260 + i*70 + Math.sin(t*0.0005+i)*8;
+      fctx.strokeStyle = `rgba(230,198,110,${0.08 - i*0.006})`;
+      fctx.lineWidth = 3 - i*0.2;
+      fctx.beginPath();
+      fctx.ellipse(centerX, y, 400 - i*20, 54 + i*6, 0, Math.PI*0.02, Math.PI*0.98);
+      fctx.stroke();
+    }
+    fctx.restore();
+
+    const fog = fctx.createLinearGradient(0,1160,0,1820);
+    fog.addColorStop(0,'rgba(105,216,230,0)');
+    fog.addColorStop(0.35,'rgba(105,216,230,0.05)');
+    fog.addColorStop(1,'rgba(4,10,16,0.22)');
+    fctx.fillStyle = fog;
+    fctx.fillRect(0,1100,W,820);
+
+    for(let i=0;i<5;i++){
+      const x = 150 + i*195;
+      const y = 880 + Math.sin(t*0.00045+i)*14;
+      const rg = fctx.createRadialGradient(x,y,0,x,y,80);
+      rg.addColorStop(0,'rgba(255,236,190,0.13)');
+      rg.addColorStop(1,'rgba(255,236,190,0)');
+      fctx.fillStyle = rg;
+      fctx.beginPath();
+      fctx.arc(x,y,90,0,Math.PI*2);
+      fctx.fill();
+    }
+  }
+
+  function drawBackJellies(t){
+    for(let i=0;i<jellys.length;i++){
+      if(jellys[i].s >= 95) continue;
+      drawJelly(bctx, jellys[i], t + 240*i, false);
+    }
+  }
+
+  function animate(ts){
+    drawBackground(ts);
+    drawBackJellies(ts);
+    drawFrontDecor(ts);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      function makeVoice(freq, type, gainVal){
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+
+        o.type = type;
+        o.frequency.value = freq;
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.03 + Math.random()*0.04;
+        lfoG.gain.value = freq * 0.015;
+
+        lfo.connect(lfoG);
+        lfoG.connect(o.frequency);
+
+        g.gain.value = gainVal;
+        o.connect(g);
+        g.connect(master);
+        o.start();
+        lfo.start();
+      }
+
+      const resume = () => { if (ctx.state === 'suspended') ctx.resume(); };
+      document.addEventListener('visibilitychange', resume, {passive:true});
+      setTimeout(resume, 300);
+
+      makeVoice(76,'sine',0.28);
+      makeVoice(114,'triangle',0.12);
+      makeVoice(152,'sine',0.07);
+
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random()*2-1)*0.18;
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const band = ctx.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.value = 540;
+      band.Q.value = 0.5;
+
+      const ng = ctx.createGain();
+      ng.gain.value = 0.012;
+
+      const nLfo = ctx.createOscillator();
+      const nG = ctx.createGain();
+      nLfo.frequency.value = 0.05;
+      nG.gain.value = 180;
+      nLfo.connect(nG);
+      nG.connect(band.frequency);
+
+      noise.connect(band);
+      band.connect(ng);
+      ng.connect(master);
+      noise.start();
+      nLfo.start();
+    }
+  }
+})();
+</script>
+</body>
+</html>
