@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>2026-07-19</title>
+<style>
+  :root{
+    --bg:#f3efe2;
+    --ink:#0f1720;
+    --sand:#d9d1bb;
+    --stone:#b6aa8b;
+    --accent:#c05a2d;
+    --light:#fffaf0;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#dcd6c6;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:linear-gradient(180deg,#f4f1e7 0%,#ede6d2 52%,#d4c6a2 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.05), 0 30px 80px rgba(0,0,0,.18);
+  }
+
+  /* soft edge fade for all large forms */
+  .edge-fade{
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 62%, rgba(0,0,0,.9) 74%, rgba(0,0,0,0) 100%);
+            mask-image:radial-gradient(ellipse at center, #000 62%, rgba(0,0,0,.9) 74%, rgba(0,0,0,0) 100%);
+  }
+
+  #bgGradient{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(1200px 760px at 50% 18%, rgba(255,251,239,.95), rgba(255,251,239,0) 58%),
+      radial-gradient(900px 700px at 50% 80%, rgba(181,162,113,.17), rgba(181,162,113,0) 60%),
+      linear-gradient(180deg,#f7f3e8 0%,#eee6d0 48%,#d7c8a0 100%);
+    animation:breathe 28s ease-in-out infinite;
+  }
+
+  #noiseCanvas, #grainCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  #noiseCanvas{ opacity:.98; }
+  #grainCanvas{ opacity:.12; mix-blend-mode:multiply; }
+
+  .plane{
+    position:absolute;
+    left:0; width:100%;
+    transform-origin:center;
+    filter:blur(0.2px);
+  }
+  #planeBack{
+    bottom:31%;
+    height:28%;
+    background:
+      linear-gradient(180deg, rgba(255,250,239,.0) 0%, rgba(255,250,239,.0) 10%, rgba(255,255,255,.18) 40%, rgba(255,255,255,0) 100%);
+    opacity:.35;
+    animation:tiltA 34s ease-in-out infinite;
+  }
+  #planeMid{
+    bottom:19%;
+    height:31%;
+    background:
+      linear-gradient(180deg, rgba(15,23,32,0) 0%, rgba(15,23,32,.03) 40%, rgba(15,23,32,.06) 100%);
+    opacity:.28;
+    animation:tiltB 26s ease-in-out infinite;
+  }
+
+  #artWrap{
+    position:absolute;
+    left:16%;
+    top:28%;
+    width:69%;
+    height:31%;
+    z-index:4;
+    transform:translateZ(0) rotate(-2.2deg);
+    animation:artFloat 22s ease-in-out infinite;
+  }
+  #artShadow{
+    position:absolute;
+    inset:8% -2% -6% 2%;
+    background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,.18), rgba(0,0,0,0) 70%);
+    filter:blur(22px);
+    transform:translateY(20px) scale(1.02, .72);
+    opacity:.45;
+  }
+  #artBackPlate{
+    position:absolute;
+    inset:-3.5% -4.5%;
+    background:linear-gradient(180deg, rgba(255,252,245,.52), rgba(219,206,175,.24));
+    border-radius:2px;
+    filter:blur(.2px);
+  }
+  #art-image{
+    position:absolute;
+    inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:.97;
+    display:block;
+    filter:saturate(.76) contrast(1.06) brightness(.98) sepia(.14) hue-rotate(-8deg);
+    box-shadow:
+      0 0 0 1px rgba(20,20,20,.08),
+      0 16px 50px rgba(30,20,10,.22);
+  }
+  #artVeil{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,249,236,.14), rgba(255,249,236,.03) 22%, rgba(70,45,20,.05) 100%),
+      radial-gradient(circle at 22% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 30%);
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+
+  #sunDisc{
+    position:absolute;
+    width:290px; height:290px;
+    left:50%; top:12%;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,251,240,.98) 0%, rgba(255,248,227,.95) 38%, rgba(224,191,120,.46) 62%, rgba(224,191,120,0) 76%);
+    opacity:.9;
+    z-index:1;
+    animation:sunDrift 32s ease-in-out infinite;
+  }
+
+  #svgLayer{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    z-index:6;
+    overflow:visible;
+  }
+
+  .slowA{ animation:drift1 29s ease-in-out infinite; transform-origin:center; }
+  .slowB{ animation:drift2 23s ease-in-out infinite; transform-origin:center; }
+  .slowC{ animation:drift3 35s ease-in-out infinite; transform-origin:center; }
+
+  #occluderA, #occluderB, #occluderC{
+    position:absolute; z-index:7; pointer-events:none;
+    filter:blur(.15px);
+  }
+  #occluderA{
+    left:-6%; bottom:22%;
+    width:70%; height:22%;
+    background:linear-gradient(180deg, rgba(25,29,24,0) 0%, rgba(25,29,24,.16) 30%, rgba(25,29,24,.62) 100%);
+    clip-path:polygon(0 100%, 0 66%, 13% 58%, 28% 52%, 42% 47%, 58% 51%, 76% 45%, 100% 34%, 100% 100%);
+    animation:ridgeMove1 24s ease-in-out infinite;
+  }
+  #occluderB{
+    right:-8%; bottom:16%;
+    width:62%; height:18%;
+    background:linear-gradient(180deg, rgba(33,37,32,0) 0%, rgba(33,37,32,.15) 40%, rgba(33,37,32,.54) 100%);
+    clip-path:polygon(0 100%, 0 54%, 18% 48%, 36% 50%, 56% 44%, 76% 38%, 100% 28%, 100% 100%);
+    animation:ridgeMove2 27s ease-in-out infinite;
+  }
+  #occluderC{
+    left:8%; top:54%;
+    width:84%; height:10%;
+    background:linear-gradient(180deg, rgba(255,250,240,.0) 0%, rgba(255,247,230,.5) 42%, rgba(255,247,230,0) 100%);
+    clip-path:polygon(0 60%, 14% 53%, 31% 48%, 50% 52%, 69% 45%, 86% 40%, 100% 35%, 100% 100%, 0 100%);
+    opacity:.35;
+    animation:mistPass 31s ease-in-out infinite;
+  }
+
+  #foxMark{
+    position:absolute;
+    right:12.5%;
+    bottom:15.5%;
+    width:92px; height:62px;
+    z-index:8;
+    opacity:.72;
+    animation:foxBreath 18s ease-in-out infinite;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.08));
+  }
+
+  #date{
+    position:absolute;
+    right:24px;
+    bottom:18px;
+    z-index:12;
+    color:rgba(15,23,32,.42);
+    font-size:14px;
+    letter-spacing:.08em;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    height:auto;
+    left:10px;
+    bottom:152px;
+    z-index:9;
+    opacity:.56;
+    filter:saturate(.65) contrast(.9) brightness(.78);
+    transform:rotate(-8deg);
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1) translateY(0)}
+    50%{transform:scale(1.03) translateY(-8px)}
+  }
+  @keyframes artFloat{
+    0%,100%{transform:translateY(0) rotate(-2.2deg)}
+    50%{transform:translateY(-10px) rotate(-1.2deg)}
+  }
+  @keyframes sunDrift{
+    0%,100%{transform:translateX(-50%) scale(1)}
+    50%{transform:translateX(-50%) scale(1.06)}
+  }
+  @keyframes tiltA{
+    0%,100%{transform:translateY(0) scaleY(1)}
+    50%{transform:translateY(-10px) scaleY(1.03)}
+  }
+  @keyframes tiltB{
+    0%,100%{transform:translateY(0) scaleY(1)}
+    50%{transform:translateY(8px) scaleY(.98)}
+  }
+  @keyframes drift1{
+    0%,100%{transform:translateY(0) rotate(0deg)}
+    50%{transform:translateY(-10px) rotate(.8deg)}
+  }
+  @keyframes drift2{
+    0%,100%{transform:translateY(0) rotate(0deg)}
+    50%{transform:translateY(8px) rotate(-.7deg)}
+  }
+  @keyframes drift3{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-6px) scale(1.015)}
+  }
+  @keyframes ridgeMove1{
+    0%,100%{transform:translateX(0) translateY(0)}
+    50%{transform:translateX(10px) translateY(5px)}
+  }
+  @keyframes ridgeMove2{
+    0%,100%{transform:translateX(0) translateY(0)}
+    50%{transform:translateX(-10px) translateY(4px)}
+  }
+  @keyframes mistPass{
+    0%,100%{transform:translateX(0)}
+    50%{transform:translateX(12px)}
+  }
+  @keyframes foxBreath{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-2px) scale(1.015)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <div id="bgGradient" class="edge-fade"></div>
+    <div id="sunDisc" class="edge-fade"></div>
+
+    <canvas id="noiseCanvas"></canvas>
+    <canvas id="grainCanvas"></canvas>
+
+    <div id="planeBack" class="plane edge-fade"></div>
+    <div id="planeMid" class="plane edge-fade"></div>
+
+    <div id="artWrap">
+      <div id="artShadow"></div>
+      <div id="artBackPlate"></div>
+      <img id="art-image" src="art.png" alt="">
+      <div id="artVeil"></div>
+    </div>
+
+    <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fadeSand" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,250,239,0)"/>
+          <stop offset="55%" stop-color="rgba(224,206,160,0.52)"/>
+          <stop offset="100%" stop-color="rgba(145,122,76,0.62)"/>
+        </linearGradient>
+        <linearGradient id="darkSlope" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(20,24,22,0)"/>
+          <stop offset="100%" stop-color="rgba(20,24,22,0.7)"/>
+        </linearGradient>
+        <radialGradient id="discFade" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.9)"/>
+          <stop offset="58%" stop-color="rgba(255,246,219,0.48)"/>
+          <stop offset="100%" stop-color="rgba(255,246,219,0)"/>
+        </radialGradient>
+      </defs>
+
+      <g class="slowA" opacity="0.8">
+        <ellipse cx="540" cy="368" rx="228" ry="228" fill="url(#discFade)"/>
+      </g>
+
+      <g class="slowB" opacity="0.68">
+        <path d="M90 1080 C 280 1000, 430 1040, 570 1018 C 705 995, 856 915, 1006 886 L 1080 886 L 1080 1220 L 0 1220 L 0 1126 C 36 1114, 68 1098, 90 1080 Z"
+              fill="rgba(255,247,228,0.48)"/>
+      </g>
+
+      <g class="slowC">
+        <path d="M0 1410 C 174 1358, 298 1378, 474 1338 C 650 1298, 825 1238, 1080 1200 L1080 1920 L0 1920 Z"
+              fill="url(#fadeSand)"/>
+      </g>
+
+      <g opacity="0.92" class="slowA">
+        <path d="M190 1262 C 316 1210, 408 1244, 528 1218 C 660 1188, 742 1106, 928 1076 L 928 1108 C 756 1140, 658 1228, 530 1250 C 396 1274, 302 1244, 190 1292 Z"
+              fill="rgba(255,252,244,0.85)"/>
+      </g>
+
+      <g opacity="0.58" class="slowB">
+        <path d="M106 1490 C 248 1456, 416 1420, 602 1396 C 758 1376, 900 1374, 1050 1392 L 1050 1420 C 900 1400, 756 1406, 602 1424 C 410 1458, 250 1496, 106 1518 Z"
+              fill="rgba(255,249,235,0.55)"/>
+      </g>
+
+      <g opacity="0.88">
+        <rect x="0" y="1670" width="1080" height="260" fill="rgba(65,58,43,0.08)"/>
+      </g>
+    </svg>
+
+    <div id="occluderA" class="edge-fade"></div>
+    <div id="occluderB" class="edge-fade"></div>
+    <div id="occluderC" class="edge-fade"></div>
+
+    <!-- minimal fox motif -->
+    <svg id="foxMark" viewBox="0 0 160 100" aria-hidden="true">
+      <g fill="rgba(192,90,45,0.92)">
+        <polygon points="36,62 57,36 81,32 102,42 117,58 106,70 78,75 54,72"/>
+        <polygon points="56,40 49,18 67,33"/>
+        <polygon points="84,34 97,14 98,39"/>
+        <polygon points="109,58 145,36 129,62 152,74 108,70"/>
+      </g>
+      <circle cx="92" cy="50" r="2.5" fill="rgba(15,23,32,0.65)"/>
+      <polygon points="118,58 126,57 121,63" fill="rgba(255,250,240,0.9)"/>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+
+    <div id="date">2026-07-19</div>
+  </div>
+
+<script>
+(() => {
+  const seedString = "2026-07-19";
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i++) seed = (seed * 131 + seedString.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function smooth(t){ return t*t*(3-2*t); }
+
+  const canvas = document.getElementById('noiseCanvas');
+  const ctx = canvas.getContext('2d');
+  const grain = document.getElementById('grainCanvas');
+  const gtx = grain.getContext('2d');
+
+  let W = 1080, H = 1920, DPR = 1;
+  const palette = {
+    bg:[244,240,229],
+    light:[255,250,239],
+    mid:[206,192,155],
+    dark:[77,69,50],
+    accent:[192,90,45]
+  };
+
+  const perm = new Uint8Array(512);
+  const p = new Uint8Array(256);
+  for (let i=0;i<256;i++) p[i]=i;
+  for (let i=255;i>0;i--){
+    const j = Math.floor(rand()*(i+1));
+    const t = p[i]; p[i]=p[j]; p[j]=t;
+  }
+  for (let i=0;i<512;i++) perm[i]=p[i & 255];
+
+  function grad(hash, x, y){
+    const h = hash & 7;
+    const u = h < 4 ? x : y;
+    const v = h < 4 ? y : x;
+    return ((h&1)?-u:u) + ((h&2)?-2*v:2*v);
+  }
+  function noise2(x,y){
+    const X = Math.floor(x) & 255;
+    const Y = Math.floor(y) & 255;
+    x -= Math.floor(x); y -= Math.floor(y);
+    const u = smooth(x), v = smooth(y);
+    const aa = perm[X + perm[Y]];
+    const ab = perm[X + perm[Y + 1]];
+    const ba = perm[X + 1 + perm[Y]];
+    const bb = perm[X + 1 + perm[Y + 1]];
+    const g1 = grad(aa,x,y);
+    const g2 = grad(ba,x-1,y);
+    const g3 = grad(ab,x,y-1);
+    const g4 = grad(bb,x-1,y-1);
+    return lerp(lerp(g1,g2,u), lerp(g3,g4,u), v);
+  }
+  function fbm(x,y,oct=4){
+    let v=0, a=.5, f=1;
+    for(let i=0;i<oct;i++){
+      v += a * noise2(x*f,y*f);
+      f *= 2;
+      a *= .5;
+    }
+    return v;
+  }
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    DPR = Math.min(devicePixelRatio || 1, 2);
+    W = Math.round(rect.width);
+    H = Math.round(rect.height);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    grain.width = Math.round(W * DPR);
+    grain.height = Math.round(H * DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    gtx.setTransform(DPR,0,0,DPR,0,0);
+    drawGrain();
+  }
+
+  function drawGrain(){
+    const img = gtx.createImageData(W, H);
+    for(let i=0;i<img.data.length;i+=4){
+      const v = 216 + Math.floor(rand()*28);
+      img.data[i]=v; img.data[i+1]=v-5; img.data[i+2]=v-12; img.data[i+3]=18;
+    }
+    gtx.putImageData(img,0,0);
+  }
+
+  function ridgePath(baseY, amp, freq, phase, detail, drift){
+    const pts = [];
+    for(let x=-20; x<=W+20; x+=detail){
+      const nx = x / W;
+      const n = fbm(nx*freq + phase, baseY*0.001 + drift, 4);
+      const n2 = fbm(nx*freq*1.9 - phase*0.6, baseY*0.0007 + drift*1.5, 3);
+      const y = baseY + n*amp + n2*amp*0.35;
+      pts.push([x,y]);
+    }
+    return pts;
+  }
+
+  function fillRidge(pts, fill, alpha){
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function stripeField(t){
+    ctx.save();
+    ctx.globalAlpha = .08;
+    const bands = 12;
+    for(let i=0;i<bands;i++){
+      const y = H*0.17 + i*(H*0.045);
+      const h = H*0.016;
+      const wob = Math.sin(t*0.00018 + i*0.6)*8;
+      ctx.fillStyle = i%2===0 ? "rgba(255,252,244,0.55)" : "rgba(206,192,155,0.38)";
+      ctx.fillRect(0, y+wob, W, h);
+    }
+    ctx.restore();
+  }
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    stripeField(t);
+
+    const phase = t * 0.00003;
+    const sky = ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0, "rgba(255,252,245,0.20)");
+    sky.addColorStop(.4, "rgba(255,249,237,0.00)");
+    sky.addColorStop(1, "rgba(125,108,74,0.06)");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
+
+    const r1 = ridgePath(H*0.53, H*0.022, 2.4, phase, 10, 0.1);
+    const r2 = ridgePath(H*0.63, H*0.030, 2.0, phase+11.3, 10, 0.4);
+    const r3 = ridgePath(H*0.73, H*0.038, 1.7, phase+23.7, 8, 0.7);
+    const r4 = ridgePath(H*0.84, H*0.050, 1.4, phase+31.2, 8, 1.0);
+
+    fillRidge(r1, "rgba(255,248,232,0.64)", .95);
+    fillRidge(r2, "rgba(221,206,171,0.50)", .95);
+    fillRidge(r3, "rgba(173,154,116,0.42)", .95);
+    fillRidge(r4, "rgba(87,77,56,0.36)", 1);
+
+    // sparse contour emphasis
+    ctx.save();
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = "rgba(255,252,244,0.26)";
+    [r1,r2].forEach((pts, idx)=>{
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1] - idx*2);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1] - idx*2);
+      ctx.stroke();
+    });
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(67,58,40,0.16)";
+    [r3,r4].forEach((pts)=>{
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    // minimal vertical atmosphere
+    ctx.save();
+    ctx.globalAlpha = .09;
+    for(let i=0;i<7;i++){
+      const x = W*(0.11 + i*0.12) + Math.sin(phase*30 + i)*8;
+      const grad = ctx.createLinearGradient(x, H*0.12, x, H*0.95);
+      grad.addColorStop(0, "rgba(255,251,240,0)");
+      grad.addColorStop(.4, "rgba(255,251,240,0.52)");
+      grad.addColorStop(1, "rgba(255,251,240,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(x-1.5, H*0.12, 3, H*0.84);
+    }
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const audioCtx = new AudioCtx();
+      const master = audioCtx.createGain();
+      master.gain.value = 0.015;
+      master.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+      const freqs = [110, 146.83, 220];
+      freqs.forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        const lp = audioCtx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.value = 500 + i*120;
+        o.type = i === 1 ? "triangle" : "sine";
+        o.frequency.value = f;
+        g.gain.value = 0.0;
+        o.connect(g); g.connect(lp); lp.connect(master);
+        const lfo = audioCtx.createOscillator();
+        const lfoG = audioCtx.createGain();
+        lfo.frequency.value = 0.018 + i*0.006;
+        lfoG.gain.value = 0.006 + i*0.002;
+        lfo.connect(lfoG); lfoG.connect(g.gain);
+        g.gain.setValueAtTime(0.004 + i*0.002, now);
+        o.start();
+        lfo.start();
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
