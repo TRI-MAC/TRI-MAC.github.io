@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-07-20</title>
+<style>
+  :root{
+    --bg1:#1f2130;
+    --bg2:#4c3e33;
+    --bg3:#b89b6b;
+    --cream:#e8dcc0;
+    --gold:#c6a25a;
+    --gold2:#e2c98a;
+    --umber:#6b4b32;
+    --sienna:#8f5e3c;
+    --deep:#22202a;
+    --olive:#6d7253;
+    --redlake:#8f3f36;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0f0f14;
+    overflow:hidden;
+    font-family:Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(177.7777778vw,100vh);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(244,229,190,.84) 0 7%, rgba(216,192,141,.72) 7.5%, rgba(178,143,92,.34) 13%, rgba(92,72,51,.22) 22%, transparent 36%),
+      linear-gradient(180deg, #6a5a49 0%, #917558 19%, #c7b08b 43%, #8d7256 68%, #4e3d32 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 22px 90px rgba(0,0,0,.55);
+  }
+
+  #textureCanvas, #ringCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  #textureCanvas{opacity:.43; mix-blend-mode:multiply;}
+  #ringCanvas{opacity:.96;}
+
+  #scene{
+    position:absolute; inset:0;
+    overflow:hidden;
+    isolation:isolate;
+  }
+
+  .vignette{
+    position:absolute; inset:-5%;
+    background:
+      radial-gradient(circle at 50% 42%, transparent 0 38%, rgba(55,39,28,.18) 54%, rgba(28,18,13,.56) 87%, rgba(15,10,8,.8) 100%);
+    pointer-events:none;
+  }
+
+  .architectural-haze{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,247,227,.12), transparent 18%, transparent 82%, rgba(51,33,22,.22)),
+      radial-gradient(ellipse at 50% 22%, rgba(255,242,220,.28), transparent 38%),
+      radial-gradient(ellipse at 50% 88%, rgba(45,29,20,.24), transparent 42%);
+    pointer-events:none;
+  }
+
+  #aperture{
+    position:absolute;
+    left:50%; top:45%;
+    transform:translate(-50%,-50%);
+    width:78%;
+    height:55%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,244,212,.3), rgba(233,212,168,.14) 28%, rgba(126,92,59,.12) 48%, transparent 72%);
+    filter:blur(4px);
+    opacity:.85;
+    animation:breathe 18s ease-in-out infinite;
+  }
+
+  #haloSvg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    opacity:.92;
+  }
+
+  .arch{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:7%;
+    width:78%;
+    height:58%;
+    border-radius:48% 48% 0 0 / 66% 66% 0 0;
+    background:
+      linear-gradient(180deg, rgba(255,240,214,.07), rgba(255,241,220,.02) 18%, rgba(65,46,33,.14) 19%, rgba(109,82,57,.24) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,235,205,.09),
+      inset 0 18px 60px rgba(255,245,220,.05),
+      inset 0 -30px 60px rgba(31,18,12,.24);
+    opacity:.7;
+    filter:blur(.2px);
+  }
+
+  .pillar{
+    position:absolute;
+    bottom:6%;
+    width:8%;
+    height:49%;
+    background:
+      linear-gradient(180deg, rgba(243,228,190,.22), rgba(174,141,93,.18) 14%, rgba(95,71,50,.42) 58%, rgba(43,32,25,.48));
+    box-shadow:inset 1px 0 0 rgba(255,241,217,.14), inset -1px 0 0 rgba(44,28,18,.35);
+    opacity:.58;
+  }
+  .pillar.left{left:14%}
+  .pillar.right{right:14%}
+
+  #artWrap{
+    position:absolute;
+    left:50%;
+    top:47%;
+    width:51%;
+    height:31%;
+    transform:translate(-50%,-50%) rotate(-5deg);
+    z-index:5;
+    animation:orbital 34s ease-in-out infinite;
+    filter:drop-shadow(0 16px 28px rgba(53,31,18,.35)) drop-shadow(0 0 18px rgba(255,227,166,.12));
+  }
+  #artWrap::before{
+    content:"";
+    position:absolute; inset:-6%;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(247,232,195,.18), transparent 62%);
+    filter:blur(12px);
+    z-index:-1;
+  }
+
+  #art-image{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:.98;
+    border:none;
+    filter:sepia(.28) saturate(.95) contrast(1.03) brightness(1.02) hue-rotate(-8deg);
+    box-shadow:
+      0 0 0 1px rgba(241,222,176,.32),
+      0 10px 24px rgba(35,20,12,.34);
+  }
+
+  .veil{
+    position:absolute;
+    inset:-4%;
+    pointer-events:none;
+    z-index:6;
+  }
+  .veil.one{
+    background:
+      radial-gradient(circle at 52% 45%, transparent 0 35%, rgba(246,233,205,.18) 42%, transparent 61%),
+      linear-gradient(140deg, transparent 0 22%, rgba(121,82,52,.18) 29%, transparent 39%, transparent 54%, rgba(230,205,152,.14) 61%, transparent 71%);
+    mix-blend-mode:screen;
+    opacity:.55;
+    animation:veilturn 28s linear infinite;
+  }
+  .veil.two{
+    background:
+      conic-gradient(from 0deg at 50% 48%, transparent 0 12%, rgba(255,236,196,.07) 15%, transparent 20%, transparent 36%, rgba(112,73,45,.15) 40%, transparent 46%, transparent 63%, rgba(226,191,126,.11) 69%, transparent 76%, transparent 100%);
+    opacity:.5;
+    filter:blur(1px);
+    animation:counterturn 42s linear infinite;
+  }
+
+  #foregroundSvg{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    z-index:8;
+    pointer-events:none;
+  }
+
+  .softMaskTop, .softMaskBottom{
+    position:absolute;
+    left:0; width:100%;
+    height:20%;
+    z-index:20;
+    pointer-events:none;
+  }
+  .softMaskTop{
+    top:0;
+    background:linear-gradient(180deg, rgba(25,18,14,.26), rgba(25,18,14,0));
+  }
+  .softMaskBottom{
+    bottom:0;
+    background:linear-gradient(0deg, rgba(18,12,9,.35), rgba(18,12,9,0));
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:131px;
+    bottom:191px;
+    opacity:.58;
+    z-index:9;
+    filter:sepia(.5) saturate(.7) brightness(.74) contrast(.96);
+    transform:rotate(-8deg);
+  }
+
+  #date{
+    position:absolute;
+    right:16px;
+    bottom:12px;
+    color:rgba(255,244,224,.58);
+    font-size:13px;
+    letter-spacing:.08em;
+    z-index:30;
+    user-select:none;
+  }
+
+  @keyframes orbital{
+    0%,100%{transform:translate(-50%,-50%) rotate(-5deg) scale(1)}
+    25%{transform:translate(-50.7%,-49.2%) rotate(-3deg) scale(1.014)}
+    50%{transform:translate(-50%,-50.9%) rotate(-6.6deg) scale(1.023)}
+    75%{transform:translate(-49.3%,-49.5%) rotate(-4.1deg) scale(1.012)}
+  }
+  @keyframes breathe{
+    0%,100%{transform:translate(-50%,-50%) scale(1); opacity:.8}
+    50%{transform:translate(-50%,-50%) scale(1.06); opacity:.94}
+  }
+  @keyframes veilturn{
+    from{transform:rotate(0deg) scale(1)}
+    to{transform:rotate(360deg) scale(1)}
+  }
+  @keyframes counterturn{
+    from{transform:rotate(360deg) scale(1.02)}
+    to{transform:rotate(0deg) scale(1.02)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="textureCanvas" width="1080" height="1920"></canvas>
+    <canvas id="ringCanvas" width="1080" height="1920"></canvas>
+
+    <div id="scene">
+      <div class="architectural-haze"></div>
+      <div id="aperture"></div>
+
+      <div class="arch"></div>
+      <div class="pillar left"></div>
+      <div class="pillar right"></div>
+
+      <svg id="haloSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="fadeDisc" cx="50%" cy="44%" r="44%">
+            <stop offset="0%" stop-color="rgba(255,245,220,0.8)"/>
+            <stop offset="45%" stop-color="rgba(232,205,149,0.42)"/>
+            <stop offset="72%" stop-color="rgba(128,94,60,0.12)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+          </radialGradient>
+          <linearGradient id="goldStroke" x1="0" x2="1">
+            <stop offset="0%" stop-color="#8d663e"/>
+            <stop offset="45%" stop-color="#ead49a"/>
+            <stop offset="100%" stop-color="#8f633f"/>
+          </linearGradient>
+          <filter id="softBlur">
+            <feGaussianBlur stdDeviation="2.6"/>
+          </filter>
+        </defs>
+
+        <ellipse cx="540" cy="840" rx="338" ry="338" fill="url(#fadeDisc)" opacity=".45"/>
+
+        <g opacity=".6" filter="url(#softBlur)">
+          <ellipse cx="540" cy="840" rx="290" ry="290" fill="none" stroke="url(#goldStroke)" stroke-width="10"/>
+          <ellipse cx="540" cy="840" rx="350" ry="350" fill="none" stroke="#efd7a0" stroke-width="3" opacity=".45"/>
+          <ellipse cx="540" cy="840" rx="210" ry="210" fill="none" stroke="#7f5d3c" stroke-width="16" opacity=".24"/>
+        </g>
+
+        <g id="rayGroup" transform="translate(540 840)"></g>
+      </svg>
+
+      <div id="artWrap">
+        <img id="art-image" src="art.png" alt="">
+      </div>
+
+      <div class="veil one"></div>
+      <div class="veil two"></div>
+
+      <svg id="foregroundSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="fgFade" cx="50%" cy="44%" r="55%">
+            <stop offset="0%" stop-color="rgba(255,244,220,0.0)"/>
+            <stop offset="62%" stop-color="rgba(255,244,220,0.0)"/>
+            <stop offset="100%" stop-color="rgba(40,24,16,0.42)"/>
+          </radialGradient>
+          <linearGradient id="occlude" x1="0" x2="1">
+            <stop offset="0%" stop-color="rgba(64,42,28,.0)"/>
+            <stop offset="24%" stop-color="rgba(108,78,52,.22)"/>
+            <stop offset="50%" stop-color="rgba(236,213,164,.24)"/>
+            <stop offset="76%" stop-color="rgba(99,69,46,.2)"/>
+            <stop offset="100%" stop-color="rgba(64,42,28,.0)"/>
+          </linearGradient>
+          <filter id="fgBlur"><feGaussianBlur stdDeviation="3.2"/></filter>
+        </defs>
+
+        <g opacity=".42">
+          <ellipse cx="540" cy="840" rx="415" ry="415" fill="none" stroke="#f0deb1" stroke-width="2"/>
+          <ellipse cx="540" cy="840" rx="448" ry="448" fill="none" stroke="#8d623d" stroke-width="8" opacity=".35"/>
+        </g>
+
+        <g id="frontRays" transform="translate(540 840)" opacity=".46"></g>
+
+        <ellipse cx="540" cy="840" rx="510" ry="510" fill="none" stroke="url(#occlude)" stroke-width="54" filter="url(#fgBlur)" opacity=".55"/>
+        <ellipse cx="540" cy="840" rx="544" ry="544" fill="none" stroke="rgba(60,38,25,.17)" stroke-width="90" filter="url(#fgBlur)" opacity=".4"/>
+      </svg>
+
+      <img id="guinea-pig" src="guineapig.png" alt="">
+      <div class="vignette"></div>
+      <div class="softMaskTop"></div>
+      <div class="softMaskBottom"></div>
+      <div id="date">2026-07-20</div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const seedStr = "2026-07-20";
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) seed = (seed * 131 + seedStr.charCodeAt(i)) >>> 0;
+  function rand() {
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >> 17; seed >>>= 0;
+    seed ^= seed << 5;  seed >>>= 0;
+    return (seed >>> 0) / 4294967296;
+  }
+
+  const tex = document.getElementById('textureCanvas');
+  const tctx = tex.getContext('2d');
+  const w = tex.width, h = tex.height;
+
+  const grad = tctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, 'rgba(88,70,52,0.18)');
+  grad.addColorStop(.5, 'rgba(255,241,210,0.04)');
+  grad.addColorStop(1, 'rgba(58,38,26,0.22)');
+  tctx.fillStyle = grad;
+  tctx.fillRect(0,0,w,h);
+
+  for(let i=0;i<19000;i++){
+    const x = rand()*w;
+    const y = rand()*h;
+    const a = rand()*0.055;
+    const s = rand()*2.2 + 0.4;
+    const hue = 32 + rand()*15;
+    tctx.fillStyle = `hsla(${hue},28%,${48+rand()*24}%,${a})`;
+    tctx.fillRect(x,y,s,s);
+  }
+
+  for(let i=0;i<380;i++){
+    const y = rand()*h;
+    const alpha = 0.015 + rand()*0.02;
+    tctx.fillStyle = `rgba(60,42,30,${alpha})`;
+    tctx.fillRect(0,y,w,1+rand()*2);
+  }
+
+  const rc = document.getElementById('ringCanvas');
+  const ctx = rc.getContext('2d');
+  const cx = w/2, cy = h*0.4375;
+
+  const rayGroup = document.getElementById('rayGroup');
+  const frontRays = document.getElementById('frontRays');
+
+  function makeRays(group, count, inner, outer, opacityBase, fillA, fillB){
+    let out = '';
+    for(let i=0;i<count;i++){
+      const ang = (Math.PI*2/count)*i;
+      const spread = (Math.PI*2/count)*0.62;
+      const a1 = ang - spread*0.5;
+      const a2 = ang + spread*0.5;
+      const x1 = Math.cos(a1)*inner, y1 = Math.sin(a1)*inner;
+      const x2 = Math.cos(ang)*outer, y2 = Math.sin(ang)*outer;
+      const x3 = Math.cos(a2)*inner, y3 = Math.sin(a2)*inner;
+      const op = (opacityBase + (i%3)*0.03).toFixed(3);
+      const fill = i%2===0 ? fillA : fillB;
+      out += `<path d="M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} L ${x3.toFixed(2)} ${y3.toFixed(2)} Z" fill="${fill}" opacity="${op}"/>`;
+    }
+    group.innerHTML = out;
+  }
+  makeRays(rayGroup, 48, 330, 490, .22, '#f0d7a3', '#8a623d');
+  makeRays(frontRays, 24, 405, 560, .16, '#e9cb8e', '#6a4a31');
+
+  let t = 0;
+  function draw(){
+    t += 0.0062;
+    ctx.clearRect(0,0,w,h);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    const breathe = 1 + Math.sin(t*1.2)*0.012;
+    ctx.scale(breathe, breathe);
+
+    for(let i=0;i<9;i++){
+      const r = 92 + i*44 + Math.sin(t + i*0.5)*4;
+      ctx.beginPath();
+      ctx.lineWidth = i%3===0 ? 12 : 6;
+      const alpha = 0.24 - i*0.018;
+      ctx.strokeStyle = i%2===0 ? `rgba(245,227,186,${Math.max(alpha,0.04)})` : `rgba(124,88,57,${Math.max(alpha*.9,0.03)})`;
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    for(let i=0;i<4;i++){
+      const r = 165 + i*88 + Math.sin(t*0.85 + i)*7;
+      ctx.beginPath();
+      ctx.lineWidth = 28;
+      ctx.strokeStyle = `rgba(196,161,96,${0.045 - i*0.007})`;
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.stroke();
+    }
+
+    const sectors = 12;
+    for(let i=0;i<sectors;i++){
+      const ang = (Math.PI*2/sectors)*i + t*0.22;
+      ctx.save();
+      ctx.rotate(ang);
+      ctx.fillStyle = i%2===0 ? 'rgba(233,211,164,0.08)' : 'rgba(107,75,50,0.07)';
+      ctx.beginPath();
+      ctx.moveTo(74, -22);
+      ctx.lineTo(290, -46);
+      ctx.lineTo(370, 0);
+      ctx.lineTo(290, 46);
+      ctx.lineTo(74, 22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(248,236,204,0.24)';
+    ctx.arc(0,0,58 + Math.sin(t*1.4)*2.5,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(124,87,54,0.22)';
+    ctx.arc(0,0,26 + Math.sin(t*1.4+1.2)*1.5,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  function audio(){
+    if (window.self === window.top) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      const actx = new AC();
+      const master = actx.createGain();
+      master.gain.value = 0.016;
+      master.connect(actx.destination);
+
+      const now = actx.currentTime;
+      const freqs = [146.83, 220, 293.66, 440];
+      freqs.forEach((f, idx)=>{
+        const o = actx.createOscillator();
+        const g = actx.createGain();
+        const lfo = actx.createOscillator();
+        const lfoG = actx.createGain();
+
+        o.type = idx % 2 ? 'triangle' : 'sine';
+        o.frequency.value = f;
+        g.gain.value = 0.0026 + idx*0.0012;
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.026 + idx*0.011;
+        lfoG.gain.value = 0.0018 + idx*0.0007;
+
+        lfo.connect(lfoG);
+        lfoG.connect(g.gain);
+        o.connect(g);
+        g.connect(master);
+
+        o.start(now);
+        lfo.start(now);
+      });
+
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 900;
+      master.disconnect();
+      master.connect(filter);
+      filter.connect(actx.destination);
+
+      const resume = ()=>actx.resume().catch(()=>{});
+      resume();
+      document.addEventListener('visibilitychange', resume, {passive:true});
+    }
+  }
+  audio();
+})();
+</script>
+</body>
+</html>
