@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-07-23</title>
+<style>
+  :root{
+    --bg0:#0e0f14;
+    --bg1:#171b24;
+    --ink:#101218;
+    --ash:#d2d4da;
+    --acid:#d6ff4a;
+    --peach:#ff8f63;
+    --violet:#7d5cff;
+    --mint:#66ffd1;
+    --clay:#6d4b3c;
+    --rose:#ff4d8d;
+    --sand:#d8b48a;
+    --steel:#6c7a89;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#0a0b0e;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 900px at 18% 22%, rgba(214,255,74,.13), transparent 52%),
+      radial-gradient(1000px 700px at 77% 67%, rgba(255,77,141,.14), transparent 56%),
+      linear-gradient(180deg, #11151c 0%, #0c0f14 50%, #0f1118 100%);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 30px 80px rgba(0,0,0,.45);
+    isolation:isolate;
+  }
+
+  /* textile field */
+  #loom{
+    position:absolute; inset:0;
+    opacity:.98;
+  }
+
+  /* image integrated into the textile */
+  #art-image{
+    position:absolute;
+    left:15%;
+    top:31%;
+    width:52%;
+    height:28%;
+    object-fit:cover;
+    opacity:.96;
+    filter:saturate(1.2) contrast(1.05) brightness(0.98) hue-rotate(-10deg) drop-shadow(0 14px 26px rgba(0,0,0,.35));
+    transform:rotate(-6deg);
+    z-index:7;
+    border:none;
+    outline:none;
+    mix-blend-mode:normal;
+    animation:imageShift 24s ease-in-out infinite;
+  }
+
+  .veil, .ribbon, .pane{
+    position:absolute;
+    pointer-events:none;
+    z-index:6;
+    filter:blur(.2px);
+  }
+
+  .pane.back{
+    z-index:5;
+    background:linear-gradient(135deg, rgba(102,255,209,.22), rgba(125,92,255,.12) 42%, rgba(255,143,99,.14));
+    mix-blend-mode:screen;
+  }
+  .pane.front{
+    z-index:9;
+    background:linear-gradient(120deg, rgba(214,255,74,.18), rgba(255,77,141,.14) 46%, rgba(0,0,0,0));
+    mix-blend-mode:screen;
+  }
+
+  .shapeA{
+    left:9%; top:26%;
+    width:48%; height:18%;
+    border-radius:42% 58% 53% 47% / 33% 49% 51% 67%;
+    transform:rotate(-13deg);
+    animation:driftA 26s ease-in-out infinite;
+  }
+  .shapeB{
+    left:44%; top:45%;
+    width:31%; height:26%;
+    border-radius:57% 43% 39% 61% / 53% 35% 65% 47%;
+    transform:rotate(18deg);
+    animation:driftB 31s ease-in-out infinite;
+  }
+  .shapeC{
+    left:22%; top:50%;
+    width:43%; height:15%;
+    border-radius:53% 47% 66% 34% / 62% 41% 59% 38%;
+    transform:rotate(8deg);
+    animation:driftC 28s ease-in-out infinite;
+  }
+
+  .ribbon{
+    z-index:10;
+    opacity:.55;
+    mix-blend-mode:screen;
+    mask-image:radial-gradient(circle at center, black 55%, transparent 85%);
+    -webkit-mask-image:radial-gradient(circle at center, black 55%, transparent 85%);
+  }
+  .ribbon.one{
+    left:-8%; top:18%; width:84%; height:22%;
+    background:
+      linear-gradient(90deg, transparent 0 4%, rgba(255,143,99,.12) 4% 7%, rgba(255,77,141,.34) 7% 13%, rgba(214,255,74,.14) 13% 16%, transparent 16% 20%, rgba(102,255,209,.22) 20% 25%, rgba(125,92,255,.15) 25% 30%, transparent 30% 100%);
+    transform:rotate(-12deg);
+    animation:ribbonMove1 20s ease-in-out infinite;
+  }
+  .ribbon.two{
+    right:-8%; top:54%; width:74%; height:20%;
+    background:
+      linear-gradient(90deg, transparent 0 10%, rgba(102,255,209,.20) 10% 16%, rgba(214,255,74,.16) 16% 21%, transparent 21% 28%, rgba(255,143,99,.24) 28% 34%, rgba(125,92,255,.18) 34% 40%, transparent 40% 100%);
+    transform:rotate(19deg);
+    animation:ribbonMove2 23s ease-in-out infinite;
+  }
+
+  #svgLayer{
+    position:absolute; inset:0; z-index:8;
+  }
+
+  .date{
+    position:absolute;
+    right:18px;
+    bottom:14px;
+    z-index:20;
+    color:rgba(255,255,255,.45);
+    font-size:14px;
+    letter-spacing:.12em;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:79.4%;
+    top:88.1%;
+    opacity:.58;
+    z-index:11;
+    filter:saturate(.85) brightness(.9);
+    transform:rotate(-8deg);
+  }
+
+  #grain, #scan{
+    position:absolute; inset:0; pointer-events:none;
+  }
+  #grain{
+    z-index:14;
+    opacity:.16;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.12) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,.18) 0 1px, transparent 1.1px);
+    background-size:9px 9px, 11px 11px;
+    mix-blend-mode:overlay;
+    animation:grainShift 12s steps(6) infinite;
+  }
+  #scan{
+    z-index:13;
+    opacity:.11;
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.18) 0 1px, transparent 1px 4px);
+    mix-blend-mode:soft-light;
+  }
+
+  .edgeFade{
+    position:absolute; inset:-8%;
+    z-index:18;
+    pointer-events:none;
+    background:
+      radial-gradient(140% 90% at 50% 50%, transparent 58%, rgba(10,11,14,.18) 72%, rgba(10,11,14,.62) 90%, rgba(10,11,14,.9) 100%);
+  }
+
+  @keyframes imageShift{
+    0%,100%{transform:translate(0,0) rotate(-6deg) scale(1)}
+    50%{transform:translate(8px,-10px) rotate(-4deg) scale(1.018)}
+  }
+  @keyframes driftA{
+    0%,100%{transform:translate(0,0) rotate(-13deg) scale(1)}
+    50%{transform:translate(14px,-10px) rotate(-9deg) scale(1.05)}
+  }
+  @keyframes driftB{
+    0%,100%{transform:translate(0,0) rotate(18deg) scale(1)}
+    50%{transform:translate(-10px,14px) rotate(11deg) scale(1.06)}
+  }
+  @keyframes driftC{
+    0%,100%{transform:translate(0,0) rotate(8deg) scale(1)}
+    50%{transform:translate(11px,-7px) rotate(13deg) scale(1.04)}
+  }
+  @keyframes ribbonMove1{
+    0%,100%{transform:rotate(-12deg) translateX(0)}
+    50%{transform:rotate(-9deg) translateX(18px)}
+  }
+  @keyframes ribbonMove2{
+    0%,100%{transform:rotate(19deg) translateX(0)}
+    50%{transform:rotate(15deg) translateX(-16px)}
+  }
+  @keyframes grainShift{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(-2px,1px)}
+    50%{transform:translate(2px,-1px)}
+    75%{transform:translate(1px,2px)}
+    100%{transform:translate(0,0)}
+  }
+</style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="loom" width="1080" height="1920"></canvas>
+
+    <div class="pane back shapeA"></div>
+    <div class="pane back shapeB"></div>
+
+    <img id="art-image" src="art.png" alt="" />
+
+    <div class="ribbon one"></div>
+    <div class="pane front shapeC"></div>
+    <div class="ribbon two"></div>
+
+    <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="band1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(214,255,74,.0)"/>
+          <stop offset="30%" stop-color="#d6ff4a" stop-opacity=".16"/>
+          <stop offset="60%" stop-color="#ff4d8d" stop-opacity=".22"/>
+          <stop offset="100%" stop-color="rgba(255,77,141,0)"/>
+        </linearGradient>
+        <linearGradient id="band2" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(102,255,209,0)"/>
+          <stop offset="40%" stop-color="#66ffd1" stop-opacity=".18"/>
+          <stop offset="75%" stop-color="#7d5cff" stop-opacity=".17"/>
+          <stop offset="100%" stop-color="rgba(125,92,255,0)"/>
+        </linearGradient>
+        <filter id="soften">
+          <feGaussianBlur stdDeviation="8"/>
+        </filter>
+        <mask id="featherMask">
+          <rect x="0" y="0" width="1080" height="1920" fill="url(#fadeRect)"/>
+        </mask>
+        <radialGradient id="fadeRect" cx="50%" cy="50%" r="72%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="72%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+      </defs>
+
+      <g opacity=".7" mask="url(#featherMask)">
+        <path d="M-60 360 L390 270 L910 430 L1180 335 L1180 470 L890 555 L360 405 L-60 500 Z" fill="url(#band1)" filter="url(#soften)">
+          <animateTransform attributeName="transform" type="translate" values="0 0; 18 -10; 0 0" dur="22s" repeatCount="indefinite"/>
+        </path>
+        <path d="M-90 1260 L260 1180 L700 1305 L1140 1175 L1140 1320 L720 1420 L275 1315 L-90 1390 Z" fill="url(#band2)" filter="url(#soften)">
+          <animateTransform attributeName="transform" type="translate" values="0 0; -16 14; 0 0" dur="26s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <!-- tiny angular lizard motif integrated into weave -->
+      <g transform="translate(826 286) rotate(11)" opacity=".22">
+        <polygon points="0,18 26,6 54,14 76,0 92,10 83,27 58,26 42,42 26,36 20,22" fill="#d6ff4a"/>
+        <polygon points="90,11 106,1 112,8 102,19" fill="#d6ff4a"/>
+        <polygon points="39,42 47,58 38,64 31,49" fill="#d6ff4a"/>
+        <polygon points="58,39 68,55 59,60 51,45" fill="#d6ff4a"/>
+        <polygon points="15,10 2,3 0,11 14,16" fill="#d6ff4a"/>
+      </g>
+    </svg>
+
+    <img id="guinea-pig" src="guineapig.png" alt="" />
+
+    <div id="scan"></div>
+    <div id="grain"></div>
+    <div class="edgeFade"></div>
+    <div class="date">2026-07-23</div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('loom');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  const seed = hashString("2026-07-23-anti-pattern-woven-textile");
+  const rand = mulberry32(seed);
+
+  const palette = [
+    "#11151d","#1a2230","#d6ff4a","#ff8f63","#7d5cff","#66ffd1","#ff4d8d","#d8b48a","#8ea6b8","#2f3947"
+  ];
+
+  const warpCount = 32;
+  const weftCount = 54;
+  const cellW = W / warpCount;
+  const cellH = H / weftCount;
+
+  const warp = [];
+  const weft = [];
+
+  for(let i=0;i<warpCount;i++){
+    warp.push({
+      w: cellW * (0.86 + rand()*0.4),
+      xBase: i * cellW,
+      phase: rand()*Math.PI*2,
+      amp: 6 + rand()*9,
+      period: 0.45 + rand()*0.75,
+      colA: palette[2 + (i*3)%6],
+      colB: palette[(i+7)%palette.length],
+      sheen: rand()*0.5 + 0.22
+    });
+  }
+
+  for(let j=0;j<weftCount;j++){
+    weft.push({
+      h: cellH * (0.78 + rand()*0.5),
+      yBase: j * cellH,
+      phase: rand()*Math.PI*2,
+      amp: 7 + rand()*10,
+      period: 0.55 + rand()*0.85,
+      colA: palette[2 + (j*5)%6],
+      colB: palette[(j+3)%palette.length],
+      sheen: rand()*0.45 + 0.18
+    });
+  }
+
+  function roundedRectPath(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r);
+    ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r);
+    ctx.closePath();
+  }
+
+  function threadGradient(x,y,w,h,c1,c2,vertical=true,sheen=.3){
+    const g = vertical ? ctx.createLinearGradient(x, y, x+w, y) : ctx.createLinearGradient(x, y, x, y+h);
+    g.addColorStop(0, c2);
+    g.addColorStop(0.18, c1);
+    g.addColorStop(0.48, c2);
+    g.addColorStop(0.58, "rgba(255,255,255,"+sheen+")");
+    g.addColorStop(0.74, c1);
+    g.addColorStop(1, c2);
+    return g;
+  }
+
+  function fieldBackground(t){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, "#11161e");
+    g.addColorStop(0.4, "#161a24");
+    g.addColorStop(1, "#0d1016");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for(let i=0;i<7;i++){
+      const px = (i*151 + seed%211) % W;
+      const py = (i*307 + seed%503) % H;
+      const r = 160 + i*52;
+      const rg = ctx.createRadialGradient(px,py,0,px,py,r);
+      const c = i%3===0 ? "rgba(214,255,74,.07)" : i%3===1 ? "rgba(255,77,141,.06)" : "rgba(102,255,209,.05)";
+      rg.addColorStop(0,c);
+      rg.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.arc(px + Math.sin(t*0.0002+i)*22, py + Math.cos(t*0.00017+i)*24, r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function weave(t){
+    ctx.save();
+
+    // Behind image and forms: broad woven field
+    for(let i=0;i<warpCount;i++){
+      const w = warp[i];
+      for(let j=0;j<weftCount;j++){
+        const x = w.xBase + Math.sin(t*0.00022*w.period + j*0.21 + w.phase) * w.amp;
+        const y = j * cellH - 2;
+        const width = w.w;
+        const height = cellH + 5;
+        const r = Math.min(width,height)*0.22;
+        const over = ((i*2 + j + Math.floor(i/3)) % 4) < 2;
+
+        if(over){
+          ctx.fillStyle = threadGradient(x,y,width,height,w.colA,w.colB,true,w.sheen);
+          roundedRectPath(x,y,width,height,r);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(255,255,255,.08)";
+          ctx.fillRect(x + width*0.46, y+2, width*0.08, height-4);
+        } else {
+          ctx.fillStyle = "rgba(12,14,19,.52)";
+          roundedRectPath(x+1,y+1,width-2,height-2,r);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Weft overlay for interlace logic
+    for(let j=0;j<weftCount;j++){
+      const h = weft[j];
+      for(let i=0;i<warpCount;i++){
+        const x = i * cellW - 2;
+        const y = h.yBase + Math.cos(t*0.0002*h.period + i*0.23 + h.phase) * h.amp;
+        const width = cellW + 5;
+        const height = h.h;
+        const r = Math.min(width,height)*0.24;
+        const over = ((i*2 + j + Math.floor(i/3)) % 4) >= 2;
+
+        if(over){
+          ctx.fillStyle = threadGradient(x,y,width,height,h.colA,h.colB,false,h.sheen);
+          roundedRectPath(x,y,width,height,r);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(255,255,255,.07)";
+          ctx.fillRect(x+2, y + height*0.42, width-4, height*0.1);
+        } else {
+          ctx.fillStyle = "rgba(8,10,14,.42)";
+          roundedRectPath(x+1,y+1,width-2,height-2,r);
+          ctx.fill();
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function alienStitches(t){
+    ctx.save();
+    ctx.globalAlpha = .92;
+
+    // structured notch motifs, not random rectangles
+    for(let col=0; col<6; col++){
+      const baseX = 86 + col*170 + Math.sin(t*0.00018 + col)*10;
+      for(let row=0; row<7; row++){
+        const baseY = 92 + row*250 + ((col%2)*44);
+        const s = 34 + ((row+col)%3)*12;
+        const rot = Math.sin(t*0.00025 + row*0.7 + col)*0.14;
+        ctx.save();
+        ctx.translate(baseX, baseY);
+        ctx.rotate(rot);
+        ctx.fillStyle = row%2===0 ? "rgba(214,255,74,.12)" : "rgba(255,77,141,.1)";
+        ctx.beginPath();
+        ctx.moveTo(-s, -s*0.2);
+        ctx.lineTo(0, -s);
+        ctx.lineTo(s, -s*0.18);
+        ctx.lineTo(s*0.4, 0);
+        ctx.lineTo(s, s*0.2);
+        ctx.lineTo(0, s);
+        ctx.lineTo(-s, s*0.2);
+        ctx.lineTo(-s*0.35, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  function draw(time){
+    ctx.clearRect(0,0,W,H);
+    fieldBackground(time);
+    weave(time);
+    alienStitches(time);
+
+    // subtle vertical glaze
+    const glaze = ctx.createLinearGradient(0,0,0,H);
+    glaze.addColorStop(0,"rgba(255,255,255,.02)");
+    glaze.addColorStop(0.5,"rgba(255,255,255,.00)");
+    glaze.addColorStop(1,"rgba(0,0,0,.12)");
+    ctx.fillStyle = glaze;
+    ctx.fillRect(0,0,W,H);
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  if (window.self === window.top) {
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ac = new AudioContext();
+      const master = ac.createGain();
+      master.gain.value = 0.018;
+      master.connect(ac.destination);
+
+      const now = ac.currentTime;
+
+      const osc1 = ac.createOscillator();
+      osc1.type = "triangle";
+      osc1.frequency.value = 81;
+
+      const osc2 = ac.createOscillator();
+      osc2.type = "sawtooth";
+      osc2.frequency.value = 121.5;
+
+      const lfo = ac.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 0.043;
+
+      const lfoGain = ac.createGain();
+      lfoGain.gain.value = 9;
+
+      const g1 = ac.createGain();
+      const g2 = ac.createGain();
+      g1.gain.value = 0.24;
+      g2.gain.value = 0.12;
+
+      const lp = ac.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 720;
+      lp.Q.value = 0.7;
+
+      const hp = ac.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = 90;
+
+      const merger = ac.createGain();
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(lp.frequency);
+
+      osc1.connect(g1); g1.connect(merger);
+      osc2.connect(g2); g2.connect(merger);
+      merger.connect(lp); lp.connect(hp); hp.connect(master);
+
+      osc1.start(now);
+      osc2.start(now);
+      lfo.start(now);
+
+      function retune(){
+        const t = ac.currentTime;
+        const freqs = [81, 96, 108, 121.5, 144];
+        osc1.frequency.linearRampToValueAtTime(freqs[Math.floor((t*0.07)%freqs.length)], t + 6);
+        osc2.frequency.linearRampToValueAtTime(freqs[Math.floor((t*0.11+2)%freqs.length)]*1.5, t + 6);
+        lp.frequency.linearRampToValueAtTime(560 + 280*Math.sin(t*0.17), t + 6);
+      }
+      retune();
+      setInterval(retune, 6000);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
