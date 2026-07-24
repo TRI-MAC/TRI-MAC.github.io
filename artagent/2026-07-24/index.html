@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2026-07-24</title>
+<style>
+  :root{
+    --bg:#031a44;
+    --bg2:#082a63;
+    --cyan:#8ff6ff;
+    --cyan2:#38d9ff;
+    --line:#9ffcff;
+    --soft:#4eb6dd;
+    --deep:#021230;
+    --paper:#d7fbff;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000814;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw,56.25vh);
+    height:min(177.7778vw,100vh);
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(140% 90% at 50% 40%, #0d3d82 0%, #08295f 36%, #04193f 70%, #02112d 100%);
+    box-shadow:0 0 0 1px rgba(180,245,255,.15), 0 0 60px rgba(0,0,0,.45);
+  }
+
+  .fade-edge{
+    position:absolute; inset:-4%;
+    pointer-events:none;
+    background:
+      radial-gradient(120% 120% at 50% 50%, transparent 69%, rgba(2,11,27,.35) 84%, rgba(2,11,27,.7) 100%);
+    mix-blend-mode:multiply;
+  }
+
+  #bgsvg, #overlaySvg, #schematicCanvas, #grainCanvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block;
+  }
+
+  #schematicCanvas{opacity:.95}
+  #grainCanvas{opacity:.16; mix-blend-mode:screen}
+
+  .date{
+    position:absolute;
+    right:24px;
+    bottom:18px;
+    color:rgba(190,250,255,.6);
+    font-size:14px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:108px;
+    bottom:262px;
+    opacity:.58;
+    z-index:9;
+    filter:hue-rotate(155deg) saturate(.6) brightness(.8) contrast(1.05);
+    transform:rotate(-8deg);
+  }
+
+  .hudText{
+    fill:rgba(190,250,255,.72);
+    font-size:12px;
+    letter-spacing:2px;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+  .thinText{
+    fill:rgba(190,250,255,.45);
+    font-size:9px;
+    letter-spacing:1.5px;
+    font-family:Arial,Helvetica,sans-serif;
+  }
+
+  .slowSpin{ animation: slowSpin 32s linear infinite; transform-origin:50% 50%; }
+  .revSpin{ animation: revSpin 40s linear infinite; transform-origin:50% 50%; }
+  .breathe{ animation: breathe 8s ease-in-out infinite; transform-origin:50% 50%; }
+  .driftA{ animation: driftA 17s ease-in-out infinite; }
+  .driftB{ animation: driftB 23s ease-in-out infinite; }
+  .pulseLine{ animation: pulseLine 6s ease-in-out infinite; }
+
+  @keyframes slowSpin{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(360deg)}
+  }
+  @keyframes revSpin{
+    0%{transform:rotate(360deg)}
+    100%{transform:rotate(0deg)}
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.028)}
+  }
+  @keyframes driftA{
+    0%,100%{transform:translate(0px,0px)}
+    25%{transform:translate(10px,-12px)}
+    50%{transform:translate(-8px,8px)}
+    75%{transform:translate(7px,10px)}
+  }
+  @keyframes driftB{
+    0%,100%{transform:translate(0px,0px)}
+    33%{transform:translate(-10px,9px)}
+    66%{transform:translate(12px,-10px)}
+  }
+  @keyframes pulseLine{
+    0%,100%{opacity:.55}
+    50%{opacity:.95}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <svg id="bgsvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="beamGrad" x1="0" x2="1">
+        <stop offset="0%" stop-color="#8ff6ff" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#8ff6ff" stop-opacity=".38"/>
+        <stop offset="100%" stop-color="#8ff6ff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="diagGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#7ef2ff" stop-opacity=".08"/>
+        <stop offset="100%" stop-color="#7ef2ff" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#93fbff" stop-opacity=".20"/>
+        <stop offset="55%" stop-color="#5fe9ff" stop-opacity=".08"/>
+        <stop offset="100%" stop-color="#5fe9ff" stop-opacity="0"/>
+      </radialGradient>
+      <pattern id="microGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+        <path d="M30 0H0V30" fill="none" stroke="rgba(150,244,255,.05)" stroke-width="1"/>
+      </pattern>
+      <pattern id="majorGrid" width="150" height="150" patternUnits="userSpaceOnUse">
+        <rect width="150" height="150" fill="url(#microGrid)"/>
+        <path d="M150 0H0V150" fill="none" stroke="rgba(170,248,255,.11)" stroke-width="1.4"/>
+      </pattern>
+      <mask id="edgeFadeMask">
+        <rect width="1080" height="1920" fill="white"/>
+        <rect width="1080" height="1920" fill="url(#edgeFadePaint)"/>
+      </mask>
+      <radialGradient id="edgeFadePaint" cx="50%" cy="50%" r="72%">
+        <stop offset="72%" stop-color="white"/>
+        <stop offset="90%" stop-color="rgba(255,255,255,.5)"/>
+        <stop offset="100%" stop-color="black"/>
+      </radialGradient>
+    </defs>
+
+    <rect width="1080" height="1920" fill="url(#majorGrid)"/>
+
+    <g opacity=".8">
+      <path d="M0 520 L1080 150" stroke="url(#diagGrad)" stroke-width="200" fill="none"/>
+      <path d="M0 1240 L1080 880" stroke="url(#diagGrad)" stroke-width="220" fill="none"/>
+      <path d="M50 1920 L1040 980" stroke="url(#beamGrad)" stroke-width="130" fill="none"/>
+    </g>
+
+    <g class="driftA" opacity=".9">
+      <circle cx="540" cy="980" r="420" fill="url(#halo)"/>
+      <circle cx="540" cy="980" r="315" fill="none" stroke="rgba(160,250,255,.26)" stroke-width="2"/>
+      <circle cx="540" cy="980" r="258" fill="none" stroke="rgba(160,250,255,.18)" stroke-width="1.5" stroke-dasharray="14 9"/>
+      <circle cx="540" cy="980" r="175" fill="none" stroke="rgba(160,250,255,.22)" stroke-width="1.6"/>
+    </g>
+
+    <g opacity=".22" mask="url(#edgeFadeMask)">
+      <polygon points="245,290 828,444 682,995 158,848" fill="rgba(130,244,255,.07)" stroke="rgba(155,248,255,.18)" stroke-width="2"/>
+      <polygon points="580,1120 905,1265 795,1620 470,1502" fill="rgba(130,244,255,.06)" stroke="rgba(155,248,255,.16)" stroke-width="2"/>
+    </g>
+  </svg>
+
+  <canvas id="schematicCanvas" width="1080" height="1920"></canvas>
+
+  <svg id="overlaySvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="softGlow">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <mask id="ringFade">
+        <rect width="1080" height="1920" fill="black"/>
+        <radialGradient id="ringFadeGrad" cx="50%" cy="50%" r="62%">
+          <stop offset="0%" stop-color="white"/>
+          <stop offset="72%" stop-color="white"/>
+          <stop offset="100%" stop-color="black"/>
+        </radialGradient>
+        <circle cx="540" cy="980" r="690" fill="url(#ringFadeGrad)"/>
+      </mask>
+    </defs>
+
+    <g class="slowSpin" opacity=".55" mask="url(#ringFade)">
+      <circle cx="540" cy="980" r="610" fill="none" stroke="rgba(150,248,255,.12)" stroke-width="34" stroke-dasharray="210 42 70 38"/>
+      <circle cx="540" cy="980" r="610" fill="none" stroke="rgba(220,255,255,.36)" stroke-width="2.5" stroke-dasharray="12 18"/>
+    </g>
+
+    <g class="revSpin" opacity=".55" mask="url(#ringFade)">
+      <circle cx="540" cy="980" r="510" fill="none" stroke="rgba(120,240,255,.11)" stroke-width="54" stroke-dasharray="330 90"/>
+      <circle cx="540" cy="980" r="510" fill="none" stroke="rgba(220,255,255,.28)" stroke-width="2" stroke-dasharray="8 14"/>
+    </g>
+
+    <g class="breathe">
+      <polygon points="540,395 766,980 540,1558 314,980" fill="rgba(120,240,255,.08)" stroke="rgba(180,250,255,.7)" stroke-width="4" filter="url(#softGlow)"/>
+      <polygon points="540,575 690,980 540,1375 390,980" fill="rgba(130,245,255,.06)" stroke="rgba(180,250,255,.55)" stroke-width="3"/>
+      <rect x="495" y="923" width="90" height="114" fill="rgba(215,251,255,.10)" stroke="rgba(220,255,255,.8)" stroke-width="3"/>
+      <circle cx="540" cy="980" r="47" fill="none" stroke="rgba(220,255,255,.88)" stroke-width="3"/>
+    </g>
+
+    <g class="driftB" opacity=".9">
+      <polygon points="155,620 265,555 355,690 245,760" fill="rgba(130,242,255,.08)" stroke="rgba(190,250,255,.55)" stroke-width="3"/>
+      <polygon points="745,1180 902,1108 959,1288 804,1360" fill="rgba(130,242,255,.08)" stroke="rgba(190,250,255,.55)" stroke-width="3"/>
+      <polygon points="212,1335 346,1410 262,1562 128,1480" fill="rgba(130,242,255,.06)" stroke="rgba(190,250,255,.42)" stroke-width="2.5"/>
+    </g>
+
+    <g class="pulseLine">
+      <line x1="112" y1="270" x2="970" y2="270" stroke="rgba(185,250,255,.25)" stroke-width="2"/>
+      <line x1="112" y1="1655" x2="970" y2="1655" stroke="rgba(185,250,255,.25)" stroke-width="2"/>
+      <line x1="170" y1="184" x2="170" y2="1732" stroke="rgba(185,250,255,.15)" stroke-width="1.5"/>
+      <line x1="910" y1="184" x2="910" y2="1732" stroke="rgba(185,250,255,.15)" stroke-width="1.5"/>
+    </g>
+
+    <g opacity=".8">
+      <text x="140" y="210" class="hudText">PLN-2026-07-24</text>
+      <text x="728" y="210" class="hudText">AXONOMETRIC FIELD</text>
+      <text x="144" y="236" class="thinText">SHEET 07 / SECTION A</text>
+      <text x="770" y="236" class="thinText">SLOW LOOP / STATIC VIEW</text>
+
+      <text x="770" y="910" class="thinText">R1 610</text>
+      <text x="268" y="1012" class="thinText">CORE</text>
+      <text x="180" y="1510" class="thinText">ELEV 15.4</text>
+      <text x="760" y="1465" class="thinText">NODE 3B</text>
+      <text x="422" y="1700" class="thinText">CROSS-REGISTER</text>
+    </g>
+  </svg>
+
+  <canvas id="grainCanvas" width="1080" height="1920"></canvas>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div class="fade-edge"></div>
+  <div class="date">2026-07-24</div>
+</div>
+
+<script>
+(() => {
+  const dateSeed = "2026-07-24";
+  function hashString(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    }
+  }
+  const seedGen = hashString(dateSeed);
+  function mulberry32(a){
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const rand = mulberry32(seedGen());
+
+  const canvas = document.getElementById('schematicCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2 + 20;
+
+  const shapes = [];
+  const shapeCount = 14;
+  for(let i=0;i<shapeCount;i++){
+    const t = i / shapeCount;
+    const angle = -Math.PI/4 + t * Math.PI * 1.55 + (rand()-0.5)*0.18;
+    const dist = 180 + i*48 + rand()*65;
+    const x = cx + Math.cos(angle)*dist;
+    const y = cy + Math.sin(angle)*dist*0.85;
+    const w = 80 + rand()*200;
+    const h = 60 + rand()*190;
+    const rot = (Math.PI/4) * (Math.floor(rand()*4)) + rand()*0.22;
+    const type = i%3;
+    shapes.push({x,y,w,h,rot,type,phase:rand()*Math.PI*2,dr:8+rand()*18});
+  }
+
+  function drawDimLine(x1,y1,x2,y2,a=0.55, label=''){
+    ctx.save();
+    ctx.strokeStyle = `rgba(180,250,255,${a})`;
+    ctx.fillStyle = `rgba(210,255,255,${a*0.9})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    const ang = Math.atan2(y2-y1,x2-x1);
+    const s = 8;
+    [[x1,y1,ang+Math.PI],[x2,y2,ang]].forEach(p=>{
+      ctx.beginPath();
+      ctx.moveTo(p[0],p[1]);
+      ctx.lineTo(p[0]-Math.cos(p[2]-0.5)*s,p[1]-Math.sin(p[2]-0.5)*s);
+      ctx.lineTo(p[0]-Math.cos(p[2]+0.5)*s,p[1]-Math.sin(p[2]+0.5)*s);
+      ctx.closePath();
+      ctx.fill();
+    });
+    if(label){
+      ctx.font = '11px Arial';
+      ctx.letterSpacing = '2px';
+      ctx.fillStyle = `rgba(210,255,255,${a*0.8})`;
+      ctx.fillText(label,(x1+x2)/2+8,(y1+y2)/2-6);
+    }
+    ctx.restore();
+  }
+
+  function polygon(ctx, pts){
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+  }
+
+  function rectPts(x,y,w,h,r){
+    const pts = [[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]];
+    return pts.map(([px,py])=>{
+      const rx = px*Math.cos(r)-py*Math.sin(r)+x;
+      const ry = px*Math.sin(r)+py*Math.cos(r)+y;
+      return [rx,ry];
+    });
+  }
+
+  function diamondPts(x,y,w,h,r){
+    const pts = [[0,-h/2],[w/2,0],[0,h/2],[-w/2,0]];
+    return pts.map(([px,py])=>{
+      const rx = px*Math.cos(r)-py*Math.sin(r)+x;
+      const ry = px*Math.sin(r)+py*Math.cos(r)+y;
+      return [rx,ry];
+    });
+  }
+
+  function triPts(x,y,w,h,r){
+    const pts = [[0,-h/2],[w/2,h/2],[-w/2,h/2]];
+    return pts.map(([px,py])=>{
+      const rx = px*Math.cos(r)-py*Math.sin(r)+x;
+      const ry = px*Math.sin(r)+py*Math.cos(r)+y;
+      return [rx,ry];
+    });
+  }
+
+  function drawCrosshair(x,y,s,alpha){
+    ctx.save();
+    ctx.strokeStyle = `rgba(180,250,255,${alpha})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x-s,y); ctx.lineTo(x+s,y);
+    ctx.moveTo(x,y-s); ctx.lineTo(x,y+s);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  let start = performance.now();
+  function render(now){
+    const t = (now-start) * 0.001;
+    ctx.clearRect(0,0,W,H);
+
+    // construction frame
+    ctx.strokeStyle = 'rgba(185,250,255,.18)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(100.5,160.5,879,1599);
+    ctx.strokeRect(132.5,192.5,815,1535);
+
+    // diagonals
+    ctx.strokeStyle = 'rgba(170,245,255,.10)';
+    ctx.beginPath();
+    ctx.moveTo(130,192); ctx.lineTo(947,1727);
+    ctx.moveTo(947,192); ctx.lineTo(130,1727);
+    ctx.stroke();
+
+    // central blueprint assembly
+    const pulse = 1 + Math.sin(t*0.55)*0.018;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(pulse,pulse);
+    ctx.rotate(Math.sin(t*0.22)*0.06);
+
+    // outer square
+    ctx.strokeStyle = 'rgba(215,251,255,.92)';
+    ctx.lineWidth = 2.3;
+    ctx.strokeRect(-252,-252,504,504);
+
+    // nested diamond
+    ctx.rotate(Math.PI/4);
+    ctx.strokeStyle = 'rgba(150,248,255,.8)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-188,-188,376,376);
+
+    ctx.strokeStyle = 'rgba(160,250,255,.25)';
+    ctx.setLineDash([10,8]);
+    ctx.strokeRect(-298,-298,596,596);
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // radial marks
+    for(let i=0;i<24;i++){
+      const a = i*Math.PI*2/24 + t*0.03;
+      const r1 = 336, r2 = 394 + (i%3)*14;
+      const x1 = cx + Math.cos(a)*r1, y1 = cy + Math.sin(a)*r1;
+      const x2 = cx + Math.cos(a)*r2, y2 = cy + Math.sin(a)*r2;
+      ctx.strokeStyle = `rgba(195,252,255,${i%2?0.42:0.24})`;
+      ctx.lineWidth = i%6===0 ? 2.2 : 1.1;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    }
+
+    // moving suprematist components as technical modules
+    shapes.forEach((s,idx)=>{
+      const osc = Math.sin(t*0.35 + s.phase);
+      const x = s.x + Math.cos(t*0.22 + s.phase)*s.dr;
+      const y = s.y + Math.sin(t*0.28 + s.phase)*s.dr*0.7;
+      const rot = s.rot + Math.sin(t*0.18 + s.phase)*0.08;
+      let pts;
+      if(s.type===0) pts = rectPts(x,y,s.w,s.h,rot);
+      else if(s.type===1) pts = diamondPts(x,y,s.w,s.h,rot);
+      else pts = triPts(x,y,s.w,s.h,rot);
+
+      ctx.save();
+      polygon(ctx, pts);
+      ctx.fillStyle = `rgba(105,235,255,${0.05 + (idx%4)*0.018})`;
+      ctx.strokeStyle = `rgba(190,251,255,${0.45 + (idx%3)*0.12})`;
+      ctx.lineWidth = idx%4===0 ? 2.2 : 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // ghost offset
+      ctx.translate(12,-10);
+      polygon(ctx, pts.map(p=>[p[0]-x,p[1]-y]).map(([px,py])=>[px+x,py+y]));
+      ctx.strokeStyle = 'rgba(110,230,255,.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+
+      // dimension lines
+      const minX = Math.min(...pts.map(p=>p[0])), maxX = Math.max(...pts.map(p=>p[0]));
+      const minY = Math.min(...pts.map(p=>p[1])), maxY = Math.max(...pts.map(p=>p[1]));
+      drawDimLine(minX, maxY+18, maxX, maxY+18, 0.24, `${Math.round(s.w)}`);
+      drawDimLine(maxX+18, minY, maxX+18, maxY, 0.22, `${Math.round(s.h)}`);
+      drawCrosshair(x,y,10,0.42);
+      drawCrosshair(minX,minY,6,0.22);
+      drawCrosshair(maxX,maxY,6,0.22);
+
+      // connector to core
+      ctx.strokeStyle = 'rgba(170,248,255,.16)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4,7]);
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(cx,cy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = 'rgba(200,252,255,.46)';
+      ctx.font = '10px Arial';
+      ctx.fillText(`M-${idx+1}`, x+12, y-10);
+    });
+
+    // central rings & axes
+    [82,122,182,258].forEach((r,i)=>{
+      ctx.beginPath();
+      ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(200,252,255,${0.32 - i*0.04})`;
+      ctx.lineWidth = i===0 ? 2.2 : 1.2;
+      if(i===2) ctx.setLineDash([11,9]); else ctx.setLineDash([]);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = 'rgba(220,255,255,.7)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(cx-320,cy); ctx.lineTo(cx+320,cy);
+    ctx.moveTo(cx,cy-320); ctx.lineTo(cx,cy+320);
+    ctx.stroke();
+
+    // top and bottom annotation bands
+    function ladder(y, count, span, alpha){
+      for(let i=0;i<count;i++){
+        const x = 170 + i*span;
+        ctx.strokeStyle = `rgba(180,250,255,${alpha*(i%2?0.7:1)})`;
+        ctx.beginPath();
+        ctx.moveTo(x,y); ctx.lineTo(x+span*0.7,y);
+        ctx.stroke();
+      }
+    }
+    ladder(308,10,74,0.34);
+    ladder(1602,10,74,0.28);
+
+    // faint coordinate blocks
+    for(let i=0;i<8;i++){
+      const x = 150 + i*110;
+      ctx.fillStyle = 'rgba(130,240,255,.03)';
+      ctx.fillRect(x, 106, 58, 18);
+      ctx.fillRect(x, 1790, 58, 18);
+    }
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  // Grain / scan texture
+  const g = document.getElementById('grainCanvas').getContext('2d');
+  const gc = g.canvas;
+  const img = g.createImageData(gc.width, gc.height);
+  for(let y=0;y<gc.height;y++){
+    for(let x=0;x<gc.width;x++){
+      const i = (y*gc.width+x)*4;
+      const n = ((x*13 ^ y*7 ^ (x*y)%97) & 15);
+      const line = (y%3===0) ? 10 : 0;
+      img.data[i] = 100 + n + line;
+      img.data[i+1] = 220 + n + line;
+      img.data[i+2] = 255;
+      img.data[i+3] = 18;
+    }
+  }
+  g.putImageData(img,0,0);
+
+  if (window.self === window.top) {
+    try{
+      const actx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = actx.createGain();
+      master.gain.value = 0.018;
+      master.connect(actx.destination);
+
+      const hp = actx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 140;
+      hp.Q.value = 0.5;
+      hp.connect(master);
+
+      const lp = actx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1200;
+      lp.Q.value = 0.4;
+      lp.connect(hp);
+
+      const o1 = actx.createOscillator();
+      const o2 = actx.createOscillator();
+      const o3 = actx.createOscillator();
+      const g1 = actx.createGain(), g2 = actx.createGain(), g3 = actx.createGain();
+
+      o1.type = 'sawtooth'; o1.frequency.value = 82.41;
+      o2.type = 'triangle'; o2.frequency.value = 123.47;
+      o3.type = 'sine'; o3.frequency.value = 246.94;
+
+      g1.gain.value = 0.10;
+      g2.gain.value = 0.05;
+      g3.gain.value = 0.02;
+
+      o1.connect(g1); o2.connect(g2); o3.connect(g3);
+      g1.connect(lp); g2.connect(lp); g3.connect(lp);
+
+      const lfo = actx.createOscillator();
+      const lfoG = actx.createGain();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.047;
+      lfoG.gain.value = 90;
+      lfo.connect(lfoG);
+      lfoG.connect(lp.frequency);
+
+      const trem = actx.createOscillator();
+      const tremG = actx.createGain();
+      trem.type = 'sine';
+      trem.frequency.value = 0.11;
+      tremG.gain.value = 0.008;
+      trem.connect(tremG);
+      tremG.connect(master.gain);
+
+      o1.start(); o2.start(); o3.start(); lfo.start(); trem.start();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
