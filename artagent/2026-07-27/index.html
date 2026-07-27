@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026-07-27</title>
+<style>
+  :root{
+    --bg1:#140b0a;
+    --bg2:#2a120d;
+    --bg3:#4d2313;
+    --gold:#d9a441;
+    --gold2:#f2d18b;
+    --crimson:#8f1420;
+    --amber:#c66b1f;
+    --bone:#f0dfbe;
+    --shadow:#050303;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    width:min(100vw,56.25vh);
+    height:min(100vh,177.777vw);
+    aspect-ratio:9/16;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 18%, rgba(120,45,20,0.35), transparent 42%),
+      radial-gradient(80% 50% at 50% 48%, rgba(220,150,60,0.13), transparent 55%),
+      linear-gradient(180deg, #25110d 0%, #160b09 26%, #0f0908 56%, #070606 100%);
+    box-shadow:0 0 40px rgba(0,0,0,.45);
+  }
+
+  #stageGlow{
+    position:absolute; inset:-8%;
+    background:
+      radial-gradient(52% 26% at 50% 34%, rgba(245,201,110,0.18), rgba(245,201,110,0.08) 38%, transparent 70%),
+      radial-gradient(64% 42% at 50% 72%, rgba(111,17,22,0.20), transparent 72%);
+    filter:blur(18px);
+    opacity:.95;
+    animation:breathe 14s ease-in-out infinite;
+    pointer-events:none;
+  }
+
+  #archShadow{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(70% 90% at 50% 44%, transparent 0 41%, rgba(0,0,0,0.22) 54%, rgba(0,0,0,0.62) 74%, rgba(0,0,0,0.88) 100%);
+    opacity:.95;
+    pointer-events:none;
+  }
+
+  #ornateTop, #ornateBottom{
+    position:absolute;
+    left:50%;
+    width:94%;
+    transform:translateX(-50%);
+    height:16%;
+    opacity:.82;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+    mask-image:linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+    pointer-events:none;
+  }
+  #ornateTop{top:1.5%}
+  #ornateBottom{bottom:1.5%; transform:translateX(-50%) scaleY(-1);}
+
+  .filigree{
+    fill:none;
+    stroke:url(#goldGrad);
+    stroke-width:4.5;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:.9;
+  }
+  .filigreeThin{
+    fill:none;
+    stroke:url(#goldGrad2);
+    stroke-width:2;
+    opacity:.7;
+  }
+  .medallion{
+    fill:url(#goldFill);
+    stroke:#8b5a1d;
+    stroke-width:2;
+  }
+
+  #haloSvg{
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:.9;
+    mix-blend-mode:screen;
+  }
+
+  #haloCore{
+    animation:haloTurn 40s linear infinite;
+    transform-origin:50% 38%;
+  }
+  #haloInner{
+    animation:haloTurnRev 28s linear infinite;
+    transform-origin:50% 38%;
+  }
+  #haloPulse{
+    animation:breathe 11s ease-in-out infinite;
+    transform-origin:50% 38%;
+  }
+
+  #lifeCanvas, #textureCanvas{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+  }
+  #lifeCanvas{filter:saturate(1.15) contrast(1.08)}
+  #textureCanvas{
+    opacity:.18;
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+
+  #vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(88% 72% at 50% 44%, transparent 0 44%, rgba(14,7,6,0.22) 62%, rgba(5,3,3,0.76) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.22), transparent 20%, transparent 78%, rgba(0,0,0,.35));
+    pointer-events:none;
+  }
+
+  #curtainLeft, #curtainRight{
+    position:absolute;
+    top:-4%;
+    width:26%;
+    height:50%;
+    background:
+      linear-gradient(90deg, rgba(46,7,13,0.95), rgba(127,21,27,0.95) 40%, rgba(68,10,18,0.98) 100%),
+      repeating-linear-gradient(90deg, rgba(255,220,160,0.05) 0 9px, rgba(0,0,0,0) 9px 24px);
+    filter:brightness(.95) saturate(1.15);
+    opacity:.9;
+    transform-origin:top center;
+    box-shadow:inset -12px 0 26px rgba(0,0,0,.28), inset 12px 0 26px rgba(255,190,120,.06);
+    pointer-events:none;
+    mask-image:linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+    -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 82%, transparent 100%);
+  }
+  #curtainLeft{
+    left:-5%;
+    clip-path:polygon(0 0, 100% 0, 86% 22%, 100% 44%, 82% 68%, 100% 100%, 0 100%);
+    animation:curtainL 18s ease-in-out infinite;
+  }
+  #curtainRight{
+    right:-5%;
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%, 18% 68%, 0 44%, 14% 22%);
+    animation:curtainR 21s ease-in-out infinite;
+  }
+
+  #date{
+    position:absolute;
+    right:20px;
+    bottom:14px;
+    color:rgba(242,225,196,.46);
+    font-size:13px;
+    letter-spacing:1.6px;
+    z-index:20;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    width:18px;
+    height:auto;
+    left:19px;
+    bottom:162px;
+    opacity:.56;
+    filter:saturate(.7) sepia(.25) hue-rotate(-18deg) brightness(.85);
+    z-index:6;
+    transform:rotate(-8deg);
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1); opacity:.9}
+    50%{transform:scale(1.03); opacity:1}
+  }
+  @keyframes haloTurn{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
+  @keyframes haloTurnRev{
+    from{transform:rotate(360deg)}
+    to{transform:rotate(0deg)}
+  }
+  @keyframes curtainL{
+    0%,100%{transform:translateX(0) skewY(0deg)}
+    50%{transform:translateX(-4px) skewY(1.4deg)}
+  }
+  @keyframes curtainR{
+    0%,100%{transform:translateX(0) skewY(0deg)}
+    50%{transform:translateX(4px) skewY(-1.2deg)}
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="lifeCanvas"></canvas>
+  <canvas id="textureCanvas"></canvas>
+
+  <div id="stageGlow"></div>
+
+  <svg id="haloSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <radialGradient id="haloGold" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff1c8" stop-opacity="0.95"/>
+        <stop offset="42%" stop-color="#e0b65b" stop-opacity="0.78"/>
+        <stop offset="72%" stop-color="#8f4f16" stop-opacity="0.16"/>
+        <stop offset="100%" stop-color="#8f4f16" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6e4314"/>
+        <stop offset="35%" stop-color="#d9a441"/>
+        <stop offset="65%" stop-color="#f3d794"/>
+        <stop offset="100%" stop-color="#744716"/>
+      </linearGradient>
+      <linearGradient id="goldGrad2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#f1d89d"/>
+        <stop offset="50%" stop-color="#986424"/>
+        <stop offset="100%" stop-color="#f1d89d"/>
+      </linearGradient>
+      <linearGradient id="goldFill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f5ddb0"/>
+        <stop offset="52%" stop-color="#bb7d29"/>
+        <stop offset="100%" stop-color="#f0d59a"/>
+      </linearGradient>
+      <filter id="softBlur"><feGaussianBlur stdDeviation="10"/></filter>
+      <filter id="smallBlur"><feGaussianBlur stdDeviation="2.5"/></filter>
+      <mask id="edgeFade">
+        <rect width="1080" height="1920" fill="url(#edgeMaskGrad)"/>
+      </mask>
+      <radialGradient id="edgeMaskGrad" cx="50%" cy="45%" r="62%">
+        <stop offset="0%" stop-color="white"/>
+        <stop offset="72%" stop-color="white"/>
+        <stop offset="100%" stop-color="black"/>
+      </radialGradient>
+    </defs>
+
+    <g mask="url(#edgeFade)">
+      <g id="haloPulse">
+        <ellipse cx="540" cy="735" rx="312" ry="220" fill="url(#haloGold)" opacity="0.55" filter="url(#softBlur)"/>
+      </g>
+
+      <g id="haloCore">
+        <g opacity="0.42">
+          <polygon points="540,348 575,520 710,408 634,566 815,572 650,632 800,732 622,688 684,860 540,732 396,860 458,688 280,732 430,632 265,572 446,566 370,408 505,520"
+                   fill="url(#goldFill)" filter="url(#smallBlur)"/>
+        </g>
+      </g>
+
+      <g id="haloInner" opacity="0.75">
+        <circle cx="540" cy="735" r="190" fill="none" stroke="url(#goldGrad2)" stroke-width="26"/>
+        <circle cx="540" cy="735" r="238" fill="none" stroke="url(#goldGrad)" stroke-width="8" stroke-dasharray="10 20"/>
+        <circle cx="540" cy="735" r="278" fill="none" stroke="url(#goldGrad2)" stroke-width="5" stroke-dasharray="4 18"/>
+      </g>
+
+      <g opacity="0.42">
+        <polygon points="540,540 565,630 655,605 595,680 665,742 576,734 540,825 504,734 415,742 485,680 425,605 515,630"
+                 fill="url(#goldFill)"/>
+      </g>
+    </g>
+  </svg>
+
+  <svg id="ornateTop" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="goldGradTop" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6d4618"/>
+        <stop offset="30%" stop-color="#e1b456"/>
+        <stop offset="70%" stop-color="#f5e0b0"/>
+        <stop offset="100%" stop-color="#704614"/>
+      </linearGradient>
+    </defs>
+    <g fill="none" stroke="url(#goldGradTop)" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M80 130 H920" stroke-width="4"/>
+      <path d="M500 44 L530 102 L596 102 L542 138 L562 198 L500 160 L438 198 L458 138 L404 102 L470 102 Z" stroke-width="4" fill="rgba(214,164,65,.16)"/>
+      <circle cx="500" cy="122" r="26" stroke-width="3"/>
+      <path d="M148 130 C188 116, 210 90, 222 58 C238 92, 270 118, 322 130 C270 142, 238 168, 222 202 C210 170, 188 144, 148 130 Z" stroke-width="3"/>
+      <path d="M852 130 C812 116, 790 90, 778 58 C762 92, 730 118, 678 130 C730 142, 762 168, 778 202 C790 170, 812 144, 852 130 Z" stroke-width="3"/>
+      <path d="M40 130 C100 130, 116 95, 132 62" stroke-width="2.3"/>
+      <path d="M960 130 C900 130, 884 95, 868 62" stroke-width="2.3"/>
+      <path d="M40 130 C100 130, 116 165, 132 198" stroke-width="2.3"/>
+      <path d="M960 130 C900 130, 884 165, 868 198" stroke-width="2.3"/>
+      <circle cx="222" cy="130" r="18" stroke-width="2"/>
+      <circle cx="778" cy="130" r="18" stroke-width="2"/>
+    </g>
+  </svg>
+
+  <svg id="ornateBottom" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+    <g fill="none" stroke="url(#goldGrad)" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M80 130 H920" stroke-width="4"/>
+      <path d="M500 44 L530 102 L596 102 L542 138 L562 198 L500 160 L438 198 L458 138 L404 102 L470 102 Z" stroke-width="4" fill="rgba(214,164,65,.16)"/>
+      <circle cx="500" cy="122" r="26" stroke-width="3"/>
+      <path d="M148 130 C188 116, 210 90, 222 58 C238 92, 270 118, 322 130 C270 142, 238 168, 222 202 C210 170, 188 144, 148 130 Z" stroke-width="3"/>
+      <path d="M852 130 C812 116, 790 90, 778 58 C762 92, 730 118, 678 130 C730 142, 762 168, 778 202 C790 170, 812 144, 852 130 Z" stroke-width="3"/>
+    </g>
+  </svg>
+
+  <div id="curtainLeft"></div>
+  <div id="curtainRight"></div>
+  <div id="archShadow"></div>
+  <div id="vignette"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div id="date">2026-07-27</div>
+</div>
+
+<script>
+(() => {
+  const dateStr = "2026-07-27";
+  function hashString(str){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const seed = hashString(dateStr + "-baroque-life-starfish");
+  const rand = mulberry32(seed);
+
+  const frame = document.getElementById('frame');
+  const lifeCanvas = document.getElementById('lifeCanvas');
+  const texCanvas = document.getElementById('textureCanvas');
+  const lctx = lifeCanvas.getContext('2d');
+  const tctx = texCanvas.getContext('2d');
+
+  let W = 1080, H = 1920, DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  const cols = 13;
+  const rows = 21;
+  let grid = [];
+  let nextGrid = [];
+  let phase = 0;
+  let lastStep = 0;
+  const stepDuration = 1700;
+  const pulseDuration = 1700;
+
+  function resize(){
+    const rect = frame.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    [lifeCanvas, texCanvas].forEach(c=>{
+      c.width = rect.width * DPR;
+      c.height = rect.height * DPR;
+      c.style.width = rect.width + 'px';
+      c.style.height = rect.height + 'px';
+    });
+    lctx.setTransform(DPR,0,0,DPR,0,0);
+    tctx.setTransform(DPR,0,0,DPR,0,0);
+    W = rect.width;
+    H = rect.height;
+    drawTexture();
+  }
+
+  function seededLifeGrid() {
+    grid = Array.from({length: rows}, () => Array(cols).fill(0));
+    nextGrid = Array.from({length: rows}, () => Array(cols).fill(0));
+
+    const centers = [
+      [Math.floor(cols*0.5), Math.floor(rows*0.42)],
+      [Math.floor(cols*0.36), Math.floor(rows*0.56)],
+      [Math.floor(cols*0.64), Math.floor(rows*0.56)],
+      [Math.floor(cols*0.5), Math.floor(rows*0.70)]
+    ];
+
+    for (const [cx, cy] of centers){
+      const arms = 5;
+      for(let a=0;a<arms;a++){
+        const ang = (Math.PI*2/arms)*a - Math.PI/2;
+        for(let r=0;r<4;r++){
+          const x = Math.round(cx + Math.cos(ang)*r*(1.0 + rand()*0.18));
+          const y = Math.round(cy + Math.sin(ang)*r*(1.0 + rand()*0.18));
+          if(x>=0 && x<cols && y>=0 && y<rows) grid[y][x]=1;
+        }
+      }
+      grid[cy][cx]=1;
+      for(let yy=-1;yy<=1;yy++){
+        for(let xx=-1;xx<=1;xx++){
+          if(rand() > 0.55){
+            const x = cx+xx, y = cy+yy;
+            if(x>=0&&x<cols&&y>=0&&y<rows) grid[y][x]=1;
+          }
+        }
+      }
+    }
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const dx = (x-cols/2)/(cols/2);
+        const dy = (y-rows*0.52)/(rows/2);
+        const ellipse = dx*dx*0.8 + dy*dy*1.45;
+        if(ellipse < 0.92 && rand() > 0.84) grid[y][x] = 1;
+      }
+    }
+  }
+
+  function countN(x,y){
+    let n=0;
+    for(let j=-1;j<=1;j++){
+      for(let i=-1;i<=1;i++){
+        if(i===0&&j===0) continue;
+        const xx=(x+i+cols)%cols;
+        const yy=(y+j+rows)%rows;
+        n+=grid[yy][xx];
+      }
+    }
+    return n;
+  }
+
+  function stepLife(){
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const alive = grid[y][x];
+        const n = countN(x,y);
+        nextGrid[y][x] = (alive && (n===2 || n===3)) || (!alive && n===3) ? 1 : 0;
+      }
+    }
+    let aliveCount = 0;
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        grid[y][x]=nextGrid[y][x];
+        aliveCount += grid[y][x];
+      }
+    }
+    if(aliveCount < 18 || aliveCount > cols*rows*0.58){
+      seededLifeGrid();
+    }
+  }
+
+  function drawCell(cx, cy, s, alive, t, ix, iy){
+    const base = s*0.84;
+    const pulse = alive ? (0.88 + 0.2*Math.sin(t*Math.PI)) : (0.72 + 0.05*Math.sin((phase*0.7)+(ix+iy)*0.3));
+    const size = base*pulse;
+    const rot = ((ix*13 + iy*7 + seed)%360) * Math.PI/180 * 0.018 + Math.sin(phase*0.25 + ix*0.4 + iy*0.2)*0.03;
+    const petals = alive ? 5 : 4;
+    const inner = alive ? 0.47 : 0.55;
+    const outer = size*0.52;
+    const innerR = outer*inner;
+
+    lctx.save();
+    lctx.translate(cx, cy);
+    lctx.rotate(rot);
+
+    const grad = lctx.createRadialGradient(0, -outer*0.12, outer*0.08, 0, 0, outer*1.05);
+    if(alive){
+      grad.addColorStop(0, "rgba(255,240,205,0.98)");
+      grad.addColorStop(0.24, "rgba(233,186,92,0.95)");
+      grad.addColorStop(0.52, "rgba(165,44,36,0.90)");
+      grad.addColorStop(0.86, "rgba(67,15,15,0.78)");
+      grad.addColorStop(1, "rgba(22,7,8,0.0)");
+    }else{
+      grad.addColorStop(0, "rgba(116,68,32,0.34)");
+      grad.addColorStop(0.58, "rgba(59,22,14,0.22)");
+      grad.addColorStop(1, "rgba(10,6,6,0.0)");
+    }
+
+    lctx.beginPath();
+    for(let p=0;p<petals*2;p++){
+      const a = p*Math.PI/petals - Math.PI/2;
+      const r = (p%2===0) ? outer : innerR;
+      const x = Math.cos(a)*r;
+      const y = Math.sin(a)*r;
+      if(p===0) lctx.moveTo(x,y); else lctx.lineTo(x,y);
+    }
+    lctx.closePath();
+    lctx.fillStyle = grad;
+    lctx.shadowColor = alive ? "rgba(255,187,100,0.22)" : "rgba(0,0,0,0)";
+    lctx.shadowBlur = alive ? outer*0.55 : 0;
+    lctx.fill();
+
+    if(alive){
+      lctx.lineWidth = Math.max(1.2, size*0.038);
+      lctx.strokeStyle = "rgba(248,220,166,0.78)";
+      lctx.stroke();
+
+      lctx.beginPath();
+      lctx.arc(0,0,outer*0.2,0,Math.PI*2);
+      const core = lctx.createRadialGradient(-outer*0.05,-outer*0.05,0,0,0,outer*0.24);
+      core.addColorStop(0,"rgba(255,247,224,0.95)");
+      core.addColorStop(1,"rgba(171,76,32,0.0)");
+      lctx.fillStyle = core;
+      lctx.fill();
+    } else {
+      lctx.lineWidth = Math.max(1,size*0.025);
+      lctx.strokeStyle = "rgba(118,77,36,0.15)";
+      lctx.stroke();
+    }
+    lctx.restore();
+  }
+
+  function drawBackground(){
+    lctx.clearRect(0,0,W,H);
+
+    const g = lctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#26120e");
+    g.addColorStop(0.26,"#3b180f");
+    g.addColorStop(0.52,"#160c0a");
+    g.addColorStop(1,"#080606");
+    lctx.fillStyle = g;
+    lctx.fillRect(0,0,W,H);
+
+    const floorGrad = lctx.createRadialGradient(W*0.5,H*0.82,10,W*0.5,H*0.82,W*0.48);
+    floorGrad.addColorStop(0,"rgba(176,88,29,0.13)");
+    floorGrad.addColorStop(0.5,"rgba(68,25,18,0.09)");
+    floorGrad.addColorStop(1,"rgba(0,0,0,0)");
+    lctx.fillStyle = floorGrad;
+    lctx.fillRect(0,0,W,H);
+
+    const beamCount = 9;
+    const centerX = W/2;
+    const centerY = H*0.1;
+    for(let i=0;i<beamCount;i++){
+      const frac = i/(beamCount-1);
+      const ang = (-0.58 + frac*1.16) + Math.sin(phase*0.1 + i)*0.02;
+      const len = H*1.12;
+      const spread = 46 + 18*Math.sin(phase*0.05 + i);
+      lctx.save();
+      lctx.translate(centerX, centerY);
+      lctx.rotate(ang);
+      const beamGrad = lctx.createLinearGradient(0,0,0,len);
+      beamGrad.addColorStop(0,"rgba(255,214,132,0.115)");
+      beamGrad.addColorStop(0.3,"rgba(181,100,42,0.06)");
+      beamGrad.addColorStop(1,"rgba(0,0,0,0)");
+      lctx.fillStyle = beamGrad;
+      lctx.beginPath();
+      lctx.moveTo(-spread,0);
+      lctx.lineTo(spread,0);
+      lctx.lineTo(spread*0.25,len);
+      lctx.lineTo(-spread*0.25,len);
+      lctx.closePath();
+      lctx.fill();
+      lctx.restore();
+    }
+  }
+
+  function drawLife(now){
+    drawBackground();
+
+    const marginX = W*0.125;
+    const marginTop = H*0.19;
+    const marginBottom = H*0.13;
+    const cell = Math.min((W - marginX*2)/cols, (H - marginTop - marginBottom)/rows);
+    const gridW = cell*cols;
+    const gridH = cell*rows;
+    const startX = (W-gridW)/2 + cell*0.5;
+    const startY = marginTop + cell*0.5;
+
+    const prog = Math.min(1, (now-lastStep)/pulseDuration);
+    const underGlow = lctx.createRadialGradient(W*0.5,H*0.42,cell*1.6,W*0.5,H*0.54,gridW*0.52);
+    underGlow.addColorStop(0,"rgba(255,217,152,0.10)");
+    underGlow.addColorStop(0.45,"rgba(148,52,29,0.08)");
+    underGlow.addColorStop(1,"rgba(0,0,0,0)");
+    lctx.fillStyle = underGlow;
+    lctx.fillRect(0,0,W,H);
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        const px = startX + x*cell;
+        const py = startY + y*cell;
+        drawCell(px, py, cell, !!grid[y][x], prog, x, y);
+      }
+    }
+
+    lctx.save();
+    lctx.globalAlpha = 0.16;
+    lctx.strokeStyle = "rgba(213,166,88,0.55)";
+    lctx.lineWidth = 1.1;
+    for(let x=0;x<=cols;x++){
+      const gx = startX - cell/2 + x*cell;
+      lctx.beginPath();
+      lctx.moveTo(gx, startY-cell/2);
+      lctx.lineTo(gx, startY-cell/2+gridH);
+      lctx.stroke();
+    }
+    for(let y=0;y<=rows;y++){
+      const gy = startY - cell/2 + y*cell;
+      lctx.beginPath();
+      lctx.moveTo(startX-cell/2, gy);
+      lctx.lineTo(startX-cell/2+gridW, gy);
+      lctx.stroke();
+    }
+    lctx.restore();
+
+    lctx.save();
+    lctx.globalAlpha = 0.30;
+    lctx.strokeStyle = "rgba(242,212,160,0.26)";
+    lctx.lineWidth = 2.5;
+    lctx.strokeRect(startX-cell/2, startY-cell/2, gridW, gridH);
+    lctx.restore();
+  }
+
+  function drawTexture(){
+    tctx.clearRect(0,0,W,H);
+
+    for(let i=0;i<7000;i++){
+      const x = rand()*W;
+      const y = rand()*H;
+      const a = rand()*0.12;
+      const s = rand()*1.2 + 0.25;
+      tctx.fillStyle = `rgba(255,225,180,${a})`;
+      tctx.fillRect(x,y,s,s);
+    }
+
+    const bands = 28;
+    for(let i=0;i<bands;i++){
+      const y = (i/bands)*H;
+      tctx.fillStyle = i%2===0 ? "rgba(255,210,150,0.02)" : "rgba(0,0,0,0.012)";
+      tctx.fillRect(0,y,W,H/bands);
+    }
+
+    const stone = tctx.createRadialGradient(W*0.5,H*0.44,10,W*0.5,H*0.5,W*0.74);
+    stone.addColorStop(0,"rgba(255,233,200,0.09)");
+    stone.addColorStop(0.6,"rgba(147,95,47,0.04)");
+    stone.addColorStop(1,"rgba(0,0,0,0)");
+    tctx.fillStyle = stone;
+    tctx.fillRect(0,0,W,H);
+  }
+
+  function animate(now){
+    if(!lastStep) lastStep = now;
+    phase = now*0.001;
+
+    if(now - lastStep >= stepDuration){
+      stepLife();
+      lastStep = now;
+    }
+    drawLife(now);
+    requestAnimationFrame(animate);
+  }
+
+  seededLifeGrid();
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const osc3 = ctx.createOscillator();
+      const g1 = ctx.createGain();
+      const g2 = ctx.createGain();
+      const g3 = ctx.createGain();
+      const lp = ctx.createBiquadFilter();
+
+      osc1.type = "sine";
+      osc2.type = "triangle";
+      osc3.type = "sine";
+
+      osc1.frequency.value = 98;
+      osc2.frequency.value = 146.8;
+      osc3.frequency.value = 196;
+
+      g1.gain.value = 0.18;
+      g2.gain.value = 0.08;
+      g3.gain.value = 0.05;
+
+      lp.type = "lowpass";
+      lp.frequency.value = 720;
+      lp.Q.value = 0.4;
+
+      osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+      g1.connect(lp); g2.connect(lp); g3.connect(lp);
+      lp.connect(master);
+
+      osc1.start(); osc2.start(); osc3.start();
+
+      function audioDrift(){
+        const t = ctx.currentTime;
+        osc1.frequency.cancelScheduledValues(t);
+        osc2.frequency.cancelScheduledValues(t);
+        osc3.frequency.cancelScheduledValues(t);
+
+        const base = 92 + Math.sin(t/11)*6;
+        osc1.frequency.linearRampToValueAtTime(base, t + 8);
+        osc2.frequency.linearRampToValueAtTime(base*1.495, t + 8);
+        osc3.frequency.linearRampToValueAtTime(base*2.01, t + 8);
+        master.gain.linearRampToValueAtTime(0.016 + (0.004*(0.5+0.5*Math.sin(t/9))), t + 8);
+        lp.frequency.linearRampToValueAtTime(520 + (180*(0.5+0.5*Math.sin(t/13))), t + 8);
+      }
+      audioDrift();
+      setInterval(audioDrift, 7000);
+
+      const resume = () => { if(ctx.state !== "running") ctx.resume(); };
+      document.addEventListener("visibilitychange", resume);
+      window.addEventListener("focus", resume);
+      resume();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
