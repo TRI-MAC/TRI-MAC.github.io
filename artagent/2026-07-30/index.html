@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>2026-07-30</title>
+<style>
+  :root{
+    --bg0:#04121c;
+    --bg1:#0a2330;
+    --bg2:#114154;
+    --ink:#d8f0f2;
+    --acid:#8fffe2;
+    --amber:#ffb84d;
+    --violet:#6d59ff;
+    --rose:#ff6488;
+    --slate:#183848;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+  }
+  body{
+    display:grid;
+    place-items:center;
+  }
+  #frame{
+    position:relative;
+    width:min(100vw, calc(100vh * 1080 / 1920));
+    height:min(100vh, calc(100vw * 1920 / 1080));
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(140% 90% at 50% 18%, rgba(115,255,230,.18), transparent 42%),
+      radial-gradient(90% 60% at 72% 62%, rgba(255,184,77,.10), transparent 35%),
+      linear-gradient(180deg, #06131a 0%, #0b2230 28%, #0e3140 60%, #0a2431 100%);
+    box-shadow:0 0 40px rgba(0,0,0,.45);
+  }
+
+  .layer, canvas, svg, img, .beamWrap, .structure, .date {
+    position:absolute; inset:0;
+  }
+
+  #backCanvas, #frontCanvas{ width:100%; height:100%; }
+
+  .fog{
+    pointer-events:none;
+    background:
+      radial-gradient(70% 28% at 52% 8%, rgba(165,255,243,.11), transparent 70%),
+      radial-gradient(45% 30% at 50% 47%, rgba(19,97,120,.16), transparent 76%),
+      radial-gradient(60% 34% at 44% 83%, rgba(255,184,77,.08), transparent 80%);
+    mix-blend-mode:screen;
+    opacity:.9;
+    animation:fogShift 28s ease-in-out infinite;
+  }
+
+  @keyframes fogShift{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-2.2%) scale(1.04)}
+  }
+
+  .beamWrap{
+    pointer-events:none;
+    mask-image:radial-gradient(circle at 50% 50%, #000 0%, #000 70%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, #000 0%, #000 70%, transparent 100%);
+  }
+
+  .beam{
+    position:absolute;
+    top:-14%;
+    width:18%;
+    height:86%;
+    background:linear-gradient(180deg, rgba(175,255,239,.24), rgba(175,255,239,.06) 55%, transparent 100%);
+    filter:blur(8px);
+    opacity:.5;
+    transform-origin:50% 0%;
+    clip-path:polygon(48% 0, 58% 0, 100% 100%, 0 100%);
+    animation:beamSway 21s ease-in-out infinite;
+  }
+  .beam.b1{left:12%; transform:rotate(-10deg)}
+  .beam.b2{left:39%; width:24%; opacity:.34; transform:rotate(5deg); animation-duration:27s}
+  .beam.b3{left:67%; width:16%; opacity:.28; transform:rotate(13deg); animation-duration:24s}
+
+  @keyframes beamSway{
+    0%,100%{margin-top:0; transform:translateX(0) rotate(-8deg) scaleY(1)}
+    50%{margin-top:2%; transform:translateX(2%) rotate(-2deg) scaleY(1.04)}
+  }
+
+  .structure{
+    pointer-events:none;
+    opacity:.86;
+    mix-blend-mode:screen;
+    mask-image:radial-gradient(circle at 50% 52%, #000 0%, #000 82%, transparent 100%);
+    -webkit-mask-image:radial-gradient(circle at 50% 52%, #000 0%, #000 82%, transparent 100%);
+  }
+
+  .pylon{
+    position:absolute;
+    bottom:-3%;
+    width:19%;
+    height:56%;
+    background:
+      linear-gradient(180deg, rgba(156,255,238,.0), rgba(156,255,238,.08) 28%, rgba(156,255,238,.15) 100%);
+    clip-path:polygon(36% 0, 64% 0, 100% 100%, 0 100%);
+    filter:blur(.2px);
+    animation:pulseLift 17s ease-in-out infinite;
+  }
+  .pylon:before,.pylon:after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(180deg,
+        transparent 0 10%,
+        rgba(230,255,253,.18) 10.7% 11.7%,
+        transparent 12.2% 21%);
+    mix-blend-mode:screen;
+    opacity:.5;
+  }
+  .pylon:after{
+    clip-path:polygon(47% 0, 53% 0, 76% 100%, 24% 100%);
+    background:linear-gradient(180deg, rgba(255,184,77,.0), rgba(255,184,77,.18));
+    opacity:.4;
+    filter:blur(2px);
+  }
+  .p1{left:-2%; height:50%; animation-delay:-2s}
+  .p2{left:15%; width:14%; height:63%; opacity:.6}
+  .p3{left:66%; width:16%; height:54%; animation-delay:-8s}
+  .p4{left:80%; width:22%; height:68%; opacity:.7; animation-delay:-5s}
+
+  @keyframes pulseLift{
+    0%,100%{transform:translateY(0) scaleY(1)}
+    50%{transform:translateY(-1.4%) scaleY(1.03)}
+  }
+
+  .crossbar{
+    position:absolute;
+    height:2px;
+    background:linear-gradient(90deg, transparent, rgba(164,255,240,.55), transparent);
+    filter:blur(.3px);
+    animation:barDrift 18s ease-in-out infinite;
+  }
+  .cb1{left:8%; top:31%; width:44%}
+  .cb2{left:54%; top:37%; width:28%; animation-delay:-6s}
+  .cb3{left:23%; top:64%; width:51%; animation-delay:-10s}
+  .cb4{left:11%; top:76%; width:33%; animation-delay:-3s}
+
+  @keyframes barDrift{
+    0%,100%{transform:translateX(0) scaleX(1)}
+    50%{transform:translateX(1.4%) scaleX(1.03)}
+  }
+
+  #portrait-image{
+    position:absolute;
+    left:11%;
+    bottom:13%;
+    width:43%;
+    height:auto;
+    z-index:7;
+    filter:
+      saturate(0.88)
+      contrast(1.03)
+      brightness(0.93)
+      hue-rotate(168deg)
+      drop-shadow(0 24px 32px rgba(0,0,0,.42))
+      drop-shadow(0 0 14px rgba(145,255,235,.18));
+    transform-origin:50% 100%;
+    animation:portraitBreathe 19s ease-in-out infinite;
+  }
+
+  @keyframes portraitBreathe{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-0.6%) scale(1.008)}
+  }
+
+  .portraitShadow{
+    position:absolute;
+    left:13%;
+    bottom:9%;
+    width:34%;
+    height:9%;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.42), transparent 72%);
+    filter:blur(10px);
+    z-index:5;
+    transform:rotate(-6deg);
+  }
+
+  .occlusion{
+    pointer-events:none;
+    z-index:8;
+    mix-blend-mode:screen;
+  }
+  .blade{
+    position:absolute;
+    bottom:-8%;
+    width:10%;
+    height:44%;
+    background:linear-gradient(180deg, rgba(150,255,235,.0), rgba(150,255,235,.18) 48%, rgba(255,184,77,.13) 100%);
+    clip-path:polygon(48% 0, 70% 7%, 100% 100%, 0 100%, 30% 7%);
+    filter:blur(3px);
+    opacity:.5;
+    animation:bladeLean 23s ease-in-out infinite;
+  }
+  .blade:nth-child(1){left:5%;height:34%;animation-delay:-1s}
+  .blade:nth-child(2){left:17%;width:8%;height:41%;animation-delay:-7s}
+  .blade:nth-child(3){left:28%;width:11%;height:47%;animation-delay:-3s}
+  .blade:nth-child(4){left:35%;width:7%;height:35%;animation-delay:-12s}
+  .blade:nth-child(5){left:72%;width:9%;height:39%;animation-delay:-5s}
+  .blade:nth-child(6){left:84%;width:12%;height:33%;animation-delay:-9s}
+  @keyframes bladeLean{
+    0%,100%{transform:skewX(0deg) translateY(0)}
+    50%{transform:skewX(-4deg) translateY(-1%)}
+  }
+
+  .veil{
+    position:absolute;
+    z-index:9;
+    pointer-events:none;
+    inset:auto 0 20% 0;
+    height:16%;
+    background:
+      linear-gradient(90deg,
+        transparent 0 3%,
+        rgba(11,37,49,0.0) 7%,
+        rgba(136,255,235,.08) 20%,
+        rgba(255,184,77,.12) 33%,
+        rgba(136,255,235,.07) 48%,
+        rgba(9,28,38,.0) 64%,
+        transparent 100%);
+    filter:blur(10px);
+    transform:rotate(-4deg);
+    animation:veilPass 26s ease-in-out infinite;
+    mask-image:linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+  }
+  @keyframes veilPass{
+    0%,100%{transform:translateX(-2%) rotate(-4deg) scaleX(1)}
+    50%{transform:translateX(2%) rotate(-2deg) scaleX(1.02)}
+  }
+
+  #glyphSvg{
+    z-index:6;
+    pointer-events:none;
+    overflow:visible;
+  }
+  .panel{
+    fill:none;
+    stroke:rgba(175,255,243,.32);
+    stroke-width:2;
+    vector-effect:non-scaling-stroke;
+    animation:panelShift 24s ease-in-out infinite;
+  }
+  .panelWarm{
+    stroke:rgba(255,184,77,.24);
+    stroke-width:1.4;
+  }
+  @keyframes panelShift{
+    0%,100%{transform:translateX(0) translateY(0)}
+    50%{transform:translateX(4px) translateY(-5px)}
+  }
+
+  .whaleAura{
+    position:absolute;
+    z-index:4;
+    left:34%;
+    top:30%;
+    width:44%;
+    height:23%;
+    background:
+      radial-gradient(ellipse at 55% 50%, rgba(130,255,236,.23), rgba(130,255,236,.10) 35%, rgba(130,255,236,0) 72%);
+    filter:blur(18px);
+    animation:auraDrift 22s ease-in-out infinite;
+  }
+  @keyframes auraDrift{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(1.2%,-1.4%) scale(1.04)}
+  }
+
+  .beeMark{
+    position:absolute;
+    z-index:10;
+    left:77%;
+    top:22%;
+    width:38px;
+    height:22px;
+    transform:rotate(13deg);
+    opacity:.48;
+    animation:beeMove 16s ease-in-out infinite;
+    filter:drop-shadow(0 0 4px rgba(255,200,80,.22));
+  }
+  .beeMark:before, .beeMark:after{
+    content:"";
+    position:absolute;
+  }
+  .beeMark:before{
+    inset:4px 8px 4px 8px;
+    background:
+      linear-gradient(90deg,
+        rgba(255,202,78,.95) 0 22%,
+        rgba(20,30,36,.95) 22% 36%,
+        rgba(255,202,78,.95) 36% 54%,
+        rgba(20,30,36,.95) 54% 68%,
+        rgba(255,202,78,.95) 68% 100%);
+    border-radius:48% 52% 46% 54% / 58% 52% 48% 42%;
+  }
+  .beeMark:after{
+    left:8px; top:-2px; width:24px; height:12px;
+    background:
+      radial-gradient(ellipse at 35% 60%, rgba(208,255,255,.46), transparent 58%),
+      radial-gradient(ellipse at 65% 60%, rgba(208,255,255,.38), transparent 58%);
+    filter:blur(1px);
+  }
+  @keyframes beeMove{
+    0%,100%{transform:translate(0,0) rotate(13deg)}
+    50%{transform:translate(-6px,4px) rotate(9deg)}
+  }
+
+  .date{
+    z-index:20;
+    inset:auto 18px 12px auto;
+    width:auto; height:auto;
+    color:rgba(226,244,246,.52);
+    font-size:12px;
+    letter-spacing:.16em;
+    text-transform:none;
+    user-select:none;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    right:18px;
+    bottom:162px;
+    width:17px;
+    height:auto;
+    z-index:11;
+    opacity:.58;
+    filter:saturate(.8) brightness(.78);
+    transform:rotate(-6deg);
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <canvas id="backCanvas" class="layer"></canvas>
+
+  <div class="beamWrap layer">
+    <div class="beam b1"></div>
+    <div class="beam b2"></div>
+    <div class="beam b3"></div>
+  </div>
+
+  <div class="whaleAura"></div>
+
+  <div class="structure layer">
+    <div class="pylon p1"></div>
+    <div class="pylon p2"></div>
+    <div class="pylon p3"></div>
+    <div class="pylon p4"></div>
+    <div class="crossbar cb1"></div>
+    <div class="crossbar cb2"></div>
+    <div class="crossbar cb3"></div>
+    <div class="crossbar cb4"></div>
+  </div>
+
+  <svg id="glyphSvg" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="gA" x1="0" x2="1">
+        <stop offset="0%" stop-color="rgba(155,255,240,0)" />
+        <stop offset="50%" stop-color="rgba(155,255,240,1)" />
+        <stop offset="100%" stop-color="rgba(155,255,240,0)" />
+      </linearGradient>
+      <linearGradient id="gB" x1="0" x2="1">
+        <stop offset="0%" stop-color="rgba(255,184,77,0)" />
+        <stop offset="50%" stop-color="rgba(255,184,77,1)" />
+        <stop offset="100%" stop-color="rgba(255,184,77,0)" />
+      </linearGradient>
+    </defs>
+
+    <polygon class="panel" points="135,690 300,620 492,720 348,802"/>
+    <polygon class="panel panelWarm" points="492,720 700,650 850,755 645,842"/>
+    <polygon class="panel" points="312,958 525,878 706,971 484,1072"/>
+    <polygon class="panel panelWarm" points="146,1208 355,1123 531,1220 305,1313"/>
+    <polygon class="panel" points="625,1158 845,1078 965,1188 738,1266"/>
+
+    <line class="panel" x1="264" y1="1230" x2="265" y2="1680"/>
+    <line class="panel panelWarm" x1="385" y1="1038" x2="386" y2="1586"/>
+    <line class="panel" x1="781" y1="918" x2="782" y2="1554"/>
+
+    <polygon class="panel panelWarm" points="805,368 890,335 948,382 860,420"/>
+    <polygon class="panel" points="744,278 842,240 898,288 793,330"/>
+
+    <rect x="0" y="0" width="1080" height="1920" fill="none"/>
+  </svg>
+
+  <div class="portraitShadow"></div>
+  <img id="portrait-image" src="portrait.png" alt="" />
+
+  <div class="occlusion layer">
+    <div class="blade"></div>
+    <div class="blade"></div>
+    <div class="blade"></div>
+    <div class="blade"></div>
+    <div class="blade"></div>
+    <div class="blade"></div>
+  </div>
+  <div class="veil"></div>
+  <div class="beeMark" aria-hidden="true"></div>
+
+  <canvas id="frontCanvas" class="layer"></canvas>
+  <div class="fog layer"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="" />
+  <div class="date">2026-07-30</div>
+</div>
+
+<script>
+(() => {
+  const dateSeed = "2026-07-30";
+  function hashString(str){
+    let h = 1779033703 ^ str.length;
+    for(let i=0;i<str.length;i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = h << 13 | h >>> 19;
+    }
+    return function() {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      h ^= h >>> 16;
+      return h >>> 0;
+    }
+  }
+  function mulberry32(a){
+    return function(){
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  const seedFn = hashString(dateSeed);
+  const rand = mulberry32(seedFn());
+
+  const frame = document.getElementById('frame');
+  const back = document.getElementById('backCanvas');
+  const front = document.getElementById('frontCanvas');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+
+  let W=1080, H=1920, DPR=1;
+  const plankton = [];
+  const columns = [];
+  const whale = {
+    x: 0.58, y: 0.37, scale: 1.0
+  };
+
+  function resize(){
+    const rect = frame.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    [back, front].forEach(c=>{
+      c.width = rect.width * DPR;
+      c.height = rect.height * DPR;
+      c.style.width = rect.width + 'px';
+      c.style.height = rect.height + 'px';
+    });
+    W = rect.width;
+    H = rect.height;
+    bctx.setTransform(DPR,0,0,DPR,0,0);
+    fctx.setTransform(DPR,0,0,DPR,0,0);
+    initScene();
+  }
+
+  function initScene(){
+    plankton.length = 0;
+    columns.length = 0;
+
+    const plankCount = 210;
+    for(let i=0;i<plankCount;i++){
+      plankton.push({
+        x: rand()*W,
+        y: rand()*H,
+        z: 0.25 + rand()*1.1,
+        r: 0.6 + rand()*2.6,
+        phase: rand()*Math.PI*2,
+        band: rand(),
+        warm: rand() > 0.83
+      });
+    }
+
+    const count = 9;
+    for(let i=0;i<count;i++){
+      const x = (i/(count-1))*W + (rand()-0.5)*W*0.04;
+      columns.push({
+        x,
+        w: W*(0.018 + rand()*0.028),
+        notch: 0.2 + rand()*0.6,
+        h: H*(0.22 + rand()*0.34),
+        bottom: H*(0.77 + rand()*0.17),
+        phase: rand()*Math.PI*2,
+        alpha: 0.07 + rand()*0.11
+      });
+    }
+  }
+
+  function drawBackground(t){
+    bctx.clearRect(0,0,W,H);
+
+    const g = bctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, '#081821');
+    g.addColorStop(0.22, '#0a2330');
+    g.addColorStop(0.58, '#0f3746');
+    g.addColorStop(1, '#0a2430');
+    bctx.fillStyle = g;
+    bctx.fillRect(0,0,W,H);
+
+    for(const c of columns){
+      const sway = Math.sin(t*0.00018 + c.phase)*W*0.01;
+      const h = c.h * (1 + 0.03*Math.sin(t*0.00024 + c.phase));
+      bctx.fillStyle = `rgba(130,255,236,${c.alpha})`;
+      bctx.beginPath();
+      bctx.moveTo(c.x + sway - c.w*0.4, c.bottom-h);
+      bctx.lineTo(c.x + sway + c.w*0.4, c.bottom-h*0.95);
+      bctx.lineTo(c.x + sway + c.w, c.bottom);
+      bctx.lineTo(c.x + sway - c.w, c.bottom);
+      bctx.closePath();
+      bctx.fill();
+
+      bctx.fillStyle = `rgba(255,184,77,${c.alpha*0.45})`;
+      bctx.beginPath();
+      bctx.moveTo(c.x + sway - c.w*0.12, c.bottom-h*c.notch);
+      bctx.lineTo(c.x + sway + c.w*0.12, c.bottom-h*c.notch*0.96);
+      bctx.lineTo(c.x + sway + c.w*0.55, c.bottom);
+      bctx.lineTo(c.x + sway - c.w*0.55, c.bottom);
+      bctx.closePath();
+      bctx.fill();
+    }
+
+    const shaftXs = [W*0.16, W*0.46, W*0.74];
+    shaftXs.forEach((sx, i)=>{
+      const drift = Math.sin(t*0.00013 + i)*W*0.018;
+      const topW = W*(0.022 + i*0.01);
+      const botW = W*(0.16 + i*0.04);
+      const grd = bctx.createLinearGradient(0, 0, 0, H*0.72);
+      grd.addColorStop(0, 'rgba(180,255,241,0.15)');
+      grd.addColorStop(0.6, 'rgba(180,255,241,0.035)');
+      grd.addColorStop(1, 'rgba(180,255,241,0)');
+      bctx.fillStyle = grd;
+      bctx.beginPath();
+      bctx.moveTo(sx + drift - topW, 0);
+      bctx.lineTo(sx + drift + topW, 0);
+      bctx.lineTo(sx + drift + botW, H*0.72);
+      bctx.lineTo(sx + drift - botW, H*0.72);
+      bctx.closePath();
+      bctx.fill();
+    });
+  }
+
+  function drawWhale(t){
+    const cx = W*(whale.x + 0.018*Math.sin(t*0.00011));
+    const cy = H*(whale.y + 0.012*Math.sin(t*0.00017 + 1.2));
+    const len = W*0.43;
+    const h = H*0.11;
+    const yaw = -0.12 + 0.025*Math.sin(t*0.00014);
+
+    bctx.save();
+    bctx.translate(cx, cy);
+    bctx.rotate(yaw);
+
+    const bodyGrad = bctx.createLinearGradient(-len*0.48,0,len*0.5,0);
+    bodyGrad.addColorStop(0,'rgba(8,30,42,0.94)');
+    bodyGrad.addColorStop(0.28,'rgba(15,65,82,0.92)');
+    bodyGrad.addColorStop(0.62,'rgba(24,108,118,0.82)');
+    bodyGrad.addColorStop(1,'rgba(128,255,232,0.22)');
+    bctx.fillStyle = bodyGrad;
+
+    bctx.beginPath();
+    bctx.ellipse(-len*0.04, 0, len*0.34, h*0.44, 0, 0, Math.PI*2);
+    bctx.fill();
+
+    bctx.beginPath();
+    bctx.moveTo(-len*0.45, 0);
+    bctx.lineTo(-len*0.68, -h*0.17);
+    bctx.lineTo(-len*0.62, 0);
+    bctx.lineTo(-len*0.68, h*0.17);
+    bctx.closePath();
+    bctx.fill();
+
+    bctx.fillStyle = 'rgba(145,255,236,0.13)';
+    bctx.beginPath();
+    bctx.moveTo(-len*0.06, -h*0.08);
+    bctx.lineTo(len*0.17, -h*0.24);
+    bctx.lineTo(len*0.08, -h*0.03);
+    bctx.closePath();
+    bctx.fill();
+
+    bctx.fillStyle = 'rgba(8,25,34,0.90)';
+    bctx.beginPath();
+    bctx.moveTo(len*0.08, 0);
+    bctx.lineTo(len*0.50, -h*0.12);
+    bctx.lineTo(len*0.53, 0);
+    bctx.lineTo(len*0.50, h*0.12);
+    bctx.closePath();
+    bctx.fill();
+
+    bctx.fillStyle = 'rgba(195,255,245,0.28)';
+    bctx.beginPath();
+    bctx.arc(len*0.17, -h*0.03, h*0.032, 0, Math.PI*2);
+    bctx.fill();
+
+    bctx.strokeStyle = 'rgba(140,255,238,0.18)';
+    bctx.lineWidth = h*0.05;
+    bctx.lineCap = 'round';
+    bctx.beginPath();
+    bctx.moveTo(-len*0.34, h*0.09);
+    bctx.lineTo(-len*0.04, h*0.13);
+    bctx.lineTo(len*0.25, h*0.09);
+    bctx.stroke();
+
+    bctx.restore();
+
+    bctx.save();
+    bctx.translate(cx, cy);
+    bctx.rotate(yaw);
+    bctx.fillStyle = 'rgba(130,255,236,0.12)';
+    for(let i=0;i<5;i++){
+      const px = len*(0.12 + i*0.045);
+      const py = -h*(0.02 + i*0.005);
+      const pulse = 1 + 0.2*Math.sin(t*0.0006 + i*0.7);
+      bctx.beginPath();
+      bctx.ellipse(px, py, 8*pulse, 22*pulse, -0.1, 0, Math.PI*2);
+      bctx.fill();
+    }
+    bctx.restore();
+  }
+
+  function drawPlankton(t){
+    for(const p of plankton){
+      const rise = (t*0.018*(0.2+p.z*0.5));
+      let y = (p.y - rise + Math.sin(t*0.0007 + p.phase)*8*p.z) % (H+30);
+      if(y < -20) y += H+30;
+      const x = p.x + Math.sin(t*0.00045 + p.phase*1.7)*(8 + 18/p.z);
+      const alpha = 0.08 + 0.24*(1/p.z) + 0.08*Math.sin(t*0.0009 + p.phase);
+      const rr = p.r*(1 + 0.12*Math.sin(t*0.0013 + p.phase));
+      bctx.fillStyle = p.warm
+        ? `rgba(255,188,92,${Math.max(0.03,alpha*0.6)})`
+        : `rgba(198,255,247,${Math.max(0.04,alpha)})`;
+      bctx.beginPath();
+      bctx.arc(x,y,rr,0,Math.PI*2);
+      bctx.fill();
+
+      if(p.band > 0.78){
+        bctx.fillStyle = `rgba(145,255,235,${alpha*0.13})`;
+        bctx.fillRect(x-rr*4, y-0.8, rr*8, 1.6);
+      }
+    }
+  }
+
+  function drawForeground(t){
+    fctx.clearRect(0,0,W,H);
+
+    const horizonY = H*0.79;
+    const ground = fctx.createLinearGradient(0,horizonY,0,H);
+    ground.addColorStop(0,'rgba(5,17,24,0)');
+    ground.addColorStop(0.14,'rgba(7,25,35,0.18)');
+    ground.addColorStop(0.52,'rgba(5,17,24,0.54)');
+    ground.addColorStop(1,'rgba(3,10,14,0.76)');
+    fctx.fillStyle = ground;
+    fctx.fillRect(0,horizonY-40,W,H-horizonY+40);
+
+    const fins = [
+      {x:0.08,w:0.09,h:0.22,a:0.56,d:0},
+      {x:0.21,w:0.07,h:0.29,a:0.48,d:1.5},
+      {x:0.31,w:0.10,h:0.34,a:0.60,d:3.1},
+      {x:0.58,w:0.06,h:0.20,a:0.39,d:1.1},
+      {x:0.71,w:0.09,h:0.27,a:0.44,d:2.7},
+      {x:0.86,w:0.11,h:0.18,a:0.52,d:.6},
+    ];
+    fins.forEach(fl=>{
+      const x = W*fl.x + Math.sin(t*0.00018 + fl.d)*W*0.01;
+      const h = H*fl.h*(1+0.04*Math.sin(t*0.00023 + fl.d));
+      const w = W*fl.w;
+      const grad = fctx.createLinearGradient(0,H-h,0,H);
+      grad.addColorStop(0,'rgba(144,255,236,0)');
+      grad.addColorStop(0.55,`rgba(144,255,236,${fl.a*0.28})`);
+      grad.addColorStop(1,`rgba(255,184,77,${fl.a*0.18})`);
+      fctx.fillStyle = grad;
+      fctx.beginPath();
+      fctx.moveTo(x, H-h);
+      fctx.lineTo(x+w*0.45, H);
+      fctx.lineTo(x-w*0.45, H);
+      fctx.closePath();
+      fctx.fill();
+    });
+
+    fctx.strokeStyle = 'rgba(166,255,241,0.12)';
+    fctx.lineWidth = 2;
+    fctx.beginPath();
+    fctx.moveTo(W*0.13, H*0.835);
+    fctx.lineTo(W*0.45, H*0.788);
+    fctx.lineTo(W*0.78, H*0.82);
+    fctx.stroke();
+
+    const vignette = fctx.createRadialGradient(W*0.5,H*0.46, H*0.28, W*0.5,H*0.5,H*0.9);
+    vignette.addColorStop(0,'rgba(0,0,0,0)');
+    vignette.addColorStop(1,'rgba(0,0,0,0.32)');
+    fctx.fillStyle = vignette;
+    fctx.fillRect(0,0,W,H);
+  }
+
+  function animate(ts){
+    drawBackground(ts);
+    drawWhale(ts);
+    drawPlankton(ts);
+    drawForeground(ts);
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(animate);
+
+  if (window.self === window.top) {
+    try{
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.018;
+      master.connect(ctx.destination);
+
+      const low = ctx.createOscillator();
+      low.type = 'sine';
+      low.frequency.value = 42;
+
+      const mod = ctx.createOscillator();
+      mod.type = 'sine';
+      mod.frequency.value = 0.041;
+
+      const modGain = ctx.createGain();
+      modGain.gain.value = 8.5;
+
+      const drift = ctx.createOscillator();
+      drift.type = 'triangle';
+      drift.frequency.value = 0.013;
+      const driftGain = ctx.createGain();
+      driftGain.gain.value = 2.8;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 420;
+      filter.Q.value = 0.2;
+
+      const swell = ctx.createGain();
+      swell.gain.value = 0.0;
+
+      mod.connect(modGain);
+      modGain.connect(low.frequency);
+      drift.connect(driftGain);
+      driftGain.connect(low.frequency);
+
+      low.connect(filter);
+      filter.connect(swell);
+      swell.connect(master);
+
+      low.start();
+      mod.start();
+      drift.start();
+
+      function song(){
+        const now = ctx.currentTime;
+        const dur = 14 + rand()*8;
+        swell.gain.cancelScheduledValues(now);
+        swell.gain.setValueAtTime(swell.gain.value, now);
+        swell.gain.linearRampToValueAtTime(0.017 + rand()*0.015, now + dur*0.28);
+        swell.gain.linearRampToValueAtTime(0.004 + rand()*0.004, now + dur);
+
+        filter.frequency.cancelScheduledValues(now);
+        filter.frequency.setValueAtTime(240 + rand()*140, now);
+        filter.frequency.linearRampToValueAtTime(520 + rand()*180, now + dur*0.35);
+        filter.frequency.linearRampToValueAtTime(260 + rand()*80, now + dur);
+
+        low.frequency.cancelScheduledValues(now);
+        const base = 34 + rand()*16;
+        low.frequency.setValueAtTime(base, now);
+        low.frequency.linearRampToValueAtTime(base*(1.18 + rand()*0.18), now + dur*0.45);
+        low.frequency.linearRampToValueAtTime(base*(0.94 + rand()*0.05), now + dur);
+
+        setTimeout(song, dur*1000);
+      }
+
+      const startAudio = () => {
+        if(ctx.state === 'suspended') ctx.resume();
+        song();
+      };
+      startAudio();
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
