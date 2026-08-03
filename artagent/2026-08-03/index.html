@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>NUT RUN 8-BIT</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#0d0d12;overflow:hidden;height:100%}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1080px;height:1920px;
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:#ffe23d;
+  }
+  @media (max-aspect-ratio:9/16){ #stage{width:100vw;height:177.78vw} }
+  @media (min-aspect-ratio:9/16){ #stage{height:100vh;width:56.25vh} }
+
+  #stage > *{position:absolute}
+
+  /* ---------- VIDEO LAYER ---------- */
+  #videoWrap{
+    left:0;top:0;width:100%;height:100%;
+    overflow:hidden;
+    -webkit-mask-image:radial-gradient(ellipse 78% 62% at 50% 40%,#000 55%,transparent 100%);
+            mask-image:radial-gradient(ellipse 78% 62% at 50% 40%,#000 55%,transparent 100%);
+  }
+  #background-video{
+    position:absolute;left:50%;top:50%;
+    width:112%;height:112%;
+    transform:translate(-50%,-50%) scale(1.02);
+    object-fit:cover;
+    opacity:.85;
+    filter:contrast(1.35) saturate(1.7) brightness(1.05) hue-rotate(-8deg);
+    mix-blend-mode:hard-light;
+    animation:vidDrift 46s ease-in-out infinite;
+  }
+  @keyframes vidDrift{
+    0%{transform:translate(-50%,-50%) scale(1.02)}
+    50%{transform:translate(-51%,-49%) scale(1.09)}
+    100%{transform:translate(-50%,-50%) scale(1.02)}
+  }
+
+  /* ---------- BACKGROUND: pop-art sunburst + halftone ---------- */
+  #burst{
+    left:50%;top:36%;width:1900px;height:1900px;
+    transform:translate(-50%,-50%);
+    animation:spin 190s linear infinite;
+    -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 26%,rgba(0,0,0,.55) 48%,transparent 68%);
+            mask-image:radial-gradient(circle at 50% 50%,#000 26%,rgba(0,0,0,.55) 48%,transparent 68%);
+    opacity:.9;
+  }
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+  #halftone{
+    left:0;top:0;width:100%;height:100%;
+    background-image:radial-gradient(#e8175d 32%,transparent 33%);
+    background-size:16px 16px;
+    opacity:.30;
+    mix-blend-mode:multiply;
+    animation:htShift 22s steps(8) infinite;
+  }
+  @keyframes htShift{
+    0%{background-position:0 0}
+    50%{background-position:8px 8px}
+    100%{background-position:0 0}
+  }
+  #halftone2{
+    left:0;top:0;width:100%;height:100%;
+    background-image:radial-gradient(#1b1bd6 28%,transparent 29%);
+    background-size:26px 26px;
+    background-position:6px 10px;
+    opacity:.16;
+    mix-blend-mode:multiply;
+  }
+
+  /* ---------- GAME CANVAS ---------- */
+  #game{left:0;top:0;width:100%;height:100%}
+  #fx{left:0;top:0;width:100%;height:100%;mix-blend-mode:multiply;opacity:.55}
+
+  /* ---------- COMIC PANEL BORDER ---------- */
+  #frame{
+    left:0;top:0;width:100%;height:100%;
+    border:22px solid #14141c;
+    box-shadow:inset 0 0 0 10px #fff4c9, inset 0 0 90px rgba(20,20,28,.35);
+    pointer-events:none;
+  }
+  #vig{
+    left:0;top:0;width:100%;height:100%;
+    background:radial-gradient(ellipse 70% 60% at 50% 45%,transparent 55%,rgba(20,20,28,.42) 100%);
+    mix-blend-mode:multiply;pointer-events:none;
+  }
+
+  /* scanlines */
+  #scan{
+    left:0;top:0;width:100%;height:100%;
+    background:repeating-linear-gradient(to bottom,rgba(20,20,28,.20) 0 3px,transparent 3px 8px);
+    mix-blend-mode:multiply;opacity:.55;pointer-events:none;
+  }
+
+  /* HUD */
+  #hud{
+    left:0;top:0;width:100%;height:100%;pointer-events:none;
+  }
+  .hudTxt{
+    position:absolute;font-family:"Courier New",monospace;font-weight:900;
+    letter-spacing:3px;color:#14141c;
+  }
+  #dateStamp{
+    right:44px;bottom:40px;font-family:"Courier New",monospace;
+    font-size:19px;letter-spacing:4px;color:#14141c;opacity:.5;font-weight:700;
+    z-index:60;
+  }
+  #guinea-pig{
+    width:17px;height:auto;opacity:.6;
+    left:63px;bottom:118px;z-index:55;
+    filter:saturate(.7) hue-rotate(-12deg);
+    transform:rotate(-8deg);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- BEHIND: sunburst -->
+  <svg id="burst" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g id="rays"></g>
+  </svg>
+
+  <!-- VIDEO -->
+  <div id="videoWrap">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- halftone over video -->
+  <div id="halftone"></div>
+  <div id="halftone2"></div>
+
+  <!-- BEHIND-GAME decorative bands -->
+  <svg id="deco" style="left:0;top:0;width:100%;height:100%" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="skyBand" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#00c2ff" stop-opacity=".0"/>
+        <stop offset="1" stop-color="#00c2ff" stop-opacity=".55"/>
+      </linearGradient>
+      <radialGradient id="popGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff" stop-opacity=".85"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="fadeMaskG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+      </linearGradient>
+      <mask id="topFade"><rect x="0" y="0" width="1080" height="520" fill="url(#fadeMaskG)"/></mask>
+    </defs>
+    <g mask="url(#topFade)">
+      <circle cx="820" cy="180" r="150" fill="#e8175d" opacity=".55"/>
+      <circle cx="820" cy="180" r="150" fill="none" stroke="#14141c" stroke-width="12" opacity=".7"/>
+      <circle cx="230" cy="120" r="96" fill="#1b1bd6" opacity=".45"/>
+    </g>
+  </svg>
+
+  <!-- GAME -->
+  <canvas id="game" width="1080" height="1920"></canvas>
+  <!-- Halftone shading over game -->
+  <canvas id="fx" width="540" height="960"></canvas>
+
+  <!-- FRONT: comic border + textures -->
+  <div id="scan"></div>
+  <div id="vig"></div>
+  <div id="frame"></div>
+
+  <svg id="hud" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="dateStamp">2026 · 08 · 03</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ DATE SEED ============ */
+const DATE="2026-08-03";
+let seed=0; for(let i=0;i<DATE.length;i++) seed=(seed*31+DATE.charCodeAt(i))>>>0;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd=mulberry(seed);
+const R=(a,b)=>a+rnd()*(b-a);
+const Ri=(a,b)=>Math.floor(R(a,b+1));
+
+/* ============ PALETTE (pop art) ============ */
+const PALETTES=[
+  {bg:"#ffe23d", a:"#e8175d", b:"#1b1bd6", c:"#00c2ff", d:"#ff7a00", ink:"#14141c", cream:"#fff4c9"},
+  {bg:"#ffd400", a:"#ff2d55", b:"#0f3bd8", c:"#00e0b0", d:"#ff8a00", ink:"#101018", cream:"#fff8e0"},
+  {bg:"#f7e04b", a:"#d81159", b:"#2a25c9", c:"#26d9ff", d:"#ff6a13", ink:"#15151d", cream:"#fff2c2"}
+];
+const P=PALETTES[Ri(0,PALETTES.length-1)];
+document.getElementById('stage').style.background=P.bg;
+
+/* ============ SUNBURST RAYS ============ */
+(function(){
+  const g=document.getElementById('rays');
+  const N=44;
+  let s="";
+  for(let i=0;i<N;i++){
+    const a0=i/N*Math.PI*2, a1=a0+Math.PI*2/N*0.5;
+    const col = i%2===0 ? P.a : P.d;
+    const x0=Math.cos(a0)*160,y0=Math.sin(a0)*160;
+    const x1=Math.cos(a1)*160,y1=Math.sin(a1)*160;
+    s+=`<path d="M0 0 L${x0.toFixed(2)} ${y0.toFixed(2)} L${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${col}" opacity="${i%2===0?0.55:0.35}"/>`;
+  }
+  g.innerHTML=s;
+})();
+
+/* ============================================================
+   THE GAME : self-playing 8-bit platformer — a SQUIRREL
+   collecting acorns across chunky pixel platforms.
+   Rendered pop-art: flat saturated blocks, thick ink outlines.
+   ============================================================ */
+const cv=document.getElementById('game'), ctx=cv.getContext('2d');
+const W=1080,H=1920;
+
+/* World: vertical playfield inset within the panel */
+const FX=90, FY=560, FW=900, FH=1150;   // field rect
+
+const TS=45;                             // tile size (chunky pixels)
+const COLS=Math.floor(FW/TS);            // 20
+const ROWS=Math.floor(FH/TS);            // 25
+
+/* --- generate platform layout deterministically --- */
+function buildLevel(sd){
+  const r=mulberry(sd);
+  const grid=[];
+  for(let y=0;y<ROWS;y++) grid.push(new Array(COLS).fill(0));
+  // ground
+  for(let x=0;x<COLS;x++){grid[ROWS-1][x]=1;grid[ROWS-2][x]=1;}
+  // platforms every 4 rows
+  const rows=[];
+  for(let y=ROWS-6;y>1;y-=4) rows.push(y);
+  rows.forEach((y,i)=>{
+    let n=2+Math.floor(r()*2);
+    let used=[];
+    for(let k=0;k<n;k++){
+      const w=3+Math.floor(r()*5);
+      let x=Math.floor(r()*(COLS-w));
+      // avoid overlap
+      let tries=0;
+      while(tries<10 && used.some(u=>x< u[1]+2 && x+w> u[0]-2)){x=Math.floor(r()*(COLS-w));tries++;}
+      used.push([x,x+w]);
+      for(let dx=0;dx<w;dx++) grid[y][x+dx]=1;
+    }
+  });
+  return grid;
+}
+
+let LEVEL=0;
+let grid=buildLevel(seed+LEVEL*977);
+
+function solid(cx,cy){
+  if(cy<0) return false;
+  if(cx<0||cx>=COLS) return true;
+  if(cy>=ROWS) return true;
+  return grid[cy][cx]===1;
+}
+
+/* --- acorns --- */
+let acorns=[];
+function placeAcorns(){
+  acorns=[];
+  const r=mulberry(seed+LEVEL*7919+13);
+  for(let y=1;y<ROWS-1;y++){
+    for(let x=0;x<COLS;x++){
+      if(grid[y][x]===1 && !solid(x,y-1) && r()<0.17){
+        acorns.push({x:FX+x*TS+TS/2, y:FY+y*TS-TS*0.62, got:false, ph:r()*6.28});
+      }
+    }
+  }
+  if(acorns.length<5){ // ensure some
+    for(let i=0;i<6;i++){
+      const x=Ri(1,COLS-2);
+      acorns.push({x:FX+x*TS+TS/2,y:FY+(ROWS-3)*TS-TS*0.6,got:false,ph:r()*6.28});
+    }
+  }
+}
+placeAcorns();
+
+/* --- squirrel actor --- */
+const S={
+  x:FX+TS*2, y:FY+(ROWS-3)*TS, vx:0, vy:0,
+  w:TS*0.92, h:TS*1.15,
+  dir:1, onGround:false, jumpCd:0, tailPh:0, anim:0
+};
+
+const G=0.62, MOVE=3.1, JUMP=-13.4;
+
+/* --- simple autonomous AI: seek nearest acorn --- */
+let target=null;
+function pickTarget(){
+  let best=null,bd=1e9;
+  for(const a of acorns){
+    if(a.got) continue;
+    const d=Math.abs(a.x-S.x)*1.0+Math.abs(a.y-S.y)*1.25;
+    if(d<bd){bd=d;best=a;}
+  }
+  target=best;
+}
+pickTarget();
+
+let confettiPops=[];
+let levelFlash=0;   // gentle (no strobe) — used for slow colour wash only
+let score=0;
+
+function tileAt(px,py){return {cx:Math.floor((px-FX)/TS), cy:Math.floor((py-FY)/TS)};}
+
+function stepGame(){
+  if(!target) { pickTarget(); }
+  if(target){
+    // horizontal intent
+    const dx=target.x-S.x;
+    if(Math.abs(dx)>8) S.vx += (dx>0?0.55:-0.55);
+    else S.vx*=0.7;
+    S.vx=Math.max(-MOVE,Math.min(MOVE,S.vx));
+    if(Math.abs(S.vx)>0.4) S.dir=S.vx>0?1:-1;
+
+    // jump logic
+    if(S.onGround && S.jumpCd<=0){
+      const above = target.y < S.y-TS*0.7;
+      // look ahead for gap or wall
+      const aheadX=S.x+S.dir*TS*0.8;
+      const t=tileAt(aheadX,S.y+S.h*0.2);
+      const wall=solid(t.cx,t.cy);
+      const footAhead=tileAt(aheadX,S.y+S.h*0.55+4);
+      const gap=!solid(footAhead.cx,footAhead.cy);
+      if(above || wall || (gap && Math.abs(dx)>TS)){
+        S.vy=JUMP; S.onGround=false; S.jumpCd=16;
+      }
+    }
+  }
+  S.jumpCd--;
+
+  S.vy+=G; if(S.vy>18)S.vy=18;
+
+  /* --- horizontal collide --- */
+  S.x+=S.vx;
+  {
+    const half=S.w/2;
+    const yTop=S.y-S.h*0.45, yMid=S.y, yBot=S.y+S.h*0.42;
+    for(const yy of [yTop,yMid,yBot]){
+      let t=tileAt(S.x+half,yy);
+      if(solid(t.cx,t.cy)){ S.x=FX+t.cx*TS-half-0.1; S.vx=0; }
+      t=tileAt(S.x-half,yy);
+      if(solid(t.cx,t.cy)){ S.x=FX+(t.cx+1)*TS+half+0.1; S.vx=0; }
+    }
+  }
+  /* --- vertical collide --- */
+  S.y+=S.vy;
+  S.onGround=false;
+  {
+    const half=S.w*0.36;
+    for(const xx of [S.x-half,S.x,S.x+half]){
+      let t=tileAt(xx,S.y+S.h*0.45);
+      if(S.vy>0 && solid(t.cx,t.cy)){ S.y=FY+t.cy*TS-S.h*0.45-0.1; S.vy=0; S.onGround=true; }
+      t=tileAt(xx,S.y-S.h*0.45);
+      if(S.vy<0 && solid(t.cx,t.cy)){ S.y=FY+(t.cy+1)*TS+S.h*0.45+0.1; S.vy=0.5; }
+    }
+  }
+
+  /* bounds */
+  if(S.x<FX+S.w/2){S.x=FX+S.w/2;S.vx=1;}
+  if(S.x>FX+FW-S.w/2){S.x=FX+FW-S.w/2;S.vx=-1;}
+  if(S.y>FY+FH+200){ S.x=FX+TS*2; S.y=FY+(ROWS-4)*TS; S.vy=0; }
+
+  /* collect */
+  for(const a of acorns){
+    if(a.got) continue;
+    if(Math.abs(a.x-S.x)<TS*0.7 && Math.abs(a.y-S.y)<TS*0.9){
+      a.got=true; score++;
+      confettiPops.push({x:a.x,y:a.y,t:0});
+      beep();
+      if(a===target) pickTarget();
+    }
+  }
+  if(target&&target.got) pickTarget();
+
+  /* level complete -> seamless reset */
+  if(!acorns.some(a=>!a.got)){
+    LEVEL++;
+    grid=buildLevel(seed+LEVEL*977);
+    placeAcorns();
+    S.x=FX+TS*2; S.y=FY+(ROWS-4)*TS; S.vx=0;S.vy=0;
+    levelFlash=1;
+    chord();
+  }
+  if(levelFlash>0) levelFlash-=0.006;
+
+  confettiPops=confettiPops.filter(p=>{p.t+=0.03;return p.t<1;});
+  S.tailPh+=0.12;
+  S.anim+=Math.abs(S.vx)*0.09;
+}
+
+/* ============ DRAWING (pop-art flat + ink outlines) ============ */
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  const rad=Math.min(r,w/2,h/2);
+  ctx.moveTo(x+rad,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rad);
+  ctx.arcTo(x+w,y+h,x,y+h,rad);
+  ctx.arcTo(x,y+h,x,y,rad);
+  ctx.arcTo(x,y,x+w,y,rad);
+  ctx.closePath();
+}
+
+function drawPlayfieldBase(){
+  // cream panel with ink outline — a comic "screen"
+  ctx.save();
+  ctx.globalAlpha=0.82;
+  ctx.fillStyle=P.cream;
+  rr(FX-26,FY-56,FW+52,FH+92,26); ctx.fill();
+  ctx.restore();
+
+  ctx.lineWidth=13; ctx.strokeStyle=P.ink;
+  rr(FX-26,FY-56,FW+52,FH+92,26); ctx.stroke();
+
+  // inner colour wash bands (structural, not random)
+  ctx.save();
+  ctx.beginPath(); rr(FX-14,FY-44,FW+28,FH+68,18); ctx.clip();
+  const g=ctx.createLinearGradient(0,FY-40,0,FY+FH+40);
+  g.addColorStop(0, hexA(P.c,.34));
+  g.addColorStop(.55, hexA(P.bg,.10));
+  g.addColorStop(1, hexA(P.a,.30));
+  ctx.fillStyle=g; ctx.fillRect(FX-40,FY-60,FW+80,FH+120);
+  ctx.restore();
+}
+
+function hexA(hex,a){
+  const h=hex.replace('#','');
+  const r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function drawTiles(t){
+  // platforms as chunky ink-outlined blocks, run-length merged
+  for(let y=0;y<ROWS;y++){
+    let x=0;
+    while(x<COLS){
+      if(grid[y][x]===1){
+        let w=1; while(x+w<COLS && grid[y][x+w]===1) w++;
+        const px=FX+x*TS, py=FY+y*TS;
+        const isTop = !solid(x,y-1);
+        const col = (y%3===0)?P.b:((y%3===1)?P.a:P.d);
+        ctx.fillStyle=col;
+        ctx.fillRect(px,py,w*TS,TS+1);
+        // top highlight strip
+        if(isTop){
+          ctx.fillStyle=P.cream;
+          ctx.fillRect(px,py,w*TS,9);
+          ctx.fillStyle=hexA(P.ink,.16);
+          ctx.fillRect(px,py+TS-8,w*TS,8);
+        }
+        // ink outline
+        ctx.lineWidth=7; ctx.strokeStyle=P.ink;
+        ctx.strokeRect(px+3.5,py+3.5,w*TS-7,TS-6);
+        // halftone dots inside blocks
+        ctx.fillStyle=hexA(P.ink,.20);
+        for(let dx=0;dx<w*TS;dx+=14){
+          for(let dy=10;dy<TS-6;dy+=14){
+            ctx.beginPath();ctx.arc(px+dx+8,py+dy,2.4,0,6.2832);ctx.fill();
+          }
+        }
+        x+=w;
+      } else x++;
+    }
+  }
+}
+
+function drawAcorn(a,t){
+  const bob=Math.sin(t*2.2+a.ph)*4;
+  const x=a.x,y=a.y+bob;
+  ctx.save();
+  ctx.translate(x,y);
+  // glow ring
+  ctx.fillStyle=hexA(P.cream,.55);
+  ctx.beginPath();ctx.arc(0,0,20,0,6.2832);ctx.fill();
+  // body
+  ctx.fillStyle=P.d;
+  ctx.beginPath();
+  ctx.moveTo(-11,-3); ctx.lineTo(11,-3);
+  ctx.lineTo(8,10); ctx.lineTo(0,16); ctx.lineTo(-8,10);
+  ctx.closePath(); ctx.fill();
+  ctx.lineWidth=5;ctx.strokeStyle=P.ink;ctx.stroke();
+  // cap
+  ctx.fillStyle=P.ink;
+  ctx.fillRect(-13,-12,26,10);
+  ctx.fillStyle=P.b;
+  ctx.fillRect(-11,-10,22,6);
+  // stem
+  ctx.fillStyle=P.ink;
+  ctx.fillRect(-2,-18,4,7);
+  ctx.restore();
+}
+
+/* pixel-art squirrel drawn from a bitmap map (chunky pixels + ink outline) */
+const SQ=[
+ "...KK.......",
+ "..KWWK..KK..",
+ "..KWWK.KOOK.",
+ "...KWKKOOOK.",
+ "..KKAAAKOOK.",
+ ".KAAAAAKOOK.",
+ ".KAAWAAKOOK.",
+ ".KAAAAAKOOK.",
+ "..KAAAKKOOK.",
+ ".KAAAAAAKOK.",
+ ".KAAAAAAKKK.",
+ "..KAAAAK....",
+ "..KK..KK...."
+];
+function drawSquirrel(t){
+  const px=S.w/9.4; // pixel unit
+  const cols=SQ[0].length, rows=SQ.length;
+  const w=cols*px, h=rows*px;
+  ctx.save();
+  ctx.translate(S.x, S.y+S.h*0.45);
+  // cast shadow
+  ctx.fillStyle=hexA(P.ink,.22);
+  ctx.beginPath();ctx.ellipse(0,4,S.w*0.55,7,0,0,6.2832);ctx.fill();
+
+  ctx.scale(S.dir,1);
+  const hop = S.onGround ? Math.abs(Math.sin(S.anim))*3 : 0;
+  ctx.translate(-w/2, -h+hop);
+
+  const map={K:P.ink, A:P.d, O:P.a, W:P.cream};
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const ch=SQ[y][x];
+      if(ch==='.')continue;
+      ctx.fillStyle=map[ch];
+      ctx.fillRect(Math.floor(x*px),Math.floor(y*px),Math.ceil(px)+0.5,Math.ceil(px)+0.5);
+    }
+  }
+  ctx.restore();
+}
+
+function drawConfetti(){
+  for(const p of confettiPops){
+    const n=9;
+    for(let i=0;i<n;i++){
+      const a=i/n*6.2832;
+      const d=p.t*54;
+      const x=p.x+Math.cos(a)*d, y=p.y+Math.sin(a)*d - p.t*10;
+      const s=9*(1-p.t);
+      ctx.fillStyle=[P.a,P.b,P.c,P.d][i%4];
+      ctx.fillRect(x-s/2,y-s/2,s,s);
+      ctx.lineWidth=2.4;ctx.strokeStyle=hexA(P.ink,.8);
+      ctx.strokeRect(x-s/2,y-s/2,s,s);
+    }
+    // pop ring
+    ctx.lineWidth=6*(1-p.t);
+    ctx.strokeStyle=hexA(P.ink,.6*(1-p.t));
+    ctx.beginPath();ctx.arc(p.x,p.y,p.t*60,0,6.2832);ctx.stroke();
+  }
+}
+
+/* HUD: acorn counter + level, comic style, drawn on canvas */
+function drawHUD(t){
+  // top banner
+  ctx.save();
+  ctx.fillStyle=P.ink;
+  rr(FX-26,FY-176,FW+52,104,20); ctx.fill();
+  ctx.fillStyle=P.bg;
+  rr(FX-16,FY-166,FW+32,84,14); ctx.fill();
+
+  ctx.font='900 52px "Courier New",monospace';
+  ctx.textBaseline='middle';
+  ctx.fillStyle=P.ink;
+  ctx.textAlign='left';
+  ctx.fillText('ACORNS '+String(score).padStart(3,'0'), FX+6, FY-124);
+  ctx.textAlign='right';
+  ctx.fillText('LV '+String(LEVEL+1).padStart(2,'0'), FX+FW-6, FY-124);
+
+  // progress bar of current level
+  const total=acorns.length||1, got=acorns.filter(a=>a.got).length;
+  const bw=FW+32, bx=FX-16;
+  ctx.fillStyle=hexA(P.ink,.18);
+  ctx.fillRect(bx,FY-92,bw,10);
+  ctx.fillStyle=P.a;
+  ctx.fillRect(bx,FY-92,bw*(got/total),10);
+  ctx.restore();
+
+  // bottom title-ish plate: only date allowed as text elsewhere; keep numeric HUD only
+  ctx.save();
+  ctx.fillStyle=P.ink;
+  rr(FX-26,FY+FH+56,FW+52,86,20);ctx.fill();
+  ctx.fillStyle=P.c;
+  rr(FX-16,FY+FH+66,FW+32,66,14);ctx.fill();
+  // chunky life pips = squirrel heads
+  for(let i=0;i<8;i++){
+    const x=FX+30+i*106, y=FY+FH+99;
+    const on = i < 3+((LEVEL)%5);
+    ctx.fillStyle=on?P.d:hexA(P.ink,.22);
+    ctx.beginPath();ctx.arc(x,y,20,0,6.2832);ctx.fill();
+    ctx.lineWidth=6;ctx.strokeStyle=P.ink;ctx.stroke();
+    if(on){ctx.fillStyle=P.ink;ctx.beginPath();ctx.arc(x-7,y-4,3.6,0,6.2832);ctx.fill();
+      ctx.beginPath();ctx.arc(x+7,y-4,3.6,0,6.2832);ctx.fill();}
+  }
+  ctx.restore();
+}
+
+/* big pop-art "BEN-DAY" wash tied to level transitions (slow, gentle) */
+function drawLevelWash(){
+  if(levelFlash<=0) return;
+  const a=Math.min(0.22, levelFlash*0.22);
+  ctx.save();
+  ctx.globalAlpha=a;
+  ctx.fillStyle=P.c;
+  ctx.fillRect(0,0,W,H);
+  ctx.restore();
+}
+
+/* ============ FX halftone shading canvas ============ */
+const fx=document.getElementById('fx'), fxc=fx.getContext('2d');
+function drawFX(t){
+  fxc.clearRect(0,0,540,960);
+  fxc.save();
+  const g=fxc.createRadialGradient(270,300,60,270,480,620);
+  g.addColorStop(0,'rgba(0,0,0,0)');
+  g.addColorStop(1,'rgba(0,0,0,0.55)');
+  fxc.fillStyle=g; fxc.fillRect(0,0,540,960);
+  fxc.globalCompositeOperation='destination-in';
+  // dot mask
+  const step=7, off=(Math.sin(t*0.2)*2);
+  for(let y=0;y<960;y+=step){
+    for(let x=0;x<540;x+=step){
+      fxc.fillStyle='#000';
+      fxc.beginPath();fxc.arc(x+off,y,2.0,0,6.2832);fxc.fill();
+    }
+  }
+  fxc.restore();
+}
+
+/* ============ SVG HUD overlay: speech-free comic accents ============ */
+(function(){
+  const hud=document.getElementById('hud');
+  let s='';
+  // Corner starburst accents that feather (radial mask)
+  s+=`<defs>
+    <radialGradient id="fadeR" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="70%" stop-color="#fff" stop-opacity=".6"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="mA"><circle cx="150" cy="1770" r="240" fill="url(#fadeR)"/></mask>
+    <mask id="mB"><circle cx="960" cy="1790" r="220" fill="url(#fadeR)"/></mask>
+  </defs>`;
+  // bottom-left burst
+  let pl='';
+  for(let i=0;i<18;i++){
+    const a0=i/18*6.2832, a1=a0+6.2832/36;
+    pl+=`<path d="M150 1770 L${150+Math.cos(a0)*260} ${1770+Math.sin(a0)*260} L${150+Math.cos(a1)*260} ${1770+Math.sin(a1)*260} Z" fill="${P.a}" opacity=".38"/>`;
+  }
+  s+=`<g mask="url(#mA)">${pl}</g>`;
+  let pr='';
+  for(let i=0;i<16;i++){
+    const a0=i/16*6.2832, a1=a0+6.2832/32;
+    pr+=`<path d="M960 1790 L${960+Math.cos(a0)*240} ${1790+Math.sin(a0)*240} L${960+Math.cos(a1)*240} ${1790+Math.sin(a1)*240} Z" fill="${P.b}" opacity=".32"/>`;
+  }
+  s+=`<g mask="url(#mB)">${pr}</g>`;
+  hud.innerHTML=s;
+})();
+
+/* ============ AUDIO (chiptune-ish, only when not in iframe) ============ */
+let AC=null, master=null;
+function initAudio(){
+  if(window.self!==window.top) return;
+  try{
+    AC=new (window.AudioContext||window.webkitAudioContext)();
+    master=AC.createGain(); master.gain.value=0.0; master.connect(AC.destination);
+    // slow warm pad drone
+    const padG=AC.createGain(); padG.gain.value=0.055; padG.connect(master);
+    const filt=AC.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=680; filt.Q.value=2;
+    filt.connect(padG);
+    [110,164.81,220,277.18].forEach((f,i)=>{
+      const o=AC.createOscillator(); o.type= i%2? 'triangle':'sawtooth'; o.frequency.value=f;
+      const g=AC.createGain(); g.gain.value=0.16;
+      const l=AC.createOscillator(); l.type='sine'; l.frequency.value=0.03+i*0.011;
+      const la=AC.createGain(); la.gain.value=0.09;
+      l.connect(la); la.connect(g.gain); l.start();
+      o.connect(g); g.connect(filt); o.start();
+    });
+    master.gain.linearRampToValueAtTime(0.5, AC.currentTime+6);
+    const resume=()=>{ if(AC.state==='suspended') AC.resume(); };
+    document.addEventListener('visibilitychange',resume);
+    setTimeout(resume,400);
+  }catch(e){AC=null;}
+}
+function beep(){
+  if(!AC) return;
+  const t=AC.currentTime;
+  const o=AC.createOscillator(); o.type='square';
+  const g=AC.createGain();
+  const notes=[523.25,659.25,783.99,1046.5];
+  o.frequency.setValueAtTime(notes[score%notes.length],t);
+  o.frequency.exponentialRampToValueAtTime(notes[score%notes.length]*1.5,t+0.07);
+  g.gain.setValueAtTime(0.0,t);
+  g.gain.linearRampToValueAtTime(0.10,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0008,t+0.20);
+  o.connect(g);g.connect(master);o.start(t);o.stop(t+0.22);
+}
+function chord(){
+  if(!AC) return;
+  const t=AC.currentTime;
+  [392,493.88,587.33,783.99].forEach((f,i)=>{
+    const o=AC.createOscillator();o.type='triangle';o.frequency.value=f;
+    const g=AC.createGain();
+    g.gain.setValueAtTime(0,t+i*0.07);
+    g.gain.linearRampToValueAtTime(0.08,t+i*0.07+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0007,t+i*0.07+0.7);
+    o.connect(g);g.connect(master);o.start(t+i*0.07);o.stop(t+i*0.07+0.75);
+  });
+}
+initAudio();
+
+/* ============ MAIN LOOP ============ */
+let last=0, acc=0, t0=performance.now();
+function frame(ts){
+  const t=(ts-t0)/1000;
+  const dt=Math.min(50, ts-last); last=ts;
+  acc+=dt;
+  while(acc>=16.666){ stepGame(); acc-=16.666; }
+
+  ctx.clearRect(0,0,W,H);
+  drawPlayfieldBase();
+
+  // clip to field for game objects
+  ctx.save();
+  ctx.beginPath(); rr(FX-14,FY-44,FW+28,FH+68,18); ctx.clip();
+  drawTiles(t);
+  for(const a of acorns) if(!a.got) drawAcorn(a,t);
+  drawSquirrel(t);
+  drawConfetti();
+  drawLevelWash();
+  ctx.restore();
+
+  drawHUD(t);
+
+  if((ts|0)%2===0) drawFX(t);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
