@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Cavern</title>
+<style>
+  html,body{margin:0;padding:0;background:#04070b;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1080px;height:1920px;
+    background:#05080d;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:1080/1920){
+    #stage{width:100vw;height:177.777vw;}
+  }
+  @media (min-aspect-ratio:1080/1920){
+    #stage{height:100vh;width:56.25vh;}
+  }
+  #stage > *{position:absolute;}
+
+  /* ---- base painterly ground (Baroque tenebrism, bituminous browns into deep sea) ---- */
+  #ground{
+    inset:0;
+    background:
+      radial-gradient(90% 55% at 52% 8%, rgba(255,226,150,0.34), rgba(255,196,96,0.10) 38%, rgba(0,0,0,0) 66%),
+      radial-gradient(60% 40% at 18% 74%, rgba(24,86,92,0.55), rgba(0,0,0,0) 70%),
+      radial-gradient(70% 45% at 86% 40%, rgba(96,52,26,0.55), rgba(0,0,0,0) 72%),
+      linear-gradient(178deg,#0b1720 0%,#0a141c 30%,#070f16 58%,#04080c 100%);
+  }
+
+  /* animated canvases (low-res backing stores, CSS-scaled) */
+  #water,#glow{inset:0;width:100%;height:100%;}
+  #rock{inset:0;width:100%;height:100%;}
+
+  /* ---- the art image: right-hand panel of a triptych ---- */
+  #art-image{
+    left:474px;top:520px;width:566px;height:790px;
+    object-fit:cover;
+    opacity:0.96;
+    filter:saturate(1.12) contrast(1.1) brightness(0.94) hue-rotate(-8deg);
+    box-shadow:0 0 90px 30px rgba(6,20,26,0.85), inset 0 0 60px rgba(0,0,0,.6);
+    transform:rotate(-1.2deg);
+    animation:panelBreathe 46s ease-in-out infinite;
+  }
+  @keyframes panelBreathe{
+    0%,100%{transform:rotate(-1.2deg) scale(1.0)}
+    50%{transform:rotate(-1.2deg) scale(1.035)}
+  }
+  /* gilt edging of the panel — Baroque frame, feathered so it never hard-clips */
+  #artEdge{
+    left:466px;top:512px;width:582px;height:806px;
+    border:3px solid rgba(214,168,88,0.62);
+    box-shadow:0 0 26px rgba(214,168,88,0.30), inset 0 0 40px rgba(214,168,88,0.10);
+    transform:rotate(-1.2deg);
+    -webkit-mask-image:linear-gradient(100deg,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 62%,rgba(0,0,0,0) 96%);
+    mask-image:linear-gradient(100deg,rgba(0,0,0,1) 0%,rgba(0,0,0,1) 62%,rgba(0,0,0,0) 96%);
+    pointer-events:none;
+  }
+  /* atmospheric haze tying the panel into the water */
+  #artHaze{
+    left:440px;top:480px;width:640px;height:880px;
+    background:radial-gradient(60% 50% at 20% 20%, rgba(255,222,150,0.20), rgba(0,0,0,0) 70%),
+               linear-gradient(200deg, rgba(10,30,38,0.0) 40%, rgba(6,18,24,0.72) 100%);
+    transform:rotate(-1.2deg);
+    pointer-events:none;
+  }
+
+  /* single blend layer for the whole page (godray warmth) */
+  #lightPass{
+    inset:0;
+    mix-blend-mode:screen;
+    background:
+      radial-gradient(28% 46% at 44% 2%, rgba(255,236,178,0.40), rgba(255,210,120,0.10) 45%, rgba(0,0,0,0) 74%),
+      radial-gradient(20% 34% at 66% 0%, rgba(190,230,225,0.22), rgba(0,0,0,0) 70%),
+      radial-gradient(120% 70% at 50% 118%, rgba(20,70,80,0.20), rgba(0,0,0,0) 70%);
+    animation:lightSway 34s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes lightSway{
+    0%,100%{transform:translateX(-14px) scaleY(1.0);opacity:.92}
+    50%{transform:translateX(18px) scaleY(1.06);opacity:1}
+  }
+
+  #svgLayer{inset:0;width:100%;height:100%;}
+  #svgFront{inset:0;width:100%;height:100%;}
+
+  #guinea-pig{
+    left:97px;top:1704px;width:17px;
+    opacity:0.62;
+    transform:rotate(-9deg);
+    filter:brightness(0.82) saturate(0.7);
+  }
+
+  #date{
+    left:44px;bottom:34px;
+    font:11px/1 "Georgia",serif;letter-spacing:.28em;
+    color:rgba(226,196,140,0.42);
+    text-transform:uppercase;
+  }
+  #vig{inset:0;pointer-events:none;
+    background:radial-gradient(115% 78% at 50% 44%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.55) 82%, rgba(0,0,0,0.86) 100%);}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="ground"></div>
+
+  <!-- BEHIND: static rock/cavern architecture painted once -->
+  <canvas id="rock" width="540" height="960"></canvas>
+
+  <!-- BEHIND: hand-drawn SVG triptych zones (left + lower panels) -->
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f0d089" stop-opacity=".85"/>
+        <stop offset="1" stop-color="#8a5f24" stop-opacity=".25"/>
+      </linearGradient>
+      <linearGradient id="gTeal" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#123c46"/>
+        <stop offset="1" stop-color="#061117"/>
+      </linearGradient>
+      <radialGradient id="gBio" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#9ff5e2" stop-opacity=".95"/>
+        <stop offset="1" stop-color="#9ff5e2" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gShaft" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffe9b0" stop-opacity=".34"/>
+        <stop offset=".55" stop-color="#ffd98a" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#ffd98a" stop-opacity="0"/>
+      </linearGradient>
+      <mask id="mFade">
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#gMaskV)"/>
+      </mask>
+      <linearGradient id="gMaskV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#000"/>
+        <stop offset=".12" stop-color="#fff"/>
+        <stop offset=".84" stop-color="#fff"/>
+        <stop offset="1" stop-color="#000"/>
+      </linearGradient>
+    </defs>
+
+    <!-- god-shafts as hard-edged wedges (Baroque theatrical light) -->
+    <g mask="url(#mFade)" id="shafts">
+      <polygon points="392,0 470,0 636,1180 470,1240" fill="url(#gShaft)"/>
+      <polygon points="512,0 556,0 748,1010 634,1060" fill="url(#gShaft)" opacity=".8"/>
+      <polygon points="248,0 300,0 356,900 258,940" fill="url(#gShaft)" opacity=".55"/>
+    </g>
+
+    <!-- LEFT PANEL zone: hand-drawn ornament + rock strata in same palette -->
+    <g id="leftPanel" transform="translate(0,0)">
+      <polygon points="40,560 400,600 430,1330 34,1290" fill="url(#gTeal)" opacity=".9"/>
+      <polygon points="40,560 400,600 388,760 44,724" fill="#0f2b32" opacity=".85"/>
+      <polygon points="44,860 392,896 386,1010 46,978" fill="#123540" opacity=".8"/>
+      <polygon points="46,1092 386,1122 382,1246 48,1216" fill="#0d262d" opacity=".8"/>
+      <!-- gilded rule, feathered -->
+      <path d="M36,556 L406,596" stroke="url(#gGold)" stroke-width="4" fill="none" opacity=".8"/>
+      <path d="M32,1294 L432,1334" stroke="url(#gGold)" stroke-width="4" fill="none" opacity=".55"/>
+      <!-- concentric ring motif -->
+      <g id="ringGroup" opacity=".9">
+        <circle cx="216" cy="940" r="118" fill="none" stroke="#d6a858" stroke-width="3" opacity=".38"/>
+        <circle cx="216" cy="940" r="86" fill="none" stroke="#7fe3cd" stroke-width="6" opacity=".28"/>
+        <circle cx="216" cy="940" r="46" fill="#0a2029" stroke="#e8c98a" stroke-width="2" opacity=".8"/>
+      </g>
+    </g>
+
+    <!-- baroque scallop arch across the top, feathered at the edges -->
+    <g id="arch" mask="url(#mFade)" opacity=".8">
+      <path d="M0,300 Q160,120 340,196 Q520,268 700,150 Q880,36 1080,190 L1080,0 L0,0 Z" fill="#050b10" opacity=".92"/>
+      <path d="M0,300 Q160,120 340,196 Q520,268 700,150 Q880,36 1080,190" fill="none" stroke="#c9a05a" stroke-width="3" opacity=".45"/>
+    </g>
+  </svg>
+
+  <!-- art image panel (right/central zone of triptych) -->
+  <div id="artHaze"></div>
+  <img id="art-image" src="art.png" alt="">
+  <div id="artEdge"></div>
+
+  <!-- animated water: bubbles, motes, caustics -->
+  <canvas id="water" width="540" height="960"></canvas>
+
+  <!-- bioluminescent organisms + squid, drawn in front -->
+  <canvas id="glow" width="540" height="960"></canvas>
+
+  <!-- FOREGROUND: rock silhouettes breaking the panel edge -->
+  <svg id="svgFront" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <g id="fg">
+      <polygon points="0,1920 0,1420 210,1330 386,1470 540,1372 700,1520 900,1418 1080,1512 1080,1920"
+               fill="#03070a"/>
+      <polygon points="0,1920 0,1560 260,1470 470,1600 690,1520 900,1622 1080,1560 1080,1920"
+               fill="#020507"/>
+      <!-- a great stalactite crossing INTO the image panel -->
+      <polygon points="620,0 700,0 742,300 690,520 664,700 646,520 626,300" fill="#04090d"/>
+      <polygon points="646,300 690,520 664,700 650,520" fill="#0b1a1f" opacity=".7"/>
+      <!-- foreground rock spur overlapping panel's lower-left corner -->
+      <polygon points="404,1360 520,1230 606,1352 700,1290 760,1420 470,1470" fill="#03080b"/>
+      <path d="M404,1360 L520,1230 L606,1352" fill="none" stroke="#2f6b6b" stroke-width="3" opacity=".35"/>
+      <!-- gilded highlight raking across foreground diagonal -->
+      <path d="M0,1444 L214,1336 L390,1476" fill="none" stroke="#d8b06a" stroke-width="3" opacity=".28"/>
+      <path d="M700,1516 L900,1416 L1080,1508" fill="none" stroke="#d8b06a" stroke-width="3" opacity=".22"/>
+    </g>
+  </svg>
+
+  <div id="lightPass"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="vig"></div>
+  <div id="date">2026 · 08 · 04</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- deterministic seed from date ---------- */
+const DATE="2026-08-04";
+let s=0; for(let i=0;i<DATE.length;i++) s=(s*131+DATE.charCodeAt(i))>>>0;
+function rnd(){ s^=s<<13;s>>>=0; s^=s>>17; s^=s<<5;s>>>=0; return s/4294967296; }
+const R=(a,b)=>a+(b-a)*rnd();
+
+const W=540,H=960;
+
+/* ================= STATIC ROCK CANVAS (drawn once) ================= */
+(function(){
+  const c=document.getElementById('rock'), g=c.getContext('2d');
+  // dark water base with warm upper wash
+  const lg=g.createLinearGradient(0,0,0,H);
+  lg.addColorStop(0,'rgba(18,34,40,0.55)');
+  lg.addColorStop(.5,'rgba(8,18,24,0.7)');
+  lg.addColorStop(1,'rgba(3,7,10,0.9)');
+  g.fillStyle=lg; g.fillRect(0,0,W,H);
+
+  // cavern walls: two big polygonal masses, left and right, hard-edged strata
+  function wall(side){
+    const pts=[]; const x0 = side<0 ? -20 : W+20;
+    const dir = side;
+    let n=9;
+    for(let i=0;i<=n;i++){
+      const t=i/n;
+      const y=t*H;
+      const w= (70 + 120*Math.pow(Math.sin(t*3.1+ (side<0?0.7:2.2)),2) + R(-20,26));
+      pts.push([x0 + dir*(-1)*0 + (side<0? w : -w), y]);
+    }
+    g.beginPath();
+    g.moveTo(x0,-20);
+    pts.forEach(p=>g.lineTo(p[0],p[1]));
+    g.lineTo(x0,H+20);
+    g.closePath();
+    return pts;
+  }
+  // right wall
+  g.fillStyle='#0a161b'; const pr=wall(1); g.fill();
+  // left wall
+  g.fillStyle='#0b1a1e'; const pl=wall(-1); g.fill();
+
+  // strata bands: filled quads only (no squiggles)
+  function strata(pts,side){
+    for(let i=0;i<pts.length-1;i++){
+      if(rnd()<0.35) continue;
+      const a=pts[i],b=pts[i+1];
+      const inset = R(14,52);
+      g.beginPath();
+      g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]);
+      g.lineTo(b[0]+side*inset*-1*-1*0 + (side<0? -inset : inset), b[1]);
+      g.lineTo(a[0]+(side<0? -inset : inset), a[1]);
+      g.closePath();
+      const v=R(0.05,0.22);
+      g.fillStyle = rnd()<0.5 ? `rgba(46,96,96,${v})` : `rgba(122,78,40,${v})`;
+      g.fill();
+    }
+  }
+  strata(pr,1); strata(pl,-1);
+
+  // rim light along the wall edges facing the shafts (Baroque raking light)
+  function rim(pts,side){
+    g.beginPath(); g.moveTo(pts[0][0],pts[0][1]);
+    for(let i=1;i<pts.length;i++) g.lineTo(pts[i][0],pts[i][1]);
+    g.lineWidth=2.2;
+    const grd=g.createLinearGradient(0,0,0,H);
+    grd.addColorStop(0,'rgba(255,226,160,0.55)');
+    grd.addColorStop(.5,'rgba(200,160,96,0.22)');
+    grd.addColorStop(1,'rgba(60,140,140,0.06)');
+    g.strokeStyle=grd; g.stroke();
+  }
+  rim(pr,1); rim(pl,-1);
+
+  // stalactites from ceiling: solid triangles
+  for(let i=0;i<16;i++){
+    const x=R(0,W), w=R(8,26), h=R(40,190);
+    g.beginPath();
+    g.moveTo(x-w/2,-4); g.lineTo(x+w/2,-4); g.lineTo(x+R(-4,4), h);
+    g.closePath();
+    g.fillStyle=`rgba(6,12,16,${R(0.6,0.95)})`; g.fill();
+    g.beginPath();
+    g.moveTo(x-w/2,-4); g.lineTo(x-w/2+3,-4); g.lineTo(x+R(-4,4),h);
+    g.closePath();
+    g.fillStyle=`rgba(210,170,104,${R(0.06,0.18)})`; g.fill();
+  }
+  // stalagmites from floor
+  for(let i=0;i<12;i++){
+    const x=R(0,W), w=R(10,34), h=R(30,120), base=H+4;
+    g.beginPath();
+    g.moveTo(x-w/2,base); g.lineTo(x+w/2,base); g.lineTo(x+R(-6,6), base-h);
+    g.closePath();
+    g.fillStyle=`rgba(4,9,12,${R(0.65,1)})`; g.fill();
+  }
+
+  // stone texture stipple — drawn once, cheap
+  for(let i=0;i<2600;i++){
+    const x=rnd()*W, y=rnd()*H;
+    g.fillStyle=`rgba(${rnd()<.5?200:120},${rnd()<.5?170:140},${110+rnd()*60},${R(0.015,0.06)})`;
+    g.fillRect(x,y,1,1);
+  }
+})();
+
+/* ================= ANIMATED WATER: bubbles + motes + caustic bands ================= */
+const wc=document.getElementById('water'), wg=wc.getContext('2d');
+const bubbles=[];
+for(let i=0;i<64;i++){
+  bubbles.push({
+    x:R(0,W), y:R(0,H), r:R(0.9,5.2), sp:R(6,20), ph:R(0,6.28), amp:R(2,11), a:R(.18,.6)
+  });
+}
+const motes=[];
+for(let i=0;i<90;i++){
+  motes.push({x:R(0,W),y:R(0,H),r:R(.5,1.6),sp:R(2,7),ph:R(0,6.28),a:R(.12,.5),warm:rnd()<.6});
+}
+/* caustic wedges: filled triangles slowly shearing (structural, not squiggles) */
+const caustics=[];
+for(let i=0;i<7;i++){
+  caustics.push({x:R(80,420), w:R(16,54), h:R(320,760), ph:R(0,6.28), sp:R(.06,.16), a:R(.05,.12)});
+}
+
+/* ================= BIOLUMINESCENT LAYER + SQUID ================= */
+const gc=document.getElementById('glow'), gg=gc.getContext('2d');
+const bios=[];
+for(let i=0;i<58;i++){
+  const leftSide = rnd()<.5;
+  const x = leftSide ? R(4,88) : R(452,536);
+  bios.push({x:x, y:R(30,930), r:R(1.6,4.6), ph:R(0,6.28), sp:R(.5,1.6),
+             hue: rnd()<.72 ? 'c':'m'});
+}
+for(let i=0;i<16;i++){ // clusters on foreground rocks lower area
+  bios.push({x:R(20,520), y:R(700,930), r:R(1.4,3.6), ph:R(0,6.28), sp:R(.4,1.3), hue: rnd()<.5?'c':'m'});
+}
+
+/* squid — filled mantle, fins, thick tapered arms (no wispy lines) */
+function drawSquid(g,t){
+  const cy = 470 + Math.sin(t*0.16)*70;
+  const cx = 300 + Math.sin(t*0.11+1.2)*36;
+  const pulse = 0.5+0.5*Math.sin(t*0.9);
+  const sc = 1 + pulse*0.07;
+  g.save();
+  g.translate(cx,cy);
+  g.rotate(-0.42 + Math.sin(t*0.13)*0.07);
+  g.scale(sc, 1/ (0.98+pulse*0.06));
+
+  // arms: tapered filled wedges radiating downward
+  const arms=8;
+  for(let i=0;i<arms;i++){
+    const a = -Math.PI/2 + Math.PI*0.55 + (i/(arms-1))*Math.PI*0.9;
+    const sway = Math.sin(t*1.1 + i*0.8)*0.20;
+    const L = 66 + (i%3)*16 + Math.sin(t*0.7+i)*5;
+    const ang = a + sway;
+    const bx = Math.cos(ang), by=Math.sin(ang);
+    const px = -by, py = bx;
+    const w0 = 6.2 - Math.abs(i-3.5)*0.5;
+    g.beginPath();
+    g.moveTo(px*w0, py*w0);
+    g.lineTo(bx*L*0.55 + px*w0*0.55, by*L*0.55 + py*w0*0.55);
+    g.lineTo(bx*L, by*L);
+    g.lineTo(bx*L*0.55 - px*w0*0.55, by*L*0.55 - py*w0*0.55);
+    g.lineTo(-px*w0, -py*w0);
+    g.closePath();
+    const gr=g.createLinearGradient(0,0,bx*L,by*L);
+    gr.addColorStop(0,'rgba(236,182,150,0.90)');
+    gr.addColorStop(.55,'rgba(178,98,84,0.72)');
+    gr.addColorStop(1,'rgba(96,44,46,0.10)');
+    g.fillStyle=gr; g.fill();
+  }
+  // two long feeding tentacles as thick tapered bands
+  for(let k=-1;k<=1;k+=2){
+    const sway=Math.sin(t*0.8+k)*0.16;
+    const ang=Math.PI/2 + k*0.30 + sway;
+    const L=132+Math.sin(t*0.5+k)*10;
+    const bx=Math.cos(ang), by=Math.sin(ang);
+    const px=-by, py=bx;
+    g.beginPath();
+    g.moveTo(px*4.5,py*4.5);
+    g.lineTo(bx*L*0.7+px*3.2, by*L*0.7+py*3.2);
+    g.lineTo(bx*L+px*5.5, by*L+py*5.5);
+    g.lineTo(bx*L-px*5.5, by*L-py*5.5);
+    g.lineTo(bx*L*0.7-px*3.2, by*L*0.7-py*3.2);
+    g.lineTo(-px*4.5,-py*4.5);
+    g.closePath();
+    const gr=g.createLinearGradient(0,0,bx*L,by*L);
+    gr.addColorStop(0,'rgba(226,168,140,0.7)');
+    gr.addColorStop(.8,'rgba(150,74,72,0.42)');
+    gr.addColorStop(1,'rgba(210,150,120,0.55)');
+    g.fillStyle=gr; g.fill();
+  }
+
+  // fins
+  g.beginPath();
+  g.moveTo(-3,-30); g.lineTo(-30,-70); g.lineTo(-9,-84); g.lineTo(0,-46); g.closePath();
+  g.fillStyle='rgba(206,132,112,0.62)'; g.fill();
+  g.beginPath();
+  g.moveTo(3,-30); g.lineTo(30,-70); g.lineTo(9,-84); g.lineTo(0,-46); g.closePath();
+  g.fillStyle='rgba(224,152,126,0.62)'; g.fill();
+
+  // mantle: solid tapered body
+  g.beginPath();
+  g.moveTo(0,-92);
+  g.lineTo(17,-52); g.lineTo(20,-6); g.lineTo(12,14); g.lineTo(-12,14);
+  g.lineTo(-20,-6); g.lineTo(-17,-52);
+  g.closePath();
+  const mg=g.createLinearGradient(-20,-92,20,14);
+  mg.addColorStop(0,'rgba(255,214,168,0.96)');
+  mg.addColorStop(.42,'rgba(214,124,102,0.92)');
+  mg.addColorStop(1,'rgba(84,34,40,0.95)');
+  g.fillStyle=mg; g.fill();
+  // rim light on mantle
+  g.beginPath();
+  g.moveTo(0,-92); g.lineTo(17,-52); g.lineTo(20,-6);
+  g.lineWidth=2.4; g.strokeStyle='rgba(255,238,196,0.55)'; g.stroke();
+
+  // head + eye (Baroque highlight)
+  g.beginPath(); g.arc(0,16,14,0,6.2832); g.fillStyle='rgba(190,104,92,0.92)'; g.fill();
+  g.beginPath(); g.arc(-7,16,5.2,0,6.2832); g.fillStyle='rgba(12,10,10,0.95)'; g.fill();
+  g.beginPath(); g.arc(-8.6,14.4,1.9,0,6.2832); g.fillStyle='rgba(255,246,214,0.95)'; g.fill();
+  g.beginPath(); g.arc(7,16,4.4,0,6.2832); g.fillStyle='rgba(20,14,14,0.8)'; g.fill();
+
+  g.restore();
+
+  // bioluminescent halo around squid, feathered
+  const hg=g.createRadialGradient(cx,cy-20,4,cx,cy-20,150);
+  hg.addColorStop(0,`rgba(255,224,168,${0.16+pulse*0.07})`);
+  hg.addColorStop(.45,'rgba(120,200,190,0.06)');
+  hg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=hg; g.beginPath(); g.arc(cx,cy-20,150,0,6.2832); g.fill();
+}
+
+/* ================= LOOP ================= */
+let last=performance.now(), t=0;
+function frame(now){
+  let dt=(now-last)/1000; last=now;
+  if(dt>0.05) dt=0.05;
+  t+=dt;
+
+  /* --- water --- */
+  wg.clearRect(0,0,W,H);
+  // caustic wedges (filled, slow shear)
+  for(const c of caustics){
+    const sx = c.x + Math.sin(t*c.sp + c.ph)*22;
+    const sk = Math.sin(t*c.sp*0.7 + c.ph)*46;
+    wg.beginPath();
+    wg.moveTo(sx, 0);
+    wg.lineTo(sx+c.w, 0);
+    wg.lineTo(sx+c.w+sk, c.h);
+    wg.lineTo(sx+sk, c.h);
+    wg.closePath();
+    const gr=wg.createLinearGradient(sx,0,sx+sk,c.h);
+    gr.addColorStop(0,`rgba(255,236,180,${c.a})`);
+    gr.addColorStop(1,'rgba(255,220,150,0)');
+    wg.fillStyle=gr; wg.fill();
+  }
+  // motes
+  for(const m of motes){
+    m.y -= m.sp*dt; if(m.y< -6){ m.y=H+6; m.x=rnd()*W; }
+    const x=m.x+Math.sin(t*0.5+m.ph)*4;
+    wg.fillStyle = m.warm? `rgba(255,226,166,${m.a})` : `rgba(150,220,214,${m.a})`;
+    wg.fillRect(x, m.y, m.r, m.r);
+  }
+  // bubbles: rings with a specular dot
+  for(const b of bubbles){
+    b.y -= b.sp*dt; if(b.y < -12){ b.y=H+12; b.x=rnd()*W; }
+    const x=b.x+Math.sin(t*0.9+b.ph)*b.amp;
+    wg.beginPath(); wg.arc(x,b.y,b.r,0,6.2832);
+    wg.strokeStyle=`rgba(210,236,232,${b.a})`; wg.lineWidth=1; wg.stroke();
+    wg.beginPath(); wg.arc(x - b.r*0.35, b.y - b.r*0.35, Math.max(0.6,b.r*0.3),0,6.2832);
+    wg.fillStyle=`rgba(255,248,220,${b.a*0.9})`; wg.fill();
+  }
+
+  /* --- glow layer --- */
+  gg.clearRect(0,0,W,H);
+  for(const o of bios){
+    const p = 0.45+0.55*Math.sin(t*o.sp + o.ph);
+    const rr = o.r*(1+p*0.5);
+    const g2 = gg.createRadialGradient(o.x,o.y,0,o.x,o.y,rr*5.5);
+    if(o.hue==='c'){
+      g2.addColorStop(0,`rgba(190,255,240,${0.55*p+0.12})`);
+      g2.addColorStop(.35,`rgba(90,215,200,${0.18*p})`);
+    }else{
+      g2.addColorStop(0,`rgba(255,206,232,${0.5*p+0.1})`);
+      g2.addColorStop(.35,`rgba(210,110,180,${0.16*p})`);
+    }
+    g2.addColorStop(1,'rgba(0,0,0,0)');
+    gg.fillStyle=g2;
+    gg.beginPath(); gg.arc(o.x,o.y,rr*5.5,0,6.2832); gg.fill();
+    gg.beginPath(); gg.arc(o.x,o.y,rr*0.75,0,6.2832);
+    gg.fillStyle=o.hue==='c'?`rgba(230,255,250,${0.7*p+0.2})`:`rgba(255,232,246,${0.65*p+0.18})`;
+    gg.fill();
+  }
+  drawSquid(gg,t);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* slow SVG ring rotation + arch drift via rAF-free CSS-like updates (cheap, small elements) */
+const ring=document.getElementById('ringGroup');
+const shafts=document.getElementById('shafts');
+setInterval(()=>{
+  const tt=performance.now()/1000;
+  ring.setAttribute('transform',`rotate(${(tt*1.6)%360} 216 940)`);
+  shafts.setAttribute('transform',`translate(${Math.sin(tt*0.07)*22} 0) skewX(${Math.sin(tt*0.05)*1.4})`);
+},66);
+
+/* ---------- procedural audio: submerged drone (only when not iframed) ---------- */
+if (window.self === window.top){
+  const start=()=>{
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      const ac=new AC();
+      const master=ac.createGain(); master.gain.value=0.0; master.connect(ac.destination);
+      master.gain.linearRampToValueAtTime(0.09, ac.currentTime+8);
+
+      const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=0.7;
+      lp.connect(master);
+
+      const freqs=[55, 82.5, 110, 164.8];
+      freqs.forEach((f,i)=>{
+        const o=ac.createOscillator(); o.type= i%2? 'sine':'triangle'; o.frequency.value=f;
+        const g=ac.createGain(); g.gain.value=0.10/(i*0.6+1);
+        const lfo=ac.createOscillator(); lfo.frequency.value=0.03+i*0.017;
+        const lg=ac.createGain(); lg.gain.value=0.05/(i+1);
+        lfo.connect(lg); lg.connect(g.gain); lfo.start();
+        o.connect(g); g.connect(lp); o.start();
+      });
+
+      // filtered noise = distant water
+      const len=ac.sampleRate*4;
+      const buf=ac.createBuffer(1,len,ac.sampleRate);
+      const d=buf.getChannelData(0);
+      let lastv=0;
+      for(let i=0;i<len;i++){ const w=Math.random()*2-1; lastv=lastv*0.97+w*0.03; d[i]=lastv*3.2; }
+      const src=ac.createBufferSource(); src.buffer=buf; src.loop=true;
+      const nf=ac.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=280; nf.Q.value=0.5;
+      const ng=ac.createGain(); ng.gain.value=0.14;
+      const nlfo=ac.createOscillator(); nlfo.frequency.value=0.021;
+      const nlg=ac.createGain(); nlg.gain.value=0.07; nlfo.connect(nlg); nlg.connect(ng.gain); nlfo.start();
+      src.connect(nf); nf.connect(ng); ng.connect(master); src.start();
+    }catch(e){}
+  };
+  if(document.readyState==='complete') start(); else window.addEventListener('load',start);
+}
+})();
+</script>
+</body>
+</html>
