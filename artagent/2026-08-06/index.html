@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Shadow Puppet Cosmodrome</title>
+<style>
+  html,body{margin:0;padding:0;background:#07030f;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    background:#0a0413;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:9/16){#stage{width:100vw;height:auto;}}
+  @media (min-aspect-ratio:9/16){#stage{height:100vh;width:auto;}}
+
+  .layer{position:absolute;inset:0;width:100%;height:100%;}
+
+  /* ---- back: starfield + sunburst (static canvas, drawn once) ---- */
+  #starfield{z-index:1;}
+  /* ---- proscenium curtain / theatre architecture (SVG) ---- */
+  #arch{z-index:6;pointer-events:none;}
+  /* ---- animated shadow-puppet canvas (low res, CSS scaled) ---- */
+  #puppets{z-index:4;image-rendering:auto;}
+  /* ---- single blend overlay: halftone + vignette + glow combined ---- */
+  #grain{
+    z-index:8;mix-blend-mode:overlay;opacity:.55;
+    background-image:
+      radial-gradient(circle at 50% 44%, rgba(255,240,200,.30) 0%, rgba(255,200,120,.06) 34%, rgba(0,0,0,.0) 55%),
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 52%, rgba(10,0,20,.55) 100%),
+      repeating-radial-gradient(circle at 50% 44%, rgba(255,255,255,.10) 0 1.5px, rgba(0,0,0,0) 1.5px 5px),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 2px, rgba(255,255,255,.03) 2px 4px);
+  }
+  /* ---- rocket / orbit ring CSS layer ---- */
+  #cssorbits{z-index:5;pointer-events:none;}
+  .ringwrap{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);}
+  .ring{
+    position:absolute;left:50%;top:50%;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    border-style:solid;
+  }
+  .r1{width:760px;height:760px;border-width:6px;border-color:rgba(255,206,84,.55) rgba(255,206,84,.10) rgba(255,206,84,.30) rgba(255,206,84,.10);animation:spin 78s linear infinite;
+      -webkit-mask-image:radial-gradient(circle,#000 62%,transparent 96%);mask-image:radial-gradient(circle,#000 62%,transparent 96%);}
+  .r2{width:560px;height:560px;border-width:3px;border-color:rgba(255,90,140,.5) transparent rgba(255,90,140,.22) transparent;animation:spin 46s linear infinite reverse;}
+  .r3{width:930px;height:930px;border-width:2px;border-color:rgba(120,230,255,.30) rgba(120,230,255,.05) rgba(120,230,255,.18) rgba(120,230,255,.05);animation:spin 130s linear infinite;
+      -webkit-mask-image:radial-gradient(circle,#000 58%,transparent 92%);mask-image:radial-gradient(circle,#000 58%,transparent 92%);}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg);}}
+
+  .satwrap{position:absolute;left:50%;top:44%;width:0;height:0;}
+  .sat-a{animation:spin2 46s linear infinite;}
+  .sat-b{animation:spin2 78s linear infinite reverse;}
+  @keyframes spin2{to{transform:rotate(360deg);}}
+  .dot{position:absolute;border-radius:50%;}
+  .dot-a{width:26px;height:26px;left:266px;top:-13px;background:radial-gradient(circle at 34% 30%,#fff6d8,#ff8a3d 60%,#c03a10);box-shadow:0 0 22px rgba(255,150,60,.6);}
+  .dot-b{width:16px;height:16px;left:-388px;top:-8px;background:radial-gradient(circle at 35% 30%,#dffcff,#3ad9ff 55%,#0a5f8f);box-shadow:0 0 18px rgba(60,210,255,.6);}
+
+  /* rocket sweeping slow arc */
+  #rocket{
+    position:absolute;left:-140px;top:1180px;width:150px;height:60px;
+    animation:fly 44s cubic-bezier(.4,.05,.6,.95) infinite;
+  }
+  @keyframes fly{
+    0%   {transform:translate(0px,0px) rotate(-8deg);opacity:0;}
+    8%   {opacity:1;}
+    50%  {transform:translate(640px,-260px) rotate(-18deg);opacity:1;}
+    88%  {opacity:1;}
+    100% {transform:translate(1290px,-620px) rotate(-26deg);opacity:0;}
+  }
+
+  #datestamp{
+    position:absolute;left:44px;bottom:34px;z-index:12;
+    font:600 15px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.34em;color:rgba(255,224,170,.42);
+  }
+  #guinea-pig{
+    position:absolute;z-index:9;width:17px;left:118px;bottom:236px;
+    opacity:.6;transform:rotate(-9deg);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <canvas id="starfield" class="layer" width="1080" height="1920"></canvas>
+
+  <div id="cssorbits" class="layer">
+    <div class="ringwrap">
+      <div class="ring r3"></div>
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+    </div>
+    <div class="satwrap sat-a"><div class="dot dot-a"></div></div>
+    <div class="satwrap sat-b"><div class="dot dot-b"></div></div>
+  </div>
+
+  <canvas id="puppets" class="layer" width="540" height="960"></canvas>
+
+  <svg id="arch" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffe9a8"/>
+        <stop offset=".45" stop-color="#e2a63c"/>
+        <stop offset="1" stop-color="#7d4a12"/>
+      </linearGradient>
+      <linearGradient id="curt" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2b0a20"/>
+        <stop offset=".55" stop-color="#4a0f2a"/>
+        <stop offset="1" stop-color="#170414"/>
+      </linearGradient>
+      <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0a0413" stop-opacity="1"/>
+        <stop offset="1" stop-color="#0a0413" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="edgeFade" cx=".5" cy=".44" r=".62">
+        <stop offset=".62" stop-color="#000" stop-opacity="0"/>
+        <stop offset="1" stop-color="#0a0413" stop-opacity=".95"/>
+      </radialGradient>
+      <mask id="stripeFade">
+        <linearGradient id="sf" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+          <stop offset=".3" stop-color="#fff" stop-opacity=".9"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#sf)"/>
+      </mask>
+    </defs>
+
+    <!-- side curtains (hard-edged flat colour planes, pop-art) -->
+    <g id="curtains"></g>
+
+    <!-- gilded proscenium frame around the lit screen -->
+    <g id="frame"></g>
+
+    <!-- footlight bar -->
+    <g id="footlights"></g>
+
+    <rect x="0" y="0" width="1080" height="1920" fill="url(#edgeFade)"/>
+  </svg>
+
+  <div id="cssorbits2" class="layer" style="z-index:7;pointer-events:none;">
+    <svg id="rocket" viewBox="0 0 150 60">
+      <g>
+        <ellipse cx="76" cy="30" rx="52" ry="13" fill="#12060f"/>
+        <path d="M128 30 L96 18 L96 42 Z" fill="#12060f"/>
+        <path d="M56 30 L34 10 L44 30 L34 50 Z" fill="#12060f"/>
+        <circle cx="98" cy="30" r="5" fill="#ffcf5c" opacity=".85"/>
+        <path d="M24 30 L2 24 L10 30 L2 36 Z" fill="#ff7a3c" opacity=".8"/>
+      </g>
+    </svg>
+  </div>
+
+  <div id="grain" class="layer"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="datestamp">2026 · 08 · 06</div>
+</div>
+
+<script>
+(function(){
+/* ---------------- deterministic seed from date ---------------- */
+const DATE="2026-08-06";
+let s=0; for(let i=0;i<DATE.length;i++) s=(s*131+DATE.charCodeAt(i))>>>0;
+function rnd(){ s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296; }
+function rr(a,b){return a+(b-a)*rnd();}
+
+/* ================= STATIC STARFIELD (drawn once, 1080x1920) ============ */
+const sf=document.getElementById('starfield'), sc=sf.getContext('2d');
+(function drawBack(){
+  const W=1080,H=1920;
+  // cosmic sunset gradient (space-pop)
+  let g=sc.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#150a2e');
+  g.addColorStop(.28,'#3b1150');
+  g.addColorStop(.46,'#8d2560');
+  g.addColorStop(.58,'#e2603f');
+  g.addColorStop(.68,'#f4a13a');
+  g.addColorStop(.78,'#2a1338');
+  g.addColorStop(1,'#0a0413');
+  sc.fillStyle=g; sc.fillRect(0,0,W,H);
+
+  // BACKLIT SCREEN DISC — the lantern behind the puppet screen
+  const cx=540, cy=845;
+  let r=sc.createRadialGradient(cx,cy-40,20,cx,cy,600);
+  r.addColorStop(0,'#fff8de');
+  r.addColorStop(.22,'#ffe9a2');
+  r.addColorStop(.46,'#ffc55c');
+  r.addColorStop(.68,'#f08a3a');
+  r.addColorStop(.86,'rgba(160,50,70,.55)');
+  r.addColorStop(1,'rgba(30,8,40,0)');
+  sc.fillStyle=r; sc.beginPath(); sc.arc(cx,cy,600,0,6.2832); sc.fill();
+
+  // sunburst rays radiating from lantern (thick wedges — 60s optimism)
+  sc.save(); sc.translate(cx,cy);
+  const nRay=34;
+  for(let i=0;i<nRay;i++){
+    const a0=i/nRay*Math.PI*2, w=Math.PI*2/nRay*0.42;
+    sc.beginPath(); sc.moveTo(0,0);
+    sc.arc(0,0,940,a0,a0+w); sc.closePath();
+    sc.fillStyle= i%2? 'rgba(255,214,120,.055)':'rgba(255,120,90,.035)';
+    sc.fill();
+  }
+  sc.restore();
+
+  // concentric flat rings behind disc
+  sc.lineWidth=8;
+  for(let i=0;i<5;i++){
+    sc.beginPath(); sc.arc(cx,cy,660+i*74,0,6.2832);
+    sc.strokeStyle='rgba(255,190,110,'+(0.10-i*0.017)+')'; sc.stroke();
+  }
+
+  // stars — hard dots + a few 4-point pop stars
+  for(let i=0;i<560;i++){
+    const x=rnd()*W, y=rnd()*H;
+    const d=Math.hypot(x-cx,y-cy);
+    if(d<540) continue;
+    const rad=rr(.7,2.4);
+    sc.globalAlpha=rr(.25,.95);
+    sc.fillStyle= rnd()<.18? '#ffd0e8' : (rnd()<.3? '#bfe9ff':'#fff8ef');
+    sc.beginPath(); sc.arc(x,y,rad,0,6.2832); sc.fill();
+  }
+  sc.globalAlpha=1;
+  function popStar(x,y,R,col){
+    sc.fillStyle=col;
+    sc.beginPath();
+    sc.moveTo(x,y-R); sc.quadraticCurveTo(x+R*.13,y-R*.13,x+R,y);
+    sc.quadraticCurveTo(x+R*.13,y+R*.13,x,y+R);
+    sc.quadraticCurveTo(x-R*.13,y+R*.13,x-R,y);
+    sc.quadraticCurveTo(x-R*.13,y-R*.13,x,y-R);
+    sc.fill();
+  }
+  for(let i=0;i<16;i++){
+    const x=rr(40,W-40), y=rr(30,H-30);
+    if(Math.hypot(x-cx,y-cy)<600) continue;
+    popStar(x,y,rr(9,22), 'rgba(255,247,220,'+rr(.5,.95)+')');
+  }
+
+  // planet, upper-left — flat pop-art bands
+  (function planet(px,py,pr){
+    sc.save();
+    sc.beginPath(); sc.arc(px,py,pr,0,6.2832); sc.clip();
+    sc.fillStyle='#2f2a6b'; sc.fillRect(px-pr,py-pr,pr*2,pr*2);
+    const bands=[['#ff5f7e',.18,.30],['#ffd45c',.34,.44],['#3fd6d0',.50,.60],['#a45cff',.66,.80]];
+    bands.forEach(b=>{
+      sc.fillStyle=b[0];
+      sc.fillRect(px-pr, py-pr+pr*2*b[1], pr*2, pr*2*(b[2]-b[1]));
+    });
+    // terminator shading
+    let sg=sc.createLinearGradient(px-pr,py-pr,px+pr,py+pr);
+    sg.addColorStop(0,'rgba(255,255,255,.10)');
+    sg.addColorStop(.55,'rgba(0,0,0,0)');
+    sg.addColorStop(1,'rgba(15,0,25,.72)');
+    sc.fillStyle=sg; sc.fillRect(px-pr,py-pr,pr*2,pr*2);
+    sc.restore();
+    // ellipse ring
+    sc.save(); sc.translate(px,py); sc.rotate(-0.42);
+    sc.lineWidth=13; sc.strokeStyle='rgba(255,222,150,.5)';
+    sc.beginPath(); sc.ellipse(0,0,pr*1.72,pr*.42,0,0,6.2832); sc.stroke();
+    sc.lineWidth=4; sc.strokeStyle='rgba(255,140,190,.45)';
+    sc.beginPath(); sc.ellipse(0,0,pr*1.95,pr*.5,0,0,6.2832); sc.stroke();
+    sc.restore();
+  })(238,286,112);
+
+  // small crescent moon lower right
+  (function(){
+    sc.save();
+    sc.fillStyle='rgba(190,225,255,.9)';
+    sc.beginPath(); sc.arc(880,1560,44,0,6.2832); sc.fill();
+    sc.globalCompositeOperation='destination-out';
+    sc.beginPath(); sc.arc(906,1544,42,0,6.2832); sc.fill();
+    sc.restore();
+  })();
+})();
+
+/* ================= SVG PROSCENIUM (built once) ================= */
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+(function buildArch(){
+  const curt=document.getElementById('curtains');
+  // left & right curtain planes, flat with vertical pleat stripes, feathered
+  [[0,1],[1080,-1]].forEach(([x0,dir])=>{
+    const w=132;
+    const p=el('path',{d:`M${x0} 0 L${x0+dir*w} 0 L${x0+dir*(w*0.72)} 1920 L${x0} 1920 Z`,fill:'url(#curt)',opacity:'.95'});
+    curt.appendChild(p);
+    for(let i=1;i<6;i++){
+      const xx=x0+dir*(w*i/6);
+      curt.appendChild(el('path',{d:`M${xx} 0 L${xx-dir*4} 1920`,stroke:i%2?'rgba(255,190,120,.16)':'rgba(0,0,0,.5)','stroke-width':i%2?3:8,mask:'url(#stripeFade)'}));
+    }
+  });
+  // top valance: hanging scalloped arcs in gold
+  const g=document.getElementById('frame');
+  let d='M0 0 L1080 0 L1080 120 ';
+  const n=9, seg=1080/n;
+  for(let i=n;i>0;i--){
+    const x1=seg*i, x0=seg*(i-1), mid=(x0+x1)/2;
+    d+=`Q ${mid} 232 ${x0} 120 `;
+  }
+  d+='Z';
+  g.appendChild(el('path',{d:d,fill:'url(#gold)',opacity:'.92'}));
+  for(let i=0;i<n;i++){
+    g.appendChild(el('circle',{cx:seg*i+seg/2,cy:196,r:11,fill:'#ffe9a8',opacity:'.85'}));
+  }
+  // thin gold arc framing lantern (feathered by mask on stripe grad)
+  g.appendChild(el('circle',{cx:540,cy:845,r:452,fill:'none',stroke:'rgba(255,225,150,.30)','stroke-width':5,mask:'url(#stripeFade)'}));
+  g.appendChild(el('circle',{cx:540,cy:845,r:472,fill:'none',stroke:'rgba(255,120,150,.22)','stroke-width':2,mask:'url(#stripeFade)'}));
+
+  // footlight bar: hard geometric stage floor
+  const f=document.getElementById('footlights');
+  f.appendChild(el('path',{d:'M0 1560 L1080 1560 L1080 1920 L0 1920 Z',fill:'#0d0418',opacity:'.9'}));
+  f.appendChild(el('path',{d:'M0 1560 L1080 1560 L1080 1576 L0 1576 Z',fill:'url(#gold)',opacity:'.85'}));
+  // trapezoid light pools from footlights (flat wedges pointing up)
+  for(let i=0;i<7;i++){
+    const cx=90+i*150;
+    f.appendChild(el('path',{d:`M${cx-40} 1560 L${cx+40} 1560 L${cx+150} 1330 L${cx-150} 1330 Z`,fill:'rgba(255,190,110,.055)'}));
+    f.appendChild(el('circle',{cx:cx,cy:1592,r:19,fill:'#ffd97a',opacity:'.55'}));
+    f.appendChild(el('circle',{cx:cx,cy:1592,r:8,fill:'#fff6d8',opacity:'.9'}));
+  }
+  // half-moon riser silhouettes (audience-side geometry)
+  f.appendChild(el('path',{d:'M-40 1920 L-40 1780 Q540 1660 1120 1780 L1120 1920 Z',fill:'#07020f'}));
+})();
+
+/* ================= SHADOW PUPPETS (animated, 540x960) ================= */
+const pc=document.getElementById('puppets'), c=pc.getContext('2d');
+const W=540,H=960;
+const CX=270, CY=422;                  // lantern centre in puppet-canvas coords
+const INK='#140617';                   // puppet silhouette colour
+
+// puppeteer rod colour
+const ROD='rgba(20,6,24,.85)';
+
+function shadowStyle(a){ c.fillStyle=INK; c.globalAlpha=a; }
+
+/* --- crow silhouette (the creature of the night) --- */
+function crow(x,y,sz,flap,face){
+  c.save(); c.translate(x,y); c.scale(face*sz,sz);
+  // body
+  c.beginPath();
+  c.moveTo(-0.55,0.05);
+  c.bezierCurveTo(-0.30,-0.40,0.30,-0.44,0.62,-0.06);
+  c.bezierCurveTo(0.72,0.06,0.55,0.22,0.28,0.26);
+  c.bezierCurveTo(0.02,0.30,-0.35,0.28,-0.55,0.05);
+  c.closePath(); c.fill();
+  // head + heavy beak
+  c.beginPath();
+  c.arc(0.60,-0.18,0.20,0,6.2832); c.fill();
+  c.beginPath();
+  c.moveTo(0.74,-0.26); c.lineTo(1.16,-0.16); c.lineTo(0.74,-0.06); c.closePath(); c.fill();
+  // tail wedge
+  c.beginPath();
+  c.moveTo(-0.48,0.02); c.lineTo(-1.10,-0.18); c.lineTo(-1.02,0.10); c.lineTo(-0.50,0.20);
+  c.closePath(); c.fill();
+  // legs
+  c.lineWidth=0.045; c.strokeStyle=c.fillStyle;
+  c.beginPath(); c.moveTo(0.10,0.26); c.lineTo(0.06,0.46); c.lineTo(-0.06,0.52);
+  c.moveTo(0.06,0.46); c.lineTo(0.18,0.52); c.stroke();
+  // wings — two thick feathered planes, flap drives shape
+  const up=Math.sin(flap);
+  for(let k=0;k<2;k++){
+    const s=(k?0.72:1.0), ph=up*(k?0.78:1.0);
+    c.save(); c.translate(0.05,-0.16); c.rotate(-0.55*ph);
+    c.beginPath();
+    c.moveTo(0,0);
+    c.lineTo(-0.30*s,-0.62*s);
+    c.lineTo(0.10*s,-0.80*s);
+    c.lineTo(0.52*s,-0.42*s);
+    c.lineTo(0.30*s,0.02*s);
+    c.closePath(); c.fill();
+    // primary feather notches
+    for(let i=0;i<4;i++){
+      const t=i/4;
+      c.beginPath();
+      c.moveTo(-0.30*s+t*0.42*s,-0.62*s-t*0.14*s);
+      c.lineTo(-0.44*s+t*0.42*s,-0.86*s-t*0.10*s);
+      c.lineTo(-0.20*s+t*0.42*s,-0.72*s-t*0.12*s);
+      c.closePath(); c.fill();
+    }
+    c.restore();
+  }
+  c.restore();
+}
+
+/* --- puppeteer: a robed figure silhouette with articulated arms --- */
+function figure(x,y,h,t,armPhase,face){
+  c.save(); c.translate(x,y); c.scale(face,1);
+  const u=h; // unit = height
+  // robe: bold trapezoid, hem sway
+  const sway=Math.sin(t*0.9)*0.03*u;
+  c.beginPath();
+  c.moveTo(-0.13*u,-0.62*u);
+  c.lineTo(0.13*u,-0.62*u);
+  c.lineTo(0.30*u+sway,0);
+  c.lineTo(-0.30*u+sway*0.4,0);
+  c.closePath(); c.fill();
+  // torso / shoulders
+  c.beginPath();
+  c.moveTo(-0.15*u,-0.62*u); c.lineTo(0.15*u,-0.62*u);
+  c.lineTo(0.10*u,-0.82*u); c.lineTo(-0.10*u,-0.82*u); c.closePath(); c.fill();
+  // head with pointed cosmonaut-cap silhouette
+  c.beginPath(); c.arc(0,-0.90*u,0.095*u,0,6.2832); c.fill();
+  c.beginPath();
+  c.moveTo(-0.10*u,-0.93*u); c.lineTo(0.02*u,-1.10*u); c.lineTo(0.11*u,-0.90*u);
+  c.closePath(); c.fill();
+  // arm (thick tapered plane) raised toward the sky
+  const a=-0.9-Math.sin(armPhase)*0.55;
+  c.save(); c.translate(0.12*u,-0.78*u); c.rotate(a);
+  c.beginPath();
+  c.moveTo(0,-0.035*u); c.lineTo(0.42*u,-0.026*u);
+  c.lineTo(0.44*u,0.024*u); c.lineTo(0,0.045*u); c.closePath(); c.fill();
+  // hand
+  c.beginPath(); c.arc(0.46*u,0,0.035*u,0,6.2832); c.fill();
+  c.restore();
+  // other arm lower
+  c.save(); c.translate(-0.12*u,-0.76*u); c.rotate(2.5+Math.sin(armPhase*0.7)*0.2);
+  c.beginPath();
+  c.moveTo(0,-0.032*u); c.lineTo(0.34*u,-0.022*u);
+  c.lineTo(0.36*u,0.022*u); c.lineTo(0,0.04*u); c.closePath(); c.fill();
+  c.restore();
+  c.restore();
+}
+
+/* --- rocket puppet: hard-edged retro rocket silhouette --- */
+function rocketPup(x,y,sz,rot,plume){
+  c.save(); c.translate(x,y); c.rotate(rot); c.scale(sz,sz);
+  c.beginPath();
+  c.moveTo(0,-1.0);
+  c.lineTo(0.30,-0.16); c.lineTo(0.30,0.62); c.lineTo(-0.30,0.62); c.lineTo(-0.30,-0.16);
+  c.closePath(); c.fill();
+  // fins
+  c.beginPath(); c.moveTo(-0.30,0.16); c.lineTo(-0.74,0.74); c.lineTo(-0.30,0.66); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(0.30,0.16); c.lineTo(0.74,0.74); c.lineTo(0.30,0.66); c.closePath(); c.fill();
+  // porthole cut (hole in silhouette)
+  c.save(); c.globalCompositeOperation='destination-out';
+  c.beginPath(); c.arc(0,-0.05,0.15,0,6.2832); c.fill();
+  c.restore();
+  // exhaust: flat flame wedges
+  const f=0.5+plume*0.5;
+  c.beginPath();
+  c.moveTo(-0.24,0.64); c.lineTo(0.24,0.64); c.lineTo(0.10,0.64+0.6*f);
+  c.lineTo(0,0.64+0.34*f); c.lineTo(-0.11,0.64+0.62*f);
+  c.closePath(); c.fill();
+  c.restore();
+}
+
+/* --- planet / orbit puppet: disc with ring, held on a rod --- */
+function planetPup(x,y,r,tilt){
+  c.save(); c.translate(x,y);
+  c.beginPath(); c.arc(0,0,r,0,6.2832); c.fill();
+  c.save(); c.rotate(tilt);
+  c.lineWidth=r*0.20; c.strokeStyle=c.fillStyle;
+  c.beginPath(); c.ellipse(0,0,r*1.85,r*0.42,0,0,6.2832); c.stroke();
+  c.restore();
+  c.restore();
+}
+
+/* --- hand-stencil style star puppet (flat 5-point) --- */
+function starPup(x,y,r,rot){
+  c.save(); c.translate(x,y); c.rotate(rot);
+  c.beginPath();
+  for(let i=0;i<10;i++){
+    const a=-Math.PI/2+i*Math.PI/5, rad=i%2? r*0.44:r;
+    i? c.lineTo(Math.cos(a)*rad,Math.sin(a)*rad):c.moveTo(Math.cos(a)*rad,Math.sin(a)*rad);
+  }
+  c.closePath(); c.fill();
+  c.restore();
+}
+
+/* --- control rods rising from below the screen --- */
+function rod(x0,y0,x1,y1,w){
+  c.save();
+  c.strokeStyle=ROD; c.lineWidth=w; c.lineCap='round';
+  c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y1); c.stroke();
+  c.restore();
+}
+
+/* -------- story beats: abstract gesture narrative, looping -------- */
+const CYCLE=72; // seconds per full story loop
+const start=performance.now();
+let last=start, acc=0;
+const STEP=1/60;
+let T=0;
+
+function scene(t){
+  // t = seconds within cycle
+  const p = t/CYCLE;              // 0..1
+  const ease=(x)=>x*x*(3-2*x);
+  const wrap=(a,b,x)=>Math.min(1,Math.max(0,(x-a)/(b-a)));
+
+  c.clearRect(0,0,W,H);
+  c.globalCompositeOperation='source-over';
+
+  // ---- ACT 1 (0 - .30): two figures greet, raise arms; crow arrives
+  // ---- ACT 2 (.28 - .62): rocket rises between them, planet drifts in
+  // ---- ACT 3 (.60 - 1.0): crow orbits planet, figures bow, rocket exits, reset
+
+  /* ---------- FIGURES (always present, gestures change) ---------- */
+  const fh=250;
+  const enter=ease(wrap(0,.10,p));
+  const exit=1-ease(wrap(.93,1.0,p));
+  const bow=ease(wrap(.80,.92,p))*(1-ease(wrap(.96,1.0,p)));
+
+  shadowStyle(0.96*exit);
+  // left figure
+  {
+    const x=118-(1-enter)*130;
+    const y=724 + bow*10;
+    c.save(); c.translate(x,y); c.rotate(bow*0.30); c.translate(-x,-y);
+    figure(x,y,fh,T,1.1+Math.sin(T*0.55)*0.9+ease(wrap(.28,.42,p))*1.2,1);
+    c.restore();
+    rod(x+0.30*fh, 960, x+0.16*fh, y-0.12*fh, 5);
+  }
+  // right figure
+  {
+    const x=422+(1-enter)*130;
+    const y=736 + bow*10;
+    c.save(); c.translate(x,y); c.rotate(-bow*0.30); c.translate(-x,-y);
+    figure(x,y,fh*0.92,T*1.07+2.0,0.9+Math.sin(T*0.47+1.7)*0.8+ease(wrap(.30,.46,p))*1.1,-1);
+    c.restore();
+    rod(x-0.30*fh, 960, x-0.16*fh, y-0.12*fh, 5);
+  }
+
+  /* ---------- PLANET PUPPET: drifts across mid-screen ---------- */
+  {
+    const q=wrap(.20,.86,p);
+    if(q>0&&q<1){
+      const ip=Math.sin(Math.PI*q); // in-out
+      const px=-70+q*690;
+      const py=300+Math.cos(q*Math.PI*1.1)*36;
+      shadowStyle(0.9*ip*exit);
+      planetPup(px,py,44+ip*8, -0.45+q*0.5);
+      rod(px+34,960,px+10,py+40,4);
+    }
+  }
+
+  /* ---------- ROCKET PUPPET: rises from footlights, arcs, exits ---------- */
+  {
+    const q=wrap(.26,.74,p);
+    if(q>0&&q<1){
+      const e=ease(q);
+      const rx=270+Math.sin(e*Math.PI)*22 - (e-0.5)*40;
+      const ry=980-e*880;
+      shadowStyle(0.97*exit);
+      rocketPup(rx,ry,66, Math.sin(e*Math.PI*0.9)*0.30, 0.5+0.5*Math.sin(T*7));
+      rod(rx+8,972,rx+2,ry+40,6);
+    }
+  }
+
+  /* ---------- CROW: the storyteller — flies in, circles, perches ---------- */
+  {
+    let cxp,cyp,face=1,flapRate=5.0,sz=62,alpha=0.98;
+    const a1=wrap(.06,.34,p);      // fly in from left
+    const a2=wrap(.34,.70,p);      // orbit the lantern
+    const a3=wrap(.70,.96,p);      // perch on right figure's hand
+    if(a1<1){
+      const e=ease(a1);
+      cxp=-90+e*300; cyp=250+Math.sin(e*3.0)*54; face=1;
+      alpha=0.98*Math.min(1,a1*6);
+    } else if(a2<1){
+      const ang=-1.35+a2*Math.PI*1.9;
+      const R=176+Math.sin(a2*Math.PI)*30;
+      cxp=CX+Math.cos(ang)*R; cyp=CY+Math.sin(ang)*R*0.72;
+      face=Math.cos(ang+Math.PI/2)>0?1:-1;
+      flapRate=6.2;
+    } else {
+      const e=ease(Math.min(1,a3*1.25));
+      const ang=-1.35+Math.PI*1.9;
+      const sx=CX+Math.cos(ang)*176, sy=CY+Math.sin(ang)*176*0.72;
+      const tx=460, ty=524;
+      cxp=sx+(tx-sx)*e; cyp=sy+(ty-sy)*e - Math.sin(e*Math.PI)*70;
+      face=-1;
+      flapRate=6.2*(1-e)+0.9;
+      alpha=0.98*(1-ease(wrap(.965,1.0,p)));
+    }
+    shadowStyle(alpha);
+    const flap=T*flapRate;
+    crow(cxp,cyp,sz,flap,face);
+  }
+
+  /* ---------- STAR PUPPETS: small flat stars swung on rods (rhythmic) --- */
+  shadowStyle(0.85*exit);
+  for(let i=0;i<3;i++){
+    const ph=T*0.36+i*2.2;
+    const sx=110+i*162+Math.sin(ph)*26;
+    const sy=196+Math.cos(ph*1.3+i)*20;
+    starPup(sx,sy,15+i*3, ph*0.5);
+    rod(sx+2,-10,sx,sy-18,3);
+  }
+  c.globalAlpha=1;
+}
+
+function frame(now){
+  let dt=(now-last)/1000; last=now;
+  if(dt>0.1) dt=0.1;
+  acc+=dt;
+  let steps=0;
+  while(acc>=STEP && steps<2){ T+=STEP; acc-=STEP; steps++; }
+  if(steps>=2) acc=0;
+  scene(T%CYCLE);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ================= PROCEDURAL AUDIO (only when not embedded) ========= */
+if(window.self===window.top){
+  let started=false;
+  const boot=()=>{
+    if(started) return; started=true;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      const ctx=new AC();
+      const master=ctx.createGain(); master.gain.value=0.0; master.connect(ctx.destination);
+      master.gain.linearRampToValueAtTime(0.10, ctx.currentTime+7);
+
+      // warm retro drone: two detuned triangles + slow filter breathing
+      const filt=ctx.createBiquadFilter(); filt.type='lowpass';
+      filt.frequency.value=520; filt.Q.value=3; filt.connect(master);
+      [110,110.7,164.8,220.4].forEach((f,i)=>{
+        const o=ctx.createOscillator(); o.type=i<2?'triangle':'sine'; o.frequency.value=f;
+        const g=ctx.createGain(); g.gain.value=i<2?0.20:0.09;
+        o.connect(g); g.connect(filt); o.start();
+      });
+      const lfo=ctx.createOscillator(); lfo.frequency.value=0.035;
+      const lg=ctx.createGain(); lg.gain.value=260;
+      lfo.connect(lg); lg.connect(filt.frequency); lfo.start();
+
+      // theremin-ish cosmic voice, slow glides (space-pop)
+      const vo=ctx.createOscillator(); vo.type='sine'; vo.frequency.value=440;
+      const vg=ctx.createGain(); vg.gain.value=0.0;
+      const vp=ctx.createStereoPanner();
+      vo.connect(vg); vg.connect(vp); vp.connect(master); vo.start();
+      const notes=[440,523.25,587.33,659.25,392,349.23];
+      let n=0;
+      setInterval(()=>{
+        const t=ctx.currentTime;
+        vg.gain.cancelScheduledValues(t);
+        vg.gain.setValueAtTime(vg.gain.value,t);
+        vg.gain.linearRampToValueAtTime(0.055,t+2.4);
+        vg.gain.linearRampToValueAtTime(0.0,t+7.4);
+        vo.frequency.setValueAtTime(vo.frequency.value,t);
+        vo.frequency.exponentialRampToValueAtTime(notes[n%notes.length],t+2.6);
+        vp.pan.setValueAtTime(Math.sin(n*1.7)*0.6,t);
+        n++;
+      },9000);
+    }catch(e){}
+  };
+  boot();
+  document.addEventListener('visibilitychange',boot,{once:true});
+}
+})();
+</script>
+</body>
+</html>
