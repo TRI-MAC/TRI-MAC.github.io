@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Giardino dei Colibrì</title>
+<style>
+  html,body{margin:0;padding:0;background:#0b0a08;height:100%;overflow:hidden;}
+  #stage{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(100vw,56.25vh);height:min(177.78vw,100vh);
+    background:#e8d8b6;overflow:hidden;
+    box-shadow:0 0 80px rgba(0,0,0,.8);
+  }
+  #stage > *{position:absolute;left:0;top:0;width:100%;height:100%;}
+  canvas{display:block;width:100%;height:100%;}
+  #scene{image-rendering:auto;}
+  /* single blend layer: varnish + vignette + fresco grain combined */
+  #varnish{
+    mix-blend-mode:multiply;
+    background-image:
+      radial-gradient(ellipse 62% 48% at 50% 42%, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 55%, rgba(120,92,52,.28) 82%, rgba(70,48,22,.55) 100%),
+      linear-gradient(160deg, rgba(255,246,214,0) 0%, rgba(148,116,64,.14) 100%);
+    pointer-events:none;
+  }
+  #date{
+    position:absolute;left:22px;bottom:18px;
+    font:300 11px/1 "Georgia","Times New Roman",serif;
+    letter-spacing:.32em;color:#4a3a22;opacity:.5;
+    mix-blend-mode:normal;
+  }
+  .breathe{animation:breathe 46s ease-in-out infinite;transform-origin:50% 44%;}
+  @keyframes breathe{0%,100%{transform:scale(1.0)}50%{transform:scale(1.018)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- BACK: static perspective architecture / sky, drawn once at full res -->
+  <canvas id="back" width="1080" height="1920"></canvas>
+
+  <!-- MIDDLE: SVG classical garden geometry (vanishing-point pavement + urns) -->
+  <svg id="geo" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+  <!-- FRONT: animated hummingbirds + flowers, low-res canvas scaled up -->
+  <canvas id="scene" class="breathe" width="540" height="960"></canvas>
+
+  <div id="varnish"></div>
+  <div id="date">2026 · 08 · 07</div>
+</div>
+
+<script>
+/* ============ deterministic seed from date ============ */
+const DATE_STR = "2026-08-07";
+let _s = 0; for (let i=0;i<DATE_STR.length;i++) _s = (_s*131 + DATE_STR.charCodeAt(i))>>>0;
+_s = (_s ^ 0x9e3779b9)>>>0;
+function rnd(){ _s ^= _s<<13; _s>>>=0; _s ^= _s>>17; _s ^= _s<<5; _s>>>=0; return _s/4294967296; }
+function rr(a,b){ return a + (b-a)*rnd(); }
+function pick(a){ return a[Math.floor(rnd()*a.length)|0]; }
+
+/* ============ Renaissance palette ============ */
+const P = {
+  skyTop:'#cfd9d8', skyMid:'#e6dcc0', skyLow:'#f2e2c0',
+  hillFar:'#9fa892', hillMid:'#7f8a6c', hillNear:'#5d6a4b',
+  stoneL:'#e3d6b8', stoneM:'#cbba95', stoneD:'#9d8c68', stoneS:'#6f6144',
+  ink:'#3a2e1c',
+  ultramarine:'#2d4a8a', vermilion:'#b8452c', gold:'#c9a24a',
+  rose:'#c9707f', ivory:'#f4ecd6', verdeTerra:'#4a5b3a',
+  crimson:'#8e2f34'
+};
+
+/* ============ BACK LAYER: sfumato sky, distant hills, arcade ============ */
+(function drawBack(){
+  const c = document.getElementById('back'), g = c.getContext('2d');
+  const W=1080,H=1920;
+
+  // --- sfumato sky: many soft bands
+  const sky = g.createLinearGradient(0,0,0,H*0.62);
+  sky.addColorStop(0,   '#b7c6cd');
+  sky.addColorStop(0.34,'#d7dac5');
+  sky.addColorStop(0.62,'#eee0bb');
+  sky.addColorStop(0.86,'#f7e9c6');
+  sky.addColorStop(1,   '#f3e2bd');
+  g.fillStyle=sky; g.fillRect(0,0,W,H*0.64);
+
+  // low warm sun glow (no flashing, static)
+  const glow = g.createRadialGradient(W*0.5,H*0.47,10,W*0.5,H*0.47,W*0.62);
+  glow.addColorStop(0,'rgba(255,240,196,0.85)');
+  glow.addColorStop(0.35,'rgba(250,226,176,0.35)');
+  glow.addColorStop(1,'rgba(250,226,176,0)');
+  g.fillStyle=glow; g.beginPath(); g.rect(0,0,W,H*0.64); g.fill();
+
+  // --- distant sfumato hills (filled silhouettes, no squiggles)
+  function hills(baseY,amp,color,alpha,seedOff){
+    g.globalAlpha=alpha; g.fillStyle=color;
+    g.beginPath(); g.moveTo(0,H);
+    const steps=14;
+    for(let i=0;i<=steps;i++){
+      const t=i/steps, x=t*W;
+      const y = baseY - Math.sin(t*3.1+seedOff)*amp - Math.sin(t*7.7+seedOff*2)*amp*0.35;
+      g.lineTo(x,y);
+    }
+    g.lineTo(W,H); g.closePath(); g.fill(); g.globalAlpha=1;
+  }
+  hills(H*0.505, 34, P.hillFar, 0.55, rr(0,6));
+  hills(H*0.545, 46, P.hillMid, 0.62, rr(0,6));
+  hills(H*0.585, 30, P.hillNear,0.70, rr(0,6));
+
+  // atmospheric haze over hills (bake, not filter)
+  const haze = g.createLinearGradient(0,H*0.44,0,H*0.62);
+  haze.addColorStop(0,'rgba(246,235,206,0.75)');
+  haze.addColorStop(1,'rgba(246,235,206,0.05)');
+  g.fillStyle=haze; g.fillRect(0,H*0.44,W,H*0.20);
+
+  // --- distant cypress trees (solid tapered forms)
+  function cypress(x,y,h,w,alpha){
+    g.globalAlpha=alpha; g.fillStyle='#3f4c33';
+    g.beginPath();
+    g.moveTo(x,y-h);
+    g.quadraticCurveTo(x+w,y-h*0.45,x+w*0.55,y);
+    g.lineTo(x-w*0.55,y);
+    g.quadraticCurveTo(x-w,y-h*0.45,x,y-h);
+    g.fill(); g.globalAlpha=1;
+  }
+  for(let i=0;i<9;i++){
+    const x = 60 + i*(W-120)/8 + rr(-18,18);
+    const s = rr(0.7,1.25);
+    cypress(x, H*0.585+rr(-6,10), 150*s, 22*s, 0.5+rnd()*0.25);
+  }
+
+  /* ---- CLASSICAL ARCADE with true one-point perspective ---- */
+  const vpX=W*0.5, vpY=H*0.47;
+  const groundY=H*0.60;
+
+  // pavement: recede to vanishing point (checkerboard, perspective-correct)
+  const nearY=H*1.02, farY=groundY;
+  const nearHalf=W*1.9, farHalf=W*0.055;
+  // transverse lines with harmonic (1/n) spacing -> correct foreshortening
+  const rows=16;
+  const rowY=[];
+  for(let i=0;i<=rows;i++){
+    const t=i/rows;
+    // perspective interpolation
+    const d = 1/(1 - t*0.955);
+    rowY.push(farY + (nearY-farY)*(1 - 1/d));
+  }
+  const cols=10;
+  for(let r=0;r<rows;r++){
+    const y0=rowY[r], y1=rowY[r+1];
+    const h0=farHalf+(nearHalf-farHalf)*((y0-farY)/(nearY-farY));
+    const h1=farHalf+(nearHalf-farHalf)*((y1-farY)/(nearY-farY));
+    for(let k=0;k<cols;k++){
+      const a0=(k/cols)*2-1, a1=((k+1)/cols)*2-1;
+      const dark=((r+k)%2===0);
+      g.fillStyle = dark ? '#b7a681' : '#ddceab';
+      g.globalAlpha = 0.96 - 0.30*(1-(y0-farY)/(nearY-farY));
+      g.beginPath();
+      g.moveTo(vpX+a0*h0,y0); g.lineTo(vpX+a1*h0,y0);
+      g.lineTo(vpX+a1*h1,y1); g.lineTo(vpX+a0*h1,y1);
+      g.closePath(); g.fill();
+    }
+  }
+  g.globalAlpha=1;
+
+  // warm floor light wash near horizon
+  const fl=g.createLinearGradient(0,groundY,0,H);
+  fl.addColorStop(0,'rgba(255,238,196,0.55)');
+  fl.addColorStop(0.35,'rgba(240,214,168,0.10)');
+  fl.addColorStop(1,'rgba(96,74,44,0.35)');
+  g.fillStyle=fl; g.fillRect(0,groundY,W,H-groundY);
+
+  /* ---- symmetric colonnade: pilasters + arches, receding ---- */
+  const depths=[0.30,0.52,0.76,1.0];
+  for(let d=0; d<depths.length; d++){
+    const k=depths[d];
+    const colX = vpX + k*W*0.50;       // right column offset
+    const capY = vpY - k*H*0.150;
+    const baseY= vpY + k*H*0.145;
+    const wid  = k*W*0.062;
+    const shade = d;
+    [1,-1].forEach(sgn=>{
+      const x = vpX + sgn*(colX - vpX);
+      // shaft
+      const grd=g.createLinearGradient(x-wid/2,0,x+wid/2,0);
+      grd.addColorStop(0, shade<2?'#a89madd':'#a3906b');
+      grd.addColorStop(0,'#a08d68');
+      grd.addColorStop(0.32,'#e6d8b6');
+      grd.addColorStop(0.62,'#cdbc95');
+      grd.addColorStop(1,'#7d6c4c');
+      g.globalAlpha = 0.55 + 0.12*d;
+      g.fillStyle=grd;
+      g.fillRect(x-wid/2, capY, wid, baseY-capY);
+      // capital & base
+      g.fillStyle='#efe2c0';
+      g.fillRect(x-wid*0.72, capY-wid*0.20, wid*1.44, wid*0.22);
+      g.fillStyle='#c3b18c';
+      g.fillRect(x-wid*0.78, baseY, wid*1.56, wid*0.20);
+      // fluting
+      g.globalAlpha=0.16*(0.5+d*0.2); g.fillStyle='#5d4f33';
+      for(let f=1;f<5;f++){
+        const fx = x-wid/2 + (f/5)*wid;
+        g.fillRect(fx, capY, Math.max(1,wid*0.03), baseY-capY);
+      }
+      g.globalAlpha=1;
+    });
+    // arch spanning between the pair (thick band, not a squiggle)
+    const spanL = vpX-(colX-vpX)+wid*0.5, spanR = colX-wid*0.5;
+    const cx=vpX, ry=(spanR-spanL)/2, rh=ry*0.62;
+    g.globalAlpha=0.42+0.10*d;
+    g.strokeStyle='#d9c9a4'; g.lineWidth=Math.max(4,wid*0.42);
+    g.beginPath(); g.ellipse(cx, capY, ry, rh, 0, Math.PI, 0); g.stroke();
+    g.globalAlpha=0.20;
+    g.strokeStyle='#6c5b3c'; g.lineWidth=Math.max(1.5,wid*0.10);
+    g.beginPath(); g.ellipse(cx, capY, ry, rh, 0, Math.PI, 0); g.stroke();
+    g.globalAlpha=1;
+  }
+
+  // fresco grain, drawn ONCE (never per frame)
+  const img=g.getImageData(0,0,W,H), px=img.data;
+  for(let i=0;i<px.length;i+=4){
+    const n=(Math.random()-0.5)*16;
+    px[i]=Math.max(0,Math.min(255,px[i]+n));
+    px[i+1]=Math.max(0,Math.min(255,px[i+1]+n));
+    px[i+2]=Math.max(0,Math.min(255,px[i+2]+n*0.8));
+  }
+  g.putImageData(img,0,0);
+})();
+
+/* ============ MIDDLE LAYER: SVG classical ornament + urns ============ */
+(function buildSVG(){
+  const svg=document.getElementById('geo');
+  const NS='http://www.w3.org/2000/svg';
+  function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+  const defs=el('defs');
+  const lg=el('linearGradient',{id:'stone',x1:'0',y1:'0',x2:'1',y2:'0'});
+  [['0','#f0e4c4'],['0.4','#d6c6a0'],['1','#8c7b57']].forEach(s=>lg.appendChild(el('stop',{offset:s[0],'stop-color':s[1]})));
+  defs.appendChild(lg);
+  const gg=el('linearGradient',{id:'gild',x1:'0',y1:'0',x2:'0',y2:'1'});
+  [['0','#e8cd82'],['0.5','#c9a24a'],['1','#8f6d2c']].forEach(s=>gg.appendChild(el('stop',{offset:s[0],'stop-color':s[1]})));
+  defs.appendChild(gg);
+  svg.appendChild(defs);
+
+  // ---- urn generator (filled classical forms) ----
+  function urn(x,y,s,alpha){
+    const g0=el('g',{transform:`translate(${x},${y}) scale(${s})`,opacity:alpha});
+    g0.appendChild(el('rect',{x:-58,y:0,width:116,height:20,fill:'url(#stone)'}));
+    g0.appendChild(el('rect',{x:-44,y:-14,width:88,height:16,fill:'#cbba95'}));
+    g0.appendChild(el('path',{d:'M -34 -14 C -46 -70 -40 -108 0 -122 C 40 -108 46 -70 34 -14 Z',fill:'url(#stone)'}));
+    g0.appendChild(el('ellipse',{cx:0,cy:-122,rx:40,ry:11,fill:'#e9dcbb'}));
+    g0.appendChild(el('ellipse',{cx:0,cy:-122,rx:28,ry:7,fill:'#7a6a49'}));
+    // handles as thick arcs
+    g0.appendChild(el('path',{d:'M -34 -66 C -60 -70 -60 -100 -36 -104',fill:'none',stroke:'#c0ae87','stroke-width':9,'stroke-linecap':'round'}));
+    g0.appendChild(el('path',{d:'M 34 -66 C 60 -70 60 -100 36 -104',fill:'none',stroke:'#c0ae87','stroke-width':9,'stroke-linecap':'round'}));
+    // gilded band
+    g0.appendChild(el('rect',{x:-37,y:-58,width:74,height:9,fill:'url(#gild)',opacity:.9}));
+    return g0;
+  }
+  svg.appendChild(urn(150,1560,1.35,0.95));
+  svg.appendChild(urn(930,1560,1.35,0.95));
+  svg.appendChild(urn(300,1275,0.75,0.72));
+  svg.appendChild(urn(780,1275,0.75,0.72));
+
+  // ---- low balustrade wall across mid-ground (hard-edged, symmetric) ----
+  const wallY=1180;
+  const wall=el('g',{opacity:0.9});
+  wall.appendChild(el('rect',{x:0,y:wallY+56,width:1080,height:22,fill:'#bfae88'}));
+  wall.appendChild(el('rect',{x:0,y:wallY,width:1080,height:16,fill:'#e6d8b6'}));
+  for(let i=0;i<24;i++){
+    const bx=14+i*44.6;
+    wall.appendChild(el('path',{d:`M ${bx} ${wallY+16} q 9 20 0 40 l 16 0 q -9 -20 0 -40 Z`,fill:'#d3c29c'}));
+  }
+  // gap for central path
+  wall.appendChild(el('rect',{x:452,y:wallY-6,width:176,height:96,fill:'#e0cfa9'}));
+  svg.appendChild(wall);
+
+  // ---- gilded ornamental corner scrolls (feathered by radial fade group) ----
+  const orn=el('g',{opacity:0.5,fill:'none',stroke:'url(#gild)','stroke-width':7,'stroke-linecap':'round'});
+  [[0,0,1,1],[1080,0,-1,1],[0,1920,1,-1],[1080,1920,-1,-1]].forEach(c=>{
+    const [ox,oy,sx,sy]=c;
+    const g1=el('g',{transform:`translate(${ox},${oy}) scale(${sx},${sy})`});
+    g1.appendChild(el('path',{d:'M 26 200 C 26 90 90 26 200 26'}));
+    g1.appendChild(el('path',{d:'M 46 150 C 46 92 92 46 150 46',opacity:.6}));
+    g1.appendChild(el('circle',{cx:200,cy:26,r:6,fill:'url(#gild)',stroke:'none'}));
+    g1.appendChild(el('circle',{cx:26,cy:200,r:6,fill:'url(#gild)',stroke:'none'}));
+    g1.setAttribute('mask','url(#fade)');
+    orn.appendChild(g1);
+  });
+  const mask=el('mask',{id:'fade'});
+  const mrg=el('radialGradient',{id:'mrg'});
+  mrg.appendChild(el('stop',{offset:'0','stop-color':'#fff'}));
+  mrg.appendChild(el('stop',{offset:'0.55','stop-color':'#fff'}));
+  mrg.appendChild(el('stop',{offset:'1','stop-color':'#000'}));
+  defs.appendChild(mrg);
+  mask.appendChild(el('rect',{x:0,y:0,width:1080,height:1920,fill:'url(#mrg)'}));
+  defs.appendChild(mask);
+  svg.appendChild(orn);
+})();
+
+/* ============ FRONT LAYER: animated garden (540x960 backing store) ============ */
+const cv=document.getElementById('scene'), ctx=cv.getContext('2d');
+const W=540,H=960;
+
+/* --- flower definitions: stylised, filled, symmetric (Renaissance botanical) --- */
+const FLOWER_COLORS=[
+  ['#b8452c','#e2a37a','#7a2418'],  // vermilion
+  ['#2d4a8a','#6f8ec4','#1b2e58'],  // ultramarine
+  ['#c9707f','#f0c3ca','#8e3f4d'],  // rose
+  ['#c9a24a','#f0dfa6','#8f6d2c'],  // gold
+  ['#8e2f34','#cf8b8e','#571b1f']   // crimson
+];
+
+const flowers=[];
+function makeFlowers(){
+  // arranged on a harmonious grid (golden-ish columns), scaled by depth
+  const rowsY=[0.985,0.905,0.828,0.760,0.700,0.652];
+  rowsY.forEach((ry,ri)=>{
+    const y=H*ry;
+    const depth=1-ri/(rowsY.length+0.6);
+    const count= ri<2 ? 4 : (ri<4?5:6);
+    for(let i=0;i<count;i++){
+      let x=(i+0.5)/count*W + rr(-14,14);
+      // keep central path clear-ish
+      if(Math.abs(x-W/2)<26) x += (x<W/2?-30:30);
+      const s=(0.42+depth*0.95)*rr(0.85,1.15);
+      const pal=pick(FLOWER_COLORS);
+      flowers.push({
+        x,y,s,pal,
+        petals: 5+Math.floor(rnd()*4),
+        rot: rr(0,6.28),
+        stem: rr(48,96)*s,
+        lean: rr(-0.14,0.14),
+        ph: rr(0,6.28),
+        depth
+      });
+    }
+  });
+}
+makeFlowers();
+
+/* --- static backdrop for the animated layer: hedges + stem field baked once --- */
+const bake=document.createElement('canvas'); bake.width=W; bake.height=H;
+(function bakeStatic(){
+  const b=bake.getContext('2d');
+  b.clearRect(0,0,W,H);
+
+  // dark verdant hedge masses framing left/right (solid filled organic blobs)
+  function hedge(cx,cy,rx,ry,col,alpha){
+    b.globalAlpha=alpha; b.fillStyle=col;
+    b.beginPath();
+    for(let a=0;a<=Math.PI*2+0.01;a+=Math.PI/9){
+      const w=1+0.13*Math.sin(a*4+cx*0.05)+0.09*Math.sin(a*7+cy*0.03);
+      const x=cx+Math.cos(a)*rx*w, y=cy+Math.sin(a)*ry*w;
+      a===0?b.moveTo(x,y):b.lineTo(x,y);
+    }
+    b.closePath(); b.fill(); b.globalAlpha=1;
+  }
+  // topiary cones flanking the path (classical symmetry)
+  function cone(x,y,h,w,c1,c2){
+    const g=b.createLinearGradient(x-w,0,x+w,0);
+    g.addColorStop(0,c2); g.addColorStop(0.4,c1); g.addColorStop(1,'#26301f');
+    b.fillStyle=g;
+    b.beginPath(); b.moveTo(x,y-h);
+    b.quadraticCurveTo(x+w*1.1,y-h*0.4,x+w*0.6,y);
+    b.lineTo(x-w*0.6,y); b.quadraticCurveTo(x-w*1.1,y-h*0.4,x,y-h);
+    b.fill();
+    // trunk
+    b.fillStyle='#4a3a22'; b.fillRect(x-2,y-3,4,10);
+  }
+  hedge(-30,H*0.80,140,150,'#3c4b30',0.95);
+  hedge(W+30,H*0.80,140,150,'#3c4b30',0.95);
+  hedge(-14,H*0.97,120,110,'#2c3823',0.95);
+  hedge(W+14,H*0.97,120,110,'#2c3823',0.95);
+
+  cone(W*0.28,H*0.735,72,20,'#48593a','#6b7d4d');
+  cone(W*0.72,H*0.735,72,20,'#48593a','#6b7d4d');
+  cone(W*0.155,H*0.86,104,29,'#3f4f33','#61734a');
+  cone(W*0.845,H*0.86,104,29,'#3f4f33','#61734a');
+
+  // stems + leaves for every flower (static geometry)
+  flowers.forEach(f=>{
+    const tx=f.x+f.lean*f.stem, ty=f.y-f.stem;
+    b.strokeStyle='#3f5230'; b.lineWidth=Math.max(1.2,2.6*f.s);
+    b.beginPath(); b.moveTo(f.x,f.y);
+    b.quadraticCurveTo(f.x+f.lean*f.stem*0.4, f.y-f.stem*0.55, tx,ty);
+    b.stroke();
+    // two filled leaves
+    for(const sgn of [-1,1]){
+      const ly=f.y-f.stem*rr(0.34,0.52), lx=f.x+f.lean*f.stem*0.3;
+      const L=14*f.s, Wl=6*f.s;
+      b.fillStyle= sgn>0 ? '#4d6238' : '#3b4c2c';
+      b.beginPath();
+      b.moveTo(lx,ly);
+      b.quadraticCurveTo(lx+sgn*L*0.6, ly-Wl*1.6, lx+sgn*L, ly-Wl*0.2);
+      b.quadraticCurveTo(lx+sgn*L*0.55, ly+Wl*0.9, lx,ly);
+      b.fill();
+    }
+    // shadow pool
+    b.globalAlpha=0.18; b.fillStyle='#3a2e1c';
+    b.beginPath(); b.ellipse(f.x,f.y+2,9*f.s,3*f.s,0,0,6.283); b.fill();
+    b.globalAlpha=1;
+  });
+
+  /* ---- HIDDEN GUINEA PIG: tucked in shadow at base of right topiary ---- */
+  (function guinea(){
+    const gx=W*0.845+16, gy=H*0.862, s=0.62; // ~16px wide
+    b.save(); b.translate(gx,gy); b.scale(s,s); b.globalAlpha=0.42;
+    b.fillStyle='#4a4030';
+    b.beginPath(); b.ellipse(0,0,13,7.5,0.06,0,6.283); b.fill();      // body
+    b.beginPath(); b.ellipse(-11,-2.6,5.4,4.6,0,0,6.283); b.fill();   // head
+    b.fillStyle='#5c5140';
+    b.beginPath(); b.ellipse(-14.2,-5.6,2.1,2.5,-0.4,0,6.283); b.fill(); // ear
+    b.beginPath(); b.ellipse(3,-3.2,6,3.2,0.25,0,6.283); b.fill();    // rump patch
+    b.fillStyle='#2b2418';
+    b.beginPath(); b.arc(-13.4,-2.4,0.95,0,6.283); b.fill();          // eye
+    b.fillStyle='#3f3628';
+    b.beginPath(); b.ellipse(-6,6.6,2.4,1.5,0,0,6.283); b.fill();     // foot
+    b.beginPath(); b.ellipse(5,6.8,2.4,1.5,0,0,6.283); b.fill();
+    b.restore(); b.globalAlpha=1;
+  })();
+})();
+
+/* --- hummingbirds: hover drift + quick darts, blurred wings --- */
+const birds=[];
+const BIRD_PAL=[
+  {body:'#1f5c4a',hi:'#3f9c74',gorget:'#b8452c',crown:'#12463a'},
+  {body:'#264a7a',hi:'#4f86c0',gorget:'#c9a24a',crown:'#1a3358'},
+  {body:'#2e5a2c',hi:'#6aa04a',gorget:'#8e2f34',crown:'#1f4020'}
+];
+function newTarget(b,excl){
+  let cand=flowers.filter(f=>f.depth>0.35 && f!==excl);
+  if(!cand.length) cand=flowers;
+  return cand[Math.floor(rnd()*cand.length)|0];
+}
+for(let i=0;i<5;i++){
+  const t=flowers[Math.floor(rnd()*flowers.length)|0];
+  birds.push({
+    x:t.x, y:t.y-t.stem-16,
+    px:t.x, py:t.y-t.stem-16,
+    vx:0, vy:0,
+    target:t, pal:BIRD_PAL[i%BIRD_PAL.length],
+    state:'hover', timer:rr(1.2,3.4), dartT:0,
+    scale:0.62+rnd()*0.5,
+    face:1, ph:rr(0,6.28), stuck:0
+  });
+}
+
+let last=performance.now(), acc=0, T=0;
+const STEP=1/60;
+
+function stepPhysics(dt){
+  T+=dt;
+  birds.forEach(b=>{
+    const tx=b.target.x + b.target.lean*b.target.stem;
+    const ty=b.target.y - b.target.stem - 16*b.scale;
+    if(b.state==='hover'){
+      b.timer-=dt;
+      // gentle sinusoidal hover around flower
+      const hx=tx+Math.sin(T*1.6+b.ph)*5, hy=ty+Math.sin(T*2.3+b.ph*1.7)*3.4;
+      b.x += (hx-b.x)*Math.min(1,dt*3.2);
+      b.y += (hy-b.y)*Math.min(1,dt*3.2);
+      if(b.timer<=0){
+        b.state='dart'; b.dartT=0;
+        b.from={x:b.x,y:b.y};
+        b.next=newTarget(b,b.target);
+        b.dur=rr(0.55,0.95);
+        b.arc=rr(-42,42);
+        b.stuck=0;
+      }
+    } else {
+      b.dartT+=dt; b.stuck+=dt;
+      const nx=b.next.x + b.next.lean*b.next.stem;
+      const ny=b.next.y - b.next.stem - 16*b.scale;
+      let u=Math.min(1,b.dartT/b.dur);
+      const e=u<0.5?2*u*u:1-Math.pow(-2*u+2,2)/2; // fast ease-in-out
+      b.x = b.from.x+(nx-b.from.x)*e;
+      b.y = b.from.y+(ny-b.from.y)*e - Math.sin(e*Math.PI)*Math.abs(b.arc)*0.55;
+      if(u>=1 || b.stuck>2.2){ // escape hatch
+        b.target=b.next; b.state='hover'; b.timer=rr(1.6,4.2);
+      }
+    }
+    const dx=b.x-b.px;
+    if(Math.abs(dx)>0.35) b.face = dx>0?1:-1;
+    b.px=b.x; b.py=b.y;
+  });
+}
+
+/* --- rendering --- */
+function drawFlower(f,t){
+  const sway=Math.sin(t*0.55+f.ph)*0.045;
+  const cx=f.x+f.lean*f.stem + Math.sin(t*0.55+f.ph)*2.2*f.s;
+  const cy=f.y-f.stem;
+  const [c1,c2,c3]=f.pal;
+  const R=13*f.s;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(f.rot+sway);
+  // back petal ring (darker) — filled shapes only
+  for(let i=0;i<f.petals;i++){
+    const a=(i/f.petals)*6.283+0.32;
+    ctx.save(); ctx.rotate(a);
+    ctx.fillStyle=c3; ctx.globalAlpha=0.85;
+    ctx.beginPath(); ctx.ellipse(0,-R*0.95,R*0.46,R*1.0,0,0,6.283); ctx.fill();
+    ctx.restore();
+  }
+  // front petals with sfumato gradient
+  for(let i=0;i<f.petals;i++){
+    const a=(i/f.petals)*6.283;
+    ctx.save(); ctx.rotate(a);
+    const g=ctx.createLinearGradient(0,0,0,-R*1.9);
+    g.addColorStop(0,c1); g.addColorStop(0.65,c2); g.addColorStop(1,'#f6eeda');
+    ctx.fillStyle=g; ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.ellipse(0,-R*1.0,R*0.52,R*1.05,0,0,6.283); ctx.fill();
+    ctx.restore();
+  }
+  // corolla centre
+  ctx.globalAlpha=1;
+  const cg=ctx.createRadialGradient(-R*0.2,-R*0.2,1,0,0,R*0.62);
+  cg.addColorStop(0,'#fdf3cf'); cg.addColorStop(0.5,'#d8b45c'); cg.addColorStop(1,'#7a5a20');
+  ctx.fillStyle=cg;
+  ctx.beginPath(); ctx.arc(0,0,R*0.58,0,6.283); ctx.fill();
+  ctx.restore();
+}
+
+function drawBird(b,t){
+  const s=b.scale*1.0;
+  const wingFast = b.state==='dart' ? 46 : 34;
+  ctx.save();
+  ctx.translate(b.x,b.y);
+  ctx.scale(b.face*s,s);
+  const tilt = b.state==='dart' ? 0.22 : Math.sin(t*1.7+b.ph)*0.07;
+  ctx.rotate(tilt*b.face);
+
+  // blurred wings: 3 stacked translucent ellipses at phase offsets
+  const wp=Math.sin(t*wingFast+b.ph);
+  for(let k=0;k<3;k++){
+    const ph=wp*(1-k*0.22);
+    ctx.globalAlpha=0.16+0.10*(2-k);
+    ctx.fillStyle='#e7ddc4';
+    ctx.save();
+    ctx.translate(-1,-3);
+    ctx.rotate(-0.55+ph*0.72);
+    ctx.beginPath(); ctx.ellipse(-9,0,11.5,3.6,0,0,6.283); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.translate(-1,-3);
+    ctx.rotate(0.55-ph*0.72);
+    ctx.beginPath(); ctx.ellipse(-9,1,11.0,3.4,0,0,6.283); ctx.fill();
+    ctx.restore();
+  }
+  ctx.globalAlpha=1;
+
+  // tail (filled wedge)
+  ctx.fillStyle=b.pal.crown;
+  ctx.beginPath();
+  ctx.moveTo(-4,0); ctx.lineTo(-16,-4); ctx.lineTo(-19,1); ctx.lineTo(-15,4);
+  ctx.closePath(); ctx.fill();
+
+  // body with iridescent gradient (sfumato)
+  const bg=ctx.createLinearGradient(-5,-6,7,6);
+  bg.addColorStop(0,b.pal.hi); bg.addColorStop(0.55,b.pal.body); bg.addColorStop(1,b.pal.crown);
+  ctx.fillStyle=bg;
+  ctx.beginPath(); ctx.ellipse(0,0,8.5,5.4,-0.12,0,6.283); ctx.fill();
+
+  // head
+  ctx.fillStyle=b.pal.crown;
+  ctx.beginPath(); ctx.arc(7,-3.2,3.9,0,6.283); ctx.fill();
+  // gorget
+  ctx.fillStyle=b.pal.gorget;
+  ctx.beginPath(); ctx.ellipse(7.4,-1.2,3.0,2.1,0.3,0,6.283); ctx.fill();
+  // highlight
+  ctx.globalAlpha=0.55; ctx.fillStyle='#f5ecd6';
+  ctx.beginPath(); ctx.ellipse(2.5,-3.4,3.2,1.5,-0.3,0,6.283); ctx.fill();
+  ctx.globalAlpha=1;
+  // bill — long straight needle
+  ctx.strokeStyle='#241c10'; ctx.lineWidth=1.3; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(10.4,-2.6); ctx.lineTo(22,-1.2); ctx.stroke();
+  // eye
+  ctx.fillStyle='#12100a';
+  ctx.beginPath(); ctx.arc(8.6,-4.2,0.95,0,6.283); ctx.fill();
+
+  ctx.restore();
+}
+
+function render(t){
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(bake,0,0);
+
+  // sort flowers back-to-front by y
+  const sorted=flowers.slice().sort((a,b)=>a.y-b.y);
+  const back=sorted.filter(f=>f.depth<=0.6);
+  const front=sorted.filter(f=>f.depth>0.6);
+
+  back.forEach(f=>drawFlower(f,t));
+
+  // birds behind the nearest flowers
+  birds.filter(b=>b.y< H*0.80).forEach(b=>drawBird(b,t));
+  front.forEach(f=>drawFlower(f,t));
+  birds.filter(b=>b.y>=H*0.80).forEach(b=>drawBird(b,t));
+
+  // warm light shaft (static gradient, low cost, single draw)
+  ctx.globalAlpha=0.14;
+  const shaft=ctx.createLinearGradient(W*0.30,0,W*0.72,H);
+  shaft.addColorStop(0,'rgba(255,244,206,0)');
+  shaft.addColorStop(0.42,'rgba(255,240,196,0.9)');
+  shaft.addColorStop(1,'rgba(255,240,196,0)');
+  ctx.fillStyle=shaft; ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=1;
+}
+
+function loop(now){
+  let dt=(now-last)/1000; last=now;
+  if(dt>0.1) dt=0.1;
+  acc+=dt;
+  let steps=0;
+  while(acc>=STEP && steps<2){ stepPhysics(STEP); acc-=STEP; steps++; }
+  if(acc>STEP) acc=0;
+  render(T);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ============ procedural audio: soft consonant drone (direct view only) ============ */
+if (window.self === window.top){
+  let started=false;
+  const start=()=>{
+    if(started) return; started=true;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      const ac=new AC();
+      const master=ac.createGain(); master.gain.value=0.0; master.connect(ac.destination);
+      master.gain.linearRampToValueAtTime(0.055, ac.currentTime+8);
+
+      // just-intonation drone: harmonious proportion (1 : 3/2 : 5/4 : 2)
+      const base=110*Math.pow(2,((_s%5)-2)/12);
+      [[1,0.5],[1.5,0.32],[2.0,0.20],[2.5,0.12]].forEach((r,i)=>{
+        const o=ac.createOscillator(); o.type= i<2?'sine':'triangle';
+        o.frequency.value=base*r[0];
+        const g=ac.createGain(); g.gain.value=r[1]*0.5;
+        const lfo=ac.createOscillator(); lfo.frequency.value=0.045+i*0.017;
+        const la=ac.createGain(); la.gain.value=r[1]*0.22;
+        lfo.connect(la); la.connect(g.gain);
+        const f=ac.createBiquadFilter(); f.type='lowpass'; f.frequency.value=900;
+        o.connect(f); f.connect(g); g.connect(master);
+        o.start(); lfo.start();
+      });
+      // faint airy wing texture
+      const len=2*ac.sampleRate, buf=ac.createBuffer(1,len,ac.sampleRate), d=buf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*0.35;
+      const src=ac.createBufferSource(); src.buffer=buf; src.loop=true;
+      const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1750; bp.Q=1.1;
+      const ng=ac.createGain(); ng.gain.value=0.012;
+      const nlfo=ac.createOscillator(); nlfo.frequency.value=0.09;
+      const nla=ac.createGain(); nla.gain.value=0.008;
+      nlfo.connect(nla); nla.connect(ng.gain);
+      src.connect(bp); bp.connect(ng); ng.connect(master);
+      src.start(); nlfo.start();
+      if(ac.state==='suspended') ac.resume();
+    }catch(e){}
+  };
+  start();
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) start(); });
+}
+</script>
+</body>
+</html>
