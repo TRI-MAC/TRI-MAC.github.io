@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Deco Drift</title>
+<style>
+  html,body{margin:0;padding:0;background:#07070c;overflow:hidden;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1080px;height:1920px;
+    background:#0a0a12;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:9/16){
+    #stage{width:100vw;height:177.78vw;}
+  }
+  @media (min-aspect-ratio:9/16){
+    #stage{height:100vh;width:56.25vh;}
+  }
+  #stage > *{position:absolute;}
+
+  /* deep water ground */
+  #ground{
+    left:0;top:0;width:100%;height:100%;
+    background:
+      radial-gradient(ellipse 70% 45% at 50% 18%, rgba(64,116,148,0.55) 0%, rgba(22,44,66,0.35) 45%, rgba(8,12,22,0) 75%),
+      linear-gradient(180deg,#0d2233 0%, #0a1826 30%, #08111d 60%, #060a12 100%);
+  }
+
+  #background-video{
+    left:-6%;top:-4%;width:112%;height:108%;
+    object-fit:cover;
+    opacity:0.78;
+    mix-blend-mode:screen;
+  }
+
+  /* single combined texture/vignette layer (only blended full-viewport layer besides video) */
+  #grain{
+    left:0;top:0;width:100%;height:100%;
+    pointer-events:none;
+    background-image:
+      radial-gradient(ellipse 78% 62% at 50% 46%, rgba(0,0,0,0) 55%, rgba(3,5,10,0.72) 100%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px),
+      repeating-linear-gradient(90deg, rgba(214,178,96,0.035) 0px, rgba(214,178,96,0.035) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 6px);
+  }
+
+  canvas,svg{left:0;top:0;width:100%;height:100%;}
+  #jelly{image-rendering:auto;}
+
+  /* Deco frame ornament (drawn once, SVG) */
+  #frame{pointer-events:none;}
+
+  #sunburst{
+    left:50%;top:0;width:1300px;height:1300px;
+    margin-left:-650px;margin-top:-420px;
+    transform-origin:50% 50%;
+    animation:spin 260s linear infinite;
+    opacity:0.5;
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, #000 0%, #000 42%, rgba(0,0,0,0) 72%);
+    mask-image:radial-gradient(circle at 50% 50%, #000 0%, #000 42%, rgba(0,0,0,0) 72%);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #stamp{
+    left:34px;bottom:26px;
+    font:500 13px/1.4 "Futura","Century Gothic",system-ui,sans-serif;
+    letter-spacing:.34em;
+    color:#e6cf9a;opacity:0.5;
+  }
+  #guinea-pig{
+    right:38px;bottom:112px;width:17px;height:auto;
+    opacity:0.6;
+    transform:rotate(-8deg);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="ground"></div>
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <!-- static deco sunburst behind jellies -->
+  <svg id="sunburst" viewBox="0 0 1300 1300" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <!-- animated jellyfish canvas (half-res) -->
+  <canvas id="jelly"></canvas>
+
+  <!-- static deco architecture, drawn once -->
+  <canvas id="deco"></canvas>
+
+  <!-- vector frame ornament -->
+  <svg id="frame" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  <div id="grain"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="stamp">2026 · 08 · 08</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- date seed ---------- */
+const DATE="2026-08-08";
+let h=2166136261;
+for(let i=0;i<DATE.length;i++){h^=DATE.charCodeAt(i);h=Math.imul(h,16777619);}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+const rnd=mulberry(h>>>0);
+
+/* ---------- palette : Art Deco metallics + bioluminescent jade ---------- */
+const GOLD="#e8c87a", GOLD_D="#a8813c", JADE="#5fe3c8", CORAL="#ff7a8a",
+      LILAC="#b79cff", BLACK="#080b12", CREAM="#f6e9c8";
+
+/* =======================================================
+   1. SUNBURST (SVG, static, slowly rotating)
+   ======================================================= */
+(function(){
+  const svg=document.getElementById('sunburst');
+  const cx=650,cy=650;
+  let s='';
+  const N=72;
+  for(let i=0;i<N;i++){
+    const a0=(i/N)*Math.PI*2;
+    const w=(i%3===0)?0.016:0.007;
+    const len=(i%3===0)?640:(i%2?470:540);
+    const x1=cx+Math.cos(a0-w)*90, y1=cy+Math.sin(a0-w)*90;
+    const x2=cx+Math.cos(a0+w)*90, y2=cy+Math.sin(a0+w)*90;
+    const x3=cx+Math.cos(a0+w*0.5)*len, y3=cy+Math.sin(a0+w*0.5)*len;
+    const x4=cx+Math.cos(a0-w*0.5)*len, y4=cy+Math.sin(a0-w*0.5)*len;
+    const col=(i%3===0)?GOLD:(i%2?GOLD_D:"#6fbfae");
+    const op=(i%3===0)?0.55:0.3;
+    s+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} L${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} Z" fill="${col}" opacity="${op}"/>`;
+  }
+  // concentric deco rings
+  s+=`<circle cx="${cx}" cy="${cy}" r="104" fill="none" stroke="${GOLD}" stroke-width="6" opacity="0.7"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="128" fill="none" stroke="${GOLD_D}" stroke-width="2" opacity="0.6"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="74" fill="none" stroke="${JADE}" stroke-width="3" opacity="0.5"/>`;
+  svg.innerHTML=s;
+})();
+
+/* =======================================================
+   2. STATIC DECO ARCHITECTURE (full-res canvas, drawn ONCE)
+   ======================================================= */
+(function(){
+  const c=document.getElementById('deco');
+  const W=1080,H=1920;
+  c.width=W;c.height=H;
+  const g=c.getContext('2d');
+
+  // --- stepped ziggurat colonnade at the base (Deco skyline underwater) ---
+  function ziggurat(x, baseY, w, steps, stepH, col, alpha){
+    g.globalAlpha=alpha;
+    for(let i=0;i<steps;i++){
+      const ww=w*(1-i*0.13);
+      g.fillStyle=col;
+      g.fillRect(x-ww/2, baseY-(i+1)*stepH, ww, stepH+1);
+    }
+    g.globalAlpha=1;
+  }
+
+  // silhouette skyline
+  const towers=[[150,240,7],[300,150,5],[430,320,9],[560,190,6],[700,300,8],[850,170,5],[990,250,7]];
+  towers.forEach((t,i)=>{
+    ziggurat(t[0], H+8, t[1], t[2], 30, "#050810", 0.92);
+  });
+  // gold rim along tower tops
+  g.globalAlpha=0.5;
+  towers.forEach(t=>{
+    const steps=t[2];
+    for(let i=0;i<steps;i++){
+      const ww=t[1]*(1-i*0.13);
+      const y=H+8-(i+1)*30;
+      g.fillStyle=GOLD_D;
+      g.fillRect(t[0]-ww/2, y, ww, 2);
+    }
+  });
+  g.globalAlpha=1;
+
+  // spires
+  g.strokeStyle=GOLD;g.globalAlpha=0.35;g.lineWidth=3;
+  towers.forEach(t=>{
+    const topY=H+8-t[2]*30;
+    g.beginPath();g.moveTo(t[0],topY);g.lineTo(t[0],topY-60);g.stroke();
+    g.beginPath();
+    g.moveTo(t[0]-14,topY);g.lineTo(t[0],topY-34);g.lineTo(t[0]+14,topY);g.closePath();
+    g.fillStyle=GOLD;g.globalAlpha=0.22;g.fill();g.globalAlpha=0.35;
+  });
+  g.globalAlpha=1;
+
+  // --- Deco chevron band across upper third ---
+  function chevronBand(y, h, count, col, alpha, flip){
+    g.save();g.globalAlpha=alpha;g.fillStyle=col;
+    const w=W/count;
+    for(let i=0;i<count;i++){
+      const x=i*w;
+      g.beginPath();
+      if(!flip){
+        g.moveTo(x,y+h);g.lineTo(x+w/2,y);g.lineTo(x+w,y+h);
+        g.lineTo(x+w-6,y+h);g.lineTo(x+w/2,y+10);g.lineTo(x+6,y+h);
+      }else{
+        g.moveTo(x,y);g.lineTo(x+w/2,y+h);g.lineTo(x+w,y);
+        g.lineTo(x+w-6,y);g.lineTo(x+w/2,y+h-10);g.lineTo(x+6,y);
+      }
+      g.closePath();g.fill();
+    }
+    g.restore();
+  }
+  chevronBand(388, 46, 18, GOLD, 0.30, false);
+  chevronBand(1508, 46, 18, GOLD, 0.24, true);
+
+  // horizontal gold rules
+  function rule(y,alpha,lw,col){
+    g.globalAlpha=alpha;g.fillStyle=col;g.fillRect(70,y,W-140,lw);g.globalAlpha=1;
+  }
+  rule(370,0.55,3,GOLD); rule(378,0.28,1,GOLD_D);
+  rule(1494,0.4,2,GOLD); rule(1568,0.3,3,GOLD);
+  rule(1576,0.18,1,GOLD_D);
+
+  // --- fluted vertical pilasters at left/right edges, faded top & bottom ---
+  const pil=g.createLinearGradient(0,200,0,1700);
+  pil.addColorStop(0,"rgba(232,200,122,0)");
+  pil.addColorStop(0.18,"rgba(232,200,122,0.34)");
+  pil.addColorStop(0.82,"rgba(232,200,122,0.30)");
+  pil.addColorStop(1,"rgba(232,200,122,0)");
+  for(let s=0;s<5;s++){
+    const wx=26+s*13;
+    g.fillStyle=pil;
+    g.fillRect(wx,200,4,1500);
+    g.fillRect(W-wx-4,200,4,1500);
+  }
+
+  // --- fan / shell motif top centre ---
+  g.save();
+  g.translate(W/2,236);
+  for(let i=0;i<13;i++){
+    const a=-Math.PI/2 + (i-6)*(Math.PI/2/7);
+    g.globalAlpha=0.14+ (i%2?0.05:0.12);
+    g.fillStyle= i%2? GOLD:JADE;
+    g.beginPath();
+    g.moveTo(0,0);
+    g.arc(0,0,150,a-0.055,a+0.055);
+    g.closePath();g.fill();
+  }
+  g.globalAlpha=0.6;g.strokeStyle=GOLD;g.lineWidth=4;
+  g.beginPath();g.arc(0,0,152,Math.PI,0);g.stroke();
+  g.globalAlpha=1;
+  g.restore();
+
+  // --- stipple/halftone texture on lower half, ONCE ---
+  g.globalAlpha=0.5;
+  for(let y=1150;y<H;y+=12){
+    for(let x=6;x<W;x+=12){
+      const d=(y-1150)/(H-1150);
+      if(rnd()<d*0.5){
+        const r=0.6+rnd()*1.5*d;
+        g.fillStyle= rnd()<0.75 ? "rgba(232,200,122,0.22)" : "rgba(95,227,200,0.20)";
+        g.beginPath();g.arc(x+(rnd()-0.5)*6,y+(rnd()-0.5)*6,r,0,6.283);g.fill();
+      }
+    }
+  }
+  g.globalAlpha=1;
+})();
+
+/* =======================================================
+   3. SVG FRAME ORNAMENT  (static, thin gold border w/ corners)
+   ======================================================= */
+(function(){
+  const svg=document.getElementById('frame');
+  let s=`<defs>
+    <linearGradient id="gg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${GOLD}" stop-opacity="0"/>
+      <stop offset="0.12" stop-color="${GOLD}" stop-opacity="0.85"/>
+      <stop offset="0.88" stop-color="${GOLD}" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="${GOLD}" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${GOLD}" stop-opacity="0"/>
+      <stop offset="0.14" stop-color="${GOLD}" stop-opacity="0.8"/>
+      <stop offset="0.86" stop-color="${GOLD}" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="${GOLD}" stop-opacity="0"/>
+    </linearGradient>
+  </defs>`;
+  // border lines
+  s+=`<rect x="56" y="0" width="2.5" height="1920" fill="url(#gg)"/>`;
+  s+=`<rect x="1021.5" y="0" width="2.5" height="1920" fill="url(#gg)"/>`;
+  s+=`<rect x="0" y="56" width="1080" height="2.5" fill="url(#gh)"/>`;
+  s+=`<rect x="0" y="1861.5" width="1080" height="2.5" fill="url(#gh)"/>`;
+  // corner deco brackets
+  function corner(x,y,sx,sy){
+    return `<g transform="translate(${x},${y}) scale(${sx},${sy})" fill="none" stroke="${GOLD}" stroke-width="3" opacity="0.75">
+      <path d="M0,84 L0,26 L26,0 L84,0"/>
+      <path d="M14,86 L14,34 L34,14 L86,14" stroke-width="1.5" opacity="0.6"/>
+      <path d="M0,116 L18,116" stroke-width="5"/>
+      <path d="M116,0 L116,18" stroke-width="5"/>
+    </g>`;
+  }
+  s+=corner(58,58,1,1)+corner(1022,58,-1,1)+corner(58,1862,1,-1)+corner(1022,1862,-1,-1);
+
+  // top centre keystone lozenge
+  s+=`<g opacity="0.8">
+    <path d="M540,44 L586,92 L540,140 L494,92 Z" fill="none" stroke="${GOLD}" stroke-width="3"/>
+    <path d="M540,62 L570,92 L540,122 L510,92 Z" fill="${JADE}" opacity="0.35"/>
+    <circle cx="540" cy="92" r="7" fill="${GOLD}"/>
+  </g>`;
+
+  /* --- NEWT: small Deco newt motif, bottom-centre plaque, silhouette --- */
+  s+=`<g transform="translate(540,1786) scale(1.0)" opacity="0.9">
+    <path d="M-180,0 L-150,-16 L150,-16 L180,0 L150,16 L-150,16 Z" fill="#060a12" opacity="0.85" stroke="${GOLD_D}" stroke-width="1.5"/>
+    <g fill="${GOLD}" opacity="0.95">
+      <!-- newt body: head, body, four legs, curling tail -->
+      <path d="M-58,2 C-46,-13 -22,-16 -4,-11 C14,-6 30,-8 44,-2 C58,4 66,14 62,22 C58,29 46,29 40,22 C36,17 40,10 46,10 C50,10 52,13 51,16
+               C50,19 46,19 45,17
+               M-58,2 C-52,10 -40,14 -24,13 C-6,12 12,10 26,12 C40,14 48,18 50,22"
+            fill="none" stroke="${GOLD}" stroke-width="0"/>
+      <path d="M-62,1 C-52,-12 -30,-16 -10,-12 C10,-8 28,-11 42,-4 C56,3 64,15 58,23 C53,30 42,29 38,22 C34,15 40,8 47,10
+               C50,11 51,14 49,16 L49,18
+               C44,26 30,22 20,17 C6,10 -12,10 -28,12 C-44,14 -56,10 -62,1 Z" fill="${GOLD}"/>
+      <!-- eye -->
+      <circle cx="-52" cy="-3" r="2.6" fill="#060a12"/>
+      <!-- legs -->
+      <path d="M-34,10 L-42,24 L-52,26" stroke="${GOLD}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      <path d="M-34,-8 L-40,-22 L-50,-24" stroke="${GOLD}" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M8,12 L4,26 L-6,30" stroke="${GOLD}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      <path d="M8,-9 L4,-23 L-6,-26" stroke="${GOLD}" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- dorsal spots -->
+      <circle cx="-24" cy="-2" r="2.2" fill="#060a12" opacity="0.55"/>
+      <circle cx="-6" cy="0" r="2.2" fill="#060a12" opacity="0.55"/>
+      <circle cx="12" cy="2" r="2.2" fill="#060a12" opacity="0.55"/>
+    </g>
+    <path d="M-140,0 L-88,0" stroke="${GOLD_D}" stroke-width="2" opacity="0.8"/>
+    <path d="M88,0 L140,0" stroke="${GOLD_D}" stroke-width="2" opacity="0.8"/>
+  </g>`;
+  svg.innerHTML=s;
+})();
+
+/* =======================================================
+   4. ANIMATED JELLYFISH  (half-res canvas 540x960)
+   ======================================================= */
+const cv=document.getElementById('jelly');
+const CW=540, CH=960;
+cv.width=CW;cv.height=CH;
+const ctx=cv.getContext('2d');
+
+/* pre-render each jellyfish "bell" as a Deco fan sprite on offscreen canvas,
+   one per colour variant; animation = transform + tentacle strokes only */
+function makeBell(size, hue1, hue2, rays){
+  const s=Math.ceil(size*2.2);
+  const oc=document.createElement('canvas');
+  oc.width=s;oc.height=s;
+  const o=oc.getContext('2d');
+  const cx=s/2, cy=s*0.55, R=size;
+
+  // glow halo
+  const gl=o.createRadialGradient(cx,cy,R*0.15,cx,cy,R*1.05);
+  gl.addColorStop(0,hue1+"55");
+  gl.addColorStop(0.5,hue1+"22");
+  gl.addColorStop(1,hue1+"00");
+  o.fillStyle=gl;o.beginPath();o.arc(cx,cy,R*1.05,0,6.283);o.fill();
+
+  // bell dome: filled half-ellipse
+  o.save();
+  const dg=o.createLinearGradient(cx,cy-R,cx,cy+R*0.2);
+  dg.addColorStop(0,hue2+"ee");
+  dg.addColorStop(0.55,hue1+"aa");
+  dg.addColorStop(1,hue1+"33");
+  o.fillStyle=dg;
+  o.beginPath();
+  o.ellipse(cx,cy,R,R*0.82,0,Math.PI,0);
+  // scalloped skirt
+  const scal=8;
+  for(let i=0;i<=scal;i++){
+    const t=i/scal;
+    const x=cx+R-2*R*t;
+    const y=cy + (i%2? R*0.18 : R*0.05);
+    o.lineTo(x,y);
+  }
+  o.closePath();o.fill();
+  o.restore();
+
+  // Deco ray segmentation inside bell
+  o.save();
+  o.beginPath();
+  o.ellipse(cx,cy,R*0.985,R*0.81,0,Math.PI,0);
+  o.closePath();
+  o.clip();
+  for(let i=0;i<rays;i++){
+    const a=Math.PI + (i+0.5)/rays*Math.PI;
+    o.globalAlpha= i%2 ? 0.30 : 0.13;
+    o.fillStyle= i%3===0 ? GOLD : CREAM;
+    o.beginPath();
+    o.moveTo(cx,cy);
+    o.arc(cx,cy,R*1.1,a-Math.PI/rays*0.42,a+Math.PI/rays*0.42);
+    o.closePath();o.fill();
+  }
+  // concentric gold arcs
+  o.globalAlpha=1;
+  for(let k=1;k<=3;k++){
+    o.strokeStyle= k===2? GOLD : GOLD_D;
+    o.globalAlpha= k===2? 0.65:0.4;
+    o.lineWidth= k===2? 2.4:1.3;
+    o.beginPath();
+    o.ellipse(cx,cy,R*(0.3+k*0.22),R*0.82*(0.3+k*0.22),0,Math.PI,0);
+    o.stroke();
+  }
+  o.restore();
+
+  // bell rim (gold)
+  o.globalAlpha=0.9;
+  o.strokeStyle=GOLD;o.lineWidth=2.6;
+  o.beginPath();o.ellipse(cx,cy,R,R*0.82,0,Math.PI,0);o.stroke();
+  o.globalAlpha=1;
+
+  // crown: stepped ziggurat crest on top of bell (Deco signature)
+  o.fillStyle=GOLD;
+  o.globalAlpha=0.85;
+  const steps=3;
+  for(let i=0;i<steps;i++){
+    const w=R*(0.34-i*0.09);
+    o.fillRect(cx-w, cy-R*0.82 - (i+1)*R*0.075, w*2, R*0.075);
+  }
+  o.globalAlpha=1;
+  // apex triangle
+  o.beginPath();
+  o.moveTo(cx, cy-R*0.82-steps*R*0.075-R*0.13);
+  o.lineTo(cx-R*0.09, cy-R*0.82-steps*R*0.075);
+  o.lineTo(cx+R*0.09, cy-R*0.82-steps*R*0.075);
+  o.closePath();
+  o.fillStyle=GOLD;o.fill();
+
+  return {img:oc, cx:cx, cy:cy, size:s, R:R};
+}
+
+const variants=[
+  makeBell(56, "#3fd8bd", "#c9fff2", 12),
+  makeBell(44, "#7c8dff", "#dfe4ff", 10),
+  makeBell(66, "#ff6f86", "#ffd8de", 14),
+  makeBell(36, "#e8c87a", "#fff3d0", 9)
+];
+
+/* jellyfish instances */
+const JELLIES=[];
+const COUNT=9;
+for(let i=0;i<COUNT;i++){
+  const v=Math.floor(rnd()*variants.length);
+  const scale=0.42+rnd()*0.75;
+  JELLIES.push({
+    v:v,
+    x: 50+rnd()*(CW-100),
+    y: rnd()*CH,
+    sc: scale,
+    sp: 6+rnd()*11,           // px/sec downward (slow)
+    swayA: 8+rnd()*22,
+    swayF: 0.05+rnd()*0.09,
+    phase: rnd()*6.283,
+    pulseF: 0.13+rnd()*0.13,
+    tent: 5+Math.floor(rnd()*4),
+    tentLen: 90+rnd()*140,
+    rotAmp: 0.05+rnd()*0.07
+  });
+}
+JELLIES.sort((a,b)=>a.sc-b.sc);
+
+const TCOL=["rgba(95,227,200,","rgba(150,164,255,","rgba(255,140,158,","rgba(232,200,122,"];
+
+function drawTentacles(j, x, y, sc, t){
+  const col=TCOL[j.v];
+  const n=j.tent;
+  const L=j.tentLen*sc;
+  const baseW=j.variantR*sc;
+  for(let k=0;k<n;k++){
+    const u=(k/(n-1))-0.5;                 // -0.5..0.5
+    const bx=x+u*baseW*1.55;
+    const by=y+baseW*0.20;
+    // straight tapered ribbon with a slow lateral offset at tip
+    const drift=Math.sin(t*0.6 + j.phase + k*0.9)*10*sc;
+    const tipx=bx+u*26*sc+drift;
+    const tipy=by+L;
+    // thick tapered band: quad from base width to tip width
+    const w0=(3.6-Math.abs(u)*2.2)*sc*1.5;
+    const w1=w0*0.28;
+    const midx=(bx+tipx)/2 + drift*0.4;
+    const midy=by+L*0.5;
+    ctx.beginPath();
+    ctx.moveTo(bx-w0,by);
+    ctx.lineTo(midx-w0*0.6, midy);
+    ctx.lineTo(tipx-w1,tipy);
+    ctx.lineTo(tipx+w1,tipy);
+    ctx.lineTo(midx+w0*0.6, midy);
+    ctx.lineTo(bx+w0,by);
+    ctx.closePath();
+    const grd=ctx.createLinearGradient(bx,by,tipx,tipy);
+    grd.addColorStop(0,col+"0.55)");
+    grd.addColorStop(0.45,col+"0.26)");
+    grd.addColorStop(1,col+"0)");
+    ctx.fillStyle=grd;
+    ctx.fill();
+    // gold beads along tentacle (deco)
+    ctx.fillStyle="rgba(232,200,122,0.5)";
+    for(let m=1;m<=3;m++){
+      const tt=m/4;
+      const px=bx+(tipx-bx)*tt+ (midx-(bx+tipx)/2)*Math.sin(tt*Math.PI)*0.8;
+      const py=by+L*tt;
+      const r=Math.max(0.7,(2.0-m*0.4)*sc);
+      ctx.beginPath();ctx.arc(px,py,r,0,6.283);ctx.fill();
+    }
+  }
+  // central oral arms: two thick jade arcs
+  ctx.strokeStyle=col+"0.42)";
+  ctx.lineWidth=4.2*sc;
+  ctx.lineCap="round";
+  for(let s=-1;s<=1;s+=2){
+    ctx.beginPath();
+    ctx.moveTo(x+s*4*sc, y+baseW*0.14);
+    ctx.lineTo(x+s*(10+Math.sin(t*0.5+j.phase)*4)*sc, y+L*0.45);
+    ctx.stroke();
+  }
+}
+JELLIES.forEach(j=>{ j.variantR=variants[j.v].R; });
+
+/* caustic shimmer bands (few, thick, filled) */
+const CAUSTIC=[];
+for(let i=0;i<5;i++){
+  CAUSTIC.push({y:rnd()*CH, h:26+rnd()*52, ph:rnd()*6.283, sp:0.06+rnd()*0.07});
+}
+
+let last=performance.now(), t=0;
+function frame(now){
+  let dt=(now-last)/1000;
+  last=now;
+  if(dt>0.05)dt=0.05;
+  t+=dt;
+
+  ctx.clearRect(0,0,CW,CH);
+
+  // wide caustic light bands (structural, slow)
+  ctx.globalCompositeOperation='lighter';
+  for(const c of CAUSTIC){
+    const yy=c.y+Math.sin(t*c.sp+c.ph)*30;
+    const g=ctx.createLinearGradient(0,yy,0,yy+c.h);
+    g.addColorStop(0,"rgba(120,220,210,0)");
+    g.addColorStop(0.5,"rgba(120,220,210,0.055)");
+    g.addColorStop(1,"rgba(120,220,210,0)");
+    ctx.fillStyle=g;
+    ctx.fillRect(0,yy,CW,c.h);
+  }
+
+  for(const j of JELLIES){
+    j.y += j.sp*dt;
+    if(j.y - variants[j.v].R*j.sc*1.4 > CH + j.tentLen*j.sc*0.2){
+      j.y = -variants[j.v].R*j.sc*2.4 - j.tentLen*j.sc;
+      j.x = 50+rnd()*(CW-100);
+    }
+    const sway=Math.sin(t*j.swayF*6.283*0.35 + j.phase)*j.swayA;
+    const x=j.x+sway;
+    const pulse=Math.sin(t*j.pulseF*6.283 + j.phase);
+    const sx=j.sc*(1+pulse*0.10);
+    const sy=j.sc*(1-pulse*0.13);
+    const rot=Math.sin(t*j.swayF*6.283*0.35 + j.phase + 1.2)*j.rotAmp;
+
+    ctx.save();
+    ctx.translate(x, j.y);
+    ctx.rotate(rot);
+    drawTentacles(j, 0, 0, sy, t);
+    ctx.restore();
+
+    const v=variants[j.v];
+    ctx.save();
+    ctx.translate(x, j.y);
+    ctx.rotate(rot);
+    ctx.scale(sx,sy);
+    ctx.globalAlpha=0.94;
+    ctx.drawImage(v.img, -v.cx, -v.cy);
+    ctx.restore();
+  }
+  ctx.globalCompositeOperation='source-over';
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* =======================================================
+   5. PROCEDURAL AUDIO — deep deco drone (direct view only)
+   ======================================================= */
+if(window.self===window.top){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      const ac=new AC();
+      const master=ac.createGain();
+      master.gain.value=0.0;
+      master.connect(ac.destination);
+      const lp=ac.createBiquadFilter();
+      lp.type="lowpass";lp.frequency.value=620;lp.Q.value=0.7;
+      lp.connect(master);
+
+      // pentatonic-ish jade chord
+      const freqs=[55, 82.4, 110, 164.8, 220, 329.6];
+      freqs.forEach((f,i)=>{
+        const o=ac.createOscillator();
+        o.type= i<3 ? "sine":"triangle";
+        o.frequency.value=f*(1+ (rnd()-0.5)*0.004);
+        const g=ac.createGain();
+        g.gain.value=0;
+        o.connect(g);g.connect(lp);
+        o.start();
+        // slow swell LFO
+        const lfo=ac.createOscillator();
+        lfo.type="sine";
+        lfo.frequency.value=0.017+ i*0.009;
+        const lg=ac.createGain();
+        lg.gain.value= 0.055/(1+i*0.55);
+        lfo.connect(lg);lg.connect(g.gain);
+        lfo.start();
+        g.gain.value= 0.055/(1+i*0.55);
+      });
+
+      // filter sweep, very slow
+      const flfo=ac.createOscillator();
+      flfo.type="sine";flfo.frequency.value=0.021;
+      const fg=ac.createGain();fg.gain.value=240;
+      flfo.connect(fg);fg.connect(lp.frequency);flfo.start();
+
+      master.gain.linearRampToValueAtTime(0.0, ac.currentTime);
+      master.gain.linearRampToValueAtTime(0.16, ac.currentTime+9);
+
+      const resume=()=>{ if(ac.state==="suspended") ac.resume(); };
+      resume();
+      document.addEventListener("visibilitychange",resume);
+    }
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>

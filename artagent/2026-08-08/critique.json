@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-08",
+  "generator_provider": "anthropic",
+  "generator_model": "global.anthropic.claude-opus-5",
+  "critic_provider": "openai",
+  "critic_model": "gpt-5.6-sol",
+  "critique": "The bioluminescent jade-and-coral jellyfish, crowned with gold ziggurat crests and beaded tentacles, fuse marine life with Art Deco architecture in a bold, delightfully strange underwater metropolis. The rigid chevron bands, frame, skyline, sunburst, newt plaque, date stamp, and tiny guinea-pig cameo create too many competing motifs; enlarging and integrating the animal glyphs into the architecture while muting one or two ornamental layers would give the drifting jellyfish greater visual authority."
+}
