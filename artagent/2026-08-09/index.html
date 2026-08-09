@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Sandfall Formline</title>
+<style>
+  html,body{margin:0;padding:0;background:#0d0a09;overflow:hidden;height:100%;}
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    margin:0 auto;
+    background:#1a1210;
+    overflow:hidden;
+  }
+  /* painted DOM sky — continues the image palette upward */
+  #sky{
+    position:absolute; left:0; top:0; width:100%; height:62%;
+    background:
+      radial-gradient(120% 90% at 22% 88%, rgba(214,66,38,0.55) 0%, rgba(214,66,38,0.0) 60%),
+      radial-gradient(90% 70% at 78% 12%, rgba(240,214,182,0.42) 0%, rgba(240,214,182,0) 62%),
+      linear-gradient(180deg, #17100e 0%, #2a1512 26%, #5c1f16 52%, #9c3319 74%, #c9542a 90%, #d97743 100%);
+  }
+  /* broad gestural colour-field wash strokes in the sky, AbEx energy */
+  .wash{
+    position:absolute; border-radius:48% 52% 46% 54% / 60% 40% 58% 42%;
+    filter:none; mix-blend-mode:normal;
+    will-change:transform,opacity;
+  }
+  #w1{left:-18%; top:2%; width:80%; height:26%;
+      background:linear-gradient(100deg, rgba(15,12,11,0.0), rgba(15,12,11,0.78) 45%, rgba(15,12,11,0.0));
+      animation:drift1 46s ease-in-out infinite;}
+  #w2{right:-22%; top:16%; width:86%; height:22%;
+      background:linear-gradient(80deg, rgba(196,44,26,0.0), rgba(196,44,26,0.62) 50%, rgba(196,44,26,0.0));
+      animation:drift2 61s ease-in-out infinite;}
+  #w3{left:-10%; top:36%; width:72%; height:20%;
+      background:linear-gradient(95deg, rgba(238,220,196,0.0), rgba(238,220,196,0.5) 48%, rgba(238,220,196,0.0));
+      animation:drift3 53s ease-in-out infinite;}
+  #w4{right:-14%; top:48%; width:78%; height:18%;
+      background:linear-gradient(88deg, rgba(24,16,14,0.0), rgba(24,16,14,0.7) 52%, rgba(24,16,14,0.0));
+      animation:drift1 68s ease-in-out infinite reverse;}
+  @keyframes drift1{0%,100%{transform:translate3d(0,0,0) rotate(-3deg) scale(1)}50%{transform:translate3d(4%,1.5%,0) rotate(2deg) scale(1.06)}}
+  @keyframes drift2{0%,100%{transform:translate3d(0,0,0) rotate(4deg) scale(1.02)}50%{transform:translate3d(-5%,-2%,0) rotate(-2deg) scale(1.1)}}
+  @keyframes drift3{0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(3%,-1%,0) rotate(3deg) scale(1.05)}}
+
+  /* falling sand canvas (low-res, scaled) */
+  #sand{position:absolute; left:0; top:0; width:100%; height:100%;
+        image-rendering:auto;}
+  /* static painted texture canvas drawn once */
+  #grain{position:absolute; left:0; top:0; width:100%; height:100%; opacity:0.5;}
+
+  #formline{position:absolute; left:0; top:0; width:100%; height:100%; overflow:visible;}
+
+  #scene-image{
+    position:absolute; left:-2%; bottom:-1%; width:104%;
+    height:70%;
+    object-fit:cover; object-position:50% 42%;
+    opacity:0.97;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 5%, rgba(0,0,0,1) 17%, rgba(0,0,0,1) 100%);
+            mask-image:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 5%, rgba(0,0,0,1) 17%, rgba(0,0,0,1) 100%);
+    animation:breathe 74s ease-in-out infinite;
+    will-change:transform;
+  }
+  @keyframes breathe{0%,100%{transform:scale(1.005) translate3d(0,0,0)}50%{transform:scale(1.028) translate3d(0,-0.5%,0)}}
+
+  /* overlapping strokes that hide the image's top edge — image's own colours */
+  .seam{position:absolute; left:-8%; width:116%; pointer-events:none;
+        will-change:transform,opacity;}
+  #s1{bottom:66%; height:11%;
+      background:radial-gradient(60% 100% at 30% 60%, rgba(201,84,42,0.85), rgba(201,84,42,0) 72%),
+                 radial-gradient(50% 100% at 72% 45%, rgba(28,18,15,0.8), rgba(28,18,15,0) 70%);
+      animation:drift3 58s ease-in-out infinite;}
+  #s2{bottom:62%; height:14%;
+      background:radial-gradient(55% 100% at 50% 70%, rgba(150,38,22,0.75), rgba(150,38,22,0) 74%),
+                 radial-gradient(45% 100% at 14% 40%, rgba(236,214,184,0.45), rgba(236,214,184,0) 72%);
+      animation:drift2 71s ease-in-out infinite;}
+
+  /* the single blend-mode layer allowed: combined vignette + haze */
+  #atmo{
+    position:absolute; inset:0; mix-blend-mode:soft-light; pointer-events:none;
+    background:
+      radial-gradient(105% 78% at 50% 46%, rgba(255,232,200,0.30) 0%, rgba(255,232,200,0) 58%),
+      radial-gradient(140% 100% at 50% 50%, rgba(0,0,0,0) 52%, rgba(20,8,6,0.75) 100%);
+  }
+
+  #date{
+    position:absolute; left:20px; bottom:16px; z-index:40;
+    font:11px/1 "Courier New", monospace; letter-spacing:.28em;
+    color:#f2ddc2; opacity:0.42; text-shadow:0 1px 2px rgba(0,0,0,.6);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="sky">
+    <div class="wash" id="w1"></div>
+    <div class="wash" id="w2"></div>
+    <div class="wash" id="w3"></div>
+    <div class="wash" id="w4"></div>
+  </div>
+
+  <!-- SVG formline structures BEHIND the image -->
+  <svg id="formline" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="ochre" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f0d6b6" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#c9542a" stop-opacity="0.55"/>
+      </linearGradient>
+      <radialGradient id="fade" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0.55" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="softEdges">
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#fade)"/>
+      </mask>
+    </defs>
+    <g id="fl-back" mask="url(#softEdges)"></g>
+    <g id="fl-front"></g>
+  </svg>
+
+  <img id="scene-image" src="scene.png" alt="">
+
+  <div class="seam" id="s1"></div>
+  <div class="seam" id="s2"></div>
+
+  <canvas id="grain"></canvas>
+  <canvas id="sand"></canvas>
+
+  <div id="atmo"></div>
+  <div id="date">2026 · 08 · 09</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  /* ---------- deterministic seed from date ---------- */
+  const DATE="2026-08-09";
+  let seed=0; for(let i=0;i<DATE.length;i++) seed=(seed*131+DATE.charCodeAt(i))>>>0;
+  function rnd(){ seed^=seed<<13; seed>>>=0; seed^=seed>>17; seed^=seed<<5; seed>>>=0; return seed/4294967296; }
+  const R=(a,b)=>a+(b-a)*rnd();
+
+  /* ---------- palette : Haida red/black/white + AbEx warm sand ---------- */
+  const PAL=[
+    "#1a100d", // formline black
+    "#0e0a09",
+    "#c4291a", // haida red
+    "#9c2a15",
+    "#e8d3b4", // white/bone
+    "#f4e6cf",
+    "#d9772f", // ochre
+    "#b8531f",
+    "#5c6f63"  // muted cedar green accent
+  ];
+
+  /* =========================================================
+     LAYER 1 — SVG formline: ovoids, U-forms, split-U + flamingo
+     ========================================================= */
+  const svgNS="http://www.w3.org/2000/svg";
+  const back=document.getElementById("fl-back");
+  const front=document.getElementById("fl-front");
+
+  function el(n,attrs,parent){
+    const e=document.createElementNS(svgNS,n);
+    for(const k in attrs) e.setAttribute(k,attrs[k]);
+    (parent||back).appendChild(e); return e;
+  }
+
+  // ovoid: classic Haida rounded-rect-ish form
+  function ovoidPath(cx,cy,w,h,skew){
+    const hw=w/2, hh=h/2, s=skew*hw*0.35;
+    return `M${cx-hw},${cy-hh*0.15}
+      C${cx-hw},${cy-hh*1.05} ${cx-hw*0.35+s},${cy-hh} ${cx+hw*0.2+s},${cy-hh}
+      C${cx+hw*0.9+s},${cy-hh} ${cx+hw},${cy-hh*0.45} ${cx+hw},${cy+hh*0.15}
+      C${cx+hw},${cy+hh*0.8} ${cx+hw*0.55},${cy+hh} ${cx},${cy+hh}
+      C${cx-hw*0.6},${cy+hh} ${cx-hw},${cy+hh*0.7} ${cx-hw},${cy-hh*0.15} Z`;
+  }
+  // U-form
+  function uPath(cx,cy,w,h,rot){
+    const hw=w/2;
+    const p=`M${cx-hw},${cy-h*0.5}
+      C${cx-hw},${cy+h*0.55} ${cx+hw},${cy+h*0.55} ${cx+hw},${cy-h*0.5}
+      L${cx+hw*0.5},${cy-h*0.5}
+      C${cx+hw*0.5},${cy+h*0.12} ${cx-hw*0.5},${cy+h*0.12} ${cx-hw*0.5},${cy-h*0.5} Z`;
+    return p;
+  }
+
+  // big concentric formline arcs behind sky (thick ribbon bands, not squiggles)
+  const cx0=540, cy0=560;
+  for(let i=0;i<5;i++){
+    const rr=170+i*118;
+    const a0=-0.15+i*0.13, a1=a0+2.05;
+    const col=[PAL[0],PAL[2],PAL[4],PAL[6],PAL[0]][i];
+    const thick=26+i*7;
+    const x0=cx0+Math.cos(a0)*rr, y0=cy0+Math.sin(a0)*rr;
+    const x1=cx0+Math.cos(a1)*rr, y1=cy0+Math.sin(a1)*rr;
+    const arc=el("path",{
+      d:`M${x0},${y0} A${rr},${rr*0.86} 0 0 1 ${x1},${y1}`,
+      fill:"none", stroke:col, "stroke-width":thick,
+      "stroke-linecap":"round", opacity:(0.30+0.10*i).toFixed(2)
+    });
+    arc.style.transformOrigin=cx0+"px "+cy0+"px";
+    arc.style.animation=`spin${i%2} ${150+i*44}s linear infinite${i%2?" reverse":""}`;
+  }
+
+  // ovoid cluster — the "transformation" eyes
+  const ovs=[
+    [268,300,240,168,0.6,PAL[0],0.55],
+    [812,232,196,140,-0.5,PAL[2],0.5],
+    [560,180,168,112,0.3,PAL[4],0.40],
+    [150,690,180,124,-0.4,PAL[2],0.35],
+    [930,700,214,150,0.5,PAL[0],0.42]
+  ];
+  ovs.forEach((o,i)=>{
+    const g=el("g",{opacity:o[6]});
+    el("path",{d:ovoidPath(o[0],o[1],o[2],o[3],o[4]),fill:o[5]},g);
+    el("path",{d:ovoidPath(o[0],o[1],o[2]*0.52,o[3]*0.46,o[4]),fill:i%2?PAL[4]:PAL[2],opacity:0.9},g);
+    el("path",{d:ovoidPath(o[0],o[1],o[2]*0.2,o[3]*0.2,o[4]),fill:PAL[1],opacity:0.95},g);
+    g.style.transformOrigin=o[0]+"px "+o[1]+"px";
+    g.style.animation=`pulse${i%3} ${34+i*9}s ease-in-out infinite`;
+  });
+
+  // U-forms as sky "feathers"
+  for(let i=0;i<7;i++){
+    const x=90+i*145+R(-26,26), y=430+R(-90,110);
+    const w=68+R(-14,26), h=150+R(-30,60);
+    const g=el("g",{opacity:(0.20+rnd()*0.22).toFixed(2)});
+    el("path",{d:uPath(x,y,w,h),fill:i%3===0?PAL[2]:(i%3===1?PAL[0]:PAL[4])},g);
+    g.setAttribute("transform",`rotate(${(rnd()*40-20).toFixed(1)} ${x} ${y})`);
+    g.style.transformOrigin=x+"px "+y+"px";
+    g.style.animation=`sway ${28+i*5}s ease-in-out infinite`;
+    g.style.animationDelay=(-i*3.1)+"s";
+  }
+
+  /* ---- FLAMINGO in formline style, FRONT layer, breaking image edge ---- */
+  (function flamingo(){
+    const g=el("g",{opacity:"0.9"},front);
+    g.setAttribute("transform","translate(795,1010) scale(0.92)");
+    const K=PAL[0], RED=PAL[2], BONE=PAL[5];
+    // body: big filled ovoid
+    el("path",{d:ovoidPath(0,0,300,200,0.35),fill:K,opacity:"0.94"},g);
+    el("path",{d:ovoidPath(-6,4,236,150,0.35),fill:RED,opacity:"0.95"},g);
+    // wing split-U
+    el("path",{d:uPath(20,-6,150,132),fill:BONE,opacity:"0.9",transform:"rotate(168 20 -6)"},g);
+    el("path",{d:uPath(20,-6,86,88),fill:K,opacity:"0.8",transform:"rotate(168 20 -6)"},g);
+    // tail wedge
+    el("path",{d:"M140,-8 L246,-74 L232,26 Z",fill:K,opacity:"0.9"},g);
+    el("path",{d:"M152,-6 L222,-52 L214,12 Z",fill:RED,opacity:"0.85"},g);
+    // neck: thick tapered ribbon band (S curve, thick — allowed)
+    el("path",{d:"M-96,-52 C-176,-118 -178,-232 -104,-278 C-40,-318 34,-286 44,-224",
+      fill:"none",stroke:K,"stroke-width":"40","stroke-linecap":"round",opacity:"0.95"},g);
+    el("path",{d:"M-96,-52 C-172,-114 -172,-226 -104,-268 C-46,-304 22,-278 34,-226",
+      fill:"none",stroke:RED,"stroke-width":"18","stroke-linecap":"round",opacity:"0.9"},g);
+    // head ovoid + eye
+    el("path",{d:ovoidPath(48,-238,104,74,-0.4),fill:K},g);
+    el("path",{d:ovoidPath(46,-238,60,42,-0.4),fill:BONE,opacity:"0.95"},g);
+    el("circle",{cx:"56",cy:"-244",r:"10",fill:K},g);
+    // beak: solid down-hooked wedge
+    el("path",{d:"M96,-250 L176,-236 L172,-206 L118,-206 Z",fill:BONE,opacity:"0.95"},g);
+    el("path",{d:"M146,-224 L178,-232 L172,-198 L142,-204 Z",fill:K,opacity:"0.9"},g);
+    // legs: thick bands into the dunes
+    el("path",{d:"M-20,86 L-30,232 L20,300",fill:"none",stroke:K,"stroke-width":"22",
+      "stroke-linecap":"round",opacity:"0.85"},g);
+    el("path",{d:"M56,88 L74,196",fill:"none",stroke:K,"stroke-width":"18",
+      "stroke-linecap":"round",opacity:"0.6"},g);
+    g.style.transformOrigin="0px 0px";
+    g.style.animation="flamingo 40s ease-in-out infinite";
+  })();
+
+  // secret guinea pig — tiny, colour-matched, tucked at bottom-left dune shadow
+  (function gp(){
+    const g=el("g",{opacity:"0.30"},front);
+    g.setAttribute("transform","translate(118,1806) scale(0.60)");
+    el("path",{d:"M0,0 C-2,-14 12,-22 26,-19 C40,-16 46,-6 44,4 C42,14 28,20 14,18 C4,17 1,10 0,0 Z",fill:"#3a2216"},g);
+    el("path",{d:"M40,-14 C50,-20 60,-16 60,-6 C60,2 52,7 44,4 Z",fill:"#3a2216"},g);
+    el("circle",{cx:"54",cy:"-6",r:"1.8",fill:"#120b08"},g);
+    el("ellipse",{cx:"38",cy:"-17",rx:"5",ry:"4",fill:"#2c1a11"},g);
+    el("path",{d:"M6,16 l2,6 M20,18 l1,6 M34,16 l2,5",stroke:"#3a2216","stroke-width":"3",fill:"none"},g);
+  })();
+
+  /* ---------- keyframes injected ---------- */
+  const ss=document.createElement("style");
+  ss.textContent=`
+  @keyframes spin0{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes spin1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes pulse0{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.10) rotate(2deg)}}
+  @keyframes pulse1{0%,100%{transform:scale(1.06) rotate(1deg)}50%{transform:scale(0.94) rotate(-2deg)}}
+  @keyframes pulse2{0%,100%{transform:scale(0.97)}50%{transform:scale(1.08)}}
+  @keyframes sway{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+  @keyframes flamingo{0%,100%{transform:translate(795px,1010px) scale(0.92) rotate(0deg)}
+    50%{transform:translate(788px,1002px) scale(0.935) rotate(-1.1deg)}}
+  `;
+  document.head.appendChild(ss);
+  // set the transform via style so animation origin works for flamingo group
+  (function(){ const f=front.querySelector("g"); })();
+
+  /* =========================================================
+     LAYER 2 — static painted grain / stone texture (drawn once)
+     ========================================================= */
+  const gc=document.getElementById("grain");
+  gc.width=540; gc.height=960;
+  const g2=gc.getContext("2d");
+  (function paintGrain(){
+    g2.clearRect(0,0,540,960);
+    // coarse ochre stipple, painterly not rectangles
+    for(let i=0;i<5200;i++){
+      const x=rnd()*540, y=rnd()*960;
+      const r=0.4+rnd()*1.5;
+      const t=rnd();
+      g2.fillStyle = t<0.4 ? "rgba(20,12,9,0.20)" :
+                     t<0.72? "rgba(240,220,190,0.16)" :
+                             "rgba(200,74,38,0.16)";
+      g2.beginPath(); g2.arc(x,y,r,0,6.2832); g2.fill();
+    }
+    // broad dry-brush drag marks (thick, filled — AbEx)
+    for(let i=0;i<26;i++){
+      const y=rnd()*960, h=6+rnd()*26, w=90+rnd()*280, x=rnd()*540-60;
+      g2.globalAlpha=0.06+rnd()*0.09;
+      g2.fillStyle = rnd()<0.5?"#0e0a08":"#f2e2c8";
+      g2.beginPath();
+      g2.ellipse(x+w/2,y,w/2,h/2,(rnd()-0.5)*0.35,0,6.2832);
+      g2.fill();
+      g2.globalAlpha=1;
+    }
+  })();
+
+  /* =========================================================
+     LAYER 3 — FALLING SAND simulation (concept), low-res canvas
+     ========================================================= */
+  const sc=document.getElementById("sand");
+  const CW=270, CH=480;            // cell grid
+  sc.width=CW; sc.height=CH;
+  const ctx=sc.getContext("2d",{alpha:true});
+  ctx.imageSmoothingEnabled=false;
+
+  const N=CW*CH;
+  const grid=new Uint8Array(N);    // 0 empty, else colour index+1
+  const img=ctx.createImageData(CW,CH);
+  const data=img.data;
+
+  // sand palette : haida red / black / bone / ochre / cedar
+  const SANDC=[
+    [26,16,13],[14,10,9],[196,41,26],[156,42,21],
+    [232,211,180],[244,230,207],[217,119,47],[184,83,31],[92,111,99]
+  ];
+  // pre-flattened rgba for speed
+  const CR=new Uint8Array(SANDC.length),CG=new Uint8Array(SANDC.length),CB=new Uint8Array(SANDC.length);
+  SANDC.forEach((c,i)=>{CR[i]=c[0];CG[i]=c[1];CB[i]=c[2];});
+
+  // bedrock floor: dune terrain baked in so sand piles read as layered bands
+  const floor=new Int16Array(CW);
+  for(let x=0;x<CW;x++){
+    const t=x/CW;
+    floor[x]=Math.round(
+      CH-16
+      -34*Math.sin(t*3.1+0.6)
+      -18*Math.sin(t*7.4+2.1)
+      -9*Math.sin(t*13.7+1.2)
+    );
+  }
+  for(let x=0;x<CW;x++){
+    for(let y=floor[x];y<CH;y++){
+      const band=Math.floor((y-floor[x])/7)%4;
+      grid[y*CW+x]=[1,3,7,2][band]+0; // dark/ochre bedrock layers
+    }
+  }
+
+  // pour streams: a few narrow chutes, colours change slowly (layered dunes)
+  const streams=[];
+  const nS=3;
+  for(let i=0;i<nS;i++){
+    streams.push({
+      x: 40+ i*(CW-80)/(nS-1) + R(-14,14),
+      phase: R(0,6.28),
+      speed: R(0.10,0.20),
+      amp: R(16,34),
+      colA: [2,4,6][i%3],
+      colB: [0,5,8][i%3],
+      tSwap: R(0,1),
+      rate: 4+Math.floor(rnd()*3)
+    });
+  }
+
+  let tick=0;
+  function spawn(){
+    for(let s=0;s<streams.length;s++){
+      const st=streams[s];
+      const xc=Math.round(st.x + Math.sin(tick*st.speed*0.045+st.phase)*st.amp);
+      st.tSwap+=0.0016;
+      const mix=0.5+0.5*Math.sin(st.tSwap*3.0);
+      for(let k=0;k<st.rate;k++){
+        const x=xc+Math.round((rnd()-0.5)*5);
+        if(x<1||x>=CW-1) continue;
+        const idx=x; // top row
+        if(grid[idx]===0){
+          const useA = rnd()<mix;
+          grid[idx]=(useA?st.colA:st.colB)+1;
+        }
+      }
+    }
+  }
+
+  // falling-sand cellular automaton, alternating sweep direction
+  let dir=1;
+  function step(){
+    dir=-dir;
+    for(let y=CH-2;y>=0;y--){
+      const row=y*CW, below=row+CW;
+      if(dir>0){
+        for(let x=0;x<CW;x++){
+          const c=grid[row+x]; if(!c) continue;
+          if(!grid[below+x]){ grid[below+x]=c; grid[row+x]=0; continue; }
+          const l=(x>0)&&!grid[below+x-1], r=(x<CW-1)&&!grid[below+x+1];
+          if(l&&r){ if(rnd()<0.5){grid[below+x-1]=c;} else {grid[below+x+1]=c;} grid[row+x]=0; }
+          else if(l){ grid[below+x-1]=c; grid[row+x]=0; }
+          else if(r){ grid[below+x+1]=c; grid[row+x]=0; }
+        }
+      } else {
+        for(let x=CW-1;x>=0;x--){
+          const c=grid[row+x]; if(!c) continue;
+          if(!grid[below+x]){ grid[below+x]=c; grid[row+x]=0; continue; }
+          const l=(x>0)&&!grid[below+x-1], r=(x<CW-1)&&!grid[below+x+1];
+          if(l&&r){ if(rnd()<0.5){grid[below+x+1]=c;} else {grid[below+x-1]=c;} grid[row+x]=0; }
+          else if(r){ grid[below+x+1]=c; grid[row+x]=0; }
+          else if(l){ grid[below+x-1]=c; grid[row+x]=0; }
+        }
+      }
+    }
+  }
+
+  // reset when the bottle fills — seamless loop
+  function fillLevel(){
+    let count=0;
+    const yTest=Math.floor(CH*0.42);
+    for(let x=0;x<CW;x+=3) if(grid[yTest*CW+x]) count++;
+    return count/(CW/3);
+  }
+  let drainT=0, draining=false;
+
+  function render(){
+    let p=0;
+    for(let i=0;i<N;i++){
+      const c=grid[i];
+      if(c){
+        const k=c-1;
+        data[p]=CR[k]; data[p+1]=CG[k]; data[p+2]=CB[k];
+        // sand above the dune line is the falling stream: slightly translucent
+        data[p+3]=235;
+      } else {
+        data[p+3]=0;
+      }
+      p+=4;
+    }
+    ctx.putImageData(img,0,0);
+  }
+
+  /* fixed-step accumulator */
+  let last=performance.now(), acc=0;
+  const STEP=1000/30;
+  function frame(now){
+    let dt=now-last; last=now;
+    if(dt>200) dt=200;
+    acc+=dt;
+    let steps=0;
+    while(acc>=STEP && steps<2){ 
+      acc-=STEP; steps++;
+      tick++;
+      if(!draining) spawn();
+      step();
+      if(!draining && tick%30===0 && fillLevel()>0.72){ draining=true; drainT=0; }
+      if(draining){
+        drainT++;
+        // dissolve from the bottom: remove rows gradually so dunes sink away
+        const rowsPerStep=3;
+        for(let k=0;k<rowsPerStep;k++){
+          const y=CH-1-((drainT*rowsPerStep+k)%CH);
+          const r=y*CW;
+          for(let x=0;x<CW;x++) if(rnd()<0.55) grid[r+x]=0;
+        }
+        if(drainT>150){
+          grid.fill(0);
+          for(let x=0;x<CW;x++){
+            for(let y=floor[x];y<CH;y++){
+              const band=Math.floor((y-floor[x])/7)%4;
+              grid[y*CW+x]=[1,3,7,2][band];
+            }
+          }
+          draining=false;
+        }
+      }
+    }
+    if(acc>STEP) acc=0;
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* =========================================================
+     LAYER 4 — procedural audio drone (direct view only)
+     ========================================================= */
+  if(window.self===window.top){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      const ac=new AC();
+      const master=ac.createGain(); master.gain.value=0.0; master.connect(ac.destination);
+
+      // low cedar drone
+      const base=92.5*Math.pow(2,(seed%5)/12);
+      [1,1.5,2.005,3.01].forEach((m,i)=>{
+        const o=ac.createOscillator(); o.type=i%2?"triangle":"sine";
+        o.frequency.value=base*m;
+        const g=ac.createGain(); g.gain.value=[0.32,0.16,0.10,0.05][i];
+        const lfo=ac.createOscillator(); lfo.type="sine";
+        lfo.frequency.value=0.035+i*0.018;
+        const lg=ac.createGain(); lg.gain.value=g.gain.value*0.55;
+        lfo.connect(lg); lg.connect(g.gain);
+        o.connect(g); g.connect(master); o.start(); lfo.start();
+      });
+
+      // sand hiss: filtered noise
+      const len=ac.sampleRate*3;
+      const buf=ac.createBuffer(1,len,ac.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*0.5;
+      const src=ac.createBufferSource(); src.buffer=buf; src.loop=true;
+      const bp=ac.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=2600; bp.Q.value=0.7;
+      const ng=ac.createGain(); ng.gain.value=0.045;
+      const nlfo=ac.createOscillator(); nlfo.frequency.value=0.07;
+      const nlg=ac.createGain(); nlg.gain.value=0.022;
+      nlfo.connect(nlg); nlg.connect(ng.gain);
+      src.connect(bp); bp.connect(ng); ng.connect(master);
+      src.start(); nlfo.start();
+
+      master.gain.linearRampToValueAtTime(0.0, ac.currentTime);
+      master.gain.linearRampToValueAtTime(0.20, ac.currentTime+9);
+      const resume=()=>{ if(ac.state==="suspended") ac.resume(); };
+      document.addEventListener("visibilitychange",resume);
+      setTimeout(resume,300);
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
