@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Loom of Suns</title>
+<style>
+  html,body{margin:0;padding:0;background:#0a0705;overflow:hidden;height:100%;}
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    margin:0 auto;
+    background:#100b08;
+    overflow:hidden;
+    box-shadow:0 0 120px rgba(0,0,0,.9) inset;
+  }
+  #wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  canvas,svg,#texture{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #bg{z-index:1}
+  #parts{z-index:3}
+  #vector{z-index:4}
+  #texture{z-index:5;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 50% 42%, rgba(255,214,150,.10) 0%, rgba(0,0,0,0) 55%),
+      radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 55%, rgba(12,8,6,.72) 100%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.030) 0px, rgba(255,255,255,.030) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.075) 0px, rgba(0,0,0,.075) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 5px);
+  }
+  #date{
+    position:absolute;left:26px;bottom:22px;z-index:9;
+    font:500 11px/1.3 "Courier New",monospace;letter-spacing:.32em;
+    color:#e8c79a;opacity:.5;
+  }
+  #guinea-pig{
+    position:absolute;z-index:8;
+    width:16px;right:31px;bottom:74px;
+    opacity:.6;
+    transform:rotate(-9deg);
+  }
+  /* CSS-animated suprematist blades (single layer, transform/opacity only) */
+  .blade{position:absolute;z-index:2;transform-origin:50% 50%;}
+  #bladeA{
+    left:8%;top:16%;width:64%;height:9px;
+    background:linear-gradient(90deg,rgba(219,58,40,0) 0%,#db3a28 14%,#e5563b 55%,rgba(229,86,59,0) 100%);
+    animation:slideA 34s ease-in-out infinite;
+  }
+  #bladeB{
+    left:20%;top:78%;width:70%;height:5px;
+    background:linear-gradient(90deg,rgba(52,168,166,0) 0%,#34a8a6 20%,#7fd8cf 60%,rgba(127,216,207,0) 100%);
+    animation:slideB 46s ease-in-out infinite;
+  }
+  #bladeC{
+    left:50%;top:50%;width:2px;height:52%;margin-left:-1px;margin-top:-26%;
+    background:linear-gradient(180deg,rgba(240,222,190,0) 0%,rgba(240,222,190,.85) 30%,rgba(240,222,190,.85) 70%,rgba(240,222,190,0) 100%);
+    animation:spinC 78s linear infinite;
+  }
+  @keyframes slideA{
+    0%{transform:translateX(-4%) rotate(-14deg)}
+    50%{transform:translateX(6%) rotate(-9deg)}
+    100%{transform:translateX(-4%) rotate(-14deg)}
+  }
+  @keyframes slideB{
+    0%{transform:translateX(3%) rotate(11deg) scaleX(1)}
+    50%{transform:translateX(-5%) rotate(7deg) scaleX(.86)}
+    100%{transform:translateX(3%) rotate(11deg) scaleX(1)}
+  }
+  @keyframes spinC{ to{transform:rotate(360deg)} }
+  .breathe{animation:breathe 26s ease-in-out infinite;transform-origin:540px 860px}
+  @keyframes breathe{0%{transform:scale(1)}50%{transform:scale(1.045)}100%{transform:scale(1)}}
+  .slowturn{animation:slowturn 120s linear infinite;transform-origin:540px 860px}
+  @keyframes slowturn{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="1080" height="1920"></canvas>
+
+  <div class="blade" id="bladeA"></div>
+  <div class="blade" id="bladeB"></div>
+
+  <canvas id="parts" width="540" height="960"></canvas>
+
+  <svg id="vector" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="gTurq" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#7fd8cf"/><stop offset="1" stop-color="#2b7f7f"/>
+      </linearGradient>
+      <linearGradient id="gOchre" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f0b452"/><stop offset="1" stop-color="#b6631f"/>
+      </linearGradient>
+      <radialGradient id="gFade" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0.55" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="mFade"><rect x="0" y="0" width="1080" height="1920" fill="url(#gFade)"/></mask>
+    </defs>
+
+    <g mask="url(#mFade)">
+      <!-- sacred concentric rings (thick arcs) -->
+      <g class="slowturn" fill="none" stroke-linecap="butt">
+        <circle cx="540" cy="860" r="330" stroke="#3a2a1e" stroke-width="26" opacity="0.85"/>
+        <circle cx="540" cy="860" r="330" stroke="url(#gTurq)" stroke-width="10"
+                stroke-dasharray="42 26" opacity="0.9"/>
+        <circle cx="540" cy="860" r="392" stroke="#db3a28" stroke-width="6"
+                stroke-dasharray="6 34" opacity="0.75"/>
+      </g>
+      <g class="breathe" fill="none">
+        <circle cx="540" cy="860" r="248" stroke="#f0dec0" stroke-width="3" opacity="0.55"/>
+        <circle cx="540" cy="860" r="176" stroke="#e5563b" stroke-width="14" opacity="0.9"/>
+      </g>
+      <!-- suprematist black quadrilateral, tilted -->
+      <g transform="rotate(-17 540 860)">
+        <rect x="290" y="1078" width="500" height="122" fill="#120c09" opacity="0.96"/>
+        <rect x="290" y="1078" width="500" height="8" fill="#f0b452" opacity="0.9"/>
+      </g>
+      <!-- turquoise wedge -->
+      <polygon points="120,540 372,470 268,700" fill="url(#gTurq)" opacity="0.92"/>
+      <polygon points="960,1300 742,1392 902,1470" fill="#db3a28" opacity="0.9"/>
+      <!-- woven ladder / textile band -->
+      <g id="weave" stroke-linecap="butt"></g>
+      <!-- stepped Hopi terrace motifs -->
+      <g id="steps"></g>
+    </g>
+  </svg>
+
+  <div id="texture"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 08 · 10</div>
+</div>
+
+<script>
+(function(){
+/* ---------- date seed ---------- */
+const DATE="2026-08-10";
+let h=2166136261;
+for(let i=0;i<DATE.length;i++){h^=DATE.charCodeAt(i);h=Math.imul(h,16777619);}
+function rnd(){h^=h<<13;h>>>=0;h^=h>>17;h^=h<<5;h>>>=0;return h/4294967296;}
+for(let i=0;i<9;i++)rnd();
+
+const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"];
+
+/* ================= 1. STATIC BACKGROUND (drawn once, 1080x1920) ============ */
+(function bg(){
+  const c=document.getElementById("bg"),x=c.getContext("2d");
+  // stark earth ground: vertical bands of sand / ochre / deep umber
+  const g=x.createLinearGradient(0,0,0,1920);
+  g.addColorStop(0,"#1b120c"); g.addColorStop(.34,"#2a1a10");
+  g.addColorStop(.52,"#3a2415"); g.addColorStop(.72,"#221610");
+  g.addColorStop(1,"#100b08");
+  x.fillStyle=g; x.fillRect(0,0,1080,1920);
+
+  // horizon plane — a hard-edged suprematist field of sand
+  x.save();
+  x.translate(540,1300); x.rotate(-0.052); x.translate(-540,-1300);
+  const g2=x.createLinearGradient(0,1220,0,1560);
+  g2.addColorStop(0,"#c8a06a"); g2.addColorStop(1,"#6d4522");
+  x.fillStyle=g2; x.fillRect(-60,1220,1200,340);
+  x.fillStyle="#0f0a07"; x.fillRect(-60,1552,1200,14);
+  x.restore();
+
+  // woven textile warp: vertical thin threads, only in lower third (structural, not squiggle)
+  x.globalAlpha=.14;
+  for(let i=0;i<1080;i+=6){
+    x.fillStyle = (i/6)%3===0 ? "#f0dec0" : "#7fd8cf";
+    x.fillRect(i,1250,2,660);
+  }
+  x.globalAlpha=1;
+
+  // Navajo diamond band across upper region
+  function diamondBand(cy,hh,cols,alpha){
+    x.globalAlpha=alpha;
+    const w=1080/cols;
+    for(let i=0;i<cols;i++){
+      const cx=i*w+w/2;
+      x.fillStyle=cols%2? PAL[(i+2)%PAL.length] : PAL[i%PAL.length];
+      x.beginPath();
+      x.moveTo(cx,cy-hh); x.lineTo(cx+w*.5,cy); x.lineTo(cx,cy+hh); x.lineTo(cx-w*.5,cy);
+      x.closePath(); x.fill();
+      x.fillStyle="#100b08";
+      x.beginPath();
+      x.moveTo(cx,cy-hh*.42); x.lineTo(cx+w*.21,cy); x.lineTo(cx,cy+hh*.42); x.lineTo(cx-w*.21,cy);
+      x.closePath(); x.fill();
+    }
+    x.globalAlpha=1;
+  }
+  diamondBand(232,58,9,.9);
+  diamondBand(1758,40,13,.55);
+
+  // stepped fret border top & bottom (Hopi terrace)
+  x.fillStyle="#0d0806";
+  x.fillRect(0,0,1080,86); x.fillRect(0,1848,1080,72);
+  x.fillStyle="#f0b452";
+  for(let i=0;i<18;i++){
+    const w=60,xx=i*w;
+    x.fillRect(xx,58,w*.5,10);
+    x.fillRect(xx+w*.5,42,w*.5,10);
+    x.fillRect(xx+w*.5,42,8,26);
+  }
+  x.fillStyle="#34a8a6";
+  for(let i=0;i<18;i++){
+    const w=60,xx=i*w;
+    x.fillRect(xx,1868,w*.5,9);
+    x.fillRect(xx+w*.5,1884,w*.5,9);
+  }
+
+  // grain stipple (once)
+  for(let i=0;i<9000;i++){
+    const px=rnd()*1080, py=rnd()*1920, a=rnd();
+    x.fillStyle = a>.5 ? "rgba(255,235,200,0.05)" : "rgba(0,0,0,0.09)";
+    x.fillRect(px,py,2,2);
+  }
+})();
+
+/* ================= 2. SVG procedural weave + steps ================= */
+(function svgGen(){
+  const weave=document.getElementById("weave");
+  const NS="http://www.w3.org/2000/svg";
+  // horizontal woven bands, thick, hard-edged
+  const ys=[1620,1648,1676,1704];
+  ys.forEach((y,k)=>{
+    for(let i=0;i<12;i++){
+      const l=document.createElementNS(NS,"rect");
+      const w=1080/12;
+      l.setAttribute("x", i*w+4);
+      l.setAttribute("y", y);
+      l.setAttribute("width", w-8);
+      l.setAttribute("height", 14);
+      l.setAttribute("fill", (i+k)%2 ? "#e5563b" : "#f0dec0");
+      l.setAttribute("opacity", 0.55 - k*0.08);
+      weave.appendChild(l);
+    }
+  });
+
+  const steps=document.getElementById("steps");
+  function terrace(cx,cy,unit,col,flip,op){
+    const g=document.createElementNS(NS,"g");
+    let d="";
+    let px=cx, py=cy;
+    d+=`M ${px} ${py} `;
+    for(let i=0;i<4;i++){
+      px+=unit*flip; d+=`L ${px} ${py} `;
+      py-=unit; d+=`L ${px} ${py} `;
+    }
+    px-=unit*flip*0.9; d+=`L ${px} ${py} `;
+    d+=`L ${px} ${cy} Z`;
+    const p=document.createElementNS(NS,"path");
+    p.setAttribute("d",d); p.setAttribute("fill",col); p.setAttribute("opacity",op);
+    g.appendChild(p); steps.appendChild(g);
+  }
+  terrace(70,1210,34,"#7fd8cf",1,.85);
+  terrace(1010,1210,34,"#7fd8cf",-1,.85);
+  terrace(180,560,26,"#f0b452",-1,.7);
+  terrace(900,560,26,"#f0b452",1,.7);
+})();
+
+/* ================= 3. PARTICLE COSMOS (540x960, trails) ================= */
+(function cosmos(){
+  const c=document.getElementById("parts");
+  const x=c.getContext("2d",{alpha:true});
+  const W=540,H=960;
+  const CX=270, CY=430;
+
+  // attractors placed on sacred symmetry: 6-fold + centre
+  const attr=[];
+  const R=118;
+  for(let i=0;i<6;i++){
+    const a=i/6*Math.PI*2 - Math.PI/2;
+    attr.push({x:CX+Math.cos(a)*R, y:CY+Math.sin(a)*R, m: 1.0 + rnd()*0.5, ph: rnd()*6.28});
+  }
+  attr.push({x:CX,y:CY,m:2.2,ph:0});
+
+  const N=1400;
+  const P=new Float32Array(N*4); // x,y,vx,vy
+  const col=new Uint8Array(N);
+  for(let i=0;i<N;i++){
+    const a=rnd()*Math.PI*2;
+    const r=60+rnd()*300;
+    const px=CX+Math.cos(a)*r, py=CY+Math.sin(a)*r*0.92;
+    P[i*4]=px; P[i*4+1]=py;
+    // tangential seed velocity -> orbital ribbons
+    const t=a+Math.PI/2;
+    const s=0.55+rnd()*0.5;
+    P[i*4+2]=Math.cos(t)*s; P[i*4+3]=Math.sin(t)*s;
+    col[i]= i%9===0 ? 0 : (i%4===0 ? 1 : (i%3===0 ? 2 : 3));
+  }
+  const COLS=["rgba(240,222,192,","rgba(127,216,207,","rgba(240,180,82,","rgba(229,86,59,"];
+
+  x.clearRect(0,0,W,H);
+  let t0=performance.now(), acc=0;
+  const STEP=1000/60;
+
+  function physics(t){
+    // slowly rotate attractor field + pulse mass (structural motion)
+    const rot=t*0.00007;
+    for(let k=0;k<6;k++){
+      const a=k/6*Math.PI*2 - Math.PI/2 + rot;
+      const rr=R*(1+0.10*Math.sin(t*0.00035+attr[k].ph));
+      attr[k].x=CX+Math.cos(a)*rr;
+      attr[k].y=CY+Math.sin(a)*rr;
+    }
+    for(let i=0;i<N;i++){
+      const o=i*4;
+      let px=P[o],py=P[o+1],vx=P[o+2],vy=P[o+3];
+      for(let k=0;k<7;k++){
+        const A=attr[k];
+        const dx=A.x-px, dy=A.y-py;
+        let d2=dx*dx+dy*dy;
+        if(d2<160) d2=160;
+        const f=A.m*32/d2;
+        vx+=dx*f/Math.sqrt(d2)*0.9;
+        vy+=dy*f/Math.sqrt(d2)*0.9;
+      }
+      // gentle containment so the cosmos never disperses
+      const dcx=px-CX, dcy=py-CY;
+      const dr=Math.sqrt(dcx*dcx+dcy*dcy);
+      if(dr>360){ vx-=dcx*0.0009*(dr-360); vy-=dcy*0.0009*(dr-360); }
+      vx*=0.9955; vy*=0.9955;
+      px+=vx; py+=vy;
+      P[o]=px;P[o+1]=py;P[o+2]=vx;P[o+3]=vy;
+    }
+  }
+
+  function draw(){
+    // trail decay
+    x.globalCompositeOperation="destination-out";
+    x.fillStyle="rgba(0,0,0,0.055)";
+    x.fillRect(0,0,W,H);
+    x.globalCompositeOperation="lighter";
+    for(let i=0;i<N;i++){
+      const o=i*4;
+      const sp=Math.min(1,(Math.abs(P[o+2])+Math.abs(P[o+3]))*0.42);
+      x.fillStyle=COLS[col[i]]+(0.22+sp*0.5).toFixed(2)+")";
+      const s= col[i]===0 ? 2.2 : 1.3;
+      x.fillRect(P[o]-s*0.5,P[o+1]-s*0.5,s,s);
+    }
+    // attractor nodes as small hard diamonds (turquoise accents)
+    for(let k=0;k<7;k++){
+      const A=attr[k];
+      x.fillStyle= k===6 ? "rgba(255,240,210,0.85)" : "rgba(127,216,207,0.75)";
+      const s= k===6 ? 5 : 3.2;
+      x.beginPath();
+      x.moveTo(A.x,A.y-s);x.lineTo(A.x+s,A.y);x.lineTo(A.x,A.y+s);x.lineTo(A.x-s,A.y);
+      x.closePath();x.fill();
+    }
+    x.globalCompositeOperation="source-over";
+  }
+
+  function loop(t){
+    let dt=t-t0; t0=t;
+    if(dt>34) dt=34;
+    acc+=dt;
+    let steps=0;
+    while(acc>=STEP && steps<2){ physics(t); acc-=STEP; steps++; }
+    if(acc>STEP) acc=0;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ================= 4. procedural audio drone (direct view only) ============ */
+if(window.self===window.top){
+  const start=()=>{
+    try{
+      const A=new (window.AudioContext||window.webkitAudioContext)();
+      const mix=A.createGain(); mix.gain.value=0.0; mix.connect(A.destination);
+      const lp=A.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=520; lp.connect(mix);
+      const base=[73.4,110,146.8,220.0,164.8];
+      base.forEach((f,i)=>{
+        const o=A.createOscillator(); o.type= i%2?"triangle":"sine"; o.frequency.value=f;
+        const g=A.createGain(); g.gain.value=0.10/(i+1.2);
+        const l=A.createOscillator(); l.type="sine"; l.frequency.value=0.023+i*0.011;
+        const lg=A.createGain(); lg.gain.value=0.045/(i+1);
+        l.connect(lg); lg.connect(g.gain);
+        o.connect(g); g.connect(lp); o.start(); l.start();
+      });
+      mix.gain.linearRampToValueAtTime(0.16, A.currentTime+9);
+    }catch(e){}
+  };
+  start();
+}
+})();
+</script>
+</body>
+</html>
