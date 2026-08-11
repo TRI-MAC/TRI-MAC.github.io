@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Sector 9 — Carve</title>
+<style>
+  html,body{margin:0;padding:0;background:#05080a;overflow:hidden;height:100%;}
+  #stage{
+    position:relative;width:min(100vw,56.25vh);height:min(177.78vw,100vh);
+    margin:0 auto;overflow:hidden;background:#0a1013;
+    box-shadow:0 0 120px rgba(0,0,0,.9) inset;
+  }
+  #stage>*{position:absolute;inset:0;width:100%;height:100%;}
+  canvas{display:block;}
+  #bg{z-index:1;}
+  #maze{z-index:3;image-rendering:auto;}
+  svg.ov{z-index:4;pointer-events:none;}
+  /* single blended overlay: scanlines + rain streaks + vignette baked into one element */
+  #grade{
+    z-index:6;mix-blend-mode:soft-light;
+    background-image:
+      repeating-linear-gradient(to bottom, rgba(180,220,230,.10) 0 1px, rgba(0,0,0,0) 1px 3px),
+      radial-gradient(120% 80% at 50% 38%, rgba(160,200,210,.13), rgba(0,0,0,0) 62%),
+      radial-gradient(130% 100% at 50% 55%, rgba(0,0,0,0) 45%, rgba(0,0,0,.75) 100%);
+  }
+  #rainlayer{z-index:5;opacity:.5;}
+  #signs{z-index:4;}
+  .sign{
+    position:absolute;font:700 13px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.22em;color:#eaf6f8;padding:5px 9px;
+    border:1px solid rgba(230,250,255,.45);
+    background:rgba(6,14,17,.42);
+    text-shadow:0 0 10px currentColor;
+    animation:flick 9s ease-in-out infinite;
+    transform:translateZ(0);
+  }
+  .sign.v{writing-mode:vertical-rl;letter-spacing:.34em;}
+  @keyframes flick{
+    0%,100%{opacity:.72}
+    40%{opacity:.95}
+    62%{opacity:.60}
+  }
+  #date{
+    position:absolute;left:16px;bottom:14px;z-index:9;
+    font:400 11px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.3em;
+    color:rgba(196,224,230,.42);
+  }
+  #title{
+    position:absolute;left:16px;bottom:34px;z-index:9;
+    font:300 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.34em;
+    color:rgba(120,206,214,.5);
+  }
+  #guinea-pig{
+    position:absolute;z-index:7;width:16px;height:auto;
+    left:calc(50% + 128px);bottom:96px;opacity:.62;
+    filter:brightness(.78) saturate(.5);
+  }
+  #haze{
+    z-index:2;
+    background:
+      radial-gradient(90% 45% at 30% 82%, rgba(72,120,132,.30), rgba(0,0,0,0) 70%),
+      radial-gradient(70% 40% at 78% 22%, rgba(120,80,70,.22), rgba(0,0,0,0) 72%);
+    animation:drift 46s ease-in-out infinite alternate;
+  }
+  @keyframes drift{from{transform:translate3d(-1.5%,0,0) scale(1.04)}to{transform:translate3d(1.5%,-1.2%,0) scale(1.09)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg"></canvas>
+  <div id="haze"></div>
+  <canvas id="maze"></canvas>
+  <canvas id="rainlayer"></canvas>
+  <svg class="ov" id="hud" viewBox="0 0 540 960" preserveAspectRatio="none"></svg>
+  <div id="signs"></div>
+  <div id="grade"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="title">SECTOR 9 · CARVE</div>
+  <div id="date">2026-08-11</div>
+</div>
+<script>
+(function(){
+"use strict";
+/* ---------- deterministic seed from date ---------- */
+const DATE="2026-08-11";
+let seed=0; for(let i=0;i<DATE.length;i++) seed=(seed*131+DATE.charCodeAt(i))>>>0;
+seed=(seed^0x9e3779b9)>>>0;
+function rnd(){ seed^=seed<<13;seed>>>=0;seed^=seed>>17;seed^=seed<<5;seed>>>=0;return seed/4294967296;}
+const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+
+/* ---------- palette : GITS muted teal-grey-brown ---------- */
+const P={
+  deep:"#0a1215", slate:"#16232a", steel:"#233741", rust:"#4a3227",
+  brownlt:"#6b503c", teal:"#3f7f88", tealbr:"#7fd8dc",
+  neonC:"#66e6ee", neonM:"#ff5f7a", neonA:"#ffb35c", pale:"#c9dee2"
+};
+
+/* =========================================================
+   LAYER 1 : static background — city block, pipes, signage plates
+   drawn ONCE at 540x960
+   ========================================================= */
+const bg=document.getElementById("bg");
+bg.width=540;bg.height=960;
+const b=bg.getContext("2d");
+
+function bgPaint(){
+  // base atmospheric gradient (rain haze, cold above / sodium below)
+  let g=b.createLinearGradient(0,0,0,960);
+  g.addColorStop(0,"#0c161b");g.addColorStop(.42,"#12222a");
+  g.addColorStop(.72,"#17262c");g.addColorStop(1,"#0a1114");
+  b.fillStyle=g;b.fillRect(0,0,540,960);
+
+  // ---- distant tower silhouettes (atmospheric perspective) ----
+  function towers(baseY,h0,alpha,tint,step){
+    b.save();b.globalAlpha=alpha;
+    let x=-20;
+    while(x<560){
+      const w=step+ri(8,40), h=h0+ri(20,150);
+      b.fillStyle=tint;
+      b.fillRect(x,baseY-h,w,h+40);
+      // window grid
+      b.fillStyle="rgba(150,205,215,.16)";
+      for(let wy=baseY-h+10;wy<baseY-6;wy+=11){
+        for(let wx=x+4;wx<x+w-4;wx+=8){
+          if(rnd()<.34) b.fillRect(wx,wy,3,4);
+        }
+      }
+      x+=w+ri(3,14);
+    }
+    b.restore();
+  }
+  towers(430,120,.55,"#1b2c34",34);
+  towers(500,150,.75,"#152329",46);
+  towers(560,180,.95,"#101c22",58);
+
+  // ---- big foreground architectural block: left tower ----
+  b.fillStyle="#0d171c";
+  b.fillRect(0,180,96,780);
+  b.fillStyle="rgba(120,180,190,.07)";
+  for(let y=200;y<940;y+=18){ b.fillRect(6,y,84,2); }
+  // vertical piping cluster on left tower
+  for(let i=0;i<6;i++){
+    const px=10+i*14, w=6+ (i%2?3:0);
+    let gg=b.createLinearGradient(px,0,px+w,0);
+    gg.addColorStop(0,"#0a1114");gg.addColorStop(.4,"#2c4149");gg.addColorStop(1,"#0c1417");
+    b.fillStyle=gg;b.fillRect(px,190,w,770);
+    // flanges
+    b.fillStyle="#33505a";
+    for(let y=210+ i*23;y<950;y+=ri(80,140)) b.fillRect(px-2,y,w+4,5);
+  }
+  // ---- right tower ----
+  b.fillStyle="#0b1418";
+  b.fillRect(452,140,88,820);
+  b.fillStyle="rgba(140,195,205,.06)";
+  for(let y=160;y<950;y+=22) b.fillRect(458,y,76,3);
+  // horizontal duct crossing top
+  let dg=b.createLinearGradient(0,236,0,282);
+  dg.addColorStop(0,"#0b1216");dg.addColorStop(.45,"#31474f");dg.addColorStop(1,"#0a1013");
+  b.fillStyle=dg;b.fillRect(0,236,540,46);
+  b.fillStyle="#1b2b31";
+  for(let x=6;x<540;x+=48) b.fillRect(x,236,7,46);
+  // lower duct
+  dg=b.createLinearGradient(0,872,0,908);
+  dg.addColorStop(0,"#090f12");dg.addColorStop(.5,"#2b3f47");dg.addColorStop(1,"#080d10");
+  b.fillStyle=dg;b.fillRect(0,872,540,36);
+  b.fillStyle="#16242a";
+  for(let x=14;x<540;x+=54) b.fillRect(x,872,5,36);
+
+  // ---- rusted panel plates behind maze area (brown accents) ----
+  const plates=[[110,300,140,90],[300,320,120,70],[130,700,180,110],[330,690,110,90],[210,540,150,60]];
+  for(const [x,y,w,h] of plates){
+    b.save();b.globalAlpha=.34;
+    b.fillStyle=(rnd()<.5)?P.rust:"#3a3026";
+    b.fillRect(x,y,w,h);
+    b.globalAlpha=.22;b.fillStyle="#7a5d45";
+    for(let i=0;i<40;i++) b.fillRect(x+rnd()*w,y+rnd()*h,ri(2,9),ri(1,3));
+    b.restore();
+    b.strokeStyle="rgba(180,215,220,.10)";b.lineWidth=1;b.strokeRect(x+.5,y+.5,w,h);
+    // rivets
+    b.fillStyle="rgba(190,220,225,.16)";
+    for(let rx=x+6;rx<x+w-4;rx+=16){b.fillRect(rx,y+4,2,2);b.fillRect(rx,y+h-6,2,2);}
+  }
+
+  // ---- neon reflection pools on wet ground (bottom) ----
+  const pool=b.createLinearGradient(0,890,0,960);
+  pool.addColorStop(0,"rgba(10,18,22,0)");pool.addColorStop(1,"rgba(14,26,31,.9)");
+  b.fillStyle=pool;b.fillRect(0,890,540,70);
+  b.globalAlpha=.30;
+  const refl=[[80,P.neonM],[210,P.neonC],[330,P.neonA],[450,P.neonC]];
+  for(const [x,c] of refl){
+    const rg=b.createLinearGradient(x,900,x,958);
+    rg.addColorStop(0,c);rg.addColorStop(1,"rgba(0,0,0,0)");
+    b.fillStyle=rg;
+    b.fillRect(x-16,900,32,58);
+  }
+  b.globalAlpha=1;
+
+  // ---- fine cel-grain speckle ----
+  b.globalAlpha=.06;
+  for(let i=0;i<2600;i++){
+    b.fillStyle=rnd()<.5?"#cfe6ea":"#000";
+    b.fillRect(rnd()*540|0,rnd()*960|0,1,1);
+  }
+  b.globalAlpha=1;
+}
+bgPaint();
+
+/* =========================================================
+   LAYER 2 : maze — animated canvas, 540x960 backing? keep 540x960
+   but we only draw incremental cells + a small trail redraw.
+   Grid sits in a defined window.
+   ========================================================= */
+const mz=document.getElementById("maze");
+mz.width=540;mz.height=960;
+const m=mz.getContext("2d");
+
+const COLS=17, ROWS=31;
+const CELL=24;                      // px in 540x960 space
+const GW=COLS*CELL, GH=ROWS*CELL;
+const OX=Math.round((540-GW)/2), OY=Math.round((960-GH)/2)+6;
+
+// grid walls: each cell has N,E,S,W booleans (true = wall)
+const cells=[];
+for(let y=0;y<ROWS;y++){const r=[];for(let x=0;x<COLS;x++)r.push({v:false,w:[1,1,1,1]});cells.push(r);}
+const idx=(x,y)=>cells[y][x];
+const DIRS=[[0,-1,0,2],[1,0,1,3],[0,1,2,0],[-1,0,3,1]]; // dx,dy,wall,opposite
+
+/* ---- static grid substrate drawn once into offscreen ---- */
+const sub=document.createElement("canvas");sub.width=540;sub.height=960;
+(function(){
+  const s=sub.getContext("2d");
+  // panel behind maze
+  s.fillStyle="rgba(8,17,21,.80)";
+  s.fillRect(OX-12,OY-12,GW+24,GH+24);
+  s.strokeStyle="rgba(150,205,214,.28)";s.lineWidth=1;
+  s.strokeRect(OX-12.5,OY-12.5,GW+25,GH+25);
+  s.strokeStyle="rgba(150,205,214,.10)";
+  s.strokeRect(OX-6.5,OY-6.5,GW+13,GH+13);
+  // faint dotted lattice = uncarved substrate
+  s.fillStyle="rgba(120,180,192,.16)";
+  for(let y=0;y<=ROWS;y++)for(let x=0;x<=COLS;x++){
+    s.fillRect(OX+x*CELL-1,OY+y*CELL-1,2,2);
+  }
+  // corner brackets
+  s.strokeStyle="rgba(255,179,92,.55)";s.lineWidth=2;
+  const L=22, pts=[[OX-12,OY-12,1,1],[OX+GW+12,OY-12,-1,1],[OX-12,OY+GH+12,1,-1],[OX+GW+12,OY+GH+12,-1,-1]];
+  for(const [px,py,sx,sy] of pts){
+    s.beginPath();s.moveTo(px+sx*L,py);s.lineTo(px,py);s.lineTo(px,py+sy*L);s.stroke();
+  }
+})();
+
+/* ---- carve state (iterative DFS with backtracking) ---- */
+let stack=[], carved=[], carveDone=false;
+function resetCarve(){
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){cells[y][x].v=false;cells[y][x].w=[1,1,1,1];}
+  stack=[{x:(COLS>>1),y:ROWS-1}];
+  idx(COLS>>1,ROWS-1).v=true;
+  carved=[]; carveDone=false;
+}
+function carveStep(){
+  if(!stack.length){carveDone=true;return null;}
+  const cur=stack[stack.length-1];
+  const opts=[];
+  for(const d of DIRS){
+    const nx=cur.x+d[0], ny=cur.y+d[1];
+    if(nx>=0&&nx<COLS&&ny>=0&&ny<ROWS&&!idx(nx,ny).v) opts.push([nx,ny,d]);
+  }
+  if(!opts.length){stack.pop();return {back:true,cell:cur};}
+  const pick=opts[(rnd()*opts.length)|0];
+  const [nx,ny,d]=pick;
+  idx(cur.x,cur.y).w[d[2]]=0;
+  idx(nx,ny).w[d[3]]=0;
+  idx(nx,ny).v=true;
+  stack.push({x:nx,y:ny});
+  return {back:false,cell:{x:nx,y:ny},from:cur};
+}
+
+/* ---- solver: BFS then animate path ---- */
+let path=[], solveI=0;
+const START={x:COLS>>1,y:ROWS-1}, GOAL={x:COLS>>1,y:0};
+function solve(){
+  const prev=new Map(), q=[START], seen=new Set([START.y*COLS+START.x]);
+  while(q.length){
+    const c=q.shift();
+    if(c.x===GOAL.x&&c.y===GOAL.y) break;
+    const cc=idx(c.x,c.y);
+    for(let k=0;k<4;k++){
+      if(cc.w[k]) continue;
+      const d=DIRS[k], nx=c.x+d[0], ny=c.y+d[1];
+      if(nx<0||nx>=COLS||ny<0||ny>=ROWS) continue;
+      const key=ny*COLS+nx;
+      if(seen.has(key)) continue;
+      seen.add(key);prev.set(key,c);q.push({x:nx,y:ny});
+    }
+  }
+  const out=[];let cur=GOAL;
+  while(cur){out.push(cur);const p=prev.get(cur.y*COLS+cur.x);if(!p)break;cur=p;}
+  out.reverse();
+  return out;
+}
+
+/* ---- corridors accumulation buffer (drawn once per carve step, persists) ---- */
+const corr=document.createElement("canvas");corr.width=540;corr.height=960;
+const c2=corr.getContext("2d");
+function corrClear(){c2.clearRect(0,0,540,960);}
+
+function cx(x){return OX+x*CELL+CELL/2;}
+function cy(y){return OY+y*CELL+CELL/2;}
+
+function drawCorridor(a,bC){
+  // thick teal conduit band between two cell centres
+  c2.lineCap="square";
+  c2.strokeStyle="rgba(35,72,82,.95)";c2.lineWidth=13;
+  c2.beginPath();c2.moveTo(cx(a.x),cy(a.y));c2.lineTo(cx(bC.x),cy(bC.y));c2.stroke();
+  c2.strokeStyle="rgba(96,190,200,.34)";c2.lineWidth=3;
+  c2.beginPath();c2.moveTo(cx(a.x),cy(a.y));c2.lineTo(cx(bC.x),cy(bC.y));c2.stroke();
+}
+function drawNode(a){
+  c2.fillStyle="rgba(20,44,52,.95)";
+  c2.fillRect(cx(a.x)-7,cy(a.y)-7,14,14);
+  c2.fillStyle="rgba(120,216,220,.28)";
+  c2.fillRect(cx(a.x)-2,cy(a.y)-2,4,4);
+}
+
+/* ---- magpie glyph (the solver) — bold filled silhouette ---- */
+function magpie(ctx,px,py,dir,flap){
+  ctx.save();ctx.translate(px,py);
+  const s=1;
+  ctx.rotate(dir);
+  // long tail wedge (magpie signature)
+  ctx.fillStyle="#0b1013";
+  ctx.beginPath();
+  ctx.moveTo(-4,0);ctx.lineTo(-19,-3.2);ctx.lineTo(-21,0);ctx.lineTo(-19,3.2);
+  ctx.closePath();ctx.fill();
+  // body
+  ctx.beginPath();ctx.ellipse(0,0,8,5.2,0,0,6.2832);ctx.fill();
+  // white scapular patch + belly
+  ctx.fillStyle="#e8f4f6";
+  ctx.beginPath();ctx.ellipse(1.2,1.4,4.6,2.9,0,0,6.2832);ctx.fill();
+  // wings (flap = -1..1)
+  const wy=flap*5.0;
+  ctx.fillStyle="#0d1418";
+  ctx.beginPath();ctx.moveTo(-1,-1);ctx.lineTo(-9,-2+wy*1.1);ctx.lineTo(-12,2+wy);ctx.lineTo(-2,2);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#182229";
+  ctx.beginPath();ctx.moveTo(-1,-1);ctx.lineTo(-8,-1-wy*1.1);ctx.lineTo(-11,3-wy);ctx.lineTo(-2,2);ctx.closePath();ctx.fill();
+  // head + beak
+  ctx.fillStyle="#0a1013";
+  ctx.beginPath();ctx.ellipse(7,-1.6,3.6,3.2,0,0,6.2832);ctx.fill();
+  ctx.beginPath();ctx.moveTo(10,-1.6);ctx.lineTo(15,-.4);ctx.lineTo(10,.8);ctx.closePath();ctx.fill();
+  // eye
+  ctx.fillStyle="#ffb35c";ctx.fillRect(7.6,-2.6,1.5,1.5);
+  ctx.restore();
+}
+
+/* ---- state machine ---- */
+let phase="carve", tPhase=0, HOLD=0;
+resetCarve();corrClear();
+
+let acc=0, last=performance.now();
+const CARVE_PER_STEP=3;     // cells carved per tick
+const STEP_MS=1000/60;
+
+let solverPos={x:cx(START.x),y:cy(START.y)}, solverDir=-Math.PI/2, solveT=0;
+let trail=[];
+
+function drawFrame(now){
+  const dt=Math.min(now-last, STEP_MS*2); last=now;
+  acc+=dt;
+  let steps=0;
+  while(acc>=STEP_MS && steps<2){acc-=STEP_MS;steps++;update();}
+  render(now);
+  requestAnimationFrame(drawFrame);
+}
+
+function update(){
+  tPhase++;
+  if(phase==="carve"){
+    if(tPhase%2===0){
+      for(let i=0;i<CARVE_PER_STEP;i++){
+        const r=carveStep();
+        if(!r){ // finished
+          path=solve();solveI=0;solveT=0;trail=[];
+          solverPos={x:cx(START.x),y:cy(START.y)};
+          phase="pause";tPhase=0;return;
+        }
+        if(!r.back){drawCorridor(r.from,r.cell);drawNode(r.cell);}
+      }
+    }
+  } else if(phase==="pause"){
+    if(tPhase>50){phase="solve";tPhase=0;}
+  } else if(phase==="solve"){
+    solveT+=0.055;
+    const seg=Math.floor(solveT);
+    if(seg>=path.length-1){
+      phase="hold";tPhase=0;
+      solverPos={x:cx(GOAL.x),y:cy(GOAL.y)};
+      return;
+    }
+    const f=solveT-seg;
+    const a=path[seg], bb=path[seg+1];
+    const ax=cx(a.x),ay=cy(a.y),bx=cx(bb.x),by=cy(bb.y);
+    const ease=f*f*(3-2*f);
+    solverPos={x:ax+(bx-ax)*ease, y:ay+(by-ay)*ease};
+    solverDir=Math.atan2(by-ay,bx-ax);
+    trail.push({x:solverPos.x,y:solverPos.y});
+    if(trail.length>260) trail.shift();
+  } else if(phase==="hold"){
+    if(tPhase>150){ // dissolve & restart
+      phase="fade";tPhase=0;
+    }
+  } else if(phase==="fade"){
+    // fade the corridor buffer out
+    c2.globalCompositeOperation="destination-out";
+    c2.fillStyle="rgba(0,0,0,.055)";c2.fillRect(0,0,540,960);
+    c2.globalCompositeOperation="source-over";
+    if(tPhase>78){
+      corrClear();resetCarve();trail=[];phase="carve";tPhase=0;
+    }
+  }
+}
+
+function render(now){
+  m.clearRect(0,0,540,960);
+  m.drawImage(sub,0,0);
+  m.drawImage(corr,0,0);
+
+  // active carve head — a bright orange scan node
+  if(phase==="carve" && stack.length){
+    const h=stack[stack.length-1];
+    const px=cx(h.x),py=cy(h.y);
+    const pul=0.6+0.4*Math.sin(now/180);
+    m.fillStyle="rgba(255,179,92,"+(0.55+0.3*pul)+")";
+    m.fillRect(px-5,py-5,10,10);
+    m.strokeStyle="rgba(255,179,92,.45)";m.lineWidth=1;
+    m.strokeRect(px-10.5,py-10.5,21,21);
+    // frontier ticks along the stack (backtrack memory)
+    m.fillStyle="rgba(255,95,122,.30)";
+    for(let i=Math.max(0,stack.length-40);i<stack.length;i+=3){
+      const s=stack[i];m.fillRect(cx(s.x)-2,cy(s.y)-2,4,4);
+    }
+    // horizontal scan bar tied to carve depth
+    const sy=py;
+    m.fillStyle="rgba(120,216,220,.10)";
+    m.fillRect(OX-12,sy-1,GW+24,2);
+  }
+
+  // solver trail — thick magenta ribbon band
+  if(trail.length>1){
+    m.lineCap="round";m.lineJoin="round";
+    m.strokeStyle="rgba(255,95,122,.16)";m.lineWidth=11;
+    m.beginPath();m.moveTo(trail[0].x,trail[0].y);
+    for(let i=1;i<trail.length;i++)m.lineTo(trail[i].x,trail[i].y);
+    m.stroke();
+    m.strokeStyle="rgba(255,140,160,.85)";m.lineWidth=3.2;
+    m.stroke();
+    m.strokeStyle="rgba(255,225,235,.9)";m.lineWidth=1.1;
+    m.stroke();
+  }
+
+  // goal marker at top
+  if(phase!=="carve"||stack.length){
+    const gx=cx(GOAL.x),gy=cy(GOAL.y);
+    const p=0.5+0.5*Math.sin(now/620);
+    m.strokeStyle="rgba(102,230,238,"+(0.35+0.35*p)+")";m.lineWidth=2;
+    m.strokeRect(gx-9.5,gy-9.5,19,19);
+    m.fillStyle="rgba(102,230,238,.22)";m.fillRect(gx-4,gy-4,8,8);
+  }
+  // start marker
+  {
+    const gx=cx(START.x),gy=cy(START.y);
+    m.strokeStyle="rgba(255,179,92,.42)";m.lineWidth=2;
+    m.beginPath();m.moveTo(gx-9,gy+9);m.lineTo(gx,gy-2);m.lineTo(gx+9,gy+9);m.stroke();
+  }
+
+  // magpie solver
+  if(phase==="solve"||phase==="hold"){
+    const flap=Math.sin(now/110);
+    // cast shadow
+    m.save();m.globalAlpha=.30;m.fillStyle="#04080a";
+    m.beginPath();m.ellipse(solverPos.x+3,solverPos.y+8,10,3.4,0,0,6.2832);m.fill();m.restore();
+    magpie(m,solverPos.x,solverPos.y,solverDir,flap);
+  }
+}
+requestAnimationFrame(drawFrame);
+
+/* =========================================================
+   LAYER 3 : rain — low-res canvas, hard diagonal streaks
+   ========================================================= */
+const rc=document.getElementById("rainlayer");
+rc.width=360;rc.height=640;
+const r2=rc.getContext("2d");
+const drops=[];
+for(let i=0;i<130;i++)drops.push({x:rnd()*360,y:rnd()*640,l:6+rnd()*16,s:3.4+rnd()*4.4,a:.12+rnd()*.4});
+function rain(){
+  r2.clearRect(0,0,360,640);
+  r2.lineWidth=1;
+  for(const d of drops){
+    r2.strokeStyle="rgba(190,228,236,"+d.a+")";
+    r2.beginPath();r2.moveTo(d.x,d.y);r2.lineTo(d.x-d.l*.30,d.y+d.l);r2.stroke();
+    d.y+=d.s;d.x-=d.s*.30;
+    if(d.y>640){d.y=-10;d.x=rnd()*400;}
+  }
+  requestAnimationFrame(rain);
+}
+requestAnimationFrame(rain);
+
+/* =========================================================
+   LAYER 4 : SVG HUD — hard-edged vector chrome, no squiggles
+   ========================================================= */
+const hud=document.getElementById("hud");
+const NS="http://www.w3.org/2000/svg";
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+(function(){
+  const d=el("defs",{});
+  d.innerHTML='<linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#66e6ee" stop-opacity=".55"/>'+
+    '<stop offset="1" stop-color="#66e6ee" stop-opacity="0"/></linearGradient>';
+  hud.appendChild(d);
+  // top reticle bar
+  hud.appendChild(el("rect",{x:24,y:60,width:492,height:1,fill:"rgba(160,214,222,.32)"}));
+  hud.appendChild(el("rect",{x:24,y:66,width:180,height:1,fill:"rgba(255,179,92,.42)"}));
+  for(let i=0;i<14;i++){
+    hud.appendChild(el("rect",{x:24+i*36,y:52,width:1,height:8,fill:"rgba(160,214,222,.30)"}));
+  }
+  // bottom bar
+  hud.appendChild(el("rect",{x:24,y:900,width:492,height:1,fill:"rgba(160,214,222,.26)"}));
+  // corner reticles (feathered by short strokes, no edge clipping)
+  const cor=[[36,86,1,1],[504,86,-1,1],[36,874,1,-1],[504,874,-1,-1]];
+  for(const [x,y,sx,sy] of cor){
+    hud.appendChild(el("path",{d:`M${x+sx*18} ${y} L${x} ${y} L${x} ${y+sy*18}`,
+      fill:"none",stroke:"rgba(102,230,238,.5)","stroke-width":1.6}));
+  }
+  // rotating hexagon ring (small, transform-only anim)
+  const grp=el("g",{});
+  const R=30,cxx=470,cyy=118;
+  let pts="";
+  for(let i=0;i<6;i++){const a=i/6*Math.PI*2;pts+=`${(cxx+Math.cos(a)*R).toFixed(1)},${(cyy+Math.sin(a)*R).toFixed(1)} `;}
+  grp.appendChild(el("polygon",{points:pts,fill:"none",stroke:"rgba(255,95,122,.45)","stroke-width":1.4}));
+  grp.appendChild(el("polygon",{points:pts,fill:"none",stroke:"rgba(102,230,238,.25)","stroke-width":4,transform:`rotate(30 ${cxx} ${cyy})`}));
+  const an=el("animateTransform",{attributeName:"transform",type:"rotate",
+    from:`0 ${cxx} ${cyy}`,to:`360 ${cxx} ${cyy}`,dur:"64s",repeatCount:"indefinite"});
+  grp.appendChild(an);
+  hud.appendChild(grp);
+  // vertical light shaft from duct (gradient rect, static)
+  hud.appendChild(el("rect",{x:96,y:282,width:44,height:210,fill:"url(#lg)",opacity:".35"}));
+  // small tick column left
+  for(let i=0;i<20;i++){
+    hud.appendChild(el("rect",{x:14,y:300+i*16,width:(i%4===0)?10:5,height:1,
+      fill:(i%4===0)?"rgba(255,179,92,.42)":"rgba(160,214,222,.22)"}));
+  }
+})();
+
+/* =========================================================
+   LAYER 5 : DOM neon signage
+   ========================================================= */
+const signs=[
+  {t:"区 9",x:"6%",y:"9.5%",c:P.neonM,s:26,v:false},
+  {t:"MAZE / CARVE",x:"56%",y:"5.6%",c:P.neonC,s:11,v:false},
+  {t:"防 水 通 路",x:"88%",y:"38%",c:P.neonA,s:14,v:true},
+  {t:"NET-DIVE",x:"4%",y:"62%",c:P.neonC,s:11,v:true},
+  {t:"SOLVER 01",x:"62%",y:"92.5%",c:P.neonM,s:10,v:false},
+  {t:"雨",x:"90%",y:"77%",c:P.neonC,s:22,v:false}
+];
+const sc=document.getElementById("signs");
+signs.forEach((s,i)=>{
+  const d=document.createElement("div");
+  d.className="sign"+(s.v?" v":"");
+  d.textContent=s.t;
+  d.style.left=s.x;d.style.top=s.y;
+  d.style.color=s.c;d.style.fontSize=s.s+"px";
+  d.style.borderColor=s.c.replace(")",",.5)").replace("#","rgba(") ;
+  d.style.borderColor="rgba(230,250,255,.35)";
+  d.style.animationDelay=(i*1.7)+"s";
+  sc.appendChild(d);
+});
+
+/* =========================================================
+   LAYER 6 : procedural audio drone (only when not iframed)
+   ========================================================= */
+if(window.self===window.top){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ac=new AC();
+    const mst=ac.createGain();mst.gain.value=0.0;mst.connect(ac.destination);
+    const lp=ac.createBiquadFilter();lp.type="lowpass";lp.frequency.value=420;lp.Q.value=0.6;
+    lp.connect(mst);
+    // two detuned low drones
+    [56.5,84.8,113].forEach((f,i)=>{
+      const o=ac.createOscillator();o.type=i===2?"triangle":"sawtooth";o.frequency.value=f;
+      const g=ac.createGain();g.gain.value=i===2?0.05:0.11;
+      const lfo=ac.createOscillator();lfo.frequency.value=0.03+i*0.017;
+      const lg=ac.createGain();lg.gain.value=g.gain.value*0.6;
+      lfo.connect(lg);lg.connect(g.gain);lfo.start();
+      o.connect(g);g.connect(lp);o.start();
+    });
+    // rain hiss
+    const len=ac.sampleRate*2, buf=ac.createBuffer(1,len,ac.sampleRate);
+    const dd=buf.getChannelData(0);
+    let lastv=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;lastv=lastv*0.86+w*0.14;dd[i]=lastv*0.9;}
+    const src=ac.createBufferSource();src.buffer=buf;src.loop=true;
+    const hp=ac.createBiquadFilter();hp.type="highpass";hp.frequency.value=1600;
+    const hg=ac.createGain();hg.gain.value=0.030;
+    src.connect(hp);hp.connect(hg);hg.connect(mst);src.start();
+    mst.gain.linearRampToValueAtTime(0.16, ac.currentTime+9);
+    const resume=()=>{if(ac.state==="suspended")ac.resume();};
+    document.addEventListener("visibilitychange",resume);
+    resume();
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>
