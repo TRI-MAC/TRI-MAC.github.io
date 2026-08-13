@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Cybernetic Garden</title>
+<style>
+  html,body{margin:0;padding:0;background:#05080a;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(100vw, 56.25vh);height:min(177.78vw,100vh);
+    background:#0a0f12;overflow:hidden;
+    box-shadow:0 0 120px rgba(0,0,0,.9) inset;
+  }
+  #stage > *{position:absolute;left:0;top:0;width:100%;height:100%;}
+  canvas{display:block;width:100%;height:100%;}
+  #bg{z-index:1;}
+  #mid{z-index:4;}
+  #svgLayer{z-index:5;pointer-events:none;}
+  #grain{
+    z-index:9;mix-blend-mode:overlay;opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, rgba(0,0,0,0) 1px 3px),
+      radial-gradient(ellipse at 50% 38%, rgba(190,225,235,.14), rgba(0,0,0,0) 58%),
+      radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%);
+  }
+  .haze{
+    z-index:6;pointer-events:none;
+    background:
+      linear-gradient(to top, rgba(24,42,48,.55) 0%, rgba(24,42,48,0) 34%),
+      radial-gradient(ellipse 70% 40% at 50% 12%, rgba(120,180,190,.16), rgba(0,0,0,0) 70%);
+  }
+  #signs{z-index:7;pointer-events:none;}
+  .sign{
+    position:absolute;font-family:"Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.32em;font-weight:700;opacity:.0;
+    text-shadow:0 0 12px currentColor;
+  }
+  #date{
+    position:absolute;left:20px;bottom:16px;z-index:12;
+    font-family:"Helvetica Neue",Arial,sans-serif;font-size:11px;
+    letter-spacing:.34em;color:rgba(178,208,214,.42);
+  }
+  #guinea-pig{
+    position:absolute;z-index:8;width:16px;height:auto;
+    left:6.5%;bottom:9.2%;opacity:.62;
+    transform:rotate(-7deg);
+    filter:brightness(.78) saturate(.5) hue-rotate(150deg);
+  }
+  @keyframes rainfall{from{transform:translate3d(0,-22%,0)}to{transform:translate3d(0,0,0)}}
+  #rain{
+    z-index:8;height:122%;top:-22%;
+    background-image:
+      repeating-linear-gradient(102deg, rgba(198,230,238,.22) 0 1px, rgba(0,0,0,0) 1px 26px),
+      repeating-linear-gradient(99deg, rgba(198,230,238,.11) 0 1px, rgba(0,0,0,0) 1px 13px);
+    animation:rainfall 1.15s linear infinite;
+    opacity:.5;
+  }
+  @keyframes beamdrift{
+    0%{transform:translate3d(0,0,0) rotate(-13deg) scaleY(1);opacity:.30}
+    50%{transform:translate3d(2%,1%,0) rotate(-10.5deg) scaleY(1.04);opacity:.44}
+    100%{transform:translate3d(0,0,0) rotate(-13deg) scaleY(1);opacity:.30}
+  }
+  #beam{
+    z-index:3;width:62%;height:135%;left:14%;top:-18%;
+    transform-origin:60% 0%;
+    background:linear-gradient(to bottom, rgba(214,238,235,.30), rgba(160,205,205,.10) 45%, rgba(0,0,0,0) 82%);
+    -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0) 88%);
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0) 88%);
+    animation:beamdrift 34s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg"></canvas>
+  <div id="beam"></div>
+  <canvas id="mid"></canvas>
+  <svg id="svgLayer" viewBox="0 0 1080 1920" preserveAspectRatio="none"></svg>
+  <div class="haze"></div>
+  <div id="signs"></div>
+  <div id="rain"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="grain"></div>
+  <div id="date">2026 · 08 · 13</div>
+</div>
+<script>
+(function(){
+"use strict";
+/* ---------- seeded rng ---------- */
+var DATE="2026-08-13";
+var seed=0; for(var i=0;i<DATE.length;i++) seed=(seed*131+DATE.charCodeAt(i))>>>0;
+seed=(seed^0x9e3779b9)>>>0;
+function rnd(){ seed^=seed<<13;seed>>>=0;seed^=seed>>17;seed^=seed<<5;seed>>>=0;return seed/4294967296; }
+function rr(a,b){return a+(b-a)*rnd();}
+function ri(a,b){return Math.floor(rr(a,b+1));}
+
+/* ---------- palette : GITS teal-grey-brown + baroque gold ---------- */
+var P={
+  deep:"#070c0f", slate:"#16232a", slate2:"#1e3038", teal:"#2c4d55",
+  tealL:"#4d7a80", pale:"#9dc2c6", brown:"#5c4630", brownL:"#8a6a45",
+  gold:"#d9a94e", goldPale:"#f0d59a", neonC:"#59e2e8", neonM:"#e0508f",
+  neonA:"#ffb347", rust:"#8c4a2f"
+};
+
+/* ================= BACKGROUND (static, drawn once, full res) ============ */
+var bg=document.getElementById("bg");
+bg.width=1080;bg.height=1920;
+var b=bg.getContext("2d");
+
+function fillRect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h);}
+
+(function drawBG(){
+  // atmospheric vertical grade — rain-lit city haze
+  var g=b.createLinearGradient(0,0,0,1920);
+  g.addColorStop(0,"#0d1a20");
+  g.addColorStop(0.28,"#16282f");
+  g.addColorStop(0.55,"#1b2f33");
+  g.addColorStop(0.78,"#15242a");
+  g.addColorStop(1,"#080e11");
+  b.fillStyle=g;b.fillRect(0,0,1080,1920);
+
+  // distant hazy tower slabs — atmospheric perspective, 3 depth bands
+  var bands=[
+    {y0:180, h:760, base:"#1d3138", fog:0.62, w1:70,w2:150},
+    {y0:340, h:760, base:"#1a2b31", fog:0.42, w1:90,w2:200},
+    {y0:520, h:760, base:"#152227", fog:0.20, w1:120,w2:260}
+  ];
+  bands.forEach(function(bd){
+    var x=-40;
+    while(x<1120){
+      var w=rr(bd.w1,bd.w2);
+      var h=rr(bd.h*0.45,bd.h);
+      var y=bd.y0+rr(-60,90);
+      b.globalAlpha=1-bd.fog*0.55;
+      b.fillStyle=bd.base;
+      b.fillRect(x,y,w,1920-y);
+      // roof detail block
+      b.fillRect(x+w*0.3,y-rr(10,42),w*0.22,rr(10,42));
+      // window grid — dense layered detail
+      b.globalAlpha=(1-bd.fog)*0.55;
+      var cw=8, ch=13, gx=7, gy=17;
+      for(var wy=y+16;wy<1920-40;wy+=gy){
+        for(var wx=x+8;wx<x+w-10;wx+=gx){
+          var lit=rnd();
+          if(lit>0.80){
+            b.fillStyle= lit>0.965?P.neonA:(lit>0.93?P.goldPale:P.pale);
+            b.globalAlpha=(1-bd.fog)*rr(0.25,0.8);
+            b.fillRect(wx,wy,cw*0.5,ch*0.45);
+          }
+        }
+      }
+      b.globalAlpha=1;
+      x+=w+rr(6,26);
+    }
+    // fog wash over band
+    var fg=b.createLinearGradient(0,bd.y0-80,0,bd.y0+bd.h);
+    fg.addColorStop(0,"rgba(40,72,80,"+(bd.fog*0.95)+")");
+    fg.addColorStop(1,"rgba(30,56,62,0)");
+    b.fillStyle=fg;b.fillRect(0,bd.y0-120,1080,bd.h+160);
+  });
+
+  // ---- Baroque architectural frame: heavy piers + arch, hard-edged ----
+  // side piers (dark masses, chiaroscuro anchors)
+  var pierW=118;
+  var pg=b.createLinearGradient(0,0,pierW,0);
+  pg.addColorStop(0,"#05090b");pg.addColorStop(1,"#152026");
+  b.fillStyle=pg;b.fillRect(0,0,pierW,1920);
+  var pg2=b.createLinearGradient(1080-pierW,0,1080,0);
+  pg2.addColorStop(0,"#131f25");pg2.addColorStop(1,"#04080a");
+  b.fillStyle=pg2;b.fillRect(1080-pierW,0,pierW,1920);
+
+  // gilded ornament ribs on piers
+  for(var k=0;k<26;k++){
+    var y=120+k*68;
+    b.fillStyle="rgba(217,169,78,"+(0.10+0.12*((k%3)===0?1:0.3))+")";
+    b.fillRect(pierW-16,y,14,26);
+    b.fillRect(1080-pierW+2,y+18,14,26);
+  }
+  // pipes bundle on left pier (GITS clutter)
+  for(var pi=0;pi<7;pi++){
+    var px=14+pi*15;
+    var pw=rr(6,11);
+    var pgr=b.createLinearGradient(px,0,px+pw,0);
+    pgr.addColorStop(0,"rgba(10,16,19,1)");
+    pgr.addColorStop(.45,"rgba(70,96,102,1)");
+    pgr.addColorStop(1,"rgba(14,22,26,1)");
+    b.fillStyle=pgr;b.fillRect(px,rr(0,260),pw,1920);
+    // collars
+    b.fillStyle="rgba(140,168,172,.35)";
+    for(var cy=rr(200,320);cy<1920;cy+=rr(150,300)) b.fillRect(px-2,cy,pw+4,7);
+  }
+  // right pier conduit + gold trim
+  for(var pj=0;pj<5;pj++){
+    var qx=1080-pierW+12+pj*19;
+    var qgr=b.createLinearGradient(qx,0,qx+10,0);
+    qgr.addColorStop(0,"rgba(8,14,17,1)");
+    qgr.addColorStop(.5,"rgba(88,74,52,1)");
+    qgr.addColorStop(1,"rgba(12,18,22,1)");
+    b.fillStyle=qgr;b.fillRect(qx,rr(60,300),10,1920);
+  }
+
+  // upper arch (Baroque theatrical proscenium) — solid dark with gold edge
+  b.save();
+  b.beginPath();
+  b.moveTo(0,0);b.lineTo(1080,0);b.lineTo(1080,470);
+  b.lineTo(1080-pierW,470);
+  b.arc(540,470,540-pierW,0,Math.PI,true);
+  b.lineTo(pierW,470);b.lineTo(0,470);
+  b.closePath();
+  var ag=b.createLinearGradient(0,0,0,470);
+  ag.addColorStop(0,"#04080a");ag.addColorStop(1,"#101c22");
+  b.fillStyle=ag;b.fill();
+  b.restore();
+  // gold arch fillet
+  b.save();
+  b.beginPath();b.arc(540,470,540-pierW,Math.PI,0,false);
+  b.lineWidth=7;b.strokeStyle="rgba(217,169,78,.55)";b.stroke();
+  b.lineWidth=2;b.strokeStyle="rgba(240,213,154,.75)";b.stroke();
+  b.restore();
+
+  // keystone + coffer rosettes along arch (ornate symmetry)
+  for(var a=0;a<=14;a++){
+    var t=Math.PI+ (a/14)*Math.PI;
+    var R=540-pierW-34;
+    var cx=540+Math.cos(t)*R, cy=470+Math.sin(t)*R;
+    if(cy>470) continue;
+    b.beginPath();b.arc(cx,cy,a===7?19:11,0,Math.PI*2);
+    b.fillStyle= a===7?"rgba(240,213,154,.5)":"rgba(217,169,78,.28)";
+    b.fill();
+    b.beginPath();b.arc(cx,cy,a===7?9:5,0,Math.PI*2);
+    b.fillStyle="rgba(89,226,232,.35)";b.fill();
+  }
+
+  // ---- wet floor plaza with reflections (bottom third) ----
+  var floorY=1560;
+  var fgr=b.createLinearGradient(0,floorY,0,1920);
+  fgr.addColorStop(0,"#0f1c21");
+  fgr.addColorStop(.4,"#16272c");
+  fgr.addColorStop(1,"#070d10");
+  b.fillStyle=fgr;b.fillRect(0,floorY,1080,1920-floorY);
+  // perspective tiles
+  b.strokeStyle="rgba(140,180,186,.10)";b.lineWidth=2;
+  for(var ti=-8;ti<=8;ti++){
+    b.beginPath();b.moveTo(540+ti*30,floorY);b.lineTo(540+ti*300,1920);b.stroke();
+  }
+  for(var ty=0;ty<9;ty++){
+    var yy=floorY+Math.pow(ty/8,2.1)*(1920-floorY);
+    b.globalAlpha=0.5;
+    b.beginPath();b.moveTo(0,yy);b.lineTo(1080,yy);b.stroke();
+    b.globalAlpha=1;
+  }
+  // neon smear reflections on wet ground
+  var refl=[[300,P.neonM],[620,P.neonC],[840,P.neonA],[170,P.gold]];
+  refl.forEach(function(r){
+    var rg=b.createLinearGradient(0,floorY,0,1920);
+    rg.addColorStop(0,r[1]);rg.addColorStop(1,"rgba(0,0,0,0)");
+    b.globalAlpha=.16;b.fillStyle=rg;
+    b.fillRect(r[0]-26,floorY,52,360);
+    b.globalAlpha=1;
+  });
+  // floor grate strip
+  b.fillStyle="rgba(6,11,13,.85)";b.fillRect(140,1700,800,26);
+  b.fillStyle="rgba(120,152,158,.22)";
+  for(var gx2=146;gx2<934;gx2+=13) b.fillRect(gx2,1702,6,22);
+
+  // vignette-ish inner shading baked in (no extra layer)
+  var vg=b.createRadialGradient(540,760,240,540,900,1100);
+  vg.addColorStop(0,"rgba(0,0,0,0)");
+  vg.addColorStop(1,"rgba(0,0,0,.68)");
+  b.fillStyle=vg;b.fillRect(0,0,1080,1920);
+})();
+
+/* ================= SVG : circuit-board vines (static, filled bands) ==== */
+(function drawVines(){
+  var svg=document.getElementById("svgLayer");
+  var NS="http://www.w3.org/2000/svg";
+  var defs=document.createElementNS(NS,"defs");
+  defs.innerHTML=
+   '<linearGradient id="vg" x1="0" y1="1" x2="0" y2="0">'+
+   '<stop offset="0" stop-color="#0d1c1e"/><stop offset="0.5" stop-color="#2b5a52"/>'+
+   '<stop offset="1" stop-color="#3f7d6e"/></linearGradient>'+
+   '<linearGradient id="vg2" x1="0" y1="1" x2="0" y2="0">'+
+   '<stop offset="0" stop-color="#12181a"/><stop offset="1" stop-color="#6b5333"/></linearGradient>'+
+   '<radialGradient id="glowc"><stop offset="0" stop-color="#59e2e8" stop-opacity=".9"/>'+
+   '<stop offset="1" stop-color="#59e2e8" stop-opacity="0"/></radialGradient>';
+  svg.appendChild(defs);
+
+  // Vines built as orthogonal PCB traces: thick right-angle bands (no squiggles)
+  var vines=[
+    {x:200,grad:"url(#vg)"},{x:415,grad:"url(#vg2)"},{x:560,grad:"url(#vg)"},
+    {x:730,grad:"url(#vg)"},{x:905,grad:"url(#vg2)"}
+  ];
+  var g=document.createElementNS(NS,"g");
+  svg.appendChild(g);
+
+  vines.forEach(function(v,vi){
+    var x=v.x, y=1780, w=rr(16,30);
+    var pts="M"+(x-w/2)+" "+y+" ";
+    var right=[], left=[];
+    var cx=x;
+    while(y>rr(430,700)){
+      var seg=rr(90,180);
+      y-=seg;
+      right.push([cx+w/2,y]); left.push([cx-w/2,y]);
+      var jog=rr(40,110)*(rnd()>0.5?1:-1);
+      if(cx+jog>150 && cx+jog<930){
+        cx+=jog;
+        right.push([cx+w/2,y]); left.push([cx-w/2,y]);
+      }
+    }
+    var d="M"+(x-w/2)+" 1790 ";
+    right.forEach(function(p){ d+="L"+p[0]+" "+p[1]+" "; });
+    d+="L"+(cx-w/2)+" "+right[right.length-1][1]+" ";
+    for(var i=left.length-1;i>=0;i--) d+="L"+left[i][0]+" "+left[i][1]+" ";
+    d+="Z";
+    var path=document.createElementNS(NS,"path");
+    path.setAttribute("d",d);
+    path.setAttribute("fill",v.grad);
+    path.setAttribute("stroke","rgba(140,200,196,.30)");
+    path.setAttribute("stroke-width","1.6");
+    g.appendChild(path);
+
+    // solder pads (filled circles) + gold vias along the vine
+    right.forEach(function(p,i){
+      if(i%2) return;
+      var c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",p[0]-w/2);c.setAttribute("cy",p[1]);
+      c.setAttribute("r",(i%4===0)?9:5.5);
+      c.setAttribute("fill",(i%4===0)?"#d9a94e":"#7fb0ac");
+      c.setAttribute("opacity",".8");
+      g.appendChild(c);
+      // branch stub: thick rectangle leaf
+      if(i%3===1){
+        var r=document.createElementNS(NS,"rect");
+        var dir = (vi%2? -1:1);
+        r.setAttribute("x",dir>0?p[0]-w/2:p[0]-w/2-58);
+        r.setAttribute("y",p[1]-6);
+        r.setAttribute("width",58);r.setAttribute("height",12);
+        r.setAttribute("fill","#2f5b52");r.setAttribute("opacity",".85");
+        g.appendChild(r);
+        var t=document.createElementNS(NS,"polygon");
+        var tx=dir>0?p[0]-w/2+58:p[0]-w/2-58;
+        t.setAttribute("points",tx+","+(p[1]-20)+" "+(tx+dir*40)+","+p[1]+" "+tx+","+(p[1]+20));
+        t.setAttribute("fill","#417f6c");t.setAttribute("opacity",".9");
+        g.appendChild(t);
+      }
+    });
+    // animated travelling pulse along vine (SVG circle on motion-free path: use CSS translate keyframes)
+  });
+
+  // Pulse dots: small gold squares travelling vertically inside vines (transform-only)
+  var style=document.createElementNS(NS,"style");
+  var css="";
+  vines.forEach(function(v,i){
+    css+="@keyframes pv"+i+"{0%{transform:translateY(0);opacity:0}"+
+         "8%{opacity:1}92%{opacity:1}100%{transform:translateY(-1180px);opacity:0}}"+
+         ".pv"+i+"{animation:pv"+i+" "+(11+i*2.7).toFixed(1)+"s linear infinite;animation-delay:"+(i*1.9).toFixed(1)+"s}";
+  });
+  style.textContent=css;
+  svg.appendChild(style);
+  vines.forEach(function(v,i){
+    var r=document.createElementNS(NS,"rect");
+    r.setAttribute("x",v.x-5);r.setAttribute("y",1770);
+    r.setAttribute("width",10);r.setAttribute("height",26);
+    r.setAttribute("fill","#f0d59a");r.setAttribute("class","pv"+i);
+    r.setAttribute("opacity","0");
+    svg.appendChild(r);
+  });
+})();
+
+/* ================= SIGNAGE (CSS animated, few elements) ================ */
+(function signs(){
+  var host=document.getElementById("signs");
+  var items=[
+    {t:"電脳",x:6.5,y:26,s:26,c:"#e0508f",d:0},
+    {t:"GARDEN",x:70,y:19,s:13,c:"#59e2e8",d:3},
+    {t:"制御",x:73,y:36,s:20,c:"#ffb347",d:6},
+    {t:"回路",x:8,y:57,s:15,c:"#9dc2c6",d:9}
+  ];
+  var st=document.createElement("style");
+  var css="@keyframes sflick{0%{opacity:.18}40%{opacity:.62}55%{opacity:.34}100%{opacity:.18}}";
+  st.textContent=css;document.head.appendChild(st);
+  items.forEach(function(it){
+    var d=document.createElement("div");
+    d.className="sign";
+    d.textContent=it.t;
+    d.style.left=it.x+"%";d.style.top=it.y+"%";
+    d.style.fontSize=it.s+"px";d.style.color=it.c;
+    d.style.animation="sflick "+(9+it.d)+"s ease-in-out infinite";
+    d.style.animationDelay=it.d+"s";
+    d.style.writingMode = (it.t.length<=2)?"vertical-rl":"horizontal-tb";
+    host.appendChild(d);
+  });
+})();
+
+/* ================= MID CANVAS : mechanical flowers + raccoon ============ */
+var mid=document.getElementById("mid");
+var W=540,H=960;
+mid.width=W;mid.height=H;
+var m=mid.getContext("2d");
+
+/* flower definitions */
+function mkFlower(x,y,r,hue,petals,dir,phase,speed){
+  return {x:x,y:y,r:r,hue:hue,n:petals,dir:dir,ph:phase,sp:speed};
+}
+var FL=[
+  mkFlower(268,392,112,0,14,1,0.0,0.055),      // hero
+  mkFlower(120,540,58,1,10,-1,1.7,0.075),
+  mkFlower(430,505,66,2,12,1,3.1,0.062),
+  mkFlower(196,660,42,1,9,-1,0.8,0.09),
+  mkFlower(372,690,36,2,8,1,2.2,0.10),
+  mkFlower(72,730,26,0,7,-1,4.0,0.12),
+  mkFlower(478,760,22,1,7,1,5.1,0.13)
+];
+var HUES=[
+  {petal:"#3b6f68", petal2:"#5fa89a", edge:"#d9a94e", core:"#59e2e8"},
+  {petal:"#6b4a2c", petal2:"#a4763f", edge:"#f0d59a", core:"#e0508f"},
+  {petal:"#274b57", petal2:"#4d8790", edge:"#c99a45", core:"#ffb347"}
+];
+
+function gearPetal(c,R,r0,w,col1,col2,edge){
+  // filled trapezoid petal with notch — reads as gear tooth / petal
+  c.beginPath();
+  c.moveTo(r0, -w*0.42);
+  c.lineTo(R*0.78, -w*0.9);
+  c.lineTo(R, -w*0.5);
+  c.lineTo(R, w*0.5);
+  c.lineTo(R*0.78, w*0.9);
+  c.lineTo(r0, w*0.42);
+  c.closePath();
+  var g=c.createLinearGradient(r0,0,R,0);
+  g.addColorStop(0,col1);g.addColorStop(.65,col2);g.addColorStop(1,col1);
+  c.fillStyle=g;c.fill();
+  c.lineWidth=1.2;c.strokeStyle=edge;c.globalAlpha=.55;c.stroke();c.globalAlpha=1;
+  // rivet
+  c.beginPath();c.arc(R*0.7,0,w*0.16,0,6.2832);
+  c.fillStyle=edge;c.globalAlpha=.7;c.fill();c.globalAlpha=1;
+}
+
+function drawFlower(c,f,t){
+  var H2=HUES[f.hue];
+  var bloom=0.5+0.5*Math.sin(t*0.16+f.ph);       // slow bloom cycle
+  var open=0.42+0.58*bloom;
+  var rot=t*f.sp*f.dir;
+  c.save();
+  c.translate(f.x,f.y);
+
+  // stalk: thick tapered band (filled, not squiggle)
+  c.beginPath();
+  c.moveTo(-f.r*0.10, 0);
+  c.lineTo(f.r*0.10, 0);
+  c.lineTo(f.r*0.055, H-f.y+20);
+  c.lineTo(-f.r*0.055, H-f.y+20);
+  c.closePath();
+  var sg=c.createLinearGradient(-f.r*0.1,0,f.r*0.1,0);
+  sg.addColorStop(0,"#0e1a1c");sg.addColorStop(.5,"#3c6a5f");sg.addColorStop(1,"#0f1c1e");
+  c.fillStyle=sg;c.fill();
+
+  // back halo disk (baroque light behind bloom) — cheap, inside canvas
+  var hg=c.createRadialGradient(0,0,f.r*0.2,0,0,f.r*1.85);
+  hg.addColorStop(0,"rgba(240,213,154,"+(0.20*bloom+0.06)+")");
+  hg.addColorStop(.45,"rgba(89,226,232,"+(0.10*bloom)+")");
+  hg.addColorStop(1,"rgba(0,0,0,0)");
+  c.fillStyle=hg;c.beginPath();c.arc(0,0,f.r*1.85,0,6.2832);c.fill();
+
+  // outer petal ring
+  c.save();c.rotate(rot);
+  for(var i=0;i<f.n;i++){
+    c.save();c.rotate(i/f.n*6.2832);
+    gearPetal(c, f.r*open, f.r*0.30, f.r*0.30, H2.petal, H2.petal2, H2.edge);
+    c.restore();
+  }
+  c.restore();
+
+  // inner counter-rotating ring
+  c.save();c.rotate(-rot*1.7+0.3);
+  for(var j=0;j<Math.max(5,Math.round(f.n*0.6));j++){
+    c.save();c.rotate(j/Math.max(5,Math.round(f.n*0.6))*6.2832);
+    gearPetal(c, f.r*0.55*open+f.r*0.1, f.r*0.16, f.r*0.20, "#1b2f33", H2.edge, H2.edge);
+    c.restore();
+  }
+  c.restore();
+
+  // hub gear: solid dark disk with teeth
+  c.save();c.rotate(rot*2.4);
+  var hub=f.r*0.30;
+  c.beginPath();
+  for(var k=0;k<12;k++){
+    var a0=k/12*6.2832, a1=(k+0.5)/12*6.2832;
+    var R1=hub, R2=hub*0.80;
+    c.lineTo(Math.cos(a0)*R1,Math.sin(a0)*R1);
+    c.lineTo(Math.cos(a1)*R2,Math.sin(a1)*R2);
+  }
+  c.closePath();
+  var hgr=c.createLinearGradient(-hub,-hub,hub,hub);
+  hgr.addColorStop(0,"#0a1013");hgr.addColorStop(.55,"#2a3c42");hgr.addColorStop(1,"#080d10");
+  c.fillStyle=hgr;c.fill();
+  c.strokeStyle="rgba(217,169,78,.6)";c.lineWidth=1.1;c.stroke();
+  c.restore();
+
+  // glowing core aperture — breathes with bloom
+  var cr=hub*(0.34+0.22*bloom);
+  var cg=c.createRadialGradient(0,0,0,0,0,cr*3);
+  cg.addColorStop(0,H2.core);
+  cg.addColorStop(.30,"rgba(255,255,255,.35)");
+  cg.addColorStop(1,"rgba(0,0,0,0)");
+  c.fillStyle=cg;c.beginPath();c.arc(0,0,cr*3,0,6.2832);c.fill();
+  c.fillStyle=H2.core;c.beginPath();c.arc(0,0,cr,0,6.2832);c.fill();
+
+  c.restore();
+}
+
+/* ---- raccoon: bold filled silhouette with lit mask, sits on plinth ---- */
+function drawRaccoon(c,t){
+  var bx=430, by=852;
+  var breathe=Math.sin(t*0.5)*1.1;
+  c.save();
+  c.translate(bx,by+breathe);
+  var s=1.0;
+  c.scale(s,s);
+
+  // cast shadow
+  c.fillStyle="rgba(0,0,0,.5)";
+  c.beginPath();c.ellipse(2,30,54,12,0,0,6.2832);c.fill();
+
+  // tail: thick banded arc (filled bands, no thin curves)
+  for(var i=6;i>=0;i--){
+    var a=(-0.55 - i*0.19);
+    c.save();
+    c.translate(46,6);
+    c.rotate(a);
+    c.fillStyle = (i%2===0)? "#1a2429" : "#57666b";
+    c.beginPath();
+    c.ellipse(20+i*3.0,0, 15-i*0.5, 10.5-i*0.35,0,0,6.2832);
+    c.fill();
+    c.restore();
+  }
+
+  // body: solid dark mass
+  c.beginPath();
+  c.moveTo(-34,26);
+  c.lineTo(-30,-10);
+  c.lineTo(-8,-30);
+  c.lineTo(24,-24);
+  c.lineTo(40,4);
+  c.lineTo(38,26);
+  c.closePath();
+  var bgr=c.createLinearGradient(-34,-30,40,26);
+  bgr.addColorStop(0,"#3b4a4f");bgr.addColorStop(.5,"#202c31");bgr.addColorStop(1,"#0c1215");
+  c.fillStyle=bgr;c.fill();
+
+  // rim light (baroque edge light from beam upper-left)
+  c.strokeStyle="rgba(200,228,230,.55)";c.lineWidth=2;
+  c.beginPath();c.moveTo(-30,-10);c.lineTo(-8,-30);c.lineTo(24,-24);c.stroke();
+
+  // head
+  c.beginPath();
+  c.moveTo(-42,-30);c.lineTo(-30,-52);c.lineTo(-14,-58);
+  c.lineTo(2,-52);c.lineTo(8,-34);c.lineTo(-6,-20);c.lineTo(-34,-20);
+  c.closePath();
+  var hg2=c.createLinearGradient(-42,-58,8,-20);
+  hg2.addColorStop(0,"#8fa3a6");hg2.addColorStop(.45,"#4a595e");hg2.addColorStop(1,"#151d21");
+  c.fillStyle=hg2;c.fill();
+
+  // ears (triangles)
+  c.fillStyle="#1a2428";
+  c.beginPath();c.moveTo(-38,-46);c.lineTo(-34,-62);c.lineTo(-24,-50);c.closePath();c.fill();
+  c.beginPath();c.moveTo(-8,-52);c.lineTo(-2,-64);c.lineTo(4,-48);c.closePath();c.fill();
+
+  // bandit mask: hard black band
+  c.fillStyle="#05090b";
+  c.beginPath();
+  c.moveTo(-40,-42);c.lineTo(2,-46);c.lineTo(4,-34);c.lineTo(-38,-30);c.closePath();
+  c.fill();
+
+  // eyes: teal cyber glint
+  var blink = (Math.sin(t*0.9)>0.985)?0.15:1;
+  c.fillStyle="rgba(89,226,232,"+(0.95*blink)+")";
+  c.beginPath();c.arc(-30,-38,3.2,0,6.2832);c.fill();
+  c.beginPath();c.arc(-10,-40,3.2,0,6.2832);c.fill();
+  c.fillStyle="rgba(224,80,143,.8)";
+  c.beginPath();c.arc(-10,-40,1.3,0,6.2832);c.fill();
+
+  // snout + nose
+  c.fillStyle="#c9d6d6";
+  c.beginPath();c.moveTo(-46,-30);c.lineTo(-36,-32);c.lineTo(-36,-24);c.lineTo(-46,-24);c.closePath();c.fill();
+  c.fillStyle="#080c0e";
+  c.beginPath();c.arc(-46,-27,3,0,6.2832);c.fill();
+
+  // paw resting on a small gear (nature meets machine)
+  c.fillStyle="#101a1e";
+  c.beginPath();c.ellipse(-24,24,11,7,0,0,6.2832);c.fill();
+  c.restore();
+
+  // small gear under paw, turning
+  c.save();
+  c.translate(bx-24,by+34);
+  c.rotate(t*0.6);
+  c.beginPath();
+  for(var g2=0;g2<9;g2++){
+    var a0=g2/9*6.2832,a1=(g2+0.5)/9*6.2832;
+    c.lineTo(Math.cos(a0)*13,Math.sin(a0)*13);
+    c.lineTo(Math.cos(a1)*9,Math.sin(a1)*9);
+  }
+  c.closePath();
+  c.fillStyle="#2b3a3f";c.fill();
+  c.strokeStyle="rgba(217,169,78,.7)";c.lineWidth=1;c.stroke();
+  c.restore();
+}
+
+/* ---- foreground plinth / machine bed (static per frame, cheap) ---- */
+function drawBed(c){
+  var y=880;
+  var g=c.createLinearGradient(0,y,0,H);
+  g.addColorStop(0,"rgba(10,18,21,.0)");
+  g.addColorStop(.35,"rgba(8,14,17,.85)");
+  g.addColorStop(1,"rgba(4,8,10,1)");
+  c.fillStyle=g;c.fillRect(0,y,W,H-y);
+  c.fillStyle="rgba(24,38,42,.9)";
+  c.fillRect(0,902,W,10);
+  c.fillStyle="rgba(217,169,78,.30)";
+  c.fillRect(0,900,W,2);
+}
+
+/* floating spore motes: small filled squares (few, subtle) */
+var motes=[];
+for(var mi=0;mi<26;mi++){
+  motes.push({x:rr(30,510),y:rr(200,900),s:rr(1.4,3.2),v:rr(4,11),ph:rr(0,6.28),c:rnd()>0.6?P.neonC:P.goldPale});
+}
+
+var t0=performance.now();
+function frame(now){
+  var t=(now-t0)/1000;
+  m.clearRect(0,0,W,H);
+
+  // sort by depth (smaller flowers behind big? draw small first)
+  for(var i=FL.length-1;i>=0;i--) drawFlower(m,FL[i],t);
+
+  // motes
+  for(var k=0;k<motes.length;k++){
+    var o=motes[k];
+    var yy=o.y - ((t*o.v)%1000);
+    if(yy<120) yy+=780;
+    var xx=o.x+Math.sin(t*0.3+o.ph)*10;
+    m.globalAlpha=0.20+0.35*(0.5+0.5*Math.sin(t*0.8+o.ph));
+    m.fillStyle=o.c;
+    m.fillRect(xx,yy,o.s,o.s);
+  }
+  m.globalAlpha=1;
+
+  drawBed(m);
+  drawRaccoon(m,t);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ================= procedural audio drone (top-level only) ============ */
+if(window.self===window.top){
+  var started=false;
+  function boot(){
+    if(started) return; started=true;
+    try{
+      var A=new (window.AudioContext||window.webkitAudioContext)();
+      var master=A.createGain(); master.gain.value=0.0; master.connect(A.destination);
+      master.gain.linearRampToValueAtTime(0.055, A.currentTime+8);
+
+      var base=[55, 82.5, 110, 164.66];
+      base.forEach(function(f,i){
+        var o=A.createOscillator();
+        o.type= i%2? "sine":"triangle";
+        o.frequency.value=f*(1+ (i*0.0007));
+        var g=A.createGain(); g.gain.value=0.14/(i+1);
+        var lfo=A.createOscillator(); lfo.frequency.value=0.03+i*0.017;
+        var lg=A.createGain(); lg.gain.value=0.07/(i+1);
+        lfo.connect(lg); lg.connect(g.gain);
+        var flt=A.createBiquadFilter(); flt.type="lowpass"; flt.frequency.value=520;
+        o.connect(g); g.connect(flt); flt.connect(master);
+        o.start(); lfo.start();
+      });
+
+      // rain-ish filtered noise bed
+      var len=A.sampleRate*4;
+      var buf=A.createBuffer(1,len,A.sampleRate);
+      var d=buf.getChannelData(0);
+      for(var i2=0;i2<len;i2++) d[i2]=(Math.random()*2-1)*0.5;
+      var src=A.createBufferSource(); src.buffer=buf; src.loop=true;
+      var bp=A.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=1400; bp.Q.value=0.6;
+      var ng=A.createGain(); ng.gain.value=0.035;
+      src.connect(bp); bp.connect(ng); ng.connect(master);
+      src.start();
+
+      // slow metallic bloom chime every ~19s
+      function chime(){
+        var o=A.createOscillator(); o.type="sine";
+        var notes=[329.6,392,493.9,587.3];
+        o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
+        var g=A.createGain(); g.gain.value=0;
+        o.connect(g); g.connect(master);
+        var tn=A.currentTime;
+        g.gain.linearRampToValueAtTime(0.05,tn+1.2);
+        g.gain.exponentialRampToValueAtTime(0.0005,tn+7);
+        o.start(tn); o.stop(tn+7.5);
+        setTimeout(chime, 15000+Math.random()*9000);
+      }
+      setTimeout(chime, 6000);
+      if(A.state==="suspended") A.resume();
+    }catch(e){}
+  }
+  boot();
+  document.addEventListener("visibilitychange",boot);
+  setTimeout(boot,1200);
+}
+})();
+</script>
+</body>
+</html>
