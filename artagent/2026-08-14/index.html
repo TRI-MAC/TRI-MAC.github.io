@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>REEF.GROWTH // 2026-08-14</title>
+<style>
+  html,body{margin:0;padding:0;background:#01060c;overflow:hidden;height:100%;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    margin:0 auto;
+    background:#01060c;
+    overflow:hidden;
+    transform-origin:center center;
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:auto;} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:auto;} }
+
+  /* ---- fused scene image, full bleed, no frame ---- */
+  #scene-image{
+    position:absolute;
+    left:-1.5%;top:-1.5%;width:103%;height:103%;
+    object-fit:cover;
+    opacity:0.97;
+    z-index:2;
+    animation:sceneDrift 64s ease-in-out infinite alternate;
+  }
+  @keyframes sceneDrift{
+    0%{transform:scale(1.005) translate3d(0,0,0);}
+    100%{transform:scale(1.03) translate3d(-0.7%,-0.9%,0);}
+  }
+
+  /* edge dissolve: soft cyan deep-water bleed continuing the image outward */
+  .bleed{position:absolute;inset:-2%;z-index:3;pointer-events:none;}
+  #edgeDissolve{
+    background:
+      radial-gradient(120% 80% at 50% 108%, rgba(0,255,214,0.16), rgba(0,255,214,0) 60%),
+      radial-gradient(90% 60% at 50% -6%, rgba(0,120,255,0.22), rgba(1,6,12,0) 62%),
+      linear-gradient(90deg, rgba(1,7,16,0.92) 0%, rgba(1,7,16,0) 16%, rgba(1,7,16,0) 84%, rgba(1,7,16,0.92) 100%),
+      linear-gradient(180deg, rgba(1,7,16,0.9) 0%, rgba(1,7,16,0) 18%, rgba(1,7,16,0) 78%, rgba(0,10,20,0.94) 100%);
+  }
+
+  /* ---- canvases ---- */
+  canvas{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #reef{z-index:5;}
+  #plankton{z-index:7;}
+
+  /* ONE blended full-viewport layer: scanlines + grid + vignette combined */
+  #cyberSkin{
+    position:absolute;inset:0;z-index:8;pointer-events:none;
+    mix-blend-mode:screen;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,255,220,0.055) 0px, rgba(0,255,220,0.055) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 4px),
+      repeating-linear-gradient(90deg, rgba(0,160,255,0.045) 0px, rgba(0,160,255,0.045) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 60px),
+      repeating-linear-gradient(0deg, rgba(0,160,255,0.045) 0px, rgba(0,160,255,0.045) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 60px),
+      radial-gradient(70% 55% at 50% 42%, rgba(0,255,255,0.05), rgba(0,0,0,0) 70%);
+  }
+
+  /* HUD svg */
+  #hud{position:absolute;inset:0;z-index:9;pointer-events:none;}
+
+  /* slow sweeping data band — transform only */
+  #sweep{
+    position:absolute;left:0;top:-30%;width:100%;height:26%;
+    z-index:6;pointer-events:none;
+    background:linear-gradient(180deg, rgba(0,255,214,0) 0%, rgba(0,255,214,0.10) 45%, rgba(120,0,255,0.10) 55%, rgba(0,255,214,0) 100%);
+    animation:sweepDown 34s linear infinite;
+  }
+  @keyframes sweepDown{
+    0%{transform:translate3d(0,0,0);opacity:0;}
+    8%{opacity:1;}
+    92%{opacity:1;}
+    100%{transform:translate3d(0,620%,0);opacity:0;}
+  }
+
+  /* foreground silhouette fronds passing over edges (not the face) */
+  #fronds{position:absolute;inset:0;z-index:10;pointer-events:none;}
+  .frondL{transform-origin:0% 100%;animation:swayL 22s ease-in-out infinite alternate;}
+  .frondR{transform-origin:100% 100%;animation:swayR 27s ease-in-out infinite alternate;}
+  .frondT{transform-origin:50% 0%;animation:swayT 31s ease-in-out infinite alternate;}
+  @keyframes swayL{0%{transform:rotate(-2.2deg) translate3d(0,0,0);}100%{transform:rotate(2.6deg) translate3d(1.2%,-1%,0);}}
+  @keyframes swayR{0%{transform:rotate(2.4deg) translate3d(0,0,0);}100%{transform:rotate(-2.1deg) translate3d(-1.1%,-0.8%,0);}}
+  @keyframes swayT{0%{transform:rotate(1.4deg);}100%{transform:rotate(-1.6deg);}}
+
+  #guinea-pig{
+    position:absolute;
+    z-index:11;
+    width:17px;
+    left:60px;bottom:96px;
+    opacity:0.62;
+    filter:hue-rotate(150deg) saturate(0.7) brightness(0.85);
+    transform:rotate(-9deg);
+  }
+
+  #stamp{
+    position:absolute;bottom:22px;right:26px;z-index:12;
+    font:600 12px/1 "SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.28em;color:rgba(120,255,232,0.5);
+    text-shadow:0 0 8px rgba(0,255,214,0.35);
+  }
+  #tag{
+    position:absolute;bottom:22px;left:26px;z-index:12;
+    font:500 12px/1.5 "SFMono-Regular",Menlo,Consolas,monospace;
+    letter-spacing:.22em;color:rgba(120,255,232,0.42);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div class="bleed" id="edgeDissolve" style="z-index:1"></div>
+  <img id="scene-image" src="scene.png" alt="">
+  <div class="bleed" id="edgeDissolve"></div>
+
+  <canvas id="reef"></canvas>
+  <div id="sweep"></div>
+  <canvas id="plankton"></canvas>
+  <div id="cyberSkin"></div>
+
+  <svg id="hud" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="hudFade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7ffce8" stop-opacity="0"/>
+        <stop offset="0.5" stop-color="#7ffce8" stop-opacity="0.75"/>
+        <stop offset="1" stop-color="#7ffce8" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="hudMaskG" cx="50%" cy="50%" r="52%">
+        <stop offset="0.55" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="softEdge">
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#hudMaskG)"/>
+      </mask>
+    </defs>
+    <g mask="url(#softEdge)" fill="none" stroke="#6ff7e4" stroke-width="1.4" opacity="0.5">
+      <g id="hudTicks"></g>
+    </g>
+    <g id="hudReadouts" fill="#8ffdea" opacity="0.42"
+       font-family="SFMono-Regular,Menlo,Consolas,monospace" font-size="13" letter-spacing="2"></g>
+  </svg>
+
+  <svg id="fronds" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="frGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#00110f" stop-opacity="0.95"/>
+        <stop offset="1" stop-color="#003a4a" stop-opacity="0.35"/>
+      </linearGradient>
+      <linearGradient id="frGrad2" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#0a0018" stop-opacity="0.92"/>
+        <stop offset="1" stop-color="#33006b" stop-opacity="0.30"/>
+      </linearGradient>
+      <linearGradient id="frTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#001a22" stop-opacity="0.9"/>
+        <stop offset="1" stop-color="#004a5c" stop-opacity="0.15"/>
+      </linearGradient>
+    </defs>
+    <g id="frondGroup"></g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div id="tag">REEF.GROWTH ／ NODE-08</div>
+  <div id="stamp">2026-08-14</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- date seed ---------------- */
+const DATE="2026-08-14";
+let seed=0; for(let i=0;i<DATE.length;i++) seed=(seed*131+DATE.charCodeAt(i))>>>0;
+seed=(seed^0x9e3779b9)>>>0;
+function rnd(){ seed^=seed<<13;seed>>>=0; seed^=seed>>17; seed^=seed<<5;seed>>>=0; return seed/4294967296; }
+function rr(a,b){return a+(b-a)*rnd();}
+function ri(a,b){return Math.floor(rr(a,b+1));}
+
+/* palette: neon-on-black cyber reef, hue set by date */
+const H0 = 150 + Math.floor(rnd()*40);       // teal/green base
+const H1 = 290 + Math.floor(rnd()*40);       // magenta/violet
+const H2 = 195 + Math.floor(rnd()*20);       // cyan
+const PAL = [
+  `hsl(${H0} 100% 58%)`,
+  `hsl(${H2} 100% 60%)`,
+  `hsl(${H1%360} 100% 62%)`,
+  `hsl(${(H0+18)%360} 100% 70%)`,
+  `hsl(${(H1+28)%360} 95% 66%)`
+];
+
+/* ---------------- canvas setup (low-res backing store) ---------------- */
+const W=540, H=960;                 // half res => big perf win
+const reef=document.getElementById('reef');
+reef.width=W; reef.height=H;
+const rx=reef.getContext('2d');
+
+const pk=document.getElementById('plankton');
+pk.width=Math.floor(W*0.6); pk.height=Math.floor(H*0.6);
+const px=pk.getContext('2d');
+
+/* ---------------- CORAL GROWTH SYSTEM ---------------- */
+/* Branching coral: filled tapered segments (no wispy squiggles).
+   Colonies grow, fork, thicken and colour over time; then the reef
+   dissolves in a wipe and regrows -> seamless loop.                */
+
+const bases=[];
+function makeBases(){
+  bases.length=0;
+  // Left cluster, right cluster, and a few mid-floor colonies.
+  const spots=[];
+  const nL=ri(4,5), nR=ri(4,5), nM=ri(3,4);
+  for(let i=0;i<nL;i++) spots.push({x:rr(-10,W*0.30), y:rr(H*0.80,H*1.0), s:rr(0.75,1.25)});
+  for(let i=0;i<nR;i++) spots.push({x:rr(W*0.70,W+10), y:rr(H*0.78,H*1.0), s:rr(0.75,1.3)});
+  for(let i=0;i<nM;i++) spots.push({x:rr(W*0.10,W*0.90), y:rr(H*0.94,H*1.05), s:rr(0.5,0.85)});
+  // a couple of ceiling colonies growing downward
+  spots.push({x:rr(0,W*0.28), y:rr(-14,10), s:rr(0.55,0.8), down:true});
+  spots.push({x:rr(W*0.74,W), y:rr(-14,10), s:rr(0.55,0.85), down:true});
+  for(const s of spots){
+    bases.push({
+      x:s.x, y:s.y, scale:s.s,
+      ang: s.down ? rr(Math.PI*0.35,Math.PI*0.65) : rr(-Math.PI*0.66,-Math.PI*0.34),
+      colA: PAL[ri(0,PAL.length-1)],
+      colB: PAL[ri(0,PAL.length-1)],
+      delay: rr(0,0.22)
+    });
+  }
+}
+
+let colonies=[];   // each colony -> array of segments
+function buildColony(b){
+  const segs=[];
+  const rootLen=rr(26,44)*b.scale;
+  const queue=[{x:b.x,y:b.y,ang:b.ang,len:rootLen,w:rr(11,17)*b.scale,depth:0,t:b.delay}];
+  let guard=0;
+  while(queue.length && guard++<520){
+    const n=queue.shift();
+    const ex=n.x+Math.cos(n.ang)*n.len;
+    const ey=n.y+Math.sin(n.ang)*n.len;
+    const w2=Math.max(1.1,n.w*rr(0.62,0.78));
+    const tSpan=0.030+0.012*n.depth;
+    segs.push({x1:n.x,y1:n.y,x2:ex,y2:ey,w1:n.w,w2:w2,depth:n.depth,t0:n.t,t1:n.t+tSpan});
+    if(n.depth>=6 || w2<1.4) continue;
+    const forks = (n.depth===0)?ri(2,3):(rnd()<0.62?2:1);
+    for(let f=0;f<forks;f++){
+      const spread = rr(0.30,0.72)*(f%2===0?1:-1) + rr(-0.12,0.12);
+      let na=n.ang+spread*(1/(1+n.depth*0.25));
+      // gentle upward/downward bias keeps colonies architectural
+      const bias = b.ang<0 ? -Math.PI/2 : Math.PI/2;
+      na = na*0.82 + bias*0.18;
+      queue.push({x:ex,y:ey,ang:na,len:n.len*rr(0.70,0.86),w:w2,depth:n.depth+1,t:n.t+tSpan*0.85});
+    }
+  }
+  // polyp nodes at tips
+  const tips=segs.filter(s=>s.depth>=4);
+  const polyps=tips.map(s=>({x:s.x2,y:s.y2,r:Math.max(1.6,s.w2*rr(0.9,1.6)),t:s.t1}));
+  return {segs,polyps,colA:b.colA,colB:b.colB,scale:b.scale};
+}
+function rebuild(){ makeBases(); colonies=bases.map(buildColony); }
+rebuild();
+
+/* static seafloor / backdrop plate drawn ONCE */
+const plate=document.createElement('canvas'); plate.width=W; plate.height=H;
+(function drawPlate(){
+  const c=plate.getContext('2d');
+  c.clearRect(0,0,W,H);
+  // deep water floor mass: hard-edged terraced planes (cyber terrain)
+  const rows=7;
+  for(let i=0;i<rows;i++){
+    const y=H*0.845 + i*(H*0.026);
+    const a=0.10+i*0.035;
+    c.fillStyle=`hsla(${H2} 90% ${10+i*3}% / ${a})`;
+    c.beginPath();
+    c.moveTo(-10,y);
+    let x=-10;
+    while(x<W+10){
+      const step=rr(28,74);
+      const dy=rr(-9,9);
+      c.lineTo(x+step,y+dy);
+      x+=step;
+    }
+    c.lineTo(W+10,H+10); c.lineTo(-10,H+10); c.closePath(); c.fill();
+  }
+  // horizontal data ruling on floor
+  c.strokeStyle=`hsla(${H0} 100% 60% / 0.16)`; c.lineWidth=1;
+  for(let i=0;i<12;i++){
+    const y=H*0.86+i*(H*0.012);
+    c.beginPath(); c.moveTo(0,y); c.lineTo(W,y); c.stroke();
+  }
+  // sparse dot-matrix substrate (drawn once, never per-frame)
+  for(let i=0;i<900;i++){
+    const x=rnd()*W, y=H*0.80+rnd()*H*0.22;
+    if(y>H) continue;
+    c.fillStyle=`hsla(${rnd()<0.5?H0:H1} 100% ${55+rnd()*25}% / ${0.05+rnd()*0.16})`;
+    c.fillRect(x|0,y|0,1,1);
+  }
+})();
+
+/* ---------------- growth timing ---------------- */
+const CYCLE=62;          // seconds per full grow->dissolve->regrow loop
+const GROW=0.62;         // fraction growing
+const HOLD=0.20;         // fraction fully grown
+let t0=performance.now();
+
+function coralColor(colony,seg,gt){
+  // colour matures from cyan core to colony hue with depth
+  const mix=Math.min(1,seg.depth/5);
+  return mix<0.5?colony.colA:colony.colB;
+}
+
+function drawSeg(ctx,s,p,col,alpha,glow){
+  const x2=s.x1+(s.x2-s.x1)*p;
+  const y2=s.y1+(s.y2-s.y1)*p;
+  const w1=s.w1, w2=s.w1+(s.w2-s.w1)*p;
+  const ang=Math.atan2(y2-s.y1,x2-s.x1);
+  const nx=Math.cos(ang+Math.PI/2), ny=Math.sin(ang+Math.PI/2);
+  ctx.beginPath();
+  ctx.moveTo(s.x1+nx*w1*0.5, s.y1+ny*w1*0.5);
+  ctx.lineTo(x2+nx*w2*0.5,   y2+ny*w2*0.5);
+  ctx.lineTo(x2-nx*w2*0.5,   y2-ny*w2*0.5);
+  ctx.lineTo(s.x1-nx*w1*0.5, s.y1-ny*w1*0.5);
+  ctx.closePath();
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=col;
+  ctx.fill();
+  if(glow){
+    ctx.globalAlpha=alpha*0.55;
+    ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(220,255,250,0.9)';
+    ctx.stroke();
+  }
+}
+
+/* ---------------- plankton / data motes (separate small canvas) ---------------- */
+const motes=[];
+for(let i=0;i<70;i++){
+  motes.push({x:rnd()*pk.width,y:rnd()*pk.height,vy:-(0.05+rnd()*0.14),
+              r:rnd()<0.15?2:1, ph:rnd()*6.28, hue: rnd()<0.5?H0:H1});
+}
+/* one shrimp — creature of the night — drifting as a wireframe HUD glyph */
+const shrimp={x:pk.width*0.18,y:pk.height*0.42,ph:rnd()*6.28};
+
+function drawShrimp(ctx,cx,cy,s,flip,a){
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.scale(flip*s,s);
+  ctx.globalAlpha=a;
+  // body: filled tapered shape
+  ctx.beginPath();
+  ctx.moveTo(-9,0);
+  ctx.lineTo(-2,-4.2);
+  ctx.lineTo(5,-3.6);
+  ctx.lineTo(9.5,-0.6);
+  ctx.lineTo(8.4,1.6);
+  ctx.lineTo(2.6,3.4);
+  ctx.lineTo(-3.2,3.0);
+  ctx.closePath();
+  ctx.fillStyle=`hsla(${(H1+10)%360} 100% 66% / 0.95)`;
+  ctx.fill();
+  // tail fan (triangles)
+  ctx.beginPath();
+  ctx.moveTo(-9,0); ctx.lineTo(-14.5,-4); ctx.lineTo(-13,0.4); ctx.closePath();
+  ctx.moveTo(-9,0); ctx.lineTo(-14.5,4.2); ctx.lineTo(-13,0.4); ctx.closePath();
+  ctx.fillStyle=`hsla(${H2} 100% 70% / 0.8)`;
+  ctx.fill();
+  // rostrum + antennae as short straight strokes
+  ctx.strokeStyle=`hsla(${H0} 100% 72% / 0.85)`;
+  ctx.lineWidth=0.9;
+  ctx.beginPath();
+  ctx.moveTo(9.5,-0.6); ctx.lineTo(17,-3.2);
+  ctx.moveTo(9.5,-0.2); ctx.lineTo(16.5,1.4);
+  ctx.stroke();
+  // legs: short vertical ticks
+  ctx.beginPath();
+  for(let i=0;i<5;i++){ const x=-2+i*2.4; ctx.moveTo(x,2.8); ctx.lineTo(x-0.8,5.4); }
+  ctx.stroke();
+  // eye
+  ctx.beginPath(); ctx.arc(7.4,-1.8,1.1,0,6.283);
+  ctx.fillStyle='#e9fffb'; ctx.fill();
+  ctx.restore();
+}
+
+/* ---------------- HUD svg content (static, built once) ---------------- */
+(function buildHUD(){
+  const g=document.getElementById('hudTicks');
+  let d='';
+  // corner brackets + measurement ticks (masked to fade at edges)
+  const bx=[[70,150],[1010,150],[70,1770],[1010,1770]];
+  bx.forEach((p,i)=>{
+    const sx=(i%2===0)?1:-1, sy=(i<2)?1:-1;
+    d+=`M${p[0]} ${p[1]+sy*54} L${p[0]} ${p[1]} L${p[0]+sx*54} ${p[1]} `;
+  });
+  // left ruler
+  for(let y=340;y<=1600;y+=42){
+    const long=(y%168===340%168);
+    d+=`M70 ${y} L${70+(long?26:13)} ${y} `;
+  }
+  // right ruler
+  for(let y=360;y<=1580;y+=42){
+    const long=(y%168===360%168);
+    d+=`M1010 ${y} L${1010-(long?26:13)} ${y} `;
+  }
+  // top scale
+  for(let x=180;x<=900;x+=45){ d+=`M${x} 150 L${x} ${150+((x%180===0)?22:11)} `; }
+  g.setAttribute('d','');
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d',d); path.setAttribute('stroke','#6ff7e4'); path.setAttribute('fill','none');
+  g.appendChild(path);
+
+  // faint circular reticle over lower-left reef region (fades via mask)
+  const c=document.createElementNS('http://www.w3.org/2000/svg','g');
+  c.setAttribute('opacity','0.55');
+  [130,190].forEach(r=>{
+    const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx','250'); el.setAttribute('cy','1480'); el.setAttribute('r',r);
+    el.setAttribute('stroke','#6ff7e4'); el.setAttribute('fill','none');
+    el.setAttribute('stroke-dasharray', r===130?'4 10':'22 14');
+    c.appendChild(el);
+  });
+  g.appendChild(c);
+
+  // readouts
+  const ro=document.getElementById('hudReadouts');
+  const lines=[
+    ['96','200','SECTOR '+((seed%97)+11).toString().padStart(3,'0')+' / REEF ARRAY'],
+    ['96','222','SUBSTRATE  CaCO3   pH 8.0'],
+    ['600','200','GROWTH MODEL  BRANCH-FORK v4'],
+    ['600','222','SPECIES  CARIDEA — NOCT. WATCH'],
+    ['96','1732','LUMEN  ' + (400+ (seed%180)) + ' nm'],
+    ['600','1732','COLONIES  '+colonies.length+'   SEG '+colonies.reduce((a,c)=>a+c.segs.length,0)]
+  ];
+  lines.forEach(l=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',l[0]); t.setAttribute('y',l[1]); t.textContent=l[2];
+    ro.appendChild(t);
+  });
+  // live percentage readout
+  const live=document.createElementNS('http://www.w3.org/2000/svg','text');
+  live.setAttribute('x','96'); live.setAttribute('y','1710');
+  live.setAttribute('id','liveRead'); live.setAttribute('font-size','13');
+  ro.appendChild(live);
+})();
+const liveRead=document.getElementById('liveRead');
+
+/* ---------------- foreground fronds (SVG silhouettes, filled shapes) ---------------- */
+(function buildFronds(){
+  const g=document.getElementById('frondGroup');
+  function blade(cx,cy,len,wid,ang,grad,cls,alpha){
+    // filled tapered blade built from 4 straight points (no beziers)
+    const a=ang*Math.PI/180;
+    const ex=cx+Math.cos(a)*len, ey=cy+Math.sin(a)*len;
+    const nx=Math.cos(a+Math.PI/2), ny=Math.sin(a+Math.PI/2);
+    const p=`${cx+nx*wid} ${cy+ny*wid} L ${ex+nx*wid*0.16} ${ey+ny*wid*0.16} L ${ex-nx*wid*0.16} ${ey-ny*wid*0.16} L ${cx-nx*wid} ${cy-ny*wid}`;
+    const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+    el.setAttribute('d',`M ${p} Z`);
+    el.setAttribute('fill',grad);
+    el.setAttribute('opacity',alpha);
+    el.setAttribute('class',cls);
+    g.appendChild(el);
+  }
+  // left bottom cluster
+  const L=document.createElementNS('http://www.w3.org/2000/svg','g'); L.setAttribute('class','frondL'); g.appendChild(L);
+  const R=document.createElementNS('http://www.w3.org/2000/svg','g'); R.setAttribute('class','frondR'); g.appendChild(R);
+  const T=document.createElementNS('http://www.w3.org/2000/svg','g'); T.setAttribute('class','frondT'); g.appendChild(T);
+  function into(parent,cx,cy,len,wid,ang,grad,alpha){
+    const a=ang*Math.PI/180;
+    const ex=cx+Math.cos(a)*len, ey=cy+Math.sin(a)*len;
+    const nx=Math.cos(a+Math.PI/2), ny=Math.sin(a+Math.PI/2);
+    const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+    el.setAttribute('d',`M ${cx+nx*wid} ${cy+ny*wid} L ${ex+nx*wid*0.14} ${ey+ny*wid*0.14} L ${ex-nx*wid*0.14} ${ey-ny*wid*0.14} L ${cx-nx*wid} ${cy-ny*wid} Z`);
+    el.setAttribute('fill',grad); el.setAttribute('opacity',alpha);
+    parent.appendChild(el);
+  }
+  for(let i=0;i<6;i++){
+    into(L, -40+i*26, 1960, rr(430,780), rr(26,54), -74+i*7+rr(-4,4), 'url(#frGrad)', rr(0.55,0.85));
+  }
+  for(let i=0;i<6;i++){
+    into(R, 1120-i*26, 1960, rr(400,760), rr(24,52), -106-i*7+rr(-4,4), 'url(#frGrad2)', rr(0.5,0.82));
+  }
+  for(let i=0;i<4;i++){
+    into(T, 120+i*270+rr(-40,40), -40, rr(180,340), rr(30,66), 88+rr(-8,8), 'url(#frTop)', rr(0.35,0.6));
+  }
+})();
+
+/* ---------------- render loop ---------------- */
+let last=performance.now(), acc=0;
+const STEP=1/60;
+
+function frame(now){
+  let dt=(now-last)/1000; last=now;
+  if(dt>2*STEP) dt=2*STEP;     // clamp
+  acc=dt;
+
+  const el=(now-t0)/1000;
+  const cyc=(el%CYCLE)/CYCLE;
+
+  /* growth parameter */
+  let gt;                       // 0..1 growth
+  let fade=1;                   // colony alpha (dissolve)
+  if(cyc<GROW){ gt=cyc/GROW; }
+  else if(cyc<GROW+HOLD){ gt=1; }
+  else { gt=1; fade=1-((cyc-GROW-HOLD)/(1-GROW-HOLD)); }
+  // ease growth
+  const ge=gt<0.5?2*gt*gt:1-Math.pow(-2*gt+2,2)/2;
+
+  // regrow with new topology after dissolve completes
+  if(fade<=0.001 && !frame._rebuilt){ rebuild(); frame._rebuilt=true; }
+  if(cyc<0.02) frame._rebuilt=false;
+
+  /* ---- reef canvas ---- */
+  rx.clearRect(0,0,W,H);
+  rx.drawImage(plate,0,0);
+
+  const breathe=0.5+0.5*Math.sin(el*0.35);
+
+  rx.save();
+  for(const col of colonies){
+    for(const s of col.segs){
+      if(ge<=s.t0) continue;
+      const p=Math.min(1,(ge-s.t0)/(s.t1-s.t0));
+      const c=coralColor(col,s,ge);
+      const a=(0.30+0.42*(1-s.depth/7))*fade;
+      drawSeg(rx,s,p,c,a,false);
+    }
+    // bright core stroke pass for neon read
+    for(const s of col.segs){
+      if(ge<=s.t0) continue;
+      const p=Math.min(1,(ge-s.t0)/(s.t1-s.t0));
+      const x2=s.x1+(s.x2-s.x1)*p, y2=s.y1+(s.y2-s.y1)*p;
+      rx.globalAlpha=(0.16+0.34*(s.depth/7))*fade;
+      rx.strokeStyle=coralColor(col,s,ge);
+      rx.lineWidth=Math.max(0.8,s.w2*0.42);
+      rx.lineCap='round';
+      rx.beginPath(); rx.moveTo(s.x1,s.y1); rx.lineTo(x2,y2); rx.stroke();
+    }
+    // polyp nodes: bright filled circles blooming last
+    for(const p of col.polyps){
+      if(ge<=p.t) continue;
+      const k=Math.min(1,(ge-p.t)/0.10);
+      const r=p.r*k*(0.85+0.25*breathe);
+      rx.globalAlpha=(0.55*k)*fade;
+      rx.fillStyle=col.colB;
+      rx.beginPath(); rx.arc(p.x,p.y,r,0,6.283); rx.fill();
+      rx.globalAlpha=(0.9*k)*fade;
+      rx.fillStyle='rgba(235,255,252,0.95)';
+      rx.beginPath(); rx.arc(p.x,p.y,Math.max(0.5,r*0.34),0,6.283); rx.fill();
+    }
+  }
+  rx.restore();
+  rx.globalAlpha=1;
+
+  // caustic terraced light bands on the reef (hard-edged, cyber)
+  rx.globalCompositeOperation='lighter';
+  for(let i=0;i<5;i++){
+    const y=((el*10 + i*H/5) % (H*1.2)) - H*0.1;
+    rx.globalAlpha=0.030;
+    rx.fillStyle=`hsl(${H2} 100% 62%)`;
+    rx.fillRect(0,y,W,3);
+  }
+  rx.globalCompositeOperation='source-over';
+  rx.globalAlpha=1;
+
+  /* ---- plankton / shrimp canvas ---- */
+  px.clearRect(0,0,pk.width,pk.height);
+  px.globalCompositeOperation='lighter';
+  for(const m of motes){
+    m.y+=m.vy; m.x+=Math.sin(el*0.5+m.ph)*0.05;
+    if(m.y<-4){ m.y=pk.height+4; m.x=rnd()*pk.width; }
+    const a=0.20+0.28*(0.5+0.5*Math.sin(el*1.1+m.ph));
+    px.globalAlpha=a;
+    px.fillStyle=`hsl(${m.hue} 100% 72%)`;
+    px.fillRect(m.x|0,m.y|0,m.r,m.r);
+  }
+  px.globalCompositeOperation='source-over';
+  // shrimp drifts a slow horizontal loop in mid-water
+  const sp=(el%78)/78;
+  const sx=-40 + sp*(pk.width+80);
+  const sy=pk.height*0.40 + Math.sin(sp*Math.PI*3)*pk.height*0.05;
+  drawShrimp(px,sx,sy,1.35,1,0.85);
+  // second, smaller, opposite direction
+  const sp2=((el+41)%94)/94;
+  drawShrimp(px, pk.width+30 - sp2*(pk.width+60), pk.height*0.62+Math.sin(sp2*Math.PI*2)*pk.height*0.035, 0.85,-1,0.55);
+
+  /* HUD live readout */
+  const pct=(fade<1? fade*100 : ge*100);
+  liveRead.textContent = 'CALCIFY '+pct.toFixed(1).padStart(5,' ')+'%   CYCLE '+
+    (Math.floor(el/CYCLE)+1).toString().padStart(3,'0');
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------------- procedural audio (direct view only) ---------------- */
+if(window.self===window.top){
+  let started=false;
+  const start=()=>{
+    if(started) return; started=true;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      const ac=new AC();
+      const master=ac.createGain(); master.gain.value=0.0; master.connect(ac.destination);
+      master.gain.linearRampToValueAtTime(0.075, ac.currentTime+8);
+
+      // deep drone: two detuned saws through lowpass
+      const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=340; lp.Q.value=0.7;
+      lp.connect(master);
+      const base=48 + (seed%9)*2;
+      [base, base*1.5, base*2.01].forEach((f,i)=>{
+        const o=ac.createOscillator(); o.type=i===2?'triangle':'sawtooth';
+        o.frequency.value=f;
+        const g=ac.createGain(); g.gain.value=i===0?0.30:0.13;
+        o.connect(g); g.connect(lp); o.start();
+        const lfo=ac.createOscillator(); lfo.frequency.value=0.03+i*0.017;
+        const la=ac.createGain(); la.gain.value=f*0.006;
+        lfo.connect(la); la.connect(o.frequency); lfo.start();
+      });
+      // filtered noise = water body
+      const nb=ac.createBuffer(1, ac.sampleRate*4, ac.sampleRate);
+      const d=nb.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.5;
+      const ns=ac.createBufferSource(); ns.buffer=nb; ns.loop=true;
+      const nf=ac.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=520; nf.Q.value=0.6;
+      const ng=ac.createGain(); ng.gain.value=0.05;
+      ns.connect(nf); nf.connect(ng); ng.connect(master); ns.start();
+      const nl=ac.createOscillator(); nl.frequency.value=0.021;
+      const nla=ac.createGain(); nla.gain.value=220;
+      nl.connect(nla); nla.connect(nf.frequency); nl.start();
+
+      // sparse sonar pings tied to coral growth
+      const scale=[0,3,5,7,10,12,15];
+      let n=0;
+      const ping=()=>{
+        const o=ac.createOscillator(); o.type='sine';
+        const semi=scale[Math.floor(Math.random()*scale.length)];
+        o.frequency.value=330*Math.pow(2,semi/12);
+        const g=ac.createGain(); g.gain.value=0;
+        const dl=ac.createDelay(); dl.delayTime.value=0.34;
+        const fb=ac.createGain(); fb.gain.value=0.34;
+        dl.connect(fb); fb.connect(dl); dl.connect(master);
+        o.connect(g); g.connect(master); g.connect(dl);
+        const t=ac.currentTime;
+        g.gain.linearRampToValueAtTime(0.055, t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0008, t+1.6);
+        o.start(t); o.stop(t+1.7);
+        n++;
+        setTimeout(ping, 2600+Math.random()*4200);
+      };
+      setTimeout(ping, 3000);
+      if(ac.state==='suspended') ac.resume();
+    }catch(e){}
+  };
+  // autoplay attempt; unattended displays generally allow after load
+  window.addEventListener('load',()=>{ setTimeout(start,400); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) start(); });
+}
+})();
+</script>
+</body>
+</html>
