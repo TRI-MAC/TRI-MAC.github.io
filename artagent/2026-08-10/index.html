@@ -333,9 +333,9 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     x.globalCompositeOperation="lighter";
     // Bloom envelope: quick out, slow settle — the opening explosion in
     // miniature. Zero at both ends, so a bloom starts and lands soft.
-    let amp=0;
+    let amp=0, ph=0;
     if(bt0>=0){
-      const ph=(t-bt0)/bdur;
+      ph=(t-bt0)/bdur;
       if(ph>=1) bt0=-1;
       else amp=bamp*(ph<0.32 ? Math.sin(ph/0.32*Math.PI/2)
                              : Math.cos((ph-0.32)/0.68*Math.PI/2));
@@ -343,7 +343,13 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     for(let i=0;i<N;i++){
       const o=i*4;
       let px=P[o], py=P[o+1];
-      if(amp>0&&bf[i]){ px+=bd[i*2]*amp; py+=bd[i*2+1]*amp; }
+      if(amp>0&&bf[i]){
+        // bd is (angle, reach). Shearing the angle by reach — the near ones
+        // swinging further round than the far ones — winds each arm into a
+        // strand on the way out and keeps it turning as it draws back in.
+        const m=bd[i*2+1], a=bd[i*2]+bspin*ph*(1.55-m);
+        px+=Math.cos(a)*m*amp; py+=Math.sin(a)*m*amp;
+      }
       const sp=Math.min(1,(Math.abs(P[o+2])+Math.abs(P[o+3]))*0.42);
       x.fillStyle=COLS[col[i]]+(0.22+sp*0.5).toFixed(2)+")";
       const s= col[i]===0 ? 2.2 : 1.3;
@@ -367,8 +373,9 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
   // a few bursts drain the six-fold ring into the middle.
   const BAMP=44, BDUR=3400, BSEL=52*52;
   const bf=new Uint8Array(N);      // 1 = part of the bloom currently running
-  const bd=new Float32Array(N*2);  // its direction, fixed for the whole bloom
-  let nextBurst=23000+rnd()*9000, lastK=-1, bk=0, bt0=-1, bamp=BAMP, bdur=BDUR;
+  const bd=new Float32Array(N*2);  // per particle: angle, reach
+  let nextBurst=23000+rnd()*9000, lastK=-1, bk=0, bt0=-1;
+  let bamp=BAMP, bdur=BDUR, bspin=0;
   function burst(t){
     // Count by nearest node, so a bloom only ever fires on a point that still
     // holds a cloud and is therefore visible.
@@ -380,29 +387,36 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
         if(dx*dx+dy*dy<BSEL){ cnt[k]++; break; }
       }
     }
-    // Ring nodes only. The core ends up holding some 40% of every particle, so
-    // blooming it is not one dot breathing — it is the whole field pulsing at
-    // once. Leaving it alone also gives the six a still centre to move against.
     let cand=[];
-    for(let k=0;k<6;k++) if(cnt[k]>=40 && k!==lastK) cand.push(k);
-    if(!cand.length) for(let k=0;k<6;k++) if(cnt[k]>=40) cand.push(k);
+    for(let k=0;k<7;k++) if(cnt[k]>=40 && k!==lastK) cand.push(k);
+    if(!cand.length) for(let k=0;k<7;k++) if(cnt[k]>=40) cand.push(k);
     if(!cand.length){ nextBurst=t+5000; return; }
     bk=cand[(rnd()*cand.length)|0]; lastK=bk; bt0=t;
-    // vary reach and pace per bloom, or the six start to look mechanical
-    bamp=BAMP*(0.68+rnd()*0.6); bdur=BDUR*(0.85+rnd()*0.45);
+    // The core holds some 40% of every particle, so when its turn comes it is
+    // the big event: wider, slower, and spun into orbiting strands. A ring
+    // point just opens and shuts. Vary both, or the six look mechanical.
+    const core=bk===6;
+    bamp=BAMP*(core ? 1.5+rnd()*0.35 : 0.68+rnd()*0.6);
+    bdur=BDUR*(core ? 1.3+rnd()*0.3  : 0.85+rnd()*0.45);
+    bspin=core ? 1.2+rnd()*0.5 : 0;
     const A=attr[bk];
+    // Arms leave along the six points, so the core throws its strands at its
+    // own satellites instead of into the gaps between them.
+    const arms=[];
+    if(core) for(let j=0;j<6;j++) arms.push(Math.atan2(attr[j].y-CY, attr[j].x-CX));
     for(let i=0;i<N;i++){
       const o=i*4, dx=P[o]-A.x, dy=P[o+1]-A.y, d2=dx*dx+dy*dy;
       if(d2>=BSEL){ bf[i]=0; continue; }
       bf[i]=1;
-      // By the time a node has settled it holds its cloud within a pixel or
-      // two — that is the white point the piece resolves into — so there is
-      // no outward direction to borrow from the particle's position. Give
-      // each one its own and the point opens into a ring; keep the real
-      // direction where there still is one, so stragglers fly true.
-      const d=Math.sqrt(d2), m=0.55+rnd()*0.9;
-      if(d>4){ bd[i*2]=dx/d*m; bd[i*2+1]=dy/d*m; }
-      else { const a=rnd()*Math.PI*2; bd[i*2]=Math.cos(a)*m; bd[i*2+1]=Math.sin(a)*m; }
+      // A settled node holds its cloud within a pixel or two — that is the
+      // white point the piece resolves into — so there is no outward direction
+      // to borrow from a particle's position. Give each one its own, keeping
+      // the real direction where there still is one so stragglers fly true.
+      // Arm roots stay tight — the shear is what gives a strand its length, so
+      // scattering the root as well just smears the six back into a disc.
+      bd[i*2] = core ? arms[(rnd()*6)|0]+(rnd()-0.5)*0.22
+                     : (d2>16 ? Math.atan2(dy,dx) : rnd()*Math.PI*2);
+      bd[i*2+1] = 0.55+rnd()*0.9;
     }
     nextBurst=t+16000+rnd()*26000;
   }
