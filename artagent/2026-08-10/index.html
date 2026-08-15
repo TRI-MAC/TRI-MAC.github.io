@@ -325,18 +325,29 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     }
   }
 
-  function draw(){
+  function draw(t){
     // trail decay
     x.globalCompositeOperation="destination-out";
     x.fillStyle="rgba(0,0,0,0.055)";
     x.fillRect(0,0,W,H);
     x.globalCompositeOperation="lighter";
+    // Bloom envelope: quick out, slow settle — the opening explosion in
+    // miniature. Zero at both ends, so a bloom starts and lands soft.
+    let amp=0;
+    if(bt0>=0){
+      const ph=(t-bt0)/bdur;
+      if(ph>=1) bt0=-1;
+      else amp=bamp*(ph<0.32 ? Math.sin(ph/0.32*Math.PI/2)
+                             : Math.cos((ph-0.32)/0.68*Math.PI/2));
+    }
     for(let i=0;i<N;i++){
       const o=i*4;
+      let px=P[o], py=P[o+1];
+      if(amp>0&&bf[i]){ px+=bd[i*2]*amp; py+=bd[i*2+1]*amp; }
       const sp=Math.min(1,(Math.abs(P[o+2])+Math.abs(P[o+3]))*0.42);
       x.fillStyle=COLS[col[i]]+(0.22+sp*0.5).toFixed(2)+")";
       const s= col[i]===0 ? 2.2 : 1.3;
-      x.fillRect(P[o]-s*0.5,P[o+1]-s*0.5,s,s);
+      x.fillRect(px-s*0.5,py-s*0.5,s,s);
     }
     // attractor nodes as small hard diamonds (turquoise accents)
     for(let k=0;k<7;k++){
@@ -350,6 +361,52 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     x.globalCompositeOperation="source-over";
   }
 
+  // Occasional re-expansion: one node at a time breathes its cloud out and back.
+  // A draw-space offset, not a force — particles thrown by inverting a node's
+  // gravity get recaptured by the deeper central well rather than their own, so
+  // a few bursts drain the six-fold ring into the middle.
+  const BAMP=44, BDUR=3400, BSEL=52*52;
+  const bf=new Uint8Array(N);      // 1 = part of the bloom currently running
+  const bd=new Float32Array(N*2);  // its direction, fixed for the whole bloom
+  let nextBurst=23000+rnd()*9000, lastK=-1, bk=0, bt0=-1, bamp=BAMP, bdur=BDUR;
+  function burst(t){
+    // Count by nearest node, so a bloom only ever fires on a point that still
+    // holds a cloud and is therefore visible.
+    const cnt=new Array(7).fill(0);
+    for(let i=0;i<N;i++){
+      const o=i*4;
+      for(let k=0;k<7;k++){
+        const dx=P[o]-attr[k].x, dy=P[o+1]-attr[k].y;
+        if(dx*dx+dy*dy<BSEL){ cnt[k]++; break; }
+      }
+    }
+    // Ring nodes only. The core ends up holding some 40% of every particle, so
+    // blooming it is not one dot breathing — it is the whole field pulsing at
+    // once. Leaving it alone also gives the six a still centre to move against.
+    let cand=[];
+    for(let k=0;k<6;k++) if(cnt[k]>=40 && k!==lastK) cand.push(k);
+    if(!cand.length) for(let k=0;k<6;k++) if(cnt[k]>=40) cand.push(k);
+    if(!cand.length){ nextBurst=t+5000; return; }
+    bk=cand[(rnd()*cand.length)|0]; lastK=bk; bt0=t;
+    // vary reach and pace per bloom, or the six start to look mechanical
+    bamp=BAMP*(0.68+rnd()*0.6); bdur=BDUR*(0.85+rnd()*0.45);
+    const A=attr[bk];
+    for(let i=0;i<N;i++){
+      const o=i*4, dx=P[o]-A.x, dy=P[o+1]-A.y, d2=dx*dx+dy*dy;
+      if(d2>=BSEL){ bf[i]=0; continue; }
+      bf[i]=1;
+      // By the time a node has settled it holds its cloud within a pixel or
+      // two — that is the white point the piece resolves into — so there is
+      // no outward direction to borrow from the particle's position. Give
+      // each one its own and the point opens into a ring; keep the real
+      // direction where there still is one, so stragglers fly true.
+      const d=Math.sqrt(d2), m=0.55+rnd()*0.9;
+      if(d>4){ bd[i*2]=dx/d*m; bd[i*2+1]=dy/d*m; }
+      else { const a=rnd()*Math.PI*2; bd[i*2]=Math.cos(a)*m; bd[i*2+1]=Math.sin(a)*m; }
+    }
+    nextBurst=t+16000+rnd()*26000;
+  }
+
   function loop(t){
     let dt=t-t0; t0=t;
     if(dt>34) dt=34;
@@ -357,7 +414,8 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     let steps=0;
     while(acc>=STEP && steps<2){ physics(t); acc-=STEP; steps++; }
     if(acc>STEP) acc=0;
-    draw();
+    if(t>nextBurst) burst(t);
+    draw(t);
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
