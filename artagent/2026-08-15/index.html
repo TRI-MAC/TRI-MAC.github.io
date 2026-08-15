@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>2026-08-15</title>
+<style>
+  html,body{margin:0;padding:0;background:#07080c;overflow:hidden;height:100%;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    margin:0 auto;
+    background:#0a0b11;
+    overflow:hidden;
+    transform-origin:center center;
+  }
+  #wrap{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  }
+  /* ---- video: the SEAM MATERIAL, revealed only through the plate gaps ---- */
+  #background-video{
+    position:absolute;
+    left:-6%;top:-6%;width:112%;height:112%;
+    object-fit:cover;
+    opacity:0.92;
+    z-index:1;
+  }
+  /* mask layer: opaque plates drawn on canvas hide most of the video */
+  #plates{
+    position:absolute;inset:0;width:100%;height:100%;z-index:3;
+  }
+  #seams{
+    position:absolute;inset:0;width:100%;height:100%;z-index:4;
+  }
+  #grain{
+    position:absolute;inset:0;width:100%;height:100%;z-index:6;
+    opacity:.5;
+    mix-blend-mode:overlay;
+    background-image:
+      radial-gradient(120% 80% at 50% 8%, rgba(255,232,190,.16), rgba(0,0,0,0) 60%),
+      radial-gradient(90% 70% at 50% 104%, rgba(0,0,0,.62), rgba(0,0,0,0) 70%),
+      repeating-linear-gradient(96deg, rgba(255,255,255,.035) 0 1px, rgba(0,0,0,0) 1px 6px);
+  }
+  #vec{
+    position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;
+  }
+  .drift{
+    animation:drift 64s ease-in-out infinite;
+    transform-origin:50% 46%;
+  }
+  @keyframes drift{
+    0%   {transform:translate3d(0,0,0) scale(1.000);}
+    50%  {transform:translate3d(0,-10px,0) scale(1.014);}
+    100% {transform:translate3d(0,0,0) scale(1.000);}
+  }
+  .slowspin{ animation:sp 120s linear infinite; transform-origin:540px 880px; }
+  @keyframes sp{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  #date{
+    position:absolute;left:34px;bottom:26px;z-index:9;
+    font:11px/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.34em;color:rgba(255,238,205,.42);
+    text-transform:uppercase;
+  }
+  #guinea-pig{
+    position:absolute;z-index:7;
+    width:16px;height:auto;
+    left:876px;top:1592px;
+    opacity:.62;
+    transform:rotate(-9deg);
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <canvas id="plates"></canvas>
+  <canvas id="seams"></canvas>
+  <svg id="vec" viewBox="0 0 1080 1920" preserveAspectRatio="none"></svg>
+  <div id="grain"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 08 · 15</div>
+</div>
+</div>
+
+<script>
+/* =====================================================================
+   ONE IDEA: A SHELLED BODY THAT KEEPS RE-PLATING ITSELF.
+   A field of opaque ceramic plates, hex-ish shards, tiles the whole
+   surface. Beneath them is molten seam-material (the video). Plates
+   slowly retract from their neighbours, opening bright seams, then
+   re-close elsewhere — so the "creature" of light beneath is never
+   fully seen, only inferred from where its armour is loosening.
+   Nothing else. No second system.
+   ===================================================================== */
+
+const SEED = 20260815;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const rnd = mulberry(SEED);
+
+const W = 540, H = 960;           // half-res backing store (perf budget)
+const SX = 1080/W;
+
+const plates = document.getElementById('plates');
+const seams  = document.getElementById('seams');
+[plates,seams].forEach(c=>{c.width=W;c.height=H;});
+const pc = plates.getContext('2d');
+const sc = seams.getContext('2d');
+
+/* ---------- build the plate field: jittered lattice -> Voronoi-ish cells
+     computed as clipped polygons via half-plane clipping against neighbours ---------- */
+const sites = [];
+const COLS = 7, ROWS = 13;
+const cw = W/COLS, ch = H/ROWS;
+for(let j=-1;j<=ROWS;j++){
+  for(let i=-1;i<=COLS;i++){
+    const off = (j%2===0)? 0 : cw*0.5;
+    sites.push({
+      x: i*cw + off + (rnd()-0.5)*cw*0.42,
+      y: j*ch + (rnd()-0.5)*ch*0.40
+    });
+  }
+}
+
+function clipPoly(poly, ax, ay, bx, by){
+  // keep half-plane closer to (ax,ay) than (bx,by)
+  const mx=(ax+bx)/2, my=(ay+by)/2;
+  const nx=bx-ax, ny=by-ay;                 // normal points away from a
+  const out=[];
+  const d = p => (p[0]-mx)*nx + (p[1]-my)*ny;   // <0 means inside (a-side)
+  for(let i=0;i<poly.length;i++){
+    const p=poly[i], q=poly[(i+1)%poly.length];
+    const dp=d(p), dq=d(q);
+    if(dp<=0) out.push(p);
+    if((dp<0&&dq>0)||(dp>0&&dq<0)){
+      const t=dp/(dp-dq);
+      out.push([p[0]+(q[0]-p[0])*t, p[1]+(q[1]-p[1])*t]);
+    }
+  }
+  return out;
+}
+
+const PAD = 60;
+const cells = [];
+for(const s of sites){
+  let poly=[[-PAD,-PAD],[W+PAD,-PAD],[W+PAD,H+PAD],[-PAD,H+PAD]];
+  for(const t of sites){
+    if(t===s) continue;
+    const dx=t.x-s.x, dy=t.y-s.y;
+    if(dx*dx+dy*dy > (cw*3.2)*(cw*3.2)) continue;
+    poly = clipPoly(poly, s.x, s.y, t.x, t.y);
+    if(poly.length<3) break;
+  }
+  if(poly.length<3) continue;
+  // centroid
+  let cx=0,cy=0; for(const p of poly){cx+=p[0];cy+=p[1];}
+  cx/=poly.length; cy/=poly.length;
+  if(cx< -30 || cx>W+30 || cy<-30 || cy>H+30) continue;
+
+  // shard subdivision: split each cell into 2-3 wedges from centroid,
+  // giving a hard-edged "carapace scute" family rather than plain cells.
+  cells.push({
+    poly, cx, cy,
+    ph: rnd()*Math.PI*2,
+    sp: 0.055 + rnd()*0.075,
+    amp: 0.055 + rnd()*0.115,
+    tone: rnd(),
+    ridge: rnd()<0.42,
+    band: Math.floor(rnd()*3)
+  });
+}
+
+/* ---------- palette: bone-ceramic armour, ember seams ---------- */
+const bodyPal = [
+  [26,29,38],[34,37,48],[45,47,58],[57,58,68],[20,22,30],[70,68,74]
+];
+const chalk = [232,222,200];
+
+function shade(t, lum){
+  const c = bodyPal[Math.floor(t*bodyPal.length)%bodyPal.length];
+  const k = lum;
+  return `rgb(${Math.round(c[0]*k)},${Math.round(c[1]*k)},${Math.round(c[2]*k)})`;
+}
+
+/* vertical light gradient over the armour (top-lit shell) */
+function lumAt(y){
+  const u = y/H;
+  return 0.55 + 0.95*Math.pow(1-Math.min(1,Math.abs(u-0.30)/0.95), 2.2);
+}
+
+/* ---------- static under-glow strip drawn once (behind plates? no —
+   plates ARE the mask; the video is beneath). We instead pre-render a
+   subtle etched texture for each plate once into an offscreen tile. ---------- */
+const tex = document.createElement('canvas');
+tex.width=64; tex.height=64;
+{
+  const tg=tex.getContext('2d');
+  tg.fillStyle='rgba(0,0,0,0)'; tg.fillRect(0,0,64,64);
+  for(let i=0;i<520;i++){
+    const x=rnd()*64,y=rnd()*64,a=rnd();
+    tg.fillStyle = a<0.5? 'rgba(255,245,225,0.055)':'rgba(0,0,0,0.09)';
+    tg.fillRect(x,y,1,1);
+  }
+  for(let i=0;i<9;i++){
+    tg.strokeStyle='rgba(255,240,215,0.035)';
+    tg.lineWidth=1;
+    tg.beginPath();
+    const yy=rnd()*64;
+    tg.moveTo(0,yy); tg.lineTo(64,yy+ (rnd()-0.5)*6);
+    tg.stroke();
+  }
+}
+const texPat = pc.createPattern(tex,'repeat');
+
+/* =====================================================================
+   RETRACTION WAVE — the motion logic.
+   A slow travelling "loosening" field sweeps the shell. Where the field
+   is high, plates shrink toward their own centroid, opening seams that
+   expose the molten material beneath. The field is a sum of two slow
+   vertical rolls plus a rotating lobe: it never repeats visually fast,
+   and it is periodic so the loop is seamless.
+   ===================================================================== */
+const PERIOD = 46.0; // seconds, exact loop
+function loosen(cx, cy, t){
+  const p = (t/PERIOD)*Math.PI*2;
+  const u = cx/W, v = cy/H;
+  let f = 0;
+  f += Math.sin(v*5.0 - p*2.0 + 0.4);
+  f += 0.85*Math.sin(v*2.1 + u*3.0 - p*1.0);
+  f += 0.7*Math.sin((u*2.4 + v*1.3)*3.1 + p*3.0);
+  f /= 2.55;
+  return f; // -1..1
+}
+
+/* ---------- draw ---------- */
+function polyPath(ctx, poly, cx, cy, k){
+  ctx.beginPath();
+  for(let i=0;i<poly.length;i++){
+    const x = cx + (poly[i][0]-cx)*k;
+    const y = cy + (poly[i][1]-cy)*k;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+}
+
+let t0 = performance.now();
+
+function frame(now){
+  const t = ((now - t0)/1000) % PERIOD;
+
+  /* --- SEAM LAYER: hot rim light around each opening, drawn additively --- */
+  sc.clearRect(0,0,W,H);
+  sc.globalCompositeOperation='source-over';
+
+  /* --- PLATE LAYER: opaque armour --- */
+  pc.clearRect(0,0,W,H);
+
+  for(const c of cells){
+    const f = loosen(c.cx,c.cy,t);
+    const breathe = Math.sin(t*c.sp*2*Math.PI/PERIOD*PERIOD*0.09 + c.ph);
+    // gap: 0 when closed, up to ~0.20 of the cell when loosened
+    const open = Math.max(0, f) ;
+    const gap = 0.012 + open*0.155 + c.amp*0.05*breathe;
+    const k = 1 - gap;
+
+    const lum = lumAt(c.cy);
+    // plates that are loosening tilt very slightly darker (edge-on)
+    const l2 = lum * (1 - open*0.16);
+
+    polyPath(pc, c.poly, c.cx, c.cy, k);
+    pc.fillStyle = shade(c.tone, l2);
+    pc.fill();
+
+    // etched texture inside plate
+    pc.save();
+    pc.clip();
+    pc.fillStyle = texPat;
+    pc.fillRect(0,0,W,H);
+    pc.restore();
+
+    // chalk ridge: a hard bright facet on the upper-left of some plates
+    if(c.ridge){
+      pc.save();
+      polyPath(pc, c.poly, c.cx, c.cy, k);
+      pc.clip();
+      const g = pc.createLinearGradient(c.cx-cw*0.7, c.cy-ch*0.7, c.cx+cw*0.5, c.cy+ch*0.5);
+      g.addColorStop(0, `rgba(${chalk[0]},${chalk[1]},${chalk[2]},${0.20*l2})`);
+      g.addColorStop(0.42,'rgba(255,255,255,0)');
+      pc.fillStyle=g;
+      pc.fillRect(c.cx-cw*1.4, c.cy-ch*1.4, cw*2.8, ch*2.8);
+      pc.restore();
+    }
+
+    // bright hairline on the plate's own border — reads as machined ceramic
+    polyPath(pc, c.poly, c.cx, c.cy, k);
+    pc.lineWidth = 1;
+    pc.strokeStyle = `rgba(240,232,214,${0.10 + 0.30*Math.min(1,l2*0.8)})`;
+    pc.stroke();
+
+    // --- ember rim on the seam side, only where genuinely open ---
+    if(open > 0.08){
+      const a = Math.min(1,(open-0.08)/0.55);
+      polyPath(sc, c.poly, c.cx, c.cy, k+0.012);
+      sc.lineWidth = 1.4 + a*2.6;
+      sc.strokeStyle = `rgba(255,${Math.round(150+70*a)},${Math.round(60+40*a)},${0.16+0.42*a})`;
+      sc.stroke();
+
+      polyPath(sc, c.poly, c.cx, c.cy, k+0.004);
+      sc.lineWidth = 1;
+      sc.strokeStyle = `rgba(255,246,225,${0.10+0.40*a})`;
+      sc.stroke();
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* =====================================================================
+   SVG: the SPINE — a single vertical armature that the plate field is
+   hung from. Hard-edged, symmetric, slow. It is part of the same body,
+   not a separate motif.
+   ===================================================================== */
+const svg = document.getElementById('vec');
+const NS='http://www.w3.org/2000/svg';
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+const defs = el('defs',{});
+defs.innerHTML = `
+  <linearGradient id="spineG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe9c2" stop-opacity="0"/>
+    <stop offset="0.16" stop-color="#ffd79a" stop-opacity="0.85"/>
+    <stop offset="0.55" stop-color="#ff9b48" stop-opacity="0.9"/>
+    <stop offset="0.88" stop-color="#c8531f" stop-opacity="0.5"/>
+    <stop offset="1" stop-color="#c8531f" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="haloG" cx="0.5" cy="0.5" r="0.5">
+    <stop offset="0" stop-color="#ffcf94" stop-opacity="0.30"/>
+    <stop offset="0.55" stop-color="#ff8a3c" stop-opacity="0.10"/>
+    <stop offset="1" stop-color="#ff8a3c" stop-opacity="0"/>
+  </radialGradient>
+  <mask id="fade">
+    <rect x="0" y="0" width="1080" height="1920" fill="url(#fadeG)"/>
+  </mask>
+  <linearGradient id="fadeG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000"/>
+    <stop offset="0.12" stop-color="#fff"/>
+    <stop offset="0.86" stop-color="#fff"/>
+    <stop offset="1" stop-color="#000"/>
+  </linearGradient>
+`;
+svg.appendChild(defs);
+
+// soft halo behind the spine so nothing clips at the edges
+svg.appendChild(el('ellipse',{cx:540,cy:900,rx:520,ry:760,fill:'url(#haloG)'}));
+
+const spine = el('g',{mask:'url(#fade)'});
+svg.appendChild(spine);
+
+// central armature: a chain of hard chevron plates, mirrored, tapering
+const segs = 26;
+for(let i=0;i<segs;i++){
+  const u = i/(segs-1);
+  const y = 120 + u*1680;
+  const wdt = 118 * (0.30 + 0.85*Math.sin(Math.PI*Math.pow(u,0.82)));
+  const hgt = 30 + 16*Math.sin(u*7.0+1.2);
+  const d = `M540 ${y-hgt} L${540+wdt} ${y} L540 ${y+hgt} L${540-wdt} ${y} Z`;
+  const g = el('g',{});
+  g.appendChild(el('path',{d, fill:'none', stroke:'url(#spineG)', 'stroke-width': (1.2 + 2.2*(1-Math.abs(u-0.45)*1.6)).toFixed(2), 'stroke-linejoin':'miter'}));
+  g.appendChild(el('path',{d, fill:'#0b0c12', 'fill-opacity':0.55}));
+  // pulse: each chevron opens slightly, offset down the chain
+  const dur = 46;
+  const an = el('animateTransform',{
+    attributeName:'transform', type:'scale',
+    values:'1 1;1.055 0.96;1 1', dur:dur+'s',
+    begin: (-(u*dur*0.55)).toFixed(2)+'s',
+    repeatCount:'indefinite', additive:'sum', calcMode:'spline',
+    keySplines:'.42 0 .58 1;.42 0 .58 1', keyTimes:'0;0.5;1'
+  });
+  // scale about the chevron centre
+  g.setAttribute('transform-origin', `540 ${y}`);
+  g.appendChild(an);
+  spine.appendChild(g);
+}
+
+// the single eye of the body: one hard ring, the only circle on the page
+const eye = el('g',{});
+eye.appendChild(el('circle',{cx:540,cy:706,r:96,fill:'none',stroke:'#ffd9a2','stroke-opacity':'0.55','stroke-width':'3'}));
+eye.appendChild(el('circle',{cx:540,cy:706,r:70,fill:'#08090e','fill-opacity':'0.72'}));
+eye.appendChild(el('circle',{cx:540,cy:706,r:70,fill:'none',stroke:'#ff9c46','stroke-opacity':'0.85','stroke-width':'6'}));
+eye.appendChild(el('circle',{cx:540,cy:706,r:22,fill:'#fff2d6','fill-opacity':'0.9'}));
+const ea = el('animateTransform',{attributeName:'transform',type:'scale',
+  values:'1 1;1.06 1.06;1 1',dur:'23s',repeatCount:'indefinite',additive:'sum',
+  calcMode:'spline',keySplines:'.4 0 .6 1;.4 0 .6 1',keyTimes:'0;0.5;1'});
+eye.setAttribute('transform-origin','540 706');
+eye.appendChild(ea);
+svg.appendChild(eye);
+
+/* =====================================================================
+   Procedural audio: one low ceramic drone + slow seam creak.
+   Only when not embedded.
+   ===================================================================== */
+if (window.self === window.top){
+  let started=false;
+  const start = ()=>{
+    if(started) return; started=true;
+    try{
+      const AC = window.AudioContext||window.webkitAudioContext;
+      const ac = new AC();
+      const out = ac.createGain(); out.gain.value=0.0; out.connect(ac.destination);
+      out.gain.linearRampToValueAtTime(0.075, ac.currentTime+8);
+
+      // drone: two detuned low sines through a lowpass
+      const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=340; lp.Q.value=0.6;
+      lp.connect(out);
+      [58.27, 87.31, 116.54].forEach((f,i)=>{
+        const o=ac.createOscillator(); o.type= i===2?'triangle':'sine'; o.frequency.value=f*(1+(i-1)*0.0015);
+        const g=ac.createGain(); g.gain.value=[0.5,0.28,0.13][i];
+        o.connect(g); g.connect(lp); o.start();
+        // very slow detune sway
+        const lfo=ac.createOscillator(); lfo.frequency.value=0.021+i*0.007;
+        const lg=ac.createGain(); lg.gain.value=0.9+i*0.5;
+        lfo.connect(lg); lg.connect(o.frequency); lfo.start();
+      });
+
+      // seam breath: filtered noise swelling with the retraction period
+      const len = ac.sampleRate*4;
+      const buf = ac.createBuffer(1,len,ac.sampleRate);
+      const dv = buf.getChannelData(0);
+      let lastv=0;
+      for(let i=0;i<len;i++){ lastv = lastv*0.96 + (Math.random()*2-1)*0.04; dv[i]=lastv*3.2; }
+      const ns = ac.createBufferSource(); ns.buffer=buf; ns.loop=true;
+      const nf = ac.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=520; nf.Q.value=1.1;
+      const ng = ac.createGain(); ng.gain.value=0.0;
+      ns.connect(nf); nf.connect(ng); ng.connect(out); ns.start();
+      const swell = ac.createOscillator(); swell.frequency.value=1/46;
+      const sg = ac.createGain(); sg.gain.value=0.055;
+      const bias = ac.createConstantSource(); bias.offset.value=0.055;
+      swell.connect(sg); sg.connect(ng.gain); bias.connect(ng.gain);
+      swell.start(); bias.start();
+
+      const ff = ac.createOscillator(); ff.frequency.value=1/61;
+      const fg = ac.createGain(); fg.gain.value=190;
+      ff.connect(fg); fg.connect(nf.frequency); ff.start();
+
+      if(ac.state==='suspended') ac.resume();
+    }catch(e){}
+  };
+  window.addEventListener('load', start);
+  setTimeout(start, 700);
+}
+
+/* --- fit stage to viewport --- */
+function fit(){
+  const s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+  document.getElementById('stage').style.transform = 'scale('+s+')';
+}
+window.addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>
