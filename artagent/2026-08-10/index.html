@@ -333,22 +333,27 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     x.globalCompositeOperation="lighter";
     // Bloom envelope: quick out, slow settle — the opening explosion in
     // miniature. Zero at both ends, so a bloom starts and lands soft.
-    let amp=0, ph=0;
-    if(bt0>=0){
-      ph=(t-bt0)/bdur;
-      if(ph>=1) bt0=-1;
-      else amp=bamp*(ph<0.32 ? Math.sin(ph/0.32*Math.PI/2)
-                             : Math.cos((ph-0.32)/0.68*Math.PI/2));
-    }
+    let ph=-1;
+    if(bt0>=0){ ph=(t-bt0)/bdur; if(ph>=1){ bt0=-1; ph=-1; } }
     for(let i=0;i<N;i++){
       const o=i*4;
       let px=P[o], py=P[o+1];
-      if(amp>0&&bf[i]){
-        // bd is (angle, reach). Shearing the angle by reach — the near ones
-        // swinging further round than the far ones — winds each arm into a
-        // strand on the way out and keeps it turning as it draws back in.
-        const m=bd[i*2+1], a=bd[i*2]+bspin*ph*(1.55-m);
-        px+=Math.cos(a)*m*amp; py+=Math.sin(a)*m*amp;
+      if(ph>=0&&bf[i]){
+        // Every particle runs its own envelope a little behind its neighbours,
+        // so the cloud billows out rather than pulsing as one rigid shell. All
+        // the offsets still reach zero at ph=1, so nothing is left stranded.
+        const b=i*4, q=(ph-bd[b+2])/(1-bd[b+2]);
+        if(q>0){
+          const amp=bamp*(q<0.32 ? Math.sin(q/0.32*Math.PI/2)
+                                 : Math.cos((q-0.32)/0.68*Math.PI/2));
+          // Shearing the angle — the near ones swinging further round than the
+          // far ones — winds each arm into a strand on the way out and keeps it
+          // turning as it draws back in. Then squashed and tilted, so a shell
+          // reads as an orbit seen from somewhere other than straight on.
+          const a=bd[b]+bspin*ph*bd[b+3], r=bd[b+1]*amp;
+          const lx=Math.cos(a)*r, ly=Math.sin(a)*r*becc;
+          px+=lx*bcos-ly*bsin; py+=lx*bsin+ly*bcos;
+        }
       }
       const sp=Math.min(1,(Math.abs(P[o+2])+Math.abs(P[o+3]))*0.42);
       x.fillStyle=COLS[col[i]]+(0.22+sp*0.5).toFixed(2)+")";
@@ -373,9 +378,9 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
   // a few bursts drain the six-fold ring into the middle.
   const BAMP=44, BDUR=3400, BSEL=52*52;
   const bf=new Uint8Array(N);      // 1 = part of the bloom currently running
-  const bd=new Float32Array(N*2);  // per particle: angle, reach
+  const bd=new Float32Array(N*4);  // per particle: angle, reach, delay, shear
   let nextBurst=23000+rnd()*9000, lastK=-1, bk=0, bt0=-1;
-  let bamp=BAMP, bdur=BDUR, bspin=0;
+  let bamp=BAMP, bdur=BDUR, bspin=0, becc=1, bcos=1, bsin=0;
   function burst(t){
     // Count by nearest node, so a bloom only ever fires on a point that still
     // holds a cloud and is therefore visible.
@@ -394,29 +399,44 @@ const PAL=["#e5563b","#db3a28","#f0b452","#7fd8cf","#34a8a6","#f0dec0","#b6631f"
     bk=cand[(rnd()*cand.length)|0]; lastK=bk; bt0=t;
     // The core holds some 40% of every particle, so when its turn comes it is
     // the big event: wider, slower, and spun into orbiting strands. A ring
-    // point just opens and shuts. Vary both, or the six look mechanical.
+    // point just opens and shuts. Every figure below is re-rolled per burst —
+    // pin any of them and the six start to look like a mechanism.
     const core=bk===6;
-    bamp=BAMP*(core ? 1.5+rnd()*0.35 : 0.68+rnd()*0.6);
-    bdur=BDUR*(core ? 1.3+rnd()*0.3  : 0.85+rnd()*0.45);
-    bspin=core ? 1.2+rnd()*0.5 : 0;
-    const A=attr[bk];
-    // Arms leave along the six points, so the core throws its strands at its
-    // own satellites instead of into the gaps between them.
+    bamp=BAMP*(core ? 1.45+rnd()*0.5 : 0.6+rnd()*0.8);
+    bdur=BDUR*(core ? 1.25+rnd()*0.45 : 0.8+rnd()*0.6);
+    bspin=core ? 0.9+rnd()*1.3 : 0.15+rnd()*0.5;
+    becc=core ? 0.34+rnd()*0.62 : 0.72+rnd()*0.28;
+    const th=rnd()*Math.PI; bcos=Math.cos(th); bsin=Math.sin(th);
+    // The core is the atomic one: two or three discrete shells, each shearing
+    // at its own rate, so they turn past one another as they go. Six arms leave
+    // along the six points — the core throwing strands at its own satellites
+    // rather than into the gaps — and any other count leaves where it likes.
+    const nsh=2+((rnd()*2)|0), aph=rnd()*Math.PI*2;
+    const narm=[3,4,5,6,6,6][(rnd()*6)|0];
     const arms=[];
-    if(core) for(let j=0;j<6;j++) arms.push(Math.atan2(attr[j].y-CY, attr[j].x-CX));
+    if(core&&narm===6)
+      for(let j=0;j<6;j++) arms.push(Math.atan2(attr[j].y-CY, attr[j].x-CX));
+    const take=0.62+rnd()*0.38;  // and sometimes only part of the point goes
+    const A=attr[bk];
     for(let i=0;i<N;i++){
       const o=i*4, dx=P[o]-A.x, dy=P[o+1]-A.y, d2=dx*dx+dy*dy;
-      if(d2>=BSEL){ bf[i]=0; continue; }
+      if(d2>=BSEL || rnd()>take){ bf[i]=0; continue; }
       bf[i]=1;
+      const b=i*4;
       // A settled node holds its cloud within a pixel or two — that is the
       // white point the piece resolves into — so there is no outward direction
       // to borrow from a particle's position. Give each one its own, keeping
       // the real direction where there still is one so stragglers fly true.
       // Arm roots stay tight — the shear is what gives a strand its length, so
       // scattering the root as well just smears the six back into a disc.
-      bd[i*2] = core ? arms[(rnd()*6)|0]+(rnd()-0.5)*0.22
-                     : (d2>16 ? Math.atan2(dy,dx) : rnd()*Math.PI*2);
-      bd[i*2+1] = 0.55+rnd()*0.9;
+      if(core) bd[b]=(narm===6 ? arms[(rnd()*6)|0]
+                               : aph+((rnd()*narm)|0)*(Math.PI*2/narm))
+                     + (rnd()-0.5)*0.22;
+      else     bd[b]= d2>16 ? Math.atan2(dy,dx) : rnd()*Math.PI*2;
+      bd[b+1]= core ? 0.5+((rnd()*nsh)|0)*(0.9/(nsh-1))+(rnd()-0.5)*0.12
+                    : 0.55+rnd()*0.9;
+      bd[b+2]= rnd()*0.22;                        // its own late start
+      bd[b+3]= (1.55-bd[b+1])*(0.75+rnd()*0.5);   // and its own rate of shear
     }
     nextBurst=t+16000+rnd()*26000;
   }
