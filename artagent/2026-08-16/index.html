@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Rainstorm</title>
+<style>
+  html,body{margin:0;padding:0;background:#0b0e12;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    background:#12161c;
+    overflow:hidden;
+  }
+  /* ---- base field: a single quiet vertical gradient, wet grey ---- */
+  #field{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,
+        #1a2028 0%,
+        #212a33 26%,
+        #2a343e 48%,
+        #232c35 58%,
+        #171d24 68%,
+        #101519 100%);
+  }
+  /* horizon: one hard minimal line, the only "structure" */
+  #horizon{
+    position:absolute;left:0;right:0;top:58%;height:1px;
+    background:linear-gradient(90deg,rgba(226,232,240,0) 0%,rgba(226,232,240,.55) 18%,rgba(226,232,240,.75) 50%,rgba(226,232,240,.55) 82%,rgba(226,232,240,0) 100%);
+  }
+  /* the one bold minimal gesture: a pale disc of light behind the rain */
+  #disc{
+    position:absolute;left:50%;top:34%;
+    width:44%;aspect-ratio:1;border-radius:50%;
+    transform:translate(-50%,-50%) scale(1);
+    background:radial-gradient(circle at 50% 50%,
+      rgba(233,240,247,.30) 0%,
+      rgba(210,224,238,.16) 42%,
+      rgba(180,200,220,.06) 66%,
+      rgba(180,200,220,0) 78%);
+    animation:discBreathe 34s ease-in-out infinite;
+  }
+  @keyframes discBreathe{
+    0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.85}
+    50%{transform:translate(-50%,-50%) scale(1.09);opacity:1}
+  }
+  /* video: the storm itself, one ingredient, masked into the sky band */
+  #background-video{
+    position:absolute;left:-6%;top:-4%;width:112%;height:74%;
+    object-fit:cover;opacity:.78;
+    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.55) 10%,rgba(0,0,0,1) 34%,rgba(0,0,0,.9) 72%,rgba(0,0,0,0) 97%),
+                        linear-gradient(90deg,rgba(0,0,0,0) 0%,rgba(0,0,0,1) 12%,rgba(0,0,0,1) 88%,rgba(0,0,0,0) 100%);
+    -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.55) 10%,rgba(0,0,0,1) 34%,rgba(0,0,0,.9) 72%,rgba(0,0,0,0) 97%),
+               linear-gradient(90deg,rgba(0,0,0,0) 0%,rgba(0,0,0,1) 12%,rgba(0,0,0,1) 88%,rgba(0,0,0,0) 100%);
+    mask-composite:intersect;
+  }
+  /* rain + puddles canvas (low-res backing store, CSS-scaled) */
+  #rain{
+    position:absolute;inset:0;width:100%;height:100%;display:block;
+  }
+  /* slow ambient illumination — NO flashing: long ease glows only */
+  #glow{
+    position:absolute;left:-20%;top:-30%;width:140%;height:120%;
+    background:radial-gradient(ellipse at 62% 22%,
+      rgba(219,232,246,.22) 0%,
+      rgba(196,214,236,.10) 34%,
+      rgba(160,185,215,0) 62%);
+    opacity:0;
+    animation:ambient 46s ease-in-out infinite;
+  }
+  @keyframes ambient{
+    0%{opacity:0}
+    22%{opacity:0}
+    38%{opacity:.55}
+    52%{opacity:.18}
+    64%{opacity:.42}
+    82%{opacity:0}
+    100%{opacity:0}
+  }
+  /* single blended overlay (only one mix-blend-mode full-viewport element) */
+  #grain{
+    position:absolute;inset:0;
+    mix-blend-mode:overlay;
+    opacity:.30;
+    background-image:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.045) 0px, rgba(255,255,255,.045) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 3px),
+      radial-gradient(ellipse at 50% 46%, rgba(255,255,255,.10) 0%, rgba(0,0,0,0) 55%),
+      radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 52%, rgba(0,0,0,.55) 100%);
+  }
+  #svgl{position:absolute;inset:0;width:100%;height:100%;}
+  #date{
+    position:absolute;left:22px;bottom:20px;
+    font:300 11px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.34em;color:rgba(226,236,246,.42);
+  }
+  #guinea-pig{
+    position:absolute;width:17px;left:12.5%;bottom:6.4%;
+    opacity:.6;filter:brightness(.85) saturate(.6);
+    transform:rotate(-6deg);
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="field"></div>
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <div id="disc"></div>
+  <div id="horizon"></div>
+  <canvas id="rain"></canvas>
+
+  <svg id="svgl" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0d1116" stop-opacity="0.0"/>
+        <stop offset="0.35" stop-color="#0d1116" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="#080a0d" stop-opacity="0.92"/>
+      </linearGradient>
+      <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#e6eef8" stop-opacity="0.30"/>
+        <stop offset="1" stop-color="#e6eef8" stop-opacity="0.0"/>
+      </linearGradient>
+      <radialGradient id="fade" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0.55" stop-color="#fff" stop-opacity="1"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="edgeMask">
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#fade)"/>
+      </mask>
+    </defs>
+    <!-- wet ground plane: a single flat field, minimal -->
+    <rect x="0" y="1114" width="1080" height="806" fill="url(#pg)"/>
+    <!-- three still puddles: pure ellipses, the only forms below the line -->
+    <g mask="url(#edgeMask)">
+      <ellipse id="p1" cx="380" cy="1420" rx="300" ry="52" fill="#1d252e" opacity="0.95"/>
+      <ellipse cx="380" cy="1420" rx="300" ry="52" fill="url(#sheen)" opacity="0.5"/>
+      <ellipse id="p2" cx="810" cy="1610" rx="230" ry="40" fill="#1a222a" opacity="0.95"/>
+      <ellipse cx="810" cy="1610" rx="230" ry="40" fill="url(#sheen)" opacity="0.42"/>
+      <ellipse id="p3" cx="470" cy="1800" rx="360" ry="58" fill="#161d24" opacity="0.95"/>
+      <ellipse cx="470" cy="1800" rx="360" ry="58" fill="url(#sheen)" opacity="0.34"/>
+    </g>
+  </svg>
+
+  <div id="glow"></div>
+  <div id="grain"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 08 · 16</div>
+</div>
+
+<script>
+(function(){
+  // ---------- date seed ----------
+  const DATE = "2026-08-16";
+  let h = 2166136261;
+  for (let i=0;i<DATE.length;i++){ h ^= DATE.charCodeAt(i); h = Math.imul(h, 16777619); }
+  let s = h >>> 0;
+  function rnd(){ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; }
+
+  const cv = document.getElementById('rain');
+  const W = 540, H = 960;            // low-res backing store, CSS-scaled
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+
+  const HORIZON = H*0.58;
+  // puddle definitions in canvas space (match SVG ellipses / 2)
+  const PUD = [
+    {x:190, y:710, rx:150, ry:26},
+    {x:405, y:805, rx:115, ry:20},
+    {x:235, y:900, rx:180, ry:29}
+  ];
+
+  // rain angle, seeded slightly per-day
+  const ANG = -0.16 + rnd()*0.12;      // radians from vertical
+  const dxdy = Math.tan(ANG);
+
+  // ---------- rain streaks ----------
+  const N = 150;
+  const drops = [];
+  for (let i=0;i<N;i++){
+    const depth = rnd();                       // 0 far .. 1 near
+    drops.push({
+      x: rnd()*(W+140)-70,
+      y: rnd()*H,
+      d: depth,
+      len: 26 + depth*70,
+      sp: 5.2 + depth*11,
+      a: 0.10 + depth*0.42,
+      w: depth>0.72 ? 1.6 : (depth>0.4 ? 1.1 : 0.7)
+    });
+  }
+
+  // ---------- ripples ----------
+  const ripples = [];
+  function spawnRipple(){
+    const p = PUD[(Math.random()*PUD.length)|0];
+    const t = Math.random()*Math.PI*2;
+    const r = Math.sqrt(Math.random());
+    ripples.push({
+      x: p.x + Math.cos(t)*p.rx*r*0.92,
+      y: p.y + Math.sin(t)*p.ry*r*0.92,
+      r: 1.2, max: 14 + Math.random()*30,
+      sq: p.ry/p.rx, life: 0
+    });
+    if (ripples.length > 90) ripples.shift();
+  }
+
+  let last = performance.now(), acc = 0, spawnAcc = 0;
+  const STEP = 1000/60;
+
+  function step(){
+    // rain
+    for (const d of drops){
+      d.y += d.sp;
+      d.x += d.sp*dxdy;
+      if (d.y > H+40 || d.x < -90 || d.x > W+90){
+        d.y = -40 - Math.random()*80;
+        d.x = Math.random()*(W+160)-80;
+      }
+    }
+    // ripples
+    for (let i=ripples.length-1;i>=0;i--){
+      const R = ripples[i];
+      R.r += 0.42;
+      R.life = R.r / R.max;
+      if (R.life >= 1) ripples.splice(i,1);
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // --- rain streaks: straight hard lines only ---
+    ctx.lineCap = 'butt';
+    for (const d of drops){
+      // fade streaks that fall over the far distance
+      let a = d.a;
+      if (d.y < HORIZON*0.35) a *= (d.y/(HORIZON*0.35))*0.9;
+      ctx.strokeStyle = 'rgba(228,238,250,'+a.toFixed(3)+')';
+      ctx.lineWidth = d.w;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.len*dxdy, d.y - d.len);
+      ctx.stroke();
+    }
+
+    // --- ripples: concentric squashed rings inside puddles ---
+    ctx.lineWidth = 1;
+    for (const R of ripples){
+      const a = (1 - R.life) * 0.5;
+      if (a <= 0.01) continue;
+      ctx.strokeStyle = 'rgba(214,231,247,'+a.toFixed(3)+')';
+      ctx.beginPath();
+      ctx.ellipse(R.x, R.y, R.r, Math.max(0.6,R.r*R.sq), 0, 0, Math.PI*2);
+      ctx.stroke();
+      if (R.r > 9){
+        ctx.strokeStyle = 'rgba(214,231,247,'+(a*0.45).toFixed(3)+')';
+        ctx.beginPath();
+        ctx.ellipse(R.x, R.y, R.r*0.58, Math.max(0.5,R.r*0.58*R.sq), 0, 0, Math.PI*2);
+        ctx.stroke();
+      }
+    }
+
+    // --- pale vertical reflections of the disc in each puddle (structural) ---
+    for (const p of PUD){
+      const g = ctx.createLinearGradient(p.x, p.y-p.ry, p.x, p.y+p.ry);
+      g.addColorStop(0,'rgba(226,238,250,0.10)');
+      g.addColorStop(1,'rgba(226,238,250,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.rx*0.34, p.ry*0.85, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function frame(now){
+    let dt = now - last; last = now;
+    if (dt > 100) dt = 100;
+    acc += dt;
+    let n = 0;
+    while (acc >= STEP && n < 2){ step(); acc -= STEP; n++; }
+    if (acc > STEP) acc = 0;
+
+    spawnAcc += dt;
+    while (spawnAcc > 55){ spawnRipple(); spawnAcc -= 55; }
+
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------- puddle surface breathing (SVG transform only) ----------
+  const ps = [document.getElementById('p1'),document.getElementById('p2'),document.getElementById('p3')];
+  ps.forEach((el,i)=>{
+    el.style.transformOrigin = 'center';
+    el.animate(
+      [{opacity:0.9},{opacity:1},{opacity:0.9}],
+      {duration: 21000 + i*4300, iterations: Infinity, easing:'ease-in-out'}
+    );
+  });
+
+  // ---------- procedural audio: low rain drone (direct view only) ----------
+  if (window.self === window.top){
+    let started = false;
+    const start = ()=>{
+      if (started) return; started = true;
+      try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ac = new AC();
+        // pink-ish noise buffer
+        const len = ac.sampleRate * 4;
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const ch = buf.getChannelData(0);
+        let b0=0,b1=0,b2=0;
+        for (let i=0;i<len;i++){
+          const w = Math.random()*2-1;
+          b0 = 0.99765*b0 + w*0.0990460;
+          b1 = 0.96300*b1 + w*0.2965164;
+          b2 = 0.57000*b2 + w*1.0526913;
+          ch[i] = (b0+b1+b2+w*0.1848)*0.16;
+        }
+        const src = ac.createBufferSource();
+        src.buffer = buf; src.loop = true;
+
+        const lp = ac.createBiquadFilter();
+        lp.type='lowpass'; lp.frequency.value=1150; lp.Q.value=0.6;
+        const hp = ac.createBiquadFilter();
+        hp.type='highpass'; hp.frequency.value=180;
+
+        const g = ac.createGain(); g.gain.value = 0.0;
+        src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(ac.destination);
+        src.start();
+        g.gain.linearRampToValueAtTime(0.09, ac.currentTime + 6);
+
+        // slow swell of the storm, matching the 46s ambient cycle
+        const lfo = ac.createOscillator();
+        lfo.frequency.value = 1/46;
+        const lg = ac.createGain(); lg.gain.value = 0.035;
+        lfo.connect(lg); lg.connect(g.gain); lfo.start();
+
+        const flfo = ac.createOscillator();
+        flfo.frequency.value = 1/31;
+        const fg = ac.createGain(); fg.gain.value = 320;
+        flfo.connect(fg); fg.connect(lp.frequency); flfo.start();
+      }catch(e){}
+    };
+    start();
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) start(); });
+  }
+})();
+</script>
+</body>
+</html>
