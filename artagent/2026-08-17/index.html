@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>17 VIII 2026</title>
+<style>
+  html,body{margin:0;padding:0;background:#0b0b0d;overflow:hidden;height:100%;}
+  body{display:flex;align-items:center;justify-content:center;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    overflow:hidden;
+    background:#3a2a1e;
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:auto;} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:auto;} }
+
+  /* continuous painted field pulled from the image's own hues */
+  #field{
+    position:absolute;inset:-4%;
+    background:
+      radial-gradient(ellipse 70% 45% at 50% 34%, rgba(226,182,120,0.55), rgba(226,182,120,0) 70%),
+      radial-gradient(ellipse 90% 60% at 18% 88%, rgba(120,54,38,0.75), rgba(120,54,38,0) 72%),
+      radial-gradient(ellipse 85% 55% at 88% 10%, rgba(58,74,84,0.8), rgba(58,74,84,0) 70%),
+      linear-gradient(178deg,#4a3524 0%,#6d4a2c 26%,#8a5a34 52%,#5a3c28 76%,#2d2119 100%);
+  }
+
+  #scene-image{
+    position:absolute;
+    left:-2%;top:-2%;width:104%;height:104%;
+    object-fit:cover;
+    object-position:50% 42%;
+    opacity:0.97;
+    animation:drift 68s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 78% 74% at 50% 46%, #000 62%, rgba(0,0,0,0.86) 78%, rgba(0,0,0,0.35) 92%, rgba(0,0,0,0) 100%);
+            mask-image:radial-gradient(ellipse 78% 74% at 50% 46%, #000 62%, rgba(0,0,0,0.86) 78%, rgba(0,0,0,0.35) 92%, rgba(0,0,0,0) 100%);
+  }
+  @keyframes drift{
+    0%{transform:scale(1.015) translate(0,0);}
+    50%{transform:scale(1.04) translate(-0.6%,-0.9%);}
+    100%{transform:scale(1.015) translate(0,0);}
+  }
+
+  /* torn-paper strata: filled shapes in the same ochre/slate palette, drifting past the figure */
+  .strat{position:absolute;will-change:transform;}
+
+  #cut{position:absolute;inset:0;width:100%;height:100%;}
+
+  /* single blended layer: paste grain + soft press */
+  #grain{
+    position:absolute;inset:0;
+    mix-blend-mode:soft-light;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,236,200,0.20), rgba(255,236,200,0) 40%),
+      radial-gradient(circle at 78% 74%, rgba(30,22,18,0.30), rgba(30,22,18,0) 46%);
+    opacity:0.9;
+  }
+
+  #letters{position:absolute;inset:0;width:100%;height:100%;}
+
+  #guinea-pig{
+    position:absolute;
+    width:17px;
+    left:88.5%;top:90.2%;
+    opacity:0.6;
+    transform:rotate(-8deg);
+    filter:sepia(0.35) saturate(0.8) brightness(0.85);
+  }
+
+  #date{
+    position:absolute;left:26px;bottom:22px;
+    font:600 15px/1 "Courier New",monospace;
+    letter-spacing:0.28em;
+    color:rgba(28,20,14,0.62);
+    text-transform:uppercase;
+    mix-blend-mode:normal;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="field"></div>
+  <img id="scene-image" src="scene.png" alt="">
+  <canvas id="cut" width="540" height="960"></canvas>
+  <svg id="letters" viewBox="0 0 540 960" preserveAspectRatio="none"></svg>
+  <div id="grain"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 08 · 17</div>
+</div>
+
+<script>
+/* ============================================================
+   ONE IDEA: "THE CUT-OUT ARCHIVE IS BEING RE-FILED."
+   The figure in the image is treated as a specimen sheet in an
+   absurd bureaucratic archive. Torn ochre paper strata slide
+   across the sheet like filing cards being drawn and replaced,
+   stamped letterforms rotate into place as catalogue marks,
+   and a single beetle — the archive's clerk — crawls a slow
+   circuit over the sheet, dragging a paper scrap behind it.
+   Everything is paper, ink stamp, and torn edge. Nothing else.
+   ============================================================ */
+
+/* ---------- date seed ---------- */
+const DATE = "2026-08-17";
+let s = 0; for (let i=0;i<DATE.length;i++) s = (s*131 + DATE.charCodeAt(i)) >>> 0;
+function rnd(){ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; }
+const R = (a,b)=>a+(b-a)*rnd();
+const RI = (a,b)=>Math.floor(R(a,b+1));
+
+/* palette pulled from the painted field: ochre, burnt sienna, slate, bone, ink */
+const PAL = ["#c9873f","#e2b678","#8a4a2c","#5c3a24","#3a4a54","#e8dcc0","#1d1713","#b0442c"];
+
+/* =========================================================
+   LAYER 1 — torn paper strata (DOM, transform-only motion)
+   Filed cards drawn across the sheet. Hard-edged polygons,
+   no curves, no random floating rectangles: each is a torn
+   band anchored to an edge, spanning past the frame so the
+   image rectangle dissolves into them.
+   ========================================================= */
+const stage = document.getElementById('stage');
+
+function tornPoly(w,h,side,rough){
+  // side: 'top'|'bottom' — which long edge is torn
+  const pts=[];
+  const steps=14;
+  if(side==='bottom'){
+    pts.push('0% 0%','100% 0%');
+    for(let i=steps;i>=0;i--){
+      const x=(i/steps)*100;
+      const y=100 - Math.abs(Math.sin(i*1.7+rough))*rough*4 - rnd()*rough*3;
+      pts.push(x.toFixed(2)+'% '+y.toFixed(2)+'%');
+    }
+  } else {
+    for(let i=0;i<=steps;i++){
+      const x=(i/steps)*100;
+      const y=Math.abs(Math.cos(i*1.3+rough))*rough*4 + rnd()*rough*3;
+      pts.push(x.toFixed(2)+'% '+y.toFixed(2)+'%');
+    }
+    pts.push('100% 100%','0% 100%');
+  }
+  return 'polygon('+pts.join(',')+')';
+}
+
+const STRATA=[
+  // y%, h%, colour, opacity, travel px, dur s, side
+  {y:-3,  h:13, c:"#5c3a24", o:0.92, t: 70, d:74, side:'bottom'},
+  {y: 9,  h: 6, c:"#c9873f", o:0.70, t:-95, d:58, side:'bottom'},
+  {y:76,  h:16, c:"#8a4a2c", o:0.88, t: 88, d:66, side:'top'},
+  {y:88,  h:16, c:"#3a2a1e", o:0.95, t:-62, d:82, side:'top'},
+  {y:52,  h: 4, c:"#e8dcc0", o:0.55, t:120, d:48, side:'bottom'}
+];
+
+STRATA.forEach((st,i)=>{
+  const el=document.createElement('div');
+  el.className='strat';
+  el.style.left='-14%';
+  el.style.width='128%';
+  el.style.top=st.y+'%';
+  el.style.height=st.h+'%';
+  el.style.background=st.c;
+  el.style.opacity=st.o;
+  el.style.clipPath=tornPoly(0,0,st.side,R(0.8,1.6));
+  el.style.animation=`slide${i} ${st.d}s ease-in-out infinite`;
+  stage.appendChild(el);
+  const kf=document.createElement('style');
+  kf.textContent=`@keyframes slide${i}{
+    0%{transform:translate3d(0,0,0);}
+    50%{transform:translate3d(${st.t}px,${(i%2?4:-4)}px,0);}
+    100%{transform:translate3d(0,0,0);}
+  }`;
+  document.head.appendChild(kf);
+});
+
+/* =========================================================
+   LAYER 2 — SVG stamped catalogue marks
+   Typographic chaos, Dada-style: rotated stamp blocks with
+   filing numbers seeded by the date. Slow rotation into place.
+   ========================================================= */
+const svg=document.getElementById('letters');
+const NS='http://www.w3.org/2000/svg';
+
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+const defs=el('defs',{});
+svg.appendChild(defs);
+
+const marks=[
+  {x:64, y:118, txt:"ENTRY", size:30, rot:-9,  col:"#1d1713", op:0.80, w:800},
+  {x:64, y:150, txt:"№ 17·VIII", size:44, rot:-9, col:"#b0442c", op:0.92, w:800},
+  {x:400,y:96,  txt:"RE—FILED", size:20, rot:7,   col:"#e8dcc0", op:0.78, w:700},
+  {x:36, y:806, txt:"SPECIMEN", size:26, rot:2,   col:"#e8dcc0", op:0.72, w:800},
+  {x:36, y:840, txt:"SHEET  0 8 · 2 6", size:18, rot:2, col:"#e2b678", op:0.66, w:600},
+  {x:352,y:882, txt:"NOT / YET", size:24, rot:-4, col:"#1d1713", op:0.7, w:800},
+  {x:452,y:520, txt:"DA", size:52, rot:-90, col:"#3a4a54", op:0.6, w:800}
+];
+marks.forEach((m,i)=>{
+  const g=el('g',{transform:`translate(${m.x} ${m.y}) rotate(${m.rot})`});
+  const t=el('text',{x:0,y:0,fill:m.col,'font-family':'"Courier New",monospace',
+    'font-size':m.size,'font-weight':m.w,'letter-spacing':m.size*0.10,opacity:m.op});
+  t.textContent=m.txt;
+  g.appendChild(t);
+  svg.appendChild(g);
+  // slow settle: tiny rotation oscillation about its own anchor
+  const amp=(i%2?1:-1)*(1.1+ (i%3)*0.5);
+  const dur=(30+i*7);
+  const an=el('animateTransform',{
+    attributeName:'transform',type:'rotate',
+    values:`${m.rot};${m.rot+amp};${m.rot}`,
+    dur:dur+'s',repeatCount:'indefinite',additive:'sum'
+  });
+  // additive rotate needs its own group to avoid clobbering translate
+  const inner=el('g',{});
+  while(g.firstChild) inner.appendChild(g.firstChild);
+  inner.appendChild(an);
+  g.appendChild(inner);
+});
+
+/* stamped filing bars — solid ink blocks, hard-edged */
+[[30,166,168,7,"#1d1713",0.85],[30,178,96,4,"#b0442c",0.8],
+ [352,908,156,6,"#1d1713",0.7],[452,60,60,5,"#e8dcc0",0.6]].forEach(b=>{
+  svg.appendChild(el('rect',{x:b[0],y:b[1],width:b[2],height:b[3],fill:b[4],opacity:b[5]}));
+});
+
+/* a torn corner tab (filled triangle) that reads as paper, not ornament */
+svg.appendChild(el('polygon',{points:'540,0 540,86 452,0',fill:'#e8dcc0',opacity:'0.5'}));
+svg.appendChild(el('polygon',{points:'0,960 0,884 92,960',fill:'#3a2a1e',opacity:'0.6'}));
+
+/* =========================================================
+   LAYER 3 — canvas: THE CLERK
+   A single beetle crawls a slow closed circuit across the
+   sheet, dragging a torn paper scrap. Its path leaves faint
+   ink stamp marks that fade — the archive being re-filed.
+   Canvas is 540x960 (half res), scaled by CSS.
+   ========================================================= */
+const cv=document.getElementById('cut');
+const ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+
+/* closed circuit: a lemniscate-ish loop, sampled — beetle path only */
+const A=RI(150,185), B=RI(230,275);
+const CX=270+RI(-18,18), CY=470+RI(-30,30);
+function pathAt(u){ // u in [0,1)
+  const th=u*Math.PI*2;
+  const d=1+Math.sin(th)*Math.sin(th);
+  return {
+    x: CX + A*Math.cos(th)/d,
+    y: CY + B*Math.sin(th)*Math.cos(th)/d
+  };
+}
+
+/* fading stamp trail */
+const stamps=[];
+let lastStamp=-1;
+
+/* offscreen: pre-rendered beetle (drawn once, blitted rotated) */
+const BW=54,BH=54;
+const bug=document.createElement('canvas'); bug.width=BW; bug.height=BH;
+(function drawBeetle(){
+  const c=bug.getContext('2d');
+  c.translate(BW/2,BH/2);
+  // legs — thick tapered ink strokes (short, structural, not squiggles)
+  c.strokeStyle="#1d1713"; c.lineCap='round';
+  const legs=[[-7,-9,-19,-17],[-1,-11,-6,-22],[7,-8,18,-16],[-7,9,-19,17],[-1,11,-6,22],[7,8,18,16]];
+  legs.forEach(l=>{c.lineWidth=2.6;c.beginPath();c.moveTo(l[0],l[1]);c.lineTo(l[2],l[3]);c.stroke();});
+  // elytra: filled oval body, ochre with ink split line
+  c.fillStyle="#1d1713";
+  c.beginPath(); c.ellipse(1,0,13,9.5,0,0,Math.PI*2); c.fill();
+  c.fillStyle="#c9873f";
+  c.beginPath(); c.ellipse(2,0,11.4,8.2,0,0,Math.PI*2); c.fill();
+  c.fillStyle="#8a4a2c";
+  c.beginPath(); c.ellipse(2,0,11.4,8.2,0,-Math.PI/2,Math.PI/2); c.fill();
+  c.strokeStyle="#1d1713"; c.lineWidth=1.6;
+  c.beginPath(); c.moveTo(-8.5,0); c.lineTo(13,0); c.stroke();
+  // pronotum + head
+  c.fillStyle="#1d1713";
+  c.beginPath(); c.ellipse(-9.5,0,5.4,6.6,0,0,Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(-15.5,0,3.6,3.9,0,0,Math.PI*2); c.fill();
+  // antennae
+  c.strokeStyle="#1d1713"; c.lineWidth=1.7;
+  c.beginPath(); c.moveTo(-17,-2); c.lineTo(-25,-7); c.stroke();
+  c.beginPath(); c.moveTo(-17,2);  c.lineTo(-25,7);  c.stroke();
+  // bone highlight
+  c.fillStyle="rgba(232,220,192,0.55)";
+  c.beginPath(); c.ellipse(0,-4,5,2.1,-0.3,0,Math.PI*2); c.fill();
+})();
+
+/* the dragged scrap — a small torn quad, filled */
+function drawScrap(x,y,ang,ph){
+  ctx.save();
+  ctx.translate(x,y); ctx.rotate(ang+Math.sin(ph)*0.14);
+  ctx.fillStyle="rgba(232,220,192,0.88)";
+  ctx.beginPath();
+  ctx.moveTo(0,-8); ctx.lineTo(26,-13); ctx.lineTo(31,4); ctx.lineTo(21,11);
+  ctx.lineTo(8,6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle="rgba(29,23,19,0.85)";
+  ctx.fillRect(7,-6,17,2.2);
+  ctx.fillRect(7,-1,11,2.2);
+  ctx.restore();
+}
+
+let t0=performance.now();
+const LOOP=96000; // 96s per circuit — glacial
+
+function frame(now){
+  const el=(now-t0)%LOOP;
+  const u=el/LOOP;
+  const p=pathAt(u);
+  const p2=pathAt((u+0.0022)%1);
+  const ang=Math.atan2(p2.y-p.y,p2.x-p.x);
+
+  // periodic stamp deposits along the circuit
+  const slot=Math.floor(u*44);
+  if(slot!==lastStamp){
+    lastStamp=slot;
+    stamps.push({x:p.x,y:p.y,r:RI(7,15),a:1,rot:R(0,Math.PI),k:RI(0,2)});
+    if(stamps.length>26) stamps.shift();
+  }
+
+  ctx.clearRect(0,0,W,H);
+
+  // stamp marks: hard-edged ink blocks / rings, fading
+  for(const st of stamps){
+    st.a-=0.0016;
+    if(st.a<=0) continue;
+    ctx.save();
+    ctx.translate(st.x,st.y); ctx.rotate(st.rot);
+    if(st.k===0){
+      ctx.strokeStyle=`rgba(176,68,44,${st.a*0.55})`;
+      ctx.lineWidth=2.4;
+      ctx.beginPath(); ctx.arc(0,0,st.r,0,Math.PI*2); ctx.stroke();
+    } else if(st.k===1){
+      ctx.fillStyle=`rgba(29,23,19,${st.a*0.42})`;
+      ctx.fillRect(-st.r,-2.2,st.r*2,4.4);
+    } else {
+      ctx.fillStyle=`rgba(58,74,84,${st.a*0.5})`;
+      ctx.beginPath();
+      ctx.moveTo(-st.r,st.r*0.7); ctx.lineTo(0,-st.r*0.9); ctx.lineTo(st.r,st.r*0.7);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+  while(stamps.length && stamps[0].a<=0) stamps.shift();
+
+  // tow line: single thick paper tether (short, straight, structural)
+  const back={x:p.x-Math.cos(ang)*22, y:p.y-Math.sin(ang)*22};
+  ctx.strokeStyle="rgba(29,23,19,0.75)";
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(p.x-Math.cos(ang)*12,p.y-Math.sin(ang)*12);
+  ctx.lineTo(back.x,back.y); ctx.stroke();
+
+  drawScrap(back.x,back.y,ang+Math.PI,el/900);
+
+  // beetle
+  ctx.save();
+  ctx.translate(p.x,p.y);
+  ctx.rotate(ang);
+  const gait=1+Math.sin(el/140)*0.035;
+  ctx.scale(gait,1/gait);
+  ctx.drawImage(bug,-BW/2,-BH/2);
+  ctx.restore();
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* =========================================================
+   AUDIO — archive room drone: paper, drawer, ink stamp.
+   Only when not embedded.
+   ========================================================= */
+if (window.self === window.top){
+  let started=false;
+  function boot(){
+    if(started) return; started=true;
+    let ac;
+    try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+    const out=ac.createGain(); out.gain.value=0.0; out.connect(ac.destination);
+    out.gain.linearRampToValueAtTime(0.10, ac.currentTime+9);
+
+    // low drawer drone
+    [55.0,82.4,110.0].forEach((f,i)=>{
+      const o=ac.createOscillator(); o.type= i===2?'sine':'triangle'; o.frequency.value=f;
+      const g=ac.createGain(); g.gain.value=[0.16,0.09,0.05][i];
+      const lfo=ac.createOscillator(); lfo.frequency.value=0.031+i*0.017;
+      const lg=ac.createGain(); lg.gain.value=[0.07,0.04,0.025][i];
+      lfo.connect(lg); lg.connect(g.gain); lfo.start();
+      const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420;
+      o.connect(g); g.connect(lp); lp.connect(out); o.start();
+    });
+
+    // paper-shuffle noise bed
+    const len=ac.sampleRate*4;
+    const buf=ac.createBuffer(1,len,ac.sampleRate);
+    const d=buf.getChannelData(0);
+    let lastv=0;
+    for(let i=0;i<len;i++){ lastv=(lastv*0.96)+(Math.random()*2-1)*0.04; d[i]=lastv; }
+    const src=ac.createBufferSource(); src.buffer=buf; src.loop=true;
+    const bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1700; bp.Q=0.7;
+    const ng=ac.createGain(); ng.gain.value=0.20;
+    const nlfo=ac.createOscillator(); nlfo.frequency.value=0.055;
+    const nlg=ac.createGain(); nlg.gain.value=0.13;
+    nlfo.connect(nlg); nlg.connect(ng.gain); nlfo.start();
+    src.connect(bp); bp.connect(ng); ng.connect(out); src.start();
+
+    // occasional soft ink stamp
+    function stamp(){
+      const t=ac.currentTime;
+      const o=ac.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(180,t);
+      o.frequency.exponentialRampToValueAtTime(58,t+0.16);
+      const g=ac.createGain(); g.gain.setValueAtTime(0.0,t);
+      g.gain.linearRampToValueAtTime(0.13,t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0008,t+0.34);
+      o.connect(g); g.connect(out); o.start(t); o.stop(t+0.4);
+      setTimeout(stamp, 5200+Math.random()*7800);
+    }
+    setTimeout(stamp, 4200);
+  }
+  window.addEventListener('load',boot);
+  setTimeout(boot,1200);
+}
+</script>
+</body>
+</html>
