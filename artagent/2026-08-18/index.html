@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Whakairo Tower</title>
+<style>
+  html,body{margin:0;padding:0;background:#08090b;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:1080px;height:1920px;
+    background:#0b0a09;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:1080/1920){
+    #stage{width:100vw;height:177.78vw;}
+  }
+  @media (min-aspect-ratio:1080/1920){
+    #stage{height:100vh;width:56.25vh;}
+  }
+  #stage>*{position:absolute;}
+
+  /* ---- video: the ink-mist behind the structure ---- */
+  #background-video{
+    left:-6%;top:8%;width:112%;height:78%;
+    object-fit:cover;
+    opacity:.82;
+  }
+
+  /* ONE blended full-viewport layer: ochre ground + vignette + carve-grain */
+  #atmos{
+    inset:0;width:100%;height:100%;
+    mix-blend-mode:multiply;
+    background-image:
+      radial-gradient(ellipse 68% 48% at 50% 40%, rgba(255,255,255,0) 0%, rgba(120,60,20,.20) 60%, rgba(20,10,6,.85) 100%),
+      linear-gradient(180deg, rgba(30,14,6,.9) 0%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 72%, rgba(24,11,5,.95) 100%),
+      repeating-linear-gradient(96deg, rgba(60,28,10,.20) 0 2px, rgba(255,255,255,0) 2px 7px);
+    pointer-events:none;
+  }
+
+  /* static carved-panel border, drawn once */
+  #frame{inset:0;width:100%;height:100%;}
+  #tower{inset:0;width:100%;height:100%;}
+
+  #glow{
+    left:50%;top:46%;width:760px;height:760px;margin:-380px 0 0 -380px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(214,168,86,.28) 0%, rgba(190,90,40,.14) 42%, rgba(0,0,0,0) 70%);
+    animation:breathe 24s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes breathe{
+    0%,100%{transform:scale(.94);opacity:.55}
+    50%{transform:scale(1.08);opacity:.95}
+  }
+
+  #moth{
+    left:50%;top:0;width:120px;height:120px;margin-left:-60px;
+    animation:mothrise 46s linear infinite;
+    transform-origin:50% 50%;
+  }
+  @keyframes mothrise{
+    0%  {transform:translateY(1560px) scale(.55) rotate(-4deg);opacity:0}
+    8%  {opacity:.9}
+    50% {transform:translateY(760px) scale(.95) rotate(3deg);opacity:1}
+    88% {opacity:.85}
+    100%{transform:translateY(120px) scale(1.15) rotate(-2deg);opacity:0}
+  }
+  #mothWrap{left:0;top:0;width:100%;height:100%;pointer-events:none;}
+
+  #guinea-pig{
+    left:8.1%;bottom:6.4%;width:17px;height:auto;
+    opacity:.62;
+    transform:rotate(-8deg);
+  }
+
+  #date{
+    left:34px;bottom:26px;
+    font:11px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.36em;
+    color:#d9b471;opacity:.42;
+  }
+  #ttl{
+    right:34px;bottom:26px;
+    font:11px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.30em;
+    color:#d9b471;opacity:.30;
+    text-transform:uppercase;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <div id="glow"></div>
+
+  <!-- procedurally grown carved tower (animated, low-res backing store) -->
+  <canvas id="tower"></canvas>
+
+  <!-- static carved border panel, drawn once at full res -->
+  <canvas id="frame"></canvas>
+
+  <div id="atmos"></div>
+
+  <div id="mothWrap">
+    <svg id="moth" viewBox="0 0 120 120">
+      <g fill="#c8d9a0" fill-opacity="0.85" stroke="#1a1207" stroke-width="1.6">
+        <path d="M60 46 C42 30 20 34 20 50 C20 64 40 66 58 58 Z"/>
+        <path d="M60 46 C78 30 100 34 100 50 C100 64 80 66 62 58 Z"/>
+        <path d="M58 58 C44 66 34 84 42 96 C50 106 58 84 60 68 Z"/>
+        <path d="M62 58 C76 66 86 84 78 96 C70 106 62 84 60 68 Z"/>
+      </g>
+      <path d="M60 42 L60 74" stroke="#1a1207" stroke-width="4" stroke-linecap="round"/>
+      <path d="M60 44 C54 34 50 30 46 28 M60 44 C66 34 70 30 74 28" stroke="#1a1207" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div id="date">2026 · 08 · 18</div>
+  <div id="ttl">Ascending Whakairo</div>
+</div>
+
+<script>
+(function(){
+/* ---------------- date seed ---------------- */
+const DATE="2026-08-18";
+let h=2166136261;
+for(let i=0;i<DATE.length;i++){h^=DATE.charCodeAt(i);h=Math.imul(h,16777619);}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+const rnd=mulberry(h>>>0);
+const R=(a,b)=>a+(b-a)*rnd();
+
+/* palette: whakairo — blackened wood, ochre, red-earth, paua green */
+const INK   ="#100b06";
+const INK2  ="#1d1409";
+const OCHRE ="#d8a44e";
+const OCHRE2="#f0cd83";
+const RED   ="#b1391f";
+const RED2  ="#8a2a15";
+const PAUA  ="#3f8f80";
+const BONE  ="#efe2c4";
+
+const W=1080,H=1920;
+
+/* =========================================================
+   STATIC CARVED BORDER PANEL  (drawn once, full res)
+   ========================================================= */
+const fc=document.getElementById('frame');
+fc.width=W;fc.height=H;
+const f=fc.getContext('2d');
+
+function koruSpiral(ctx,cx,cy,r0,turns,dir,w0,col){
+  // thick tapering spiral band — filled, not a wispy line
+  const steps=Math.floor(turns*46);
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const a=dir*(t*turns*Math.PI*2)-Math.PI/2;
+    const r=r0*(1-0.86*t);
+    pts.push([cx+Math.cos(a)*r, cy+Math.sin(a)*r, w0*(1-0.9*t)]);
+  }
+  ctx.beginPath();
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i];const q=pts[Math.min(i+1,pts.length-1)];
+    const dx=q[0]-p[0],dy=q[1]-p[1];const L=Math.hypot(dx,dy)||1;
+    const nx=-dy/L*p[2],ny=dx/L*p[2];
+    if(i===0)ctx.moveTo(p[0]+nx,p[1]+ny);else ctx.lineTo(p[0]+nx,p[1]+ny);
+  }
+  for(let i=pts.length-1;i>=0;i--){
+    const p=pts[i];const q=pts[Math.max(i-1,0)];
+    const dx=p[0]-q[0],dy=p[1]-q[1];const L=Math.hypot(dx,dy)||1;
+    const nx=-dy/L*p[2],ny=dx/L*p[2];
+    ctx.lineTo(p[0]-nx,p[1]-ny);
+  }
+  ctx.closePath();
+  ctx.fillStyle=col;ctx.fill();
+}
+
+/* wood grain field on the border strips only */
+function grainStrip(ctx,x,y,w,hh){
+  ctx.save();
+  ctx.beginPath();ctx.rect(x,y,w,hh);ctx.clip();
+  const g=ctx.createLinearGradient(x,y,x+w,y+hh);
+  g.addColorStop(0,'#1a1108');g.addColorStop(.5,'#2a1a0c');g.addColorStop(1,'#140d06');
+  ctx.fillStyle=g;ctx.fillRect(x,y,w,hh);
+  ctx.globalAlpha=.22;
+  for(let i=0;i<70;i++){
+    const yy=y+rnd()*hh;
+    ctx.fillStyle= rnd()<.5?'#3d2510':'#0a0603';
+    ctx.fillRect(x,yy,w,R(1,3));
+  }
+  ctx.globalAlpha=1;
+  ctx.restore();
+}
+
+const BW=64; // border width
+grainStrip(f,0,0,W,BW*1.7);
+grainStrip(f,0,H-BW*2.1,W,BW*2.1);
+grainStrip(f,0,0,BW,H);
+grainStrip(f,W-BW,0,BW,H);
+
+/* carved ovoid + notch rhythm along vertical strips */
+function notchColumn(x){
+  const n=17;
+  for(let i=0;i<n;i++){
+    const y=BW*1.7 + (H-BW*3.8)*(i+.5)/n;
+    const s=BW*0.30;
+    f.save();f.translate(x,y);
+    f.fillStyle= i%3===0?OCHRE:(i%3===1?RED:BONE);
+    f.globalAlpha=.9;
+    f.beginPath();
+    f.ellipse(0,0,s*1.05,s*1.7,0,0,Math.PI*2);
+    f.fill();
+    f.fillStyle=INK;
+    f.beginPath();
+    f.ellipse(0,-s*.25,s*.5,s*.85,0,0,Math.PI*2);
+    f.fill();
+    f.restore();
+  }
+}
+notchColumn(BW*0.5);notchColumn(W-BW*0.5);
+
+/* corner koru — feathered so nothing clips hard */
+f.save();
+f.globalAlpha=.9;
+koruSpiral(f,BW*1.6,BW*1.9,52,1.5,1,13,OCHRE);
+koruSpiral(f,W-BW*1.6,BW*1.9,52,1.5,-1,13,OCHRE);
+koruSpiral(f,BW*1.6,H-BW*2.6,52,1.5,-1,13,RED);
+koruSpiral(f,W-BW*1.6,H-BW*2.6,52,1.5,1,13,RED);
+f.restore();
+
+/* top lintel: symmetrical pare — bold filled forms */
+(function lintel(){
+  const cy=BW*0.85, y0=0, y1=BW*1.7;
+  f.save();
+  f.beginPath();f.rect(0,y0,W,y1);f.clip();
+  // ochre band
+  f.fillStyle=INK;f.fillRect(0,y1-9,W,9);
+  for(let i=0;i<9;i++){
+    const cx=W*(i+.5)/9;
+    const dir=(i%2===0)?1:-1;
+    koruSpiral(f,cx,cy+6,40,1.35,dir,11, i%2===0?OCHRE2:PAUA);
+    f.fillStyle=RED;
+    f.beginPath();
+    f.moveTo(cx-W/18,y1-9);f.lineTo(cx,y1-38);f.lineTo(cx+W/18,y1-9);
+    f.closePath();f.globalAlpha=.55;f.fill();f.globalAlpha=1;
+  }
+  f.restore();
+})();
+
+/* bottom paepae: mirrored heavy band */
+(function paepae(){
+  const y0=H-BW*2.1,hh=BW*2.1;
+  f.save();
+  f.beginPath();f.rect(0,y0,W,hh);f.clip();
+  f.fillStyle=INK;f.fillRect(0,y0,W,10);
+  for(let i=0;i<7;i++){
+    const cx=W*(i+.5)/7;
+    const dir=(i%2===0)?-1:1;
+    koruSpiral(f,cx,y0+hh*0.55,52,1.5,dir,14, i%2===0?BONE:RED2);
+    f.fillStyle=OCHRE;f.globalAlpha=.5;
+    f.beginPath();f.arc(cx,y0+hh*0.55,9,0,Math.PI*2);f.fill();
+    f.globalAlpha=1;
+  }
+  f.restore();
+})();
+
+/* soft feather of the inner frame edge so the panel doesn't hard-cut */
+(function feather(){
+  const g=f.createLinearGradient(0,0,0,H);
+  f.save();f.globalCompositeOperation='destination-out';
+  // erase nothing; instead paint gentle ink falloff inward
+  f.restore();
+  f.save();
+  f.globalAlpha=1;
+  const inner=[[BW,0,26,'left'],[W-BW-26,0,26,'right']];
+  let gl=f.createLinearGradient(BW,0,BW+30,0);
+  gl.addColorStop(0,'rgba(16,11,6,.85)');gl.addColorStop(1,'rgba(16,11,6,0)');
+  f.fillStyle=gl;f.fillRect(BW,0,30,H);
+  let gr=f.createLinearGradient(W-BW,0,W-BW-30,0);
+  gr.addColorStop(0,'rgba(16,11,6,.85)');gr.addColorStop(1,'rgba(16,11,6,0)');
+  f.fillStyle=gr;f.fillRect(W-BW-30,0,30,H);
+  let gt=f.createLinearGradient(0,BW*1.7,0,BW*1.7+40);
+  gt.addColorStop(0,'rgba(16,11,6,.9)');gt.addColorStop(1,'rgba(16,11,6,0)');
+  f.fillStyle=gt;f.fillRect(0,BW*1.7,W,40);
+  let gb=f.createLinearGradient(0,H-BW*2.1,0,H-BW*2.1-46);
+  gb.addColorStop(0,'rgba(16,11,6,.9)');gb.addColorStop(1,'rgba(16,11,6,0)');
+  f.fillStyle=gb;f.fillRect(0,H-BW*2.1-46,W,46);
+  f.restore();
+})();
+
+/* =========================================================
+   ANIMATED TOWER  (low-res backing store 540x960)
+   Generative architecture: carved storeys accrete upward.
+   ========================================================= */
+const tc=document.getElementById('tower');
+const CW=540,CH=960;
+tc.width=CW;tc.height=CH;
+const c=tc.getContext('2d');
+
+const CX=CW/2;
+const BASE_Y=CH*0.905;
+
+/* ---- procedurally generate the storey ladder from the seed ---- */
+const N=13;
+const storeys=[];
+{
+  let y=BASE_Y;
+  let w=CW*0.44;
+  for(let i=0;i<N;i++){
+    const hh=R(38,58)*(1-i/(N*1.7));
+    const shear=R(-0.20,0.20)+ (i%2?0.05:-0.05);
+    storeys.push({
+      y0:y, h:hh, w:w,
+      shear:shear,
+      dir: (i%2===0)?1:-1,
+      col: [OCHRE,RED,BONE,PAUA][ (i + (h&3))%4 ],
+      lintel: rnd()<0.55,
+      spiralR: w*R(0.16,0.24),
+      arms: 2 + Math.floor(rnd()*2)*2,
+      phase: rnd()*Math.PI*2
+    });
+    y-=hh*1.06;
+    w*=R(0.885,0.955);
+  }
+}
+/* cantilevered bridges between non-adjacent storeys (impossible geometry) */
+const bridges=[];
+for(let i=1;i<N-3;i++){
+  if(rnd()<0.55){
+    bridges.push({a:i, b:i+2+Math.floor(rnd()*2), side: rnd()<.5?-1:1, len:R(0.55,1.15), phase:rnd()*6.28});
+  }
+}
+
+/* ---- drawing helpers on low-res ctx ---- */
+function bandSpiral(ctx,cx,cy,r0,turns,dir,w0,col,alpha){
+  const steps=Math.floor(turns*26);
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    const a=dir*(t*turns*Math.PI*2)-Math.PI/2;
+    const r=r0*(1-0.85*t);
+    pts.push([cx+Math.cos(a)*r, cy+Math.sin(a)*r, Math.max(0.6,w0*(1-0.88*t))]);
+  }
+  ctx.beginPath();
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i],q=pts[Math.min(i+1,pts.length-1)];
+    const dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy)||1;
+    const nx=-dy/L*p[2],ny=dx/L*p[2];
+    if(i===0)ctx.moveTo(p[0]+nx,p[1]+ny);else ctx.lineTo(p[0]+nx,p[1]+ny);
+  }
+  for(let i=pts.length-1;i>=0;i--){
+    const p=pts[i],q=pts[Math.max(i-1,0)];
+    const dx=p[0]-q[0],dy=p[1]-q[1],L=Math.hypot(dx,dy)||1;
+    const nx=-dy/L*p[2],ny=dx/L*p[2];
+    ctx.lineTo(p[0]-nx,p[1]-ny);
+  }
+  ctx.closePath();
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=col;ctx.fill();
+  ctx.globalAlpha=1;
+}
+
+function drawStorey(s,g,t,idx){
+  // g: growth 0..1
+  const hh=s.h*g;
+  const wTop=s.w*(0.90);
+  const yTop=s.y0-hh;
+  const sh=s.shear*hh;
+
+  // solid carved slab (blackened wood mass)
+  c.beginPath();
+  c.moveTo(CX-s.w/2, s.y0);
+  c.lineTo(CX+s.w/2, s.y0);
+  c.lineTo(CX+wTop/2+sh, yTop);
+  c.lineTo(CX-wTop/2+sh, yTop);
+  c.closePath();
+  const lg=c.createLinearGradient(CX-s.w/2,0,CX+s.w/2,0);
+  lg.addColorStop(0,'#0a0704');
+  lg.addColorStop(0.42,'#241708');
+  lg.addColorStop(0.62,'#150e07');
+  lg.addColorStop(1,'#070503');
+  c.fillStyle=lg;c.fill();
+  c.strokeStyle='rgba(232,200,140,'+(0.30*g)+')';
+  c.lineWidth=1.2;c.stroke();
+
+  if(g<0.35) return {yTop,wTop,sh};
+
+  const gg=(g-0.35)/0.65;
+
+  // ovoid eyes / pakati notch rhythm across the face
+  const cols=Math.max(2,Math.round(s.w/34));
+  for(let i=0;i<cols;i++){
+    const fx=(i+0.5)/cols;
+    const x=CX-s.w/2 + s.w*fx + sh*0.5;
+    const y=s.y0-hh*0.5;
+    const rr=Math.min(s.w/cols*0.34, hh*0.30)*gg;
+    if(rr<1.2) continue;
+    c.globalAlpha=0.9;
+    c.fillStyle=(i%2===0)?s.col:INK2;
+    c.beginPath();c.ellipse(x,y,rr,rr*1.5,s.shear*0.6,0,Math.PI*2);c.fill();
+    c.fillStyle=INK;
+    c.beginPath();c.ellipse(x,y-rr*0.25,rr*0.44,rr*0.78,s.shear*0.6,0,Math.PI*2);c.fill();
+    c.globalAlpha=1;
+  }
+
+  // koru spirals unfurling on the storey face — the carving itself
+  const R0=s.spiralR*gg;
+  if(R0>3){
+    const turns=1.0+0.7*gg;
+    for(let a=0;a<s.arms;a++){
+      const fx=(a+0.5)/s.arms;
+      const x=CX-s.w/2 + s.w*fx + sh*0.6;
+      const y=s.y0-hh*0.52;
+      const dir=(a%2===0)?s.dir:-s.dir;
+      bandSpiral(c,x,y,R0,turns,dir,Math.max(1.4,R0*0.30),s.col,0.85);
+    }
+  }
+
+  // lintel plate with mirrored red triangles
+  if(s.lintel && gg>0.5){
+    const a=(gg-0.5)/0.5;
+    c.globalAlpha=0.75*a;
+    c.fillStyle=RED;
+    const pw=wTop*0.5;
+    c.beginPath();
+    c.moveTo(CX+sh-pw, yTop+6);
+    c.lineTo(CX+sh, yTop-hh*0.18);
+    c.lineTo(CX+sh+pw, yTop+6);
+    c.closePath();c.fill();
+    c.globalAlpha=1;
+  }
+  return {yTop,wTop,sh};
+}
+
+function drawBridge(b,geo,t,alpha){
+  const A=geo[b.a],B=geo[b.b];
+  if(!A||!B)return;
+  const y1=A.yTop, y2=B.yTop;
+  const x1=CX+A.sh + b.side*(A.wTop/2);
+  const reach=(A.wTop*0.5+40)*b.len*(0.9+0.1*Math.sin(t*0.35+b.phase));
+  const x2=CX+B.sh + b.side*(B.wTop/2);
+  const outX=x1+b.side*reach;
+
+  c.globalAlpha=alpha;
+  // thick carved arm: filled quad out, then filled quad up
+  const th=7;
+  c.fillStyle='#1b1209';
+  c.beginPath();
+  c.moveTo(x1,y1-th);c.lineTo(outX,y1-th-6);
+  c.lineTo(outX,y1+th-6);c.lineTo(x1,y1+th);
+  c.closePath();c.fill();
+  c.strokeStyle='rgba(226,190,126,.35)';c.lineWidth=1;c.stroke();
+
+  c.beginPath();
+  c.moveTo(outX-th*b.side,y1-6);
+  c.lineTo(x2, y2);
+  c.lineTo(x2, y2+th*1.4);
+  c.lineTo(outX+th*b.side, y1-6+th*1.2);
+  c.closePath();
+  c.fillStyle='#150e07';c.fill();
+  c.strokeStyle='rgba(226,190,126,.28)';c.stroke();
+
+  // terminal koru at the cantilever tip
+  bandSpiral(c,outX,y1-6,Math.max(4,reach*0.16),1.25,b.side>0?1:-1,3.2,OCHRE,0.8*alpha);
+  c.globalAlpha=1;
+}
+
+/* mirrored ground plinth: two heavy filled wedges */
+function plinth(){
+  c.fillStyle='#0d0905';
+  c.beginPath();
+  c.moveTo(CX-CW*0.42, CH);
+  c.lineTo(CX-CW*0.30, BASE_Y);
+  c.lineTo(CX+CW*0.30, BASE_Y);
+  c.lineTo(CX+CW*0.42, CH);
+  c.closePath();c.fill();
+  c.strokeStyle='rgba(216,164,78,.35)';c.lineWidth=1.4;c.stroke();
+  for(let i=0;i<6;i++){
+    const fx=(i+0.5)/6;
+    const x=CX-CW*0.30+CW*0.60*fx;
+    bandSpiral(c,x,BASE_Y+22,13,1.3,i%2?1:-1,4,i%2?BONE:RED,0.7);
+  }
+}
+
+/* ---------------- loop ---------------- */
+const CYCLE=54; // seconds for full grow+settle+dissolve, seamless
+let t0=null;
+function frame(ts){
+  if(t0===null)t0=ts;
+  const t=(ts-t0)/1000;
+  const p=(t%CYCLE)/CYCLE; // 0..1
+
+  c.clearRect(0,0,CW,CH);
+
+  // growth front travels up during 0..0.62, holds, then recedes 0.86..1
+  let front;
+  if(p<0.62) front = (p/0.62)*N;
+  else if(p<0.86) front = N;
+  else front = N*(1-(p-0.86)/0.14);
+
+  plinth();
+
+  const geo=[];
+  for(let i=0;i<N;i++){
+    const g=Math.max(0,Math.min(1,front-i));
+    if(g<=0){geo.push(null);continue;}
+    const e=g<1 ? (1-Math.pow(1-g,3)) : 1;
+    geo.push(drawStorey(storeys[i],e,t,i));
+  }
+
+  for(const b of bridges){
+    const g=Math.max(0,Math.min(1,front-b.b-0.4));
+    if(g>0.05) drawBridge(b,geo,t,g*0.95);
+  }
+
+  // crowning tekoteko: one bold mirrored form at the apex
+  const topGeo=geo[N-1];
+  if(topGeo){
+    const g=Math.max(0,Math.min(1,front-(N-1)-0.5))*1.0;
+    if(g>0.02){
+      const y=topGeo.yTop, x=CX+topGeo.sh;
+      const s=26*g;
+      c.globalAlpha=g;
+      c.fillStyle=INK2;
+      c.beginPath();
+      c.moveTo(x-s*1.5,y+4);c.lineTo(x,y-s*2.1);c.lineTo(x+s*1.5,y+4);
+      c.closePath();c.fill();
+      c.strokeStyle=OCHRE2;c.lineWidth=1.4;c.stroke();
+      bandSpiral(c,x-s*0.72,y-s*0.5,s*0.52,1.3,-1,s*0.20,OCHRE2,0.9*g);
+      bandSpiral(c,x+s*0.72,y-s*0.5,s*0.52,1.3, 1,s*0.20,OCHRE2,0.9*g);
+      c.fillStyle=PAUA;
+      c.beginPath();c.arc(x,y-s*1.15,s*0.26,0,Math.PI*2);c.fill();
+      c.globalAlpha=1;
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------------- procedural audio: low carved drone ---------------- */
+if(window.self===window.top){
+  let started=false;
+  const start=()=>{
+    if(started)return;started=true;
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      const ac=new AC();
+      const mas=ac.createGain();mas.gain.value=0.0;mas.connect(ac.destination);
+      mas.gain.linearRampToValueAtTime(0.055, ac.currentTime+8);
+
+      const base=61.7; // B1-ish
+      const ratios=[1,1.5,2.0,3.0];
+      ratios.forEach((r,i)=>{
+        const o=ac.createOscillator();
+        o.type= i<2?'sine':'triangle';
+        o.frequency.value=base*r*(1+ (rnd()-0.5)*0.004);
+        const g=ac.createGain();g.gain.value=0.5/(i+1.4);
+        const lfo=ac.createOscillator();lfo.frequency.value=0.03+0.017*i;
+        const la=ac.createGain();la.gain.value=g.gain.value*0.55;
+        lfo.connect(la);la.connect(g.gain);lfo.start();
+        o.connect(g);g.connect(mas);o.start();
+      });
+
+      // slow filtered noise = chisel-on-wood texture
+      const len=ac.sampleRate*4;
+      const buf=ac.createBuffer(1,len,ac.sampleRate);
+      const d=buf.getChannelData(0);
+      let lp=0;
+      for(let i=0;i<len;i++){lp+=( (rnd()*2-1) - lp)*0.02;d[i]=lp*0.9;}
+      const src=ac.createBufferSource();src.buffer=buf;src.loop=true;
+      const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=320;bp.Q.value=1.1;
+      const ng=ac.createGain();ng.gain.value=0.07;
+      src.connect(bp);bp.connect(ng);ng.connect(mas);src.start();
+      if(ac.state==='suspended')ac.resume();
+    }catch(e){}
+  };
+  start();
+  window.addEventListener('pointerdown',start,{once:true});
+}
+})();
+</script>
+</body>
+</html>
