@@ -310,13 +310,21 @@
   </article>
 </div>
 <script>
+  // The scale has to follow each frame's rendered width, not the nominal
+  // 270px: grid columns stretch to fill the row, and a phone gets one
+  // column the full width of the page. A fixed 270/1080 left the frame's
+  // own background showing down the right and bottom edge of every card.
+  var SRC_W = 1080;
+  function fit(frame) {
+    var iframe = frame.querySelector('iframe');
+    if (iframe) iframe.style.transform = 'scale(' + frame.clientWidth / SRC_W + ')';
+  }
+  var ro = new ResizeObserver(function (entries) {
+    entries.forEach(function (entry) { fit(entry.target); });
+  });
   // Each piece is a full animation, so keep only the cards near the viewport
   // loaded. Without this, fourteen simultaneous canvas/WebGL loops make the
   // review page itself unusable.
-  var scale = 270 / 1080;
-  document.querySelectorAll('.frame iframe').forEach(function (f) {
-    f.style.transform = 'scale(' + scale + ')';
-  });
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       var frame = entry.target;
@@ -333,7 +341,11 @@
       }
     });
   }, { rootMargin: '400px 0px' });
-  document.querySelectorAll('.frame').forEach(function (f) { io.observe(f); });
+  document.querySelectorAll('.frame').forEach(function (f) {
+    fit(f);
+    ro.observe(f);
+    io.observe(f);
+  });
 </script>
 </body>
 </html>
