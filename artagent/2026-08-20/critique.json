@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-20",
+  "generator_provider": "anthropic",
+  "generator_model": "global.anthropic.claude-opus-5",
+  "critic_provider": "openai",
+  "critic_model": "gpt-5.6-sol",
+  "critique": "The broad indigo actor with its emphatic outstretched sleeve, patterned kimono, red kumadori, and distant swan crest creates a bold Kabuki tableau across a convincing mid-key terracotta field. The animated full-width ink band colonizes the crucial central interval and turns the intended untouched ma into atmosphere; removing it would let the actor, crest, and seal hold the composition through distance alone."
+}
