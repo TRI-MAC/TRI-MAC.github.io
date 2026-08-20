@@ -174,11 +174,84 @@
   .story-progress-step.is-active .story-progress-fill{
     animation:storyFill var(--duration) linear forwards;
   }
+  #story-progress.is-paused .story-progress-step.is-active .story-progress-fill{
+    animation-play-state:paused;
+  }
   @keyframes storyFill{ from{transform:scaleX(0)} to{transform:scaleX(1)} }
+
+  #story-controls{
+    position:absolute;
+    z-index:6;
+    inset:0;
+    pointer-events:none;
+  }
+  .story-control{
+    position:absolute;
+    display:grid;
+    place-items:center;
+    width:clamp(44px,calc(var(--sw)*0.052),52px);
+    height:clamp(44px,calc(var(--sw)*0.052),52px);
+    margin:0;
+    padding:0;
+    border:1px solid rgba(247,236,210,.28);
+    border-radius:50%;
+    color:rgba(247,236,210,.9);
+    background:rgba(46,22,12,.22);
+    box-shadow:inset 0 0 0 1px rgba(46,22,12,.08);
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+    cursor:pointer;
+    opacity:.72;
+    pointer-events:auto;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    transition:opacity .35s ease,background-color .35s ease,border-color .35s ease;
+  }
+  .story-control svg{
+    display:block;
+    width:clamp(16px,calc(var(--sw)*0.02),20px);
+    height:clamp(16px,calc(var(--sw)*0.02),20px);
+  }
+  .story-control-prev{
+    left:clamp(10px,3.2%,34px);
+    top:54%;
+    transform:translateY(-50%);
+  }
+  .story-control-next{
+    right:clamp(10px,3.2%,34px);
+    top:54%;
+    transform:translateY(-50%);
+  }
+  .story-control-play{
+    left:50%;
+    bottom:calc(5% + clamp(16px,calc(var(--sw)*0.026),28px));
+    transform:translateX(-50%);
+  }
+  .story-control .story-icon-play{ display:none; }
+  #story-controls.is-paused .story-icon-pause{ display:none; }
+  #story-controls.is-paused .story-icon-play{ display:block; }
+  .story-control:focus-visible{
+    outline:2px solid #f7ecd2;
+    outline-offset:3px;
+    opacity:1;
+  }
+  .story-control:active{
+    color:#fff8e8;
+    background:rgba(46,22,12,.42);
+    border-color:rgba(247,236,210,.56);
+  }
+  @media (hover:hover){
+    .story-control:hover{
+      opacity:1;
+      background:rgba(46,22,12,.34);
+      border-color:rgba(247,236,210,.48);
+    }
+  }
 
   @media (prefers-reduced-motion:reduce){
     .actor,.crest,.seal{ animation:none; }
     .view,.panel{ transition:none; }
+    .story-control{ transition:none; }
     .story-progress-step.is-active .story-progress-fill{
       animation-timing-function:steps(12,end);
     }
@@ -437,6 +510,27 @@
     </div>
   </div>
 
+  <div id="story-controls" role="group" aria-label="Slideshow controls">
+    <button class="story-control story-control-prev" type="button" aria-label="Previous slide" title="Previous slide">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="story-control story-control-play" type="button" aria-label="Pause slideshow" title="Pause slideshow">
+      <svg class="story-icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M9 7v10M15 7v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <svg class="story-icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="m9 6.8 8 5.2-8 5.2Z" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="story-control story-control-next" type="button" aria-label="Next slide" title="Next slide">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
   <img id="guinea-pig" src="guineapig.png" alt="">
   <div id="date">2026 · 08 · 20</div>
 </div>
@@ -453,19 +547,60 @@
   ];
   const progress = document.getElementById('story-progress');
   const steps = Array.from(progress.querySelectorAll('.story-progress-step'));
+  const controls = document.getElementById('story-controls');
+  const previousButton = controls.querySelector('.story-control-prev');
+  const playButton = controls.querySelector('.story-control-play');
+  const nextButton = controls.querySelector('.story-control-next');
   let slideTimer = 0;
+  let currentIndex = 0;
+  let remainingMs = 0;
+  let slideStartedAt = 0;
+  let isPlaying = true;
+
+  function scheduleAdvance(durationMs){
+    clearTimeout(slideTimer);
+    remainingMs = durationMs;
+    if(!isPlaying) return;
+    slideStartedAt = performance.now();
+    slideTimer = setTimeout(()=>showSlide(currentIndex+1),remainingMs);
+  }
 
   function showSlide(index){
-    slides.forEach((slide,i)=>slide.node.classList.toggle('is-active',i===index));
+    currentIndex = (index+slides.length)%slides.length;
+    slides.forEach((slide,i)=>slide.node.classList.toggle('is-active',i===currentIndex));
     steps.forEach(step=>step.classList.remove('is-active','is-past'));
     void progress.offsetWidth;
     steps.forEach((step,i)=>{
-      if(i<index) step.classList.add('is-past');
-      if(i===index) step.classList.add('is-active');
+      if(i<currentIndex) step.classList.add('is-past');
+      if(i===currentIndex) step.classList.add('is-active');
     });
-    clearTimeout(slideTimer);
-    slideTimer = setTimeout(()=>showSlide((index+1)%slides.length),slides[index].seconds*1000);
+    scheduleAdvance(slides[currentIndex].seconds*1000);
   }
+
+  function setPlaying(shouldPlay){
+    if(shouldPlay===isPlaying) return;
+    if(shouldPlay){
+      isPlaying = true;
+      progress.classList.remove('is-paused');
+      controls.classList.remove('is-paused');
+      playButton.setAttribute('aria-label','Pause slideshow');
+      playButton.setAttribute('title','Pause slideshow');
+      slideStartedAt = performance.now();
+      slideTimer = setTimeout(()=>showSlide(currentIndex+1),remainingMs);
+      return;
+    }
+    remainingMs = Math.max(0,remainingMs-(performance.now()-slideStartedAt));
+    isPlaying = false;
+    clearTimeout(slideTimer);
+    progress.classList.add('is-paused');
+    controls.classList.add('is-paused');
+    playButton.setAttribute('aria-label','Play slideshow');
+    playButton.setAttribute('title','Play slideshow');
+  }
+
+  previousButton.addEventListener('click',()=>showSlide(currentIndex-1));
+  playButton.addEventListener('click',()=>setPlaying(!isPlaying));
+  nextButton.addEventListener('click',()=>showSlide(currentIndex+1));
   showSlide(0);
 
   /* ---------- date seed ---------- */
