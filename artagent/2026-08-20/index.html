@@ -105,41 +105,33 @@
     user-select:none;
   }
 
-  /* ── exhibit: two compositions with a caption before each ──────────────
-     Sizes are relative to the stage, not to px, because the stage scales
-     with the viewport while its children do not.                        */
+  /* ── two compositions, a line of plain English before each ─────────────
+     Type is sized from the stage, not in px: the stage scales with the
+     viewport while its children do not.                                 */
   #stage{ --sw: min(1080px, 100vw, calc(100vh * 1080 / 1920)); }
 
   .view{ opacity:0; will-change:opacity; }
-  .v1{ animation:showV1 46s linear infinite; }
-  .v2{ animation:showV2 46s linear infinite; }
-  @keyframes showV1{ 0%,17.4%{opacity:0} 20.7%,41.3%{opacity:1} 44.6%,100%{opacity:0} }
-  @keyframes showV2{ 0%,59.8%{opacity:0} 63%,96.7%{opacity:1} 100%{opacity:0} }
+  .v1{ animation:showV1 76s linear infinite; }
+  .v2{ animation:showV2 76s linear infinite; }
+  @keyframes showV1{ 0%,14.5%{opacity:0} 16.4%,42.1%{opacity:1} 44.1%,100%{opacity:0} }
+  @keyframes showV2{ 0%,56.6%{opacity:0} 58.6%,98%{opacity:1} 100%{opacity:0} }
 
   .panel{
     position:absolute;
-    left:11%; right:11%; top:33%;
+    left:11%; right:11%; top:36%;
     opacity:0; will-change:opacity;
     color:#f7ecd2;
-    text-shadow:0 calc(var(--sw)*0.004) calc(var(--sw)*0.012) rgba(46,22,12,.28);
-  }
-  .panel .label{
-    font:400 calc(var(--sw)*0.024)/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
-    letter-spacing:.34em; text-transform:uppercase;
-    color:rgba(247,236,210,.72);
-    padding-bottom:calc(var(--sw)*0.035);
-    border-bottom:1px solid rgba(247,236,210,.34);
-    margin-bottom:calc(var(--sw)*0.045);
+    text-shadow:0 calc(var(--sw)*0.004) calc(var(--sw)*0.014) rgba(46,22,12,.3);
   }
   .panel p{
     margin:0;
-    font:400 calc(var(--sw)*0.049)/1.42 Georgia,"Times New Roman",serif;
+    font:400 calc(var(--sw)*0.056)/1.44 Georgia,"Times New Roman",serif;
+    text-wrap:balance;
   }
-  .panel i{ font-style:italic; }
-  .pA{ animation:showPA 46s linear infinite; }
-  .pB{ animation:showPB 46s linear infinite; }
-  @keyframes showPA{ 0%,17.4%{opacity:1} 20.7%,96.7%{opacity:0} 100%{opacity:1} }
-  @keyframes showPB{ 0%,41.3%{opacity:0} 44.6%,59.8%{opacity:1} 63%,100%{opacity:0} }
+  .pA{ animation:showPA 76s linear infinite; }
+  .pB{ animation:showPB 76s linear infinite; }
+  @keyframes showPA{ 0%,14.5%{opacity:1} 16.4%,98%{opacity:0} 100%{opacity:1} }
+  @keyframes showPB{ 0%,42.1%{opacity:0} 44.1%,56.6%{opacity:1} 58.6%,100%{opacity:0} }
 </style>
 </head>
 <body>
@@ -173,7 +165,7 @@
       </radialGradient>
     </defs>
 
-        <!-- VIEW 1 : the mistake — every mark at its raw coordinates -->
+        <!-- VIEW 1 : as it was published — every mark at its raw coordinates -->
     <g class="view v1">
 <g class="actor">
       <g transform="translate(0,0)">
@@ -268,7 +260,7 @@
     </g>
     </g>
 
-    <!-- VIEW 2 : as intended — each mark placed with a transform -->
+    <!-- VIEW 2 : corrected — each mark placed with a transform -->
     <g class="view v2">
 <g transform="translate(15.64,359.58) scale(0.945358)">
 <g class="actor">
@@ -372,15 +364,11 @@
 
 
   <div class="panel pA">
-    <div class="label">The mistake</div>
-    <p>CSS <i>left</i> and <i>top</i> do nothing to an SVG group,
-       so all three marks drew in one place.</p>
+    <p>Artagent made a mistake in its layout and produced this version&hellip;</p>
   </div>
 
   <div class="panel pB">
-    <div class="label">As intended</div>
-    <p>Each mark placed with a transform — actor low left,
-       crest high right, seal a thumbnail.</p>
+    <p>When corrected, the piece looks like this&hellip;</p>
   </div>
 
   <img id="guinea-pig" src="guineapig.png" alt="">
