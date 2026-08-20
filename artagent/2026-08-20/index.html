@@ -7,6 +7,7 @@
 <meta http-equiv="Expires" content="0">
 
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ma</title>
 <style>
   html,body{
@@ -111,10 +112,6 @@
   #stage{ --sw: min(1080px, 100vw, calc(100vh * 1080 / 1920)); }
 
   .view{ opacity:0; will-change:opacity; }
-  .v1{ animation:showV1 92s linear infinite; }
-  .v2{ animation:showV2 92s linear infinite; }
-  @keyframes showV1{ 0%,13.04%{opacity:0} 14.67%,35.87%{opacity:1} 37.5%,100%{opacity:0} }
-  @keyframes showV2{ 0%,48.91%{opacity:0} 50.54%,82.61%{opacity:1} 84.24%,100%{opacity:0} }
 
   .panel{
     position:absolute;
@@ -138,14 +135,73 @@
     text-shadow:none;
   }
 
-  /* 92s loop: 12s text · 21s accident · 12s text · 31s corrected · 14s quote,
-     with 1.5s cross-fades, including across the loop seam.               */
-  .pA{ animation:showPA 92s linear infinite; }
-  .pB{ animation:showPB 92s linear infinite; }
-  .pC{ animation:showPC 92s linear infinite; }
-  @keyframes showPA{ 0%,13.04%{opacity:1} 14.67%,98.37%{opacity:0} 100%{opacity:1} }
-  @keyframes showPB{ 0%,35.87%{opacity:0} 37.5%,48.91%{opacity:1} 50.54%,100%{opacity:0} }
-  @keyframes showPC{ 0%,82.61%{opacity:0} 84.24%,98.37%{opacity:1} 100%{opacity:0} }
+  /* 72s loop: 6s text · 21s accident · 6s text · 31s corrected · 8s quote.
+     One class drives the sequence so the progress rails and cross-fades share
+     a single clock.                                                       */
+  .view,.panel{
+    transition:opacity 1.2s linear;
+  }
+  .view.is-active,.panel.is-active{ opacity:1; }
+
+  #story-progress{
+    position:absolute;
+    z-index:5;
+    left:11%;right:11%;bottom:7%;
+    color:rgba(247,236,210,.82);
+    font:500 clamp(9px,calc(var(--sw)*0.014),14px)/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    text-shadow:0 1px 4px rgba(46,22,12,.68);
+    pointer-events:none;
+    user-select:none;
+  }
+  .story-progress-meta{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:clamp(7px,calc(var(--sw)*0.013),14px);
+  }
+  .story-progress-bars{
+    display:flex;
+    align-items:flex-start;
+    gap:clamp(3px,calc(var(--sw)*0.006),7px);
+  }
+  .story-progress-step{
+    position:relative;
+    flex:var(--weight) 1 0;
+    min-width:0;
+    height:clamp(3px,calc(var(--sw)*0.006),6px);
+    background:rgba(30,19,17,.48);
+    box-shadow:0 0 0 1px rgba(247,236,210,.14);
+  }
+  .story-progress-fill{
+    position:absolute;
+    inset:0;
+    background:#f7ecd2;
+    transform:scaleX(0);
+    transform-origin:left center;
+    will-change:transform;
+  }
+  .story-progress-step.is-past .story-progress-fill{ transform:scaleX(1); }
+  .story-progress-step.is-active .story-progress-fill{
+    animation:storyFill var(--duration) linear forwards;
+  }
+  .story-progress-duration{
+    position:absolute;
+    top:calc(100% + clamp(5px,calc(var(--sw)*0.008),9px));
+    left:0;
+    color:rgba(247,236,210,.68);
+    font-size:clamp(8px,calc(var(--sw)*0.012),12px);
+    letter-spacing:.08em;
+  }
+  @keyframes storyFill{ from{transform:scaleX(0)} to{transform:scaleX(1)} }
+
+  @media (prefers-reduced-motion:reduce){
+    .actor,.crest,.seal{ animation:none; }
+    .view,.panel{ transition:none; }
+    .story-progress-step.is-active .story-progress-fill{
+      animation-timing-function:steps(12,end);
+    }
+  }
 </style>
 </head>
 <body>
@@ -377,7 +433,7 @@
   </svg>
 
 
-  <div class="panel pA">
+  <div class="panel pA is-active">
     <p>Artagent made a mistake in its layout and produced this version&hellip;</p>
   </div>
 
@@ -390,12 +446,55 @@
     <div class="attrib">Bob Ross</div>
   </div>
 
+  <div id="story-progress" role="group"
+       aria-label="Five-slide sequence. Slide times are 6, 21, 6, 31, and 8 seconds; 72 seconds total.">
+    <div class="story-progress-meta" aria-hidden="true">
+      <span id="story-progress-count">01 / 05</span>
+      <span>72s loop</span>
+    </div>
+    <div class="story-progress-bars" aria-hidden="true">
+      <div class="story-progress-step" style="--weight:6;--duration:6s"><span class="story-progress-fill"></span><span class="story-progress-duration">6s</span></div>
+      <div class="story-progress-step" style="--weight:21;--duration:21s"><span class="story-progress-fill"></span><span class="story-progress-duration">21s</span></div>
+      <div class="story-progress-step" style="--weight:6;--duration:6s"><span class="story-progress-fill"></span><span class="story-progress-duration">6s</span></div>
+      <div class="story-progress-step" style="--weight:31;--duration:31s"><span class="story-progress-fill"></span><span class="story-progress-duration">31s</span></div>
+      <div class="story-progress-step" style="--weight:8;--duration:8s"><span class="story-progress-fill"></span><span class="story-progress-duration">8s</span></div>
+    </div>
+  </div>
+
   <img id="guinea-pig" src="guineapig.png" alt="">
   <div id="date">2026 · 08 · 20</div>
 </div>
 
 <script>
 (function(){
+  /* ---------- five-slide sequence + proportional progress rails ---------- */
+  const slides = [
+    {node:document.querySelector('.pA'),seconds:6},
+    {node:document.querySelector('.v1'),seconds:21},
+    {node:document.querySelector('.pB'),seconds:6},
+    {node:document.querySelector('.v2'),seconds:31},
+    {node:document.querySelector('.pC'),seconds:8}
+  ];
+  const progress = document.getElementById('story-progress');
+  const steps = Array.from(progress.querySelectorAll('.story-progress-step'));
+  const count = document.getElementById('story-progress-count');
+  let slideTimer = 0;
+
+  function showSlide(index){
+    slides.forEach((slide,i)=>slide.node.classList.toggle('is-active',i===index));
+    steps.forEach(step=>step.classList.remove('is-active','is-past'));
+    void progress.offsetWidth;
+    steps.forEach((step,i)=>{
+      if(i<index) step.classList.add('is-past');
+      if(i===index) step.classList.add('is-active');
+    });
+    count.textContent =
+      String(index+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    clearTimeout(slideTimer);
+    slideTimer = setTimeout(()=>showSlide((index+1)%slides.length),slides[index].seconds*1000);
+  }
+  showSlide(0);
+
   /* ---------- date seed ---------- */
   const DATE = "2026-08-20";
   let h = 2166136261;
