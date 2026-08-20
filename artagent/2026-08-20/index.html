@@ -39,7 +39,7 @@
   #svgLayer{pointer-events:none}
 
   /* the great mark: kabuki actor silhouette, slow breath */
-  #actor{
+  .actor{
     position:absolute;
     left:6%;
     bottom:2%;
@@ -55,7 +55,7 @@
   }
 
   /* the far small mark: the swan crest, drifting at maximum interval */
-  #crest{
+  .crest{
     position:absolute;
     right:9%;
     top:8%;
@@ -71,7 +71,7 @@
   }
 
   /* the seal: third mark, low right */
-  #seal{
+  .seal{
     position:absolute;
     right:11%;
     bottom:13%;
@@ -104,6 +104,42 @@
     color:rgba(46,22,12,.42);
     user-select:none;
   }
+
+  /* ── exhibit: two compositions with a caption before each ──────────────
+     Sizes are relative to the stage, not to px, because the stage scales
+     with the viewport while its children do not.                        */
+  #stage{ --sw: min(1080px, 100vw, calc(100vh * 1080 / 1920)); }
+
+  .view{ opacity:0; will-change:opacity; }
+  .v1{ animation:showV1 46s linear infinite; }
+  .v2{ animation:showV2 46s linear infinite; }
+  @keyframes showV1{ 0%,17.4%{opacity:0} 20.7%,41.3%{opacity:1} 44.6%,100%{opacity:0} }
+  @keyframes showV2{ 0%,59.8%{opacity:0} 63%,96.7%{opacity:1} 100%{opacity:0} }
+
+  .panel{
+    position:absolute;
+    left:11%; right:11%; top:33%;
+    opacity:0; will-change:opacity;
+    color:#f7ecd2;
+    text-shadow:0 calc(var(--sw)*0.004) calc(var(--sw)*0.012) rgba(46,22,12,.28);
+  }
+  .panel .label{
+    font:400 calc(var(--sw)*0.024)/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.34em; text-transform:uppercase;
+    color:rgba(247,236,210,.72);
+    padding-bottom:calc(var(--sw)*0.035);
+    border-bottom:1px solid rgba(247,236,210,.34);
+    margin-bottom:calc(var(--sw)*0.045);
+  }
+  .panel p{
+    margin:0;
+    font:400 calc(var(--sw)*0.049)/1.42 Georgia,"Times New Roman",serif;
+  }
+  .panel i{ font-style:italic; }
+  .pA{ animation:showPA 46s linear infinite; }
+  .pB{ animation:showPB 46s linear infinite; }
+  @keyframes showPA{ 0%,17.4%{opacity:1} 20.7%,96.7%{opacity:0} 100%{opacity:1} }
+  @keyframes showPB{ 0%,41.3%{opacity:0} 44.6%,59.8%{opacity:1} 63%,100%{opacity:0} }
 </style>
 </head>
 <body>
@@ -137,9 +173,105 @@
       </radialGradient>
     </defs>
 
-    <!-- MARK 1 : the actor (large) -->
-    <g transform="translate(15.64,359.57) scale(0.945358)">
-    <g id="actor">
+        <!-- VIEW 1 : the mistake — every mark at its raw coordinates -->
+    <g class="view v1">
+<g class="actor">
+      <g transform="translate(0,0)">
+        <!-- outer robe : broad theatrical wedge -->
+        <path d="M352 1240
+                 C300 1120 296 1010 330 906
+                 C356 826 402 770 452 742
+                 L556 742
+                 C614 776 662 848 686 940
+                 C712 1040 706 1150 664 1258
+                 L722 1560
+                 L640 1596 L520 1610 L392 1596 L300 1562 Z"
+              fill="url(#robe)"/>
+        <path d="M352 1240
+                 C300 1120 296 1010 330 906
+                 C356 826 402 770 452 742
+                 L556 742
+                 C614 776 662 848 686 940
+                 C712 1040 706 1150 664 1258
+                 L722 1560
+                 L640 1596 L520 1610 L392 1596 L300 1562 Z"
+              fill="url(#kimonoPat)" opacity="0.5"/>
+
+        <!-- sleeve : huge outstretched plane, the gesture -->
+        <path d="M470 800
+                 C388 792 268 828 176 916
+                 C104 986 62 1064 52 1132
+                 C126 1176 214 1188 296 1170
+                 C300 1096 336 1010 400 946
+                 C432 914 456 892 486 876 Z"
+              fill="url(#robe)"/>
+        <path d="M470 800
+                 C388 792 268 828 176 916
+                 C104 986 62 1064 52 1132
+                 C126 1176 214 1188 296 1170
+                 C300 1096 336 1010 400 946
+                 C432 914 456 892 486 876 Z"
+              fill="url(#kimonoPat)" opacity="0.42"/>
+
+        <!-- sash : the one saturated accent -->
+        <path d="M336 1176 C424 1216 588 1218 678 1178
+                 L688 1256 C592 1300 424 1298 330 1252 Z"
+              fill="url(#sash)"/>
+        <path d="M678 1214 L806 1288 L790 1338 L664 1268 Z" fill="#a41f22"/>
+
+        <!-- collar planes -->
+        <path d="M452 742 L520 866 L556 742 Z" fill="#f0e5c8"/>
+        <path d="M452 742 L520 866 L556 742 Z" fill="none" stroke="#0e1729" stroke-width="7"/>
+
+        <!-- head : flat mask, turned in profile, no features that read as portrait -->
+        <path d="M470 588 C470 528 496 492 540 492 C588 492 614 532 612 592
+                 C610 646 586 690 540 692 C494 694 470 648 470 588 Z"
+              fill="#f2e6c8"/>
+        <!-- wig : bold black mass -->
+        <path d="M456 596 C440 512 486 452 546 452 C616 452 652 508 640 584
+                 C632 552 604 520 552 520 C500 520 470 552 468 604 Z"
+              fill="#0d1220"/>
+        <path d="M624 560 C672 566 700 604 690 646 C676 640 652 626 636 606 Z" fill="#0d1220"/>
+        <!-- kumadori : two red brushed strokes, the kabuki signature -->
+        <path d="M492 566 C516 552 546 552 570 562 L566 578 C544 570 518 570 496 582 Z" fill="#c8302a"/>
+        <path d="M500 626 C524 640 552 642 576 634 L572 650 C548 660 520 656 498 642 Z" fill="#c8302a"/>
+        <!-- ink contour line -->
+        <path d="M470 588 C470 528 496 492 540 492 C588 492 614 532 612 592
+                 C610 646 586 690 540 692 C494 694 470 648 470 588 Z"
+              fill="none" stroke="#0d1220" stroke-width="6"/>
+      </g>
+    </g>
+<g class="crest">
+      <circle cx="540" cy="540" r="470" fill="url(#crestGlow)"/>
+      <circle cx="540" cy="540" r="352" fill="#f2e6c8"/>
+      <circle cx="540" cy="540" r="352" fill="none" stroke="#0d1220" stroke-width="18"/>
+      <!-- swan mon: bold filled formal crest, no thin curves -->
+      <path d="M470 700
+               C420 660 404 592 434 540
+               C462 490 526 476 566 508
+               C592 528 596 560 578 578
+               C560 596 536 590 528 572
+               C556 566 560 542 542 530
+               C512 510 470 528 462 566
+               C452 612 486 654 540 668
+               C596 682 646 664 672 630
+               L698 648
+               C666 704 578 730 470 700 Z"
+            fill="#0d1220"/>
+      <path d="M600 630 C640 640 668 636 692 620 L700 646 C666 664 628 664 596 652 Z" fill="#c8302a"/>
+    </g>
+<g class="seal">
+      <rect x="120" y="120" width="840" height="840" rx="34" fill="#c8302a"/>
+      <rect x="216" y="216" width="648" height="648" fill="none" stroke="#f2e6c8" stroke-width="46"/>
+      <rect x="216" y="470" width="648" height="46" fill="#f2e6c8"/>
+      <rect x="516" y="216" width="46" height="648" fill="#f2e6c8"/>
+    </g>
+    </g>
+
+    <!-- VIEW 2 : as intended — each mark placed with a transform -->
+    <g class="view v2">
+<g transform="translate(15.64,359.58) scale(0.945358)">
+<g class="actor">
       <g transform="translate(0,0)">
         <!-- outer robe : broad theatrical wedge -->
         <path d="M352 1240
@@ -206,10 +338,8 @@
       </g>
     </g>
     </g>
-
-    <!-- MARK 2 : the crest, far away, top right -->
-    <g transform="translate(808.74,141.54) scale(0.172340)">
-    <g id="crest">
+<g transform="translate(808.74,141.54) scale(0.172340)">
+<g class="crest">
       <circle cx="540" cy="540" r="470" fill="url(#crestGlow)"/>
       <circle cx="540" cy="540" r="352" fill="#f2e6c8"/>
       <circle cx="540" cy="540" r="352" fill="none" stroke="#0d1220" stroke-width="18"/>
@@ -229,17 +359,29 @@
       <path d="M600 630 C640 640 668 636 692 620 L700 646 C666 664 628 664 596 652 Z" fill="#c8302a"/>
     </g>
     </g>
-
-    <!-- MARK 3 : the seal -->
-    <g transform="translate(872.33,1581.53) scale(0.092571)">
-    <g id="seal">
+<g transform="translate(872.33,1581.53) scale(0.092571)">
+<g class="seal">
       <rect x="120" y="120" width="840" height="840" rx="34" fill="#c8302a"/>
       <rect x="216" y="216" width="648" height="648" fill="none" stroke="#f2e6c8" stroke-width="46"/>
       <rect x="216" y="470" width="648" height="46" fill="#f2e6c8"/>
       <rect x="516" y="216" width="46" height="648" fill="#f2e6c8"/>
     </g>
     </g>
+    </g>
   </svg>
+
+
+  <div class="panel pA">
+    <div class="label">The mistake</div>
+    <p>CSS <i>left</i> and <i>top</i> do nothing to an SVG group,
+       so all three marks drew in one place.</p>
+  </div>
+
+  <div class="panel pB">
+    <div class="label">As intended</div>
+    <p>Each mark placed with a transform — actor low left,
+       crest high right, seal a thumbnail.</p>
+  </div>
 
   <img id="guinea-pig" src="guineapig.png" alt="">
   <div id="date">2026 · 08 · 20</div>
