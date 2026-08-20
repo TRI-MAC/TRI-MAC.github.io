@@ -111,10 +111,10 @@
   #stage{ --sw: min(1080px, 100vw, calc(100vh * 1080 / 1920)); }
 
   .view{ opacity:0; will-change:opacity; }
-  .v1{ animation:showV1 76s linear infinite; }
-  .v2{ animation:showV2 76s linear infinite; }
-  @keyframes showV1{ 0%,14.5%{opacity:0} 16.4%,42.1%{opacity:1} 44.1%,100%{opacity:0} }
-  @keyframes showV2{ 0%,56.6%{opacity:0} 58.6%,98%{opacity:1} 100%{opacity:0} }
+  .v1{ animation:showV1 92s linear infinite; }
+  .v2{ animation:showV2 92s linear infinite; }
+  @keyframes showV1{ 0%,13.04%{opacity:0} 14.67%,35.87%{opacity:1} 37.5%,100%{opacity:0} }
+  @keyframes showV2{ 0%,48.91%{opacity:0} 50.54%,82.61%{opacity:1} 84.24%,100%{opacity:0} }
 
   .panel{
     position:absolute;
@@ -128,10 +128,24 @@
     font:400 calc(var(--sw)*0.056)/1.44 Georgia,"Times New Roman",serif;
     text-wrap:balance;
   }
-  .pA{ animation:showPA 76s linear infinite; }
-  .pB{ animation:showPB 76s linear infinite; }
-  @keyframes showPA{ 0%,14.5%{opacity:1} 16.4%,98%{opacity:0} 100%{opacity:1} }
-  @keyframes showPB{ 0%,42.1%{opacity:0} 44.1%,56.6%{opacity:1} 58.6%,100%{opacity:0} }
+  /* the closing slide: the quote sits a little higher, its attribution under it */
+  .pC{ top:33%; text-align:center; }
+  .pC .attrib{
+    margin-top:calc(var(--sw)*0.05);
+    font:400 calc(var(--sw)*0.021)/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.32em; text-transform:uppercase;
+    color:rgba(247,236,210,.66);
+    text-shadow:none;
+  }
+
+  /* 92s loop: 12s text · 21s accident · 12s text · 31s corrected · 14s quote,
+     with 1.5s cross-fades, including across the loop seam.               */
+  .pA{ animation:showPA 92s linear infinite; }
+  .pB{ animation:showPB 92s linear infinite; }
+  .pC{ animation:showPC 92s linear infinite; }
+  @keyframes showPA{ 0%,13.04%{opacity:1} 14.67%,98.37%{opacity:0} 100%{opacity:1} }
+  @keyframes showPB{ 0%,35.87%{opacity:0} 37.5%,48.91%{opacity:1} 50.54%,100%{opacity:0} }
+  @keyframes showPC{ 0%,82.61%{opacity:0} 84.24%,98.37%{opacity:1} 100%{opacity:0} }
 </style>
 </head>
 <body>
@@ -369,6 +383,11 @@
 
   <div class="panel pB">
     <p>When corrected, the piece looks like this&hellip;</p>
+  </div>
+
+  <div class="panel pC">
+    <p>&ldquo;We don&rsquo;t make mistakes,<br>just happy little accidents.&rdquo;</p>
+    <div class="attrib">Bob Ross</div>
   </div>
 
   <img id="guinea-pig" src="guineapig.png" alt="">
