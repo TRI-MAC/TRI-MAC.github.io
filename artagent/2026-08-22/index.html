@@ -8,11 +8,13 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>2026-08-22</title>
+<meta name="color-scheme" content="dark">
+<title></title>
 <style>
   :root {
-    color-scheme: light;
-    background: #6f4f50;
+    --portrait-cycle: 22s;
+    --light-cycle: 26s;
+    --phase: -8s;
   }
 
   * {
@@ -25,431 +27,260 @@
     height: 100%;
     margin: 0;
     overflow: hidden;
+    background: #3b292b;
   }
 
   body {
     display: grid;
     place-items: center;
-    background:
-      radial-gradient(circle at 50% 42%, #d8b29f 0 20%, #aa7772 54%, #664849 100%);
+    font-family: Arial, Helvetica, sans-serif;
   }
 
   #artwork {
     position: relative;
     width: min(100vw, 56.25vh);
-    height: min(177.7777778vw, 100vh);
     aspect-ratio: 9 / 16;
     overflow: hidden;
     isolation: isolate;
-    background: #bd8b7f;
+    background:
+      radial-gradient(circle at 50% 39%, #a97972 0%, #76504e 38%, #3b292b 78%, #251d20 100%);
   }
 
-  #atmosphere,
-  #portrait {
+  #background-video {
     position: absolute;
     inset: 0;
+    z-index: 1;
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
+    object-fit: cover;
+    object-position: 50% 50%;
+    opacity: 1;
+    background: #76504e;
   }
 
-  #atmosphere {
-    z-index: 0;
-  }
-
-  #portrait {
-    z-index: 1;
-  }
-
-  #body-breath {
-    transform-box: fill-box;
-    transform-origin: 47% 62%;
-    animation: breathe 8s ease-in-out infinite;
-  }
-
-  #chest-light {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: chestLight 8s ease-in-out infinite;
-  }
-
-  #ear-left,
-  #ear-right {
-    transform-box: fill-box;
-    transform-origin: 50% 18%;
-    animation: earListen 12s ease-in-out infinite;
-  }
-
-  #ear-right {
-    animation-delay: -5.8s;
-  }
-
-  #nose {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: noseBreath 5s ease-in-out infinite;
-  }
-
-  #whiskers-left {
-    transform-box: fill-box;
-    transform-origin: 100% 50%;
-    animation: whiskerLeft 7s ease-in-out infinite;
-  }
-
-  #whiskers-right {
-    transform-box: fill-box;
-    transform-origin: 0 50%;
-    animation: whiskerRight 7s ease-in-out infinite;
-  }
-
-  #eye-glints {
-    animation: glint 10s ease-in-out infinite;
-  }
-
-  #date {
+  #portrait-light {
     position: absolute;
+    inset: 0;
     z-index: 2;
-    right: 3.1%;
-    bottom: 1.8%;
-    color: rgba(255, 241, 227, 0.58);
-    font: 500 clamp(8px, 1.35vw, 14px)/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    letter-spacing: 0.16em;
+    display: block;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
   }
 
-  @keyframes breathe {
-    0%, 100% { transform: scale(1, 1); }
-    50% { transform: scale(1.009, 1.018); }
+  #soft-focus {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: focusBreath var(--portrait-cycle) ease-in-out infinite;
   }
 
-  @keyframes chestLight {
-    0%, 100% { opacity: 0.52; transform: scale(0.99); }
-    50% { opacity: 0.7; transform: scale(1.025); }
+  #left-light {
+    transform-box: fill-box;
+    transform-origin: 35% 45%;
+    animation: leftLight var(--light-cycle) ease-in-out infinite;
+    animation-delay: var(--phase);
   }
 
-  @keyframes earListen {
-    0%, 35%, 100% { transform: rotate(0deg); }
-    48% { transform: rotate(-1.8deg); }
-    60% { transform: rotate(0.8deg); }
+  #right-light {
+    transform-box: fill-box;
+    transform-origin: 65% 45%;
+    animation: rightLight var(--light-cycle) ease-in-out infinite;
+    animation-delay: calc(var(--phase) * 0.6);
   }
 
-  @keyframes noseBreath {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.025); }
+  #lower-warmth {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: lowerBreath var(--portrait-cycle) ease-in-out infinite;
+    animation-delay: calc(var(--phase) * 0.35);
   }
 
-  @keyframes whiskerLeft {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(-1.2deg); }
+  #edge-depth {
+    animation: depthPulse var(--light-cycle) ease-in-out infinite;
   }
 
-  @keyframes whiskerRight {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(1.2deg); }
+  @keyframes focusBreath {
+    0%, 100% {
+      transform: scale(0.985);
+      opacity: 0.76;
+    }
+    50% {
+      transform: scale(1.025);
+      opacity: 1;
+    }
   }
 
-  @keyframes glint {
-    0%, 100% { opacity: 0.88; }
+  @keyframes leftLight {
+    0%, 100% {
+      transform: translate3d(-1.2%, 0, 0) scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translate3d(1.2%, -0.5%, 0) scale(1.025);
+      opacity: 1;
+    }
+  }
+
+  @keyframes rightLight {
+    0%, 100% {
+      transform: translate3d(1%, 0.4%, 0) scale(1.02);
+      opacity: 0.82;
+    }
+    50% {
+      transform: translate3d(-1.1%, -0.4%, 0) scale(0.99);
+      opacity: 1;
+    }
+  }
+
+  @keyframes lowerBreath {
+    0%, 100% {
+      transform: translate3d(0, 1%, 0) scaleX(1.02) scaleY(0.98);
+      opacity: 0.74;
+    }
+    50% {
+      transform: translate3d(0, -0.8%, 0) scaleX(0.98) scaleY(1.025);
+      opacity: 1;
+    }
+  }
+
+  @keyframes depthPulse {
+    0%, 100% { opacity: 0.86; }
     50% { opacity: 1; }
   }
 
+  #date-stamp {
+    position: absolute;
+    z-index: 3;
+    right: 2.4%;
+    bottom: 1.5%;
+    color: rgba(255, 239, 223, 0.54);
+    font-size: clamp(8px, 1.05vw, 12px);
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px rgba(31, 20, 22, 0.55);
+    pointer-events: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    #body-breath,
-    #chest-light,
-    #ear-left,
-    #ear-right,
-    #nose,
-    #whiskers-left,
-    #whiskers-right,
-    #eye-glints {
-      animation: none;
+    #portrait-light g {
+      animation: none !important;
     }
   }
 </style>
 </head>
 <body>
-<main id="artwork" role="img" aria-label="A close, attentive portrait of Pickles, a rose-taupe hairless guinea pig with a charcoal tufted face, glossy eyes, pink nose, white whiskers, and tiny peach-pink feet.">
-  <canvas id="atmosphere" width="360" height="640" aria-hidden="true"></canvas>
+<main id="artwork" aria-label="Portrait study of Pickles, a hairless guinea pig">
+  <video
+    id="background-video"
+    src="background.mp4"
+    autoplay
+    loop
+    muted
+    playsinline
+    preload="auto"
+    aria-label="Pickles, a hairless guinea pig">
+  </video>
 
-  <svg id="portrait" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <svg id="portrait-light" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="groundGlow" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#efd1bb" stop-opacity="0"/>
-        <stop offset=".56" stop-color="#efd1bb" stop-opacity=".13"/>
-        <stop offset="1" stop-color="#543d41" stop-opacity=".48"/>
-      </linearGradient>
-
-      <radialGradient id="shadowFill">
-        <stop offset="0" stop-color="#3c292d" stop-opacity=".58"/>
-        <stop offset=".62" stop-color="#52373a" stop-opacity=".32"/>
-        <stop offset="1" stop-color="#6b4849" stop-opacity="0"/>
+      <radialGradient id="focusGlow" cx="50%" cy="40%" r="57%">
+        <stop offset="0%" stop-color="#ffe0ca" stop-opacity="0.19"/>
+        <stop offset="34%" stop-color="#e8ad98" stop-opacity="0.09"/>
+        <stop offset="72%" stop-color="#a66f6d" stop-opacity="0.025"/>
+        <stop offset="100%" stop-color="#7d5052" stop-opacity="0"/>
       </radialGradient>
 
-      <linearGradient id="bodyFill" x1=".12" y1=".08" x2=".86" y2=".94">
-        <stop offset="0" stop-color="#d1a18f"/>
-        <stop offset=".25" stop-color="#be867b"/>
-        <stop offset=".58" stop-color="#a66f6d"/>
-        <stop offset=".82" stop-color="#8b5d62"/>
-        <stop offset="1" stop-color="#704b53"/>
+      <linearGradient id="leftWash" x1="0%" y1="25%" x2="100%" y2="70%">
+        <stop offset="0%" stop-color="#4a3438" stop-opacity="0.32"/>
+        <stop offset="56%" stop-color="#7d5554" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#ba8278" stop-opacity="0"/>
       </linearGradient>
 
-      <linearGradient id="bodyLight" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#f2c3aa" stop-opacity=".72"/>
-        <stop offset=".55" stop-color="#d29483" stop-opacity=".25"/>
-        <stop offset="1" stop-color="#6c454e" stop-opacity="0"/>
+      <linearGradient id="rightWash" x1="100%" y1="22%" x2="0%" y2="72%">
+        <stop offset="0%" stop-color="#2e272b" stop-opacity="0.29"/>
+        <stop offset="58%" stop-color="#69494c" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="#ad756e" stop-opacity="0"/>
       </linearGradient>
 
-      <linearGradient id="faceFill" x1=".25" y1=".05" x2=".7" y2="1">
-        <stop offset="0" stop-color="#5a4a49"/>
-        <stop offset=".42" stop-color="#3c3739"/>
-        <stop offset=".78" stop-color="#282a2d"/>
-        <stop offset="1" stop-color="#1d2023"/>
-      </linearGradient>
-
-      <radialGradient id="eyeFill" cx=".36" cy=".27" r=".78">
-        <stop offset="0" stop-color="#716261"/>
-        <stop offset=".19" stop-color="#292729"/>
-        <stop offset=".62" stop-color="#090b0d"/>
-        <stop offset="1" stop-color="#020304"/>
+      <radialGradient id="lowerGlow" cx="50%" cy="92%" r="60%">
+        <stop offset="0%" stop-color="#e99b88" stop-opacity="0.19"/>
+        <stop offset="52%" stop-color="#b76f68" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="#6e4549" stop-opacity="0"/>
       </radialGradient>
 
-      <linearGradient id="earFill" x1=".2" y1="0" x2=".75" y2="1">
-        <stop offset="0" stop-color="#c18a82"/>
-        <stop offset=".42" stop-color="#9b686b"/>
-        <stop offset="1" stop-color="#684950"/>
+      <radialGradient id="edgeShade" cx="50%" cy="43%" r="77%">
+        <stop offset="0%" stop-color="#211a1d" stop-opacity="0"/>
+        <stop offset="59%" stop-color="#211a1d" stop-opacity="0"/>
+        <stop offset="82%" stop-color="#211a1d" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="#171316" stop-opacity="0.35"/>
+      </radialGradient>
+
+      <linearGradient id="upperCream" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#ffe5cc" stop-opacity="0.12"/>
+        <stop offset="62%" stop-color="#e7b9a2" stop-opacity="0.025"/>
+        <stop offset="100%" stop-color="#c58e83" stop-opacity="0"/>
       </linearGradient>
-
-      <linearGradient id="earInner" x1=".2" y1=".1" x2=".8" y2=".9">
-        <stop offset="0" stop-color="#85585e"/>
-        <stop offset=".6" stop-color="#5e4249"/>
-        <stop offset="1" stop-color="#3d3439"/>
-      </linearGradient>
-
-      <linearGradient id="footFill" x1=".2" y1="0" x2=".7" y2="1">
-        <stop offset="0" stop-color="#f1b6a0"/>
-        <stop offset=".56" stop-color="#d98f85"/>
-        <stop offset="1" stop-color="#a9686a"/>
-      </linearGradient>
-
-      <linearGradient id="noseFill" x1=".25" y1="0" x2=".7" y2="1">
-        <stop offset="0" stop-color="#ffd2c3"/>
-        <stop offset=".48" stop-color="#efa595"/>
-        <stop offset="1" stop-color="#b96e70"/>
-      </linearGradient>
-
-      <filter id="localSoft" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="11"/>
-      </filter>
-
-      <filter id="eyeSoft" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="4"/>
-      </filter>
-
-      <filter id="subjectShadow" x="-20%" y="-20%" width="140%" height="150%">
-        <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#402d32" flood-opacity=".4"/>
-      </filter>
     </defs>
 
-    <rect width="1080" height="1920" fill="url(#groundGlow)"/>
+    <g id="soft-focus">
+      <ellipse cx="540" cy="760" rx="500" ry="790" fill="url(#focusGlow)"/>
+      <path d="M155 0H925L828 525L540 690L252 525Z" fill="url(#upperCream)" opacity="0.72"/>
+    </g>
 
-    <ellipse cx="548" cy="1450" rx="440" ry="174" fill="url(#shadowFill)"/>
-    <ellipse cx="514" cy="1391" rx="333" ry="83" fill="#402c31" opacity=".18" filter="url(#localSoft)"/>
+    <g id="left-light">
+      <path d="M0 0H310L470 590L355 1210L0 1590Z" fill="url(#leftWash)"/>
+    </g>
 
-    <g filter="url(#subjectShadow)">
-      <!-- Rear feet -->
-      <g>
-        <path d="M775 1338 C810 1321 857 1332 873 1364 C886 1391 870 1424 837 1432 C802 1441 759 1423 756 1389 C754 1369 761 1348 775 1338Z" fill="url(#footFill)"/>
-        <path d="M815 1407 L822 1437 L833 1407Z" fill="#f4d7c4"/>
-        <path d="M838 1404 L849 1433 L858 1400Z" fill="#f4d7c4"/>
-        <path d="M786 1401 L787 1430 L799 1404Z" fill="#f4d7c4"/>
-        <path d="M705 1341 C733 1326 772 1334 787 1361 C801 1387 787 1417 757 1427 C723 1438 686 1421 681 1391 C678 1370 688 1350 705 1341Z" fill="url(#footFill)"/>
-        <path d="M716 1402 L720 1431 L731 1403Z" fill="#f4d7c4"/>
-        <path d="M742 1404 L751 1432 L759 1402Z" fill="#f4d7c4"/>
-      </g>
+    <g id="right-light">
+      <path d="M1080 0H780L625 610L735 1240L1080 1575Z" fill="url(#rightWash)"/>
+    </g>
 
-      <!-- Breathing hairless body -->
-      <g id="body-breath">
-        <path d="M411 779 C517 714 712 717 829 797 C924 862 963 989 941 1123 C921 1244 864 1351 770 1390 C661 1436 480 1405 384 1327 C296 1256 261 1127 273 1007 C283 909 326 832 411 779Z" fill="url(#bodyFill)"/>
+    <g id="lower-warmth">
+      <ellipse cx="540" cy="1710" rx="570" ry="640" fill="url(#lowerGlow)"/>
+    </g>
 
-        <path d="M456 792 C573 745 730 762 827 834 C878 872 906 926 916 988 C852 933 776 907 685 902 C575 896 479 927 389 997 C351 1027 317 1049 287 1057 C288 930 343 837 456 792Z" fill="url(#bodyLight)"/>
-
-        <path d="M696 780 C788 793 862 839 905 918 C938 980 944 1055 930 1127 C910 1227 864 1314 793 1361 C839 1260 842 1163 811 1074 C783 993 742 926 663 869Z" fill="#704b55" opacity=".3"/>
-
-        <!-- Broad skin folds -->
-        <path d="M713 840 C780 872 831 925 853 986 C865 1020 862 1046 840 1063 C817 1012 788 972 748 940 C712 911 679 891 644 877 C661 850 684 837 713 840Z" fill="#e0aa98" opacity=".22"/>
-        <path d="M796 1062 C841 1100 864 1151 856 1205 C850 1241 832 1274 803 1304 C817 1239 806 1181 769 1133 C739 1094 706 1067 665 1048 C708 1031 756 1036 796 1062Z" fill="#724b55" opacity=".28"/>
-        <path d="M605 1229 C668 1245 723 1281 756 1335 C693 1366 609 1368 535 1344 C484 1327 443 1302 414 1269 C478 1232 541 1219 605 1229Z" fill="#e3aa97" opacity=".16"/>
-        <path d="M343 1111 C372 1140 386 1180 383 1230 C380 1262 369 1287 350 1306 C316 1263 294 1205 284 1137 C302 1112 322 1104 343 1111Z" fill="#704a52" opacity=".25"/>
-
-        <ellipse id="chest-light" cx="537" cy="1034" rx="245" ry="205" fill="#efb7a0" opacity=".52"/>
-      </g>
-
-      <!-- Left ear -->
-      <g id="ear-left">
-        <path d="M275 793 C225 772 179 799 166 849 C153 897 181 958 228 976 C267 991 306 959 316 912 C329 854 310 808 275 793Z" fill="url(#earFill)"/>
-        <path d="M265 824 C231 810 202 832 198 867 C193 902 211 935 240 945 C267 954 288 930 291 894 C294 858 284 832 265 824Z" fill="url(#earInner)"/>
-        <path d="M185 856 C204 843 229 842 250 853 C222 867 206 889 202 922 C185 905 177 878 185 856Z" fill="#d49a90" opacity=".3"/>
-      </g>
-
-      <!-- Right ear -->
-      <g id="ear-right">
-        <path d="M559 789 C609 765 660 786 681 833 C703 880 684 941 641 968 C603 991 558 964 541 917 C521 863 528 804 559 789Z" fill="url(#earFill)"/>
-        <path d="M573 818 C606 801 638 819 648 852 C658 887 646 924 617 940 C592 953 567 932 559 898 C551 862 557 826 573 818Z" fill="url(#earInner)"/>
-        <path d="M652 836 C632 827 607 831 588 846 C619 855 639 875 648 907 C662 887 666 858 652 836Z" fill="#d99b91" opacity=".25"/>
-      </g>
-
-      <!-- Head -->
-      <path d="M316 772 C375 727 483 724 547 762 C616 802 648 887 627 987 C611 1067 556 1153 474 1182 C394 1210 298 1172 253 1101 C208 1031 206 920 243 845 C260 812 283 788 316 772Z" fill="url(#faceFill)"/>
-
-      <!-- Charcoal facial planes -->
-      <path d="M306 780 C352 747 416 741 462 757 L428 831 L350 867 L278 846 C283 817 292 795 306 780Z" fill="#66504c"/>
-      <path d="M461 756 C519 755 570 784 600 833 L544 860 L472 828Z" fill="#453b3d"/>
-      <path d="M259 855 C300 839 339 845 375 876 L341 987 L253 1013 C234 957 236 900 259 855Z" fill="#343236"/>
-      <path d="M376 869 C418 840 477 841 518 870 L537 995 L438 1069 L343 990Z" fill="#27292c"/>
-      <path d="M519 862 C570 851 609 880 627 929 C632 985 615 1043 580 1091 L521 1010Z" fill="#202327"/>
-
-      <!-- Wiry forehead tufts as filled angular locks -->
-      <g>
-        <path d="M299 799 L320 737 L340 792 L362 713 L379 792 L414 728 L420 811 L455 736 L461 817 L505 757 L491 838 L542 796 L509 866 L439 849 L371 851Z" fill="#9a6046"/>
-        <path d="M323 809 L338 762 L352 815 L382 747 L385 823 L420 764 L414 839 L457 778 L443 851 L479 811 L462 870 L384 864Z" fill="#c38258"/>
-        <path d="M353 824 L370 782 L382 830 L406 790 L405 844 L436 808 L427 861 L458 837 L443 878 L378 867Z" fill="#dfad79"/>
-        <path d="M274 838 L301 802 L304 852 L336 817 L329 870 L365 844 L345 889 L296 879Z" fill="#775044"/>
-        <path d="M480 814 L520 784 L505 836 L548 815 L521 861 L567 855 L526 886 L479 865Z" fill="#81523f"/>
-      </g>
-
-      <!-- Brows -->
-      <path d="M274 883 L305 849 L355 852 L381 881 L345 874 L313 883Z" fill="#b77950"/>
-      <path d="M452 867 L488 841 L541 853 L566 888 L526 874 L489 878Z" fill="#b77950"/>
-      <path d="M293 874 L315 854 L348 859 L361 876 L329 870Z" fill="#e0b17c"/>
-      <path d="M476 866 L498 850 L529 859 L544 878 L510 869Z" fill="#d9a574"/>
-
-      <!-- Eye surrounds -->
-      <ellipse cx="324" cy="925" rx="75" ry="71" fill="#221f22"/>
-      <ellipse cx="506" cy="921" rx="76" ry="72" fill="#201f22"/>
-      <ellipse cx="325" cy="925" rx="55" ry="58" fill="url(#eyeFill)"/>
-      <ellipse cx="506" cy="921" rx="56" ry="59" fill="url(#eyeFill)"/>
-      <ellipse cx="319" cy="920" rx="61" ry="64" fill="none" stroke="#79554d" stroke-width="9" opacity=".52"/>
-      <ellipse cx="512" cy="917" rx="62" ry="65" fill="none" stroke="#79554d" stroke-width="9" opacity=".48"/>
-
-      <g id="eye-glints">
-        <ellipse cx="306" cy="903" rx="16" ry="20" fill="#fff8e8"/>
-        <circle cx="338" cy="946" r="7" fill="#d6c4b8" opacity=".76"/>
-        <ellipse cx="488" cy="898" rx="17" ry="21" fill="#fff8e8"/>
-        <circle cx="522" cy="943" r="7" fill="#d6c4b8" opacity=".75"/>
-      </g>
-
-      <!-- Muzzle tufts -->
-      <path d="M286 1005 L322 973 L327 1018 L358 978 L358 1030 L393 991 L384 1044 L332 1077 L282 1055Z" fill="#ba865d"/>
-      <path d="M533 993 L563 1019 L557 1062 L512 1079 L461 1047 L455 994 L488 1030 L497 980Z" fill="#b37a55"/>
-      <path d="M299 1024 L329 1005 L335 1047 L365 1019 L357 1065 L390 1044 L368 1085 L321 1084Z" fill="#e2bb84"/>
-      <path d="M467 1040 L494 1017 L494 1059 L526 1025 L518 1069 L548 1051 L531 1090 L481 1084Z" fill="#e4bd87"/>
-      <path d="M324 1085 L356 1058 L359 1100 L392 1071 L388 1114 L423 1082 L418 1125 L371 1148Z" fill="#c99a6d"/>
-      <path d="M420 1084 L451 1069 L454 1110 L484 1083 L479 1124 L510 1103 L497 1140 L449 1154 L414 1128Z" fill="#c18b61"/>
-      <path d="M353 1080 L382 1054 L385 1099 L414 1061 L413 1111 L443 1076 L440 1123 L397 1144 L359 1122Z" fill="#f0d19c"/>
-
-      <!-- Nose and mouth -->
-      <g id="nose">
-        <path d="M381 1052 C399 1037 433 1037 451 1052 C467 1066 462 1091 440 1105 C421 1118 395 1114 378 1098 C363 1083 366 1065 381 1052Z" fill="url(#noseFill)"/>
-        <ellipse cx="393" cy="1071" rx="8" ry="5" fill="#744c51" opacity=".72"/>
-        <ellipse cx="438" cy="1071" rx="8" ry="5" fill="#744c51" opacity=".72"/>
-        <ellipse cx="402" cy="1059" rx="13" ry="6" fill="#ffe8dc" opacity=".66"/>
-      </g>
-      <path d="M415 1107 L415 1125" stroke="#6d4348" stroke-width="7" stroke-linecap="round"/>
-      <path d="M415 1125 L395 1137" stroke="#6d4348" stroke-width="6" stroke-linecap="round"/>
-      <path d="M415 1125 L435 1137" stroke="#6d4348" stroke-width="6" stroke-linecap="round"/>
-
-      <!-- Forefeet -->
-      <g>
-        <path d="M300 1292 C339 1270 392 1285 408 1325 C422 1361 400 1405 360 1417 C319 1430 269 1407 265 1366 C262 1335 276 1306 300 1292Z" fill="url(#footFill)"/>
-        <path d="M290 1381 L293 1422 L307 1383Z" fill="#f7ddc9"/>
-        <path d="M322 1387 L330 1428 L341 1385Z" fill="#f7ddc9"/>
-        <path d="M355 1385 L368 1423 L376 1380Z" fill="#f7ddc9"/>
-        <path d="M467 1306 C502 1284 551 1295 570 1331 C587 1365 570 1404 534 1419 C494 1435 450 1417 442 1379 C436 1347 446 1320 467 1306Z" fill="url(#footFill)"/>
-        <path d="M466 1386 L470 1424 L484 1387Z" fill="#f7ddc9"/>
-        <path d="M496 1391 L505 1429 L516 1388Z" fill="#f7ddc9"/>
-        <path d="M528 1385 L541 1420 L548 1379Z" fill="#f7ddc9"/>
-      </g>
-
-      <!-- Long straight white whiskers -->
-      <g id="whiskers-left" fill="none" stroke="#fff6e7" stroke-linecap="round">
-        <path d="M368 1056 L112 976" stroke-width="5" opacity=".9"/>
-        <path d="M365 1074 L78 1052" stroke-width="4" opacity=".78"/>
-        <path d="M368 1091 L121 1145" stroke-width="5" opacity=".88"/>
-        <path d="M379 1107 L168 1216" stroke-width="4" opacity=".7"/>
-        <path d="M358 1039 L151 911" stroke-width="3" opacity=".62"/>
-      </g>
-      <g id="whiskers-right" fill="none" stroke="#fff6e7" stroke-linecap="round">
-        <path d="M459 1054 L711 971" stroke-width="5" opacity=".9"/>
-        <path d="M463 1073 L755 1043" stroke-width="4" opacity=".8"/>
-        <path d="M459 1091 L719 1140" stroke-width="5" opacity=".88"/>
-        <path d="M451 1108 L661 1214" stroke-width="4" opacity=".7"/>
-        <path d="M467 1038 L672 906" stroke-width="3" opacity=".62"/>
-      </g>
-
-      <!-- Sparse wiry cheek hairs -->
-      <g stroke-linecap="round">
-        <path d="M261 981 L208 949" stroke="#c78b61" stroke-width="8"/>
-        <path d="M270 1013 L205 1001" stroke="#e3bc83" stroke-width="7"/>
-        <path d="M566 984 L625 946" stroke="#c78b61" stroke-width="8"/>
-        <path d="M560 1015 L635 1001" stroke="#e3bc83" stroke-width="7"/>
-      </g>
+    <g id="edge-depth">
+      <rect width="1080" height="1920" fill="url(#edgeShade)"/>
     </g>
   </svg>
 
-  <time id="date" datetime="2026-08-22">2026-08-22</time>
+  <time id="date-stamp" datetime="2026-08-22">2026-08-22</time>
 </main>
 
 <script>
 (() => {
-  const canvas = document.getElementById('atmosphere');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  const w = canvas.width;
-  const h = canvas.height;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dateSeed = 20260822;
+  const portraitCycle = 18 + (dateSeed % 9);
+  const lightCycle = 24 + (Math.floor(dateSeed / 10) % 8);
+  const phase = -(dateSeed % 13);
 
-  function draw(time) {
-    const t = reduced ? 0 : time * 0.00008;
-    const driftX = Math.sin(t * Math.PI * 2) * 9;
-    const driftY = Math.cos(t * Math.PI * 2) * 7;
+  document.documentElement.style.setProperty("--portrait-cycle", portraitCycle + "s");
+  document.documentElement.style.setProperty("--light-cycle", lightCycle + "s");
+  document.documentElement.style.setProperty("--phase", phase + "s");
 
-    const base = ctx.createLinearGradient(0, 0, w, h);
-    base.addColorStop(0, '#d1a18e');
-    base.addColorStop(0.36, '#b77e76');
-    base.addColorStop(0.72, '#8b5d60');
-    base.addColorStop(1, '#62464c');
-    ctx.fillStyle = base;
-    ctx.fillRect(0, 0, w, h);
+  const video = document.getElementById("background-video");
+  video.muted = true;
+  video.defaultMuted = true;
 
-    const upperLight = ctx.createRadialGradient(
-      148 + driftX, 188 + driftY, 8,
-      148 + driftX, 188 + driftY, 220
-    );
-    upperLight.addColorStop(0, 'rgba(255,224,199,0.48)');
-    upperLight.addColorStop(0.48, 'rgba(232,177,153,0.22)');
-    upperLight.addColorStop(1, 'rgba(164,100,99,0)');
-    ctx.fillStyle = upperLight;
-    ctx.fillRect(0, 0, w, h);
-
-    const subjectLight = ctx.createRadialGradient(
-      176 - driftX * 0.35, 379, 18,
-      176 - driftX * 0.35, 379, 190
-    );
-    subjectLight.addColorStop(0, 'rgba(255,218,192,0.22)');
-    subjectLight.addColorStop(0.6, 'rgba(224,158,141,0.11)');
-    subjectLight.addColorStop(1, 'rgba(105,67,73,0)');
-    ctx.fillStyle = subjectLight;
-    ctx.fillRect(0, 150, w, 440);
-
-    const lower = ctx.createLinearGradient(0, 360, 0, h);
-    lower.addColorStop(0, 'rgba(73,48,54,0)');
-    lower.addColorStop(1, 'rgba(62,43,49,0.5)');
-    ctx.fillStyle = lower;
-    ctx.fillRect(0, 360, w, h - 360);
-
-    if (!reduced) requestAnimationFrame(draw);
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (reducedMotion.matches) {
+    video.addEventListener("loadeddata", () => {
+      video.currentTime = Math.min(0.5, video.duration || 0.5);
+      video.pause();
+    }, { once: true });
+  } else {
+    const attemptPlayback = () => {
+      const promise = video.play();
+      if (promise && typeof promise.catch === "function") {
+        promise.catch(() => {});
+      }
+    };
+    if (video.readyState >= 2) attemptPlayback();
+    else video.addEventListener("canplay", attemptPlayback, { once: true });
   }
-
-  requestAnimationFrame(draw);
 })();
 </script>
 </body>
