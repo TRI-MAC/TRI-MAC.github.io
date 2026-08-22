@@ -6,280 +6,478 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<title></title>
+<meta charset="utf-8">
+<title>Pickles — The Great Wave</title>
 <style>
-  :root {
-    --portrait-cycle: 22s;
-    --light-cycle: 26s;
-    --phase: -8s;
+  html,body{margin:0;padding:0;background:#0b0f14;overflow:hidden;height:100%}
+  #stage{
+    position:absolute;left:50%;top:50%;
+    width:1080px;height:1920px;
+    transform:translate(-50%,-50%) scale(var(--s,1));
+    transform-origin:50% 50%;
+    background:#e8dcc0;
+    overflow:hidden;
   }
-
-  * {
-    box-sizing: border-box;
+  /* ---- video: sits behind the print, ungraded, no filters, no blend ---- */
+  #background-video{
+    position:absolute;left:-6%;top:34%;
+    width:112%;height:44%;
+    object-fit:cover;
+    opacity:.82;
+    z-index:1;
   }
-
-  html,
-  body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-    background: #3b292b;
-  }
-
-  body {
-    display: grid;
-    place-items: center;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-
-  #artwork {
-    position: relative;
-    width: min(100vw, 56.25vh);
-    aspect-ratio: 9 / 16;
-    overflow: hidden;
-    isolation: isolate;
+  #paperbase{
+    position:absolute;inset:0;z-index:0;
     background:
-      radial-gradient(circle at 50% 39%, #a97972 0%, #76504e 38%, #3b292b 78%, #251d20 100%);
+      radial-gradient(120% 80% at 50% 8%, #f2e7cd 0%, #e6d8b8 55%, #d8c69e 100%);
   }
-
-  #background-video {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 50%;
-    opacity: 1;
-    background: #76504e;
+  /* single blended full-viewport layer (paper grain + fibre + vignette) */
+  #paper{
+    position:absolute;inset:0;z-index:9;
+    pointer-events:none;
+    mix-blend-mode:multiply;
+    background-image:
+      radial-gradient(85% 60% at 50% 45%, rgba(255,255,255,0) 60%, rgba(120,96,60,.30) 100%),
+      repeating-linear-gradient(97deg, rgba(150,124,84,.10) 0 1px, rgba(0,0,0,0) 1px 4px),
+      repeating-linear-gradient(3deg, rgba(150,124,84,.07) 0 1px, rgba(0,0,0,0) 1px 6px),
+      radial-gradient(circle at 22% 71%, rgba(148,110,64,.13) 0 3px, rgba(0,0,0,0) 4px),
+      radial-gradient(circle at 68% 22%, rgba(148,110,64,.11) 0 4px, rgba(0,0,0,0) 5px);
   }
-
-  #portrait-light {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: block;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+  #grain{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:.5}
+  svg.layer{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:visible}
+  #back{z-index:2}
+  #front{z-index:6}
+  #cavy{z-index:7}
+  #date{
+    position:absolute;right:34px;bottom:26px;z-index:20;
+    font:400 15px/1 "Iowan Old Style",Georgia,serif;
+    color:#3b3126;opacity:.5;letter-spacing:.22em;
   }
-
-  #soft-focus {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: focusBreath var(--portrait-cycle) ease-in-out infinite;
-  }
-
-  #left-light {
-    transform-box: fill-box;
-    transform-origin: 35% 45%;
-    animation: leftLight var(--light-cycle) ease-in-out infinite;
-    animation-delay: var(--phase);
-  }
-
-  #right-light {
-    transform-box: fill-box;
-    transform-origin: 65% 45%;
-    animation: rightLight var(--light-cycle) ease-in-out infinite;
-    animation-delay: calc(var(--phase) * 0.6);
-  }
-
-  #lower-warmth {
-    transform-box: fill-box;
-    transform-origin: center bottom;
-    animation: lowerBreath var(--portrait-cycle) ease-in-out infinite;
-    animation-delay: calc(var(--phase) * 0.35);
-  }
-
-  #edge-depth {
-    animation: depthPulse var(--light-cycle) ease-in-out infinite;
-  }
-
-  @keyframes focusBreath {
-    0%, 100% {
-      transform: scale(0.985);
-      opacity: 0.76;
-    }
-    50% {
-      transform: scale(1.025);
-      opacity: 1;
-    }
-  }
-
-  @keyframes leftLight {
-    0%, 100% {
-      transform: translate3d(-1.2%, 0, 0) scale(1);
-      opacity: 0.7;
-    }
-    50% {
-      transform: translate3d(1.2%, -0.5%, 0) scale(1.025);
-      opacity: 1;
-    }
-  }
-
-  @keyframes rightLight {
-    0%, 100% {
-      transform: translate3d(1%, 0.4%, 0) scale(1.02);
-      opacity: 0.82;
-    }
-    50% {
-      transform: translate3d(-1.1%, -0.4%, 0) scale(0.99);
-      opacity: 1;
-    }
-  }
-
-  @keyframes lowerBreath {
-    0%, 100% {
-      transform: translate3d(0, 1%, 0) scaleX(1.02) scaleY(0.98);
-      opacity: 0.74;
-    }
-    50% {
-      transform: translate3d(0, -0.8%, 0) scaleX(0.98) scaleY(1.025);
-      opacity: 1;
-    }
-  }
-
-  @keyframes depthPulse {
-    0%, 100% { opacity: 0.86; }
-    50% { opacity: 1; }
-  }
-
-  #date-stamp {
-    position: absolute;
-    z-index: 3;
-    right: 2.4%;
-    bottom: 1.5%;
-    color: rgba(255, 239, 223, 0.54);
-    font-size: clamp(8px, 1.05vw, 12px);
-    line-height: 1;
-    font-weight: 500;
-    letter-spacing: 0.13em;
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 1px 2px rgba(31, 20, 22, 0.55);
-    pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #portrait-light g {
-      animation: none !important;
-    }
-  }
+  /* motion: world moves, Pickles barely does */
+  @keyframes swell{0%{transform:translate(0,0)}50%{transform:translate(-14px,10px)}100%{transform:translate(0,0)}}
+  @keyframes swell2{0%{transform:translate(0,0)}50%{transform:translate(16px,-8px)}100%{transform:translate(0,0)}}
+  @keyframes bob{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(0,-9px) rotate(-1.1deg)}100%{transform:translate(0,0) rotate(0deg)}}
+  @keyframes bob2{0%{transform:translate(0,0) rotate(0.6deg)}50%{transform:translate(-5px,7px) rotate(-0.5deg)}100%{transform:translate(0,0) rotate(0.6deg)}}
+  @keyframes drift{0%{transform:translate(0,0)}50%{transform:translate(22px,4px)}100%{transform:translate(0,0)}}
+  @keyframes spray{0%{transform:translate(0,0);opacity:.85}50%{transform:translate(-9px,-13px);opacity:1}100%{transform:translate(0,0);opacity:.85}}
+  .swell{animation:swell 11s ease-in-out infinite}
+  .swell2{animation:swell2 14s ease-in-out infinite}
+  .bob{animation:bob 6.5s ease-in-out infinite}
+  .bob2{animation:bob2 8.2s ease-in-out infinite}
+  .drift{animation:drift 26s ease-in-out infinite}
+  .spray{animation:spray 5.5s ease-in-out infinite}
+  .pickles{animation:bob 9.5s ease-in-out infinite}
 </style>
 </head>
 <body>
-<main id="artwork" aria-label="Portrait study of Pickles, a hairless guinea pig">
-  <video
-    id="background-video"
-    src="background.mp4"
-    autoplay
-    loop
-    muted
-    playsinline
-    preload="auto"
-    aria-label="Pickles, a hairless guinea pig">
-  </video>
+<div id="stage">
 
-  <svg id="portrait-light" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <div id="paperbase"></div>
+
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <!-- ================= BACK: sky, Fuji, distant swells ================= -->
+  <svg class="layer" id="back" viewBox="0 0 1080 1920" preserveAspectRatio="none">
     <defs>
-      <radialGradient id="focusGlow" cx="50%" cy="40%" r="57%">
-        <stop offset="0%" stop-color="#ffe0ca" stop-opacity="0.19"/>
-        <stop offset="34%" stop-color="#e8ad98" stop-opacity="0.09"/>
-        <stop offset="72%" stop-color="#a66f6d" stop-opacity="0.025"/>
-        <stop offset="100%" stop-color="#7d5052" stop-opacity="0"/>
-      </radialGradient>
-
-      <linearGradient id="leftWash" x1="0%" y1="25%" x2="100%" y2="70%">
-        <stop offset="0%" stop-color="#4a3438" stop-opacity="0.32"/>
-        <stop offset="56%" stop-color="#7d5554" stop-opacity="0.08"/>
-        <stop offset="100%" stop-color="#ba8278" stop-opacity="0"/>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d9c79c"/>
+        <stop offset=".45" stop-color="#e7d9b4"/>
+        <stop offset="1" stop-color="#efe4c6"/>
       </linearGradient>
-
-      <linearGradient id="rightWash" x1="100%" y1="22%" x2="0%" y2="72%">
-        <stop offset="0%" stop-color="#2e272b" stop-opacity="0.29"/>
-        <stop offset="58%" stop-color="#69494c" stop-opacity="0.07"/>
-        <stop offset="100%" stop-color="#ad756e" stop-opacity="0"/>
+      <linearGradient id="cloudband" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#8a7a5c" stop-opacity="0"/>
+        <stop offset=".5" stop-color="#7d6c50" stop-opacity=".30"/>
+        <stop offset="1" stop-color="#8a7a5c" stop-opacity="0"/>
       </linearGradient>
-
-      <radialGradient id="lowerGlow" cx="50%" cy="92%" r="60%">
-        <stop offset="0%" stop-color="#e99b88" stop-opacity="0.19"/>
-        <stop offset="52%" stop-color="#b76f68" stop-opacity="0.07"/>
-        <stop offset="100%" stop-color="#6e4549" stop-opacity="0"/>
-      </radialGradient>
-
-      <radialGradient id="edgeShade" cx="50%" cy="43%" r="77%">
-        <stop offset="0%" stop-color="#211a1d" stop-opacity="0"/>
-        <stop offset="59%" stop-color="#211a1d" stop-opacity="0"/>
-        <stop offset="82%" stop-color="#211a1d" stop-opacity="0.12"/>
-        <stop offset="100%" stop-color="#171316" stop-opacity="0.35"/>
-      </radialGradient>
-
-      <linearGradient id="upperCream" x1="50%" y1="0%" x2="50%" y2="100%">
-        <stop offset="0%" stop-color="#ffe5cc" stop-opacity="0.12"/>
-        <stop offset="62%" stop-color="#e7b9a2" stop-opacity="0.025"/>
-        <stop offset="100%" stop-color="#c58e83" stop-opacity="0"/>
+      <linearGradient id="fujiG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2f4a63"/>
+        <stop offset=".38" stop-color="#3d5c74"/>
+        <stop offset="1" stop-color="#54708a"/>
+      </linearGradient>
+      <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1b3a58"/>
+        <stop offset="1" stop-color="#0d2439"/>
       </linearGradient>
     </defs>
 
-    <g id="soft-focus">
-      <ellipse cx="540" cy="760" rx="500" ry="790" fill="url(#focusGlow)"/>
-      <path d="M155 0H925L828 525L540 690L252 525Z" fill="url(#upperCream)" opacity="0.72"/>
+    <rect x="0" y="0" width="1080" height="1200" fill="url(#sky)"/>
+
+    <!-- flat horizontal cloud bars, ukiyo-e bokashi -->
+    <g class="drift">
+      <rect x="-60" y="300" width="1200" height="34" fill="url(#cloudband)"/>
+      <rect x="-60" y="372" width="1200" height="18" fill="url(#cloudband)" opacity=".7"/>
+      <rect x="-60" y="238" width="1200" height="12" fill="url(#cloudband)" opacity=".55"/>
     </g>
 
-    <g id="left-light">
-      <path d="M0 0H310L470 590L355 1210L0 1590Z" fill="url(#leftWash)"/>
+    <!-- Mount Fuji -->
+    <g>
+      <path d="M300 1060 L540 700 L780 1060 Z" fill="url(#fujiG)"/>
+      <path d="M470 796 L540 700 L612 796 L586 786 L566 800 L540 782 L512 802 L492 788 Z" fill="#f3ead2"/>
+      <path d="M540 700 L780 1060 L700 1060 L540 760 Z" fill="#294055" opacity=".55"/>
     </g>
 
-    <g id="right-light">
-      <path d="M1080 0H780L625 610L735 1240L1080 1575Z" fill="url(#rightWash)"/>
-    </g>
-
-    <g id="lower-warmth">
-      <ellipse cx="540" cy="1710" rx="570" ry="640" fill="url(#lowerGlow)"/>
-    </g>
-
-    <g id="edge-depth">
-      <rect width="1080" height="1920" fill="url(#edgeShade)"/>
+    <!-- distant flat sea band behind the video -->
+    <rect x="0" y="1040" width="1080" height="180" fill="url(#deep)"/>
+    <g class="swell2" opacity=".85">
+      <path d="M-40 1090 Q 160 1058 360 1090 Q 560 1122 760 1090 Q 960 1058 1140 1090 L1140 1130 L-40 1130 Z" fill="#173350"/>
     </g>
   </svg>
 
-  <time id="date-stamp" datetime="2026-08-22">2026-08-22</time>
-</main>
+  <!-- ================= FRONT: the great wave ================= -->
+  <svg class="layer" id="front" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="waveBody" x1="0.1" y1="0" x2="0.9" y2="1">
+        <stop offset="0" stop-color="#0e2b47"/>
+        <stop offset=".45" stop-color="#16436b"/>
+        <stop offset="1" stop-color="#0a2138"/>
+      </linearGradient>
+      <linearGradient id="waveMid" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2b6d95"/>
+        <stop offset="1" stop-color="#144263"/>
+      </linearGradient>
+      <linearGradient id="troughG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#123a5c"/>
+        <stop offset="1" stop-color="#071a2b"/>
+      </linearGradient>
+      <linearGradient id="foamG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fdf8ea"/>
+        <stop offset="1" stop-color="#dfe8e6"/>
+      </linearGradient>
+      <clipPath id="crestClip">
+        <path d="M-60 1180
+                 C 60 900, 300 700, 560 760
+                 C 800 815, 900 1010, 880 1180
+                 L880 1500 L-60 1500 Z"/>
+      </clipPath>
+    </defs>
+
+    <!-- === LEFT/CENTRE: the giant curling wave === -->
+    <g class="swell">
+      <!-- big dark body -->
+      <path d="M-80 1560
+               C -60 1240, 60 980, 300 880
+               C 520 788, 760 860, 852 1052
+               C 900 1152, 886 1246, 828 1300
+               C 892 1214, 902 1090, 852 1010
+               C 770 878, 566 830, 380 918
+               C 176 1014, 60 1240, 44 1560 Z"
+            fill="url(#waveBody)"/>
+
+      <!-- inner curl mass -->
+      <path d="M-80 1560
+               C -50 1260, 70 1040, 300 946
+               C 500 864, 720 930, 800 1096
+               C 846 1192, 826 1288, 764 1330
+               C 640 1414, 380 1400, 200 1470
+               C 90 1512, 20 1546, -80 1560 Z"
+            fill="url(#waveMid)" opacity=".92"/>
+
+      <!-- hollow shadow under the curl -->
+      <path d="M120 1470
+               C 300 1364, 560 1354, 700 1290
+               C 760 1262, 792 1206, 786 1146
+               C 800 1256, 748 1342, 620 1388
+               C 470 1442, 268 1450, 120 1520 Z"
+            fill="#061626" opacity=".7"/>
+
+      <!-- crest foam: bold rounded lobes, no wispy lines -->
+      <g class="spray">
+        <path d="M300 880
+                 C 380 812, 470 786, 560 800
+                 C 612 738, 700 742, 742 800
+                 C 806 794, 850 848, 836 908
+                 C 782 872, 730 878, 700 906
+                 C 648 856, 566 852, 520 892
+                 C 470 848, 372 848, 300 880 Z"
+              fill="url(#foamG)"/>
+        <!-- claw-like foam fingers as filled lobes -->
+        <path d="M560 800 C 600 742, 584 690, 540 664 C 596 676, 626 726, 616 786 Z" fill="#fdf8ea"/>
+        <path d="M660 786 C 704 730, 700 676, 664 646 C 720 664, 744 720, 724 782 Z" fill="#fdf8ea"/>
+        <path d="M456 828 C 480 774, 462 726, 424 704 C 478 714, 508 764, 498 820 Z" fill="#fdf8ea"/>
+        <circle cx="540" cy="648" r="16" fill="#fdf8ea"/>
+        <circle cx="666" cy="630" r="13" fill="#fdf8ea"/>
+        <circle cx="418" cy="690" r="11" fill="#fdf8ea"/>
+        <circle cx="760" cy="700" r="10" fill="#fdf8ea"/>
+        <circle cx="596" cy="592" r="9" fill="#fdf8ea"/>
+        <circle cx="708" cy="586" r="7" fill="#fdf8ea"/>
+      </g>
+
+      <!-- foam scallops along the wave shoulder -->
+      <g fill="#f6efdd">
+        <circle cx="230" cy="984" r="26"/>
+        <circle cx="286" cy="948" r="20"/>
+        <circle cx="176" cy="1032" r="21"/>
+        <circle cx="130" cy="1092" r="17"/>
+        <circle cx="98" cy="1160" r="14"/>
+        <circle cx="806" cy="1024" r="19"/>
+        <circle cx="844" cy="1090" r="15"/>
+      </g>
+      <!-- thick foam arcs inside the hollow -->
+      <path d="M250 1400 C 400 1330, 580 1330, 690 1272 L706 1300 C 592 1362, 408 1362, 264 1430 Z" fill="#e9f0ea" opacity=".8"/>
+      <path d="M200 1462 C 360 1394, 560 1392, 668 1338 L680 1362 C 566 1420, 372 1424, 214 1490 Z" fill="#cfdcdb" opacity=".65"/>
+    </g>
+
+    <!-- === RIGHT: secondary swell === -->
+    <g class="swell2">
+      <path d="M760 1920
+               C 780 1620, 880 1420, 1080 1348
+               L1140 1348 L1140 1920 Z"
+            fill="url(#troughG)"/>
+      <path d="M840 1920
+               C 862 1660, 950 1490, 1140 1436
+               L1140 1920 Z"
+            fill="#1a4a6e" opacity=".8"/>
+      <g fill="#f4ecda">
+        <circle cx="1020" cy="1386" r="22"/>
+        <circle cx="960" cy="1432" r="17"/>
+        <circle cx="912" cy="1492" r="14"/>
+        <circle cx="1064" cy="1360" r="15"/>
+      </g>
+    </g>
+
+    <!-- === FOREGROUND trough closing the composition === -->
+    <g class="bob2">
+      <path d="M-60 1920
+               C 40 1706, 300 1622, 560 1660
+               C 780 1692, 940 1780, 1140 1760
+               L1140 1920 Z"
+            fill="#08202f"/>
+      <path d="M-60 1920
+               C 60 1780, 320 1712, 580 1748
+               C 800 1778, 960 1846, 1140 1832
+               L1140 1920 Z"
+            fill="#0d3049"/>
+      <g fill="#e6eee9" opacity=".85">
+        <circle cx="140" cy="1740" r="20"/>
+        <circle cx="220" cy="1712" r="14"/>
+        <circle cx="420" cy="1682" r="16"/>
+        <circle cx="640" cy="1706" r="13"/>
+        <circle cx="860" cy="1756" r="17"/>
+        <circle cx="40" cy="1790" r="12"/>
+      </g>
+    </g>
+  </svg>
+
+  <!-- ================= PICKLES in the boat ================= -->
+  <svg class="layer" id="cavy" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8d6b3f"/>
+        <stop offset="1" stop-color="#4b3520"/>
+      </linearGradient>
+      <linearGradient id="bodyG" x1=".2" y1="0" x2=".8" y2="1">
+        <stop offset="0" stop-color="#e2b6ab"/>
+        <stop offset=".55" stop-color="#cf9c92"/>
+        <stop offset="1" stop-color="#a97b74"/>
+      </linearGradient>
+      <linearGradient id="headG" x1=".3" y1="0" x2=".7" y2="1">
+        <stop offset="0" stop-color="#574c4a"/>
+        <stop offset="1" stop-color="#2e2827"/>
+      </linearGradient>
+    </defs>
+
+    <!-- boat sits in the hollow of the wave, small against it -->
+    <g transform="translate(420,1330) rotate(-9)" class="pickles">
+
+      <!-- hull -->
+      <g>
+        <path d="M-190 0 C -150 52, 150 60, 236 6 C 200 68, -140 82, -190 0 Z" fill="url(#hull)"/>
+        <path d="M-190 0 C -150 40, 150 46, 236 6 L236 -6 C 150 30, -150 26, -190 -8 Z" fill="#6d5230"/>
+        <!-- prow -->
+        <path d="M236 6 C 268 -6, 300 -34, 316 -60 C 292 -30, 262 -8, 236 -6 Z" fill="#3f2c19"/>
+        <path d="M-190 0 C -222 -14, -246 -40, -256 -62 C -234 -34, -212 -12, -190 -8 Z" fill="#3f2c19"/>
+        <!-- rib lines: thick, few -->
+        <g stroke="#33240f" stroke-width="5" opacity=".7">
+          <line x1="-110" y1="4" x2="-104" y2="52"/>
+          <line x1="-20" y1="14" x2="-16" y2="60"/>
+          <line x1="80" y1="18" x2="82" y2="62"/>
+          <line x1="170" y1="12" x2="168" y2="52"/>
+        </g>
+        <!-- rice-straw bundles -->
+        <g fill="#c9a765">
+          <ellipse cx="-96" cy="-16" rx="42" ry="19"/>
+          <ellipse cx="10" cy="-10" rx="46" ry="20"/>
+          <ellipse cx="128" cy="-16" rx="38" ry="17"/>
+        </g>
+        <g fill="#a98a4c" opacity=".8">
+          <ellipse cx="-96" cy="-10" rx="42" ry="9"/>
+          <ellipse cx="10" cy="-4" rx="46" ry="9"/>
+          <ellipse cx="128" cy="-10" rx="38" ry="8"/>
+        </g>
+      </g>
+
+      <!-- oar: thick shaft, no squiggle -->
+      <g transform="rotate(16)" >
+        <rect x="-40" y="-40" width="230" height="12" rx="6" fill="#7a5c33"/>
+        <path d="M186 -46 C 232 -50, 262 -34, 252 -18 C 240 -2, 204 -12, 184 -22 Z" fill="#6a4e2a"/>
+      </g>
+
+      <!-- PICKLES: skinny pig, compact low-set body, seated in the boat -->
+      <g transform="translate(-6,-96)">
+
+        <!-- rump / body: low, compact -->
+        <path d="M-124 84
+                 C -142 26, -112 -18, -58 -34
+                 C -8 -48, 48 -40, 78 -8
+                 C 104 20, 100 60, 74 84 Z"
+              fill="url(#bodyG)"/>
+        <!-- belly shadow -->
+        <path d="M-118 82 C -128 46, -104 16, -58 4 C -10 -8, 44 0, 70 26 C 84 44, 82 66, 70 82 Z" fill="#b9857d" opacity=".55"/>
+        <!-- wrinkle folds at the shoulder (few, thick) -->
+        <g stroke="#a3736c" stroke-width="4" stroke-linecap="round" fill="none" opacity=".8">
+          <path d="M-88 26 C -70 20, -54 22, -42 30"/>
+          <path d="M-92 48 C -72 42, -54 44, -42 52"/>
+          <path d="M18 -18 C 30 -6, 34 8, 32 22"/>
+        </g>
+
+        <!-- rear foot: tiny peach-pink with pale claws -->
+        <g transform="translate(-96,80)">
+          <ellipse cx="0" cy="0" rx="24" ry="12" fill="#e9a99b"/>
+          <g fill="#f2ded2">
+            <ellipse cx="-16" cy="4" rx="4" ry="3"/>
+            <ellipse cx="-6" cy="7" rx="4" ry="3"/>
+            <ellipse cx="5" cy="7" rx="4" ry="3"/>
+          </g>
+        </g>
+        <!-- front foot gripping the oar -->
+        <g transform="translate(66,58) rotate(14)">
+          <ellipse cx="0" cy="0" rx="21" ry="12" fill="#e9a99b"/>
+          <g fill="#f2ded2">
+            <ellipse cx="12" cy="-2" rx="4" ry="3"/>
+            <ellipse cx="5" cy="5" rx="4" ry="3"/>
+            <ellipse cx="-4" cy="6" rx="4" ry="3"/>
+          </g>
+        </g>
+        <!-- second front foot -->
+        <g transform="translate(30,74) rotate(6)">
+          <ellipse cx="0" cy="0" rx="18" ry="10" fill="#dd9b8e"/>
+        </g>
+
+        <!-- HEAD: charcoal, floppy ears, big glossy eye -->
+        <g transform="translate(72,-16)">
+          <!-- far ear -->
+          <path d="M-6 -34 C -34 -52, -62 -46, -66 -22 C -70 2, -46 12, -22 2 Z" fill="#2a2423"/>
+          <!-- head mass -->
+          <path d="M-42 26
+                   C -56 -14, -34 -46, 6 -50
+                   C 46 -54, 76 -30, 82 4
+                   C 88 34, 62 56, 22 56
+                   C -12 56, -34 46, -42 26 Z"
+                fill="url(#headG)"/>
+          <!-- muzzle -->
+          <path d="M42 10 C 70 4, 92 14, 96 30 C 100 46, 80 56, 56 54 C 38 52, 30 38, 34 24 Z" fill="#4a3f3c"/>
+          <!-- nose: pale pink -->
+          <path d="M86 26 C 98 22, 106 28, 104 36 C 102 44, 90 46, 84 40 Z" fill="#e7a9a2"/>
+          <!-- mouth -->
+          <path d="M92 44 C 88 52, 78 54, 72 50" stroke="#241d1c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <!-- eye: large glossy dark -->
+          <ellipse cx="28" cy="0" rx="17" ry="17" fill="#0e0b0b"/>
+          <ellipse cx="22" cy="-6" rx="6" ry="5" fill="#f6f0e6" opacity=".9"/>
+          <ellipse cx="34" cy="7" rx="3" ry="2.4" fill="#c9b8a6" opacity=".65"/>
+          <!-- near floppy ear -->
+          <path d="M8 -40 C -20 -60, -52 -54, -54 -28 C -56 -4, -28 6, -2 -8 Z" fill="#3a3230"/>
+          <path d="M2 -34 C -18 -48, -42 -44, -44 -26 C -46 -8, -26 -2, -6 -12 Z" fill="#5c4a46" opacity=".8"/>
+          <!-- wiry rust/tan/cream tufts: muzzle, forehead, brow -->
+          <g stroke-linecap="round" fill="none">
+            <path d="M2 -46 C 8 -62, 22 -68, 32 -62" stroke="#b06a35" stroke-width="6"/>
+            <path d="M18 -48 C 28 -64, 44 -66, 52 -58" stroke="#d8a86a" stroke-width="5"/>
+            <path d="M36 -44 C 48 -58, 62 -56, 68 -46" stroke="#eddcbc" stroke-width="5"/>
+            <path d="M8 -20 C 0 -30, 2 -40, 12 -42" stroke="#b8783f" stroke-width="5"/>
+            <path d="M62 20 C 74 12, 84 12, 90 18" stroke="#d9b183" stroke-width="4"/>
+            <path d="M58 34 C 70 32, 80 34, 86 40" stroke="#efe0c2" stroke-width="4"/>
+            <path d="M52 46 C 64 48, 74 50, 80 50" stroke="#b57a44" stroke-width="4"/>
+          </g>
+          <!-- long white whiskers: straight, thick enough to read as brush strokes -->
+          <g stroke="#fbf6ec" stroke-width="3.4" stroke-linecap="round" opacity=".95">
+            <line x1="96" y1="24" x2="176" y2="-2"/>
+            <line x1="98" y1="32" x2="182" y2="30"/>
+            <line x1="94" y1="40" x2="172" y2="60"/>
+            <line x1="88" y1="18" x2="150" y2="-24"/>
+            <line x1="90" y1="46" x2="146" y2="80"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <canvas id="grain" width="540" height="960"></canvas>
+  <div id="date">2026 · 08 · 22</div>
+</div>
 
 <script>
-(() => {
-  const dateSeed = 20260822;
-  const portraitCycle = 18 + (dateSeed % 9);
-  const lightCycle = 24 + (Math.floor(dateSeed / 10) % 8);
-  const phase = -(dateSeed % 13);
+(function(){
+  // ---- fit stage ----
+  function fit(){
+    var s = Math.min(innerWidth/1080, innerHeight/1920);
+    document.getElementById('stage').style.setProperty('--s', s);
+  }
+  fit(); addEventListener('resize', fit);
 
-  document.documentElement.style.setProperty("--portrait-cycle", portraitCycle + "s");
-  document.documentElement.style.setProperty("--light-cycle", lightCycle + "s");
-  document.documentElement.style.setProperty("--phase", phase + "s");
+  // ---- date seed ----
+  var SEED = 2026*10000 + 8*100 + 22;
+  function rnd(){ SEED = (SEED*1664525 + 1013904223) >>> 0; return SEED/4294967296; }
 
-  const video = document.getElementById("background-video");
-  video.muted = true;
-  video.defaultMuted = true;
+  // ---- woodblock grain / ink speckle, drawn ONCE, half-res, scaled by CSS ----
+  var c = document.getElementById('grain'), g = c.getContext('2d');
+  g.clearRect(0,0,540,960);
+  // fine ink speckle
+  for(var i=0;i<5200;i++){
+    var x = rnd()*540, y = rnd()*960, r = 0.4 + rnd()*1.3;
+    g.fillStyle = 'rgba(40,30,18,'+(0.03 + rnd()*0.09).toFixed(3)+')';
+    g.beginPath(); g.arc(x,y,r,0,6.2832); g.fill();
+  }
+  // horizontal woodgrain bars (block printing ridges)
+  for(var j=0;j<70;j++){
+    var yy = rnd()*960, h = 0.6 + rnd()*1.6;
+    g.fillStyle = 'rgba(70,52,30,'+(0.02 + rnd()*0.045).toFixed(3)+')';
+    g.fillRect(0, yy, 540, h);
+  }
+  // pale registration mis-print blots
+  for(var k=0;k<26;k++){
+    var bx = rnd()*540, by = rnd()*960, br = 6 + rnd()*22;
+    g.fillStyle = 'rgba(250,242,220,'+(0.02 + rnd()*0.05).toFixed(3)+')';
+    g.beginPath(); g.arc(bx,by,br,0,6.2832); g.fill();
+  }
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (reducedMotion.matches) {
-    video.addEventListener("loadeddata", () => {
-      video.currentTime = Math.min(0.5, video.duration || 0.5);
-      video.pause();
-    }, { once: true });
-  } else {
-    const attemptPlayback = () => {
-      const promise = video.play();
-      if (promise && typeof promise.catch === "function") {
-        promise.catch(() => {});
-      }
-    };
-    if (video.readyState >= 2) attemptPlayback();
-    else video.addEventListener("canplay", attemptPlayback, { once: true });
+  // ---- procedural audio: low sea drone, only when not embedded ----
+  if (window.self === window.top) {
+    var started = false;
+    function startAudio(){
+      if(started) return; started = true;
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return;
+        var ac = new AC();
+        var master = ac.createGain(); master.gain.value = 0.0; master.connect(ac.destination);
+        master.gain.linearRampToValueAtTime(0.055, ac.currentTime + 6);
+
+        // filtered noise = surf
+        var len = ac.sampleRate * 4, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+        var last = 0;
+        for(var i=0;i<len;i++){ var w = Math.random()*2-1; last = (last*0.965) + w*0.035; d[i] = last*3.4; }
+        var src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+        var lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=0.6;
+        var swell = ac.createGain(); swell.gain.value = 0.5;
+        src.connect(lp); lp.connect(swell); swell.connect(master); src.start();
+
+        // slow swell LFO
+        var lfo = ac.createOscillator(); lfo.frequency.value = 1/11;
+        var lfoG = ac.createGain(); lfoG.gain.value = 0.32;
+        lfo.connect(lfoG); lfoG.connect(swell.gain); lfo.start();
+
+        // two low drones, a fifth apart
+        [58.27, 87.31].forEach(function(f, n){
+          var o = ac.createOscillator(); o.type='sine'; o.frequency.value=f;
+          var og = ac.createGain(); og.gain.value = n? 0.10 : 0.16;
+          o.connect(og); og.connect(master); o.start();
+          var v = ac.createOscillator(); v.frequency.value = 0.05 + n*0.03;
+          var vg = ac.createGain(); vg.gain.value = n? 0.05 : 0.07;
+          v.connect(vg); vg.connect(og.gain); v.start();
+        });
+      }catch(e){}
+    }
+    document.addEventListener('visibilitychange', startAudio, {once:true});
+    setTimeout(startAudio, 400);
   }
 })();
 </script>
