@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Rainstorm — Xieyi</title>
+<style>
+  html,body{margin:0;padding:0;background:#d9d2c4;overflow:hidden;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    margin:0 auto;
+    background:#f4efe2;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:auto;} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:auto;} }
+
+  /* the paper ground: warm raw-paper wash, subtle fibre, no dark field */
+  #paper{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 70% at 22% 8%, rgba(255,255,252,0.95) 0%, rgba(255,255,252,0) 60%),
+      radial-gradient(90% 60% at 85% 96%, rgba(216,205,182,0.55) 0%, rgba(216,205,182,0) 65%),
+      linear-gradient(178deg,#fbf7ec 0%, #f3ecdd 46%, #ece3d1 78%, #e3d9c4 100%);
+  }
+
+  /* ink layers */
+  .layer{position:absolute;inset:0;width:100%;height:100%;}
+
+  #wash{opacity:0.92;}
+  #rainc{opacity:0.85;}
+
+  /* art image, masked into an irregular ink-blot silhouette */
+  #art-image{
+    position:absolute;
+    left:-6%; top:20.5%;
+    width:86%;
+    opacity:0.96;
+    filter:saturate(0.55) contrast(1.06) brightness(1.06) sepia(0.12) hue-rotate(-6deg);
+    -webkit-mask-image:radial-gradient(58% 46% at 52% 50%, #000 58%, rgba(0,0,0,0.75) 74%, rgba(0,0,0,0) 96%);
+    mask-image:radial-gradient(58% 46% at 52% 50%, #000 58%, rgba(0,0,0,0.75) 74%, rgba(0,0,0,0) 96%);
+    clip-path:polygon(6% 30%,14% 12%,32% 4%,55% 7%,73% 2%,88% 14%,96% 34%,99% 55%,90% 76%,74% 92%,52% 99%,30% 95%,13% 84%,3% 62%);
+    animation:drift 64s ease-in-out infinite;
+    will-change:transform;
+  }
+  @keyframes drift{
+    0%{transform:scale(1.005) translate3d(0,0,0);}
+    50%{transform:scale(1.02) translate3d(-0.7%,0.5%,0);}
+    100%{transform:scale(1.005) translate3d(0,0,0);}
+  }
+
+  /* single blend layer: soft ink bloom over the whole page */
+  #bloom{
+    position:absolute;inset:0;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+    background:
+      radial-gradient(70% 26% at 50% 3%, rgba(96,110,120,0.30) 0%, rgba(96,110,120,0) 72%),
+      radial-gradient(90% 22% at 46% 101%, rgba(74,88,96,0.26) 0%, rgba(74,88,96,0) 70%),
+      radial-gradient(140% 90% at 88% 44%, rgba(120,118,104,0.10) 0%, rgba(120,118,104,0) 60%);
+  }
+
+  /* slow ambient illumination — no strobe, 26s sine swell */
+  #glow{
+    position:absolute;inset:0;
+    pointer-events:none;
+    background:radial-gradient(60% 34% at 34% 12%, rgba(255,252,236,0.85) 0%, rgba(255,250,228,0.30) 42%, rgba(255,250,228,0) 78%);
+    opacity:0.12;
+    animation:swell 26s ease-in-out infinite;
+    will-change:opacity;
+  }
+  @keyframes swell{
+    0%{opacity:0.10;} 34%{opacity:0.14;} 52%{opacity:0.42;} 66%{opacity:0.18;} 100%{opacity:0.10;}
+  }
+
+  #guinea-pig{
+    position:absolute;
+    left:78.4%; top:88.9%;
+    width:17px;
+    opacity:0.62;
+    filter:sepia(0.35) saturate(0.6) brightness(0.86);
+    transform:rotate(-7deg);
+    pointer-events:none;
+  }
+
+  #stamp{
+    position:absolute; left:5.5%; bottom:4.2%;
+    font:italic 300 20px/1.5 "Iowan Old Style","Palatino Linotype",Georgia,serif;
+    letter-spacing:0.16em;
+    color:#4a5560; opacity:0.5;
+  }
+  #seal{
+    position:absolute; left:5.5%; bottom:7.6%;
+    width:34px;height:34px;
+    border:2px solid rgba(168,52,38,0.72);
+    border-radius:2px;
+    opacity:0.68;
+  }
+  #seal::after{
+    content:"";position:absolute;left:7px;top:7px;right:7px;bottom:7px;
+    background:
+      linear-gradient(0deg,transparent 42%, rgba(168,52,38,0.8) 42%, rgba(168,52,38,0.8) 58%, transparent 58%),
+      linear-gradient(90deg,transparent 42%, rgba(168,52,38,0.8) 42%, rgba(168,52,38,0.8) 58%, transparent 58%);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="paper"></div>
+
+  <!-- BEHIND the image: distant ink wash of rain-veiled hills + bamboo -->
+  <canvas id="wash" class="layer" width="540" height="960"></canvas>
+
+  <img id="art-image" src="art.png" alt="">
+
+  <!-- IN FRONT of the image: near bamboo culms, plum branch, rain streaks, puddle rings -->
+  <svg id="fore" class="layer" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="culm" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"  stop-color="#2b3a3a" stop-opacity="0.86"/>
+        <stop offset="55%" stop-color="#4d6058" stop-opacity="0.62"/>
+        <stop offset="100%" stop-color="#7b8a7c" stop-opacity="0.20"/>
+      </linearGradient>
+      <linearGradient id="culm2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"  stop-color="#5a6a62" stop-opacity="0.42"/>
+        <stop offset="100%" stop-color="#8b9789" stop-opacity="0.12"/>
+      </linearGradient>
+      <linearGradient id="fadeUp" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#3a4a48" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#3a4a48" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- near bamboo, right edge: thick culms, hard-edged, running off the frame bottom -->
+    <g id="bambooNear" transform="translate(0,0)">
+      <g opacity="0.95">
+        <rect x="905" y="240" width="46" height="1700" fill="url(#culm)"/>
+        <rect x="905" y="470" width="46" height="9" fill="#22302f" opacity="0.75"/>
+        <rect x="905" y="760" width="46" height="9" fill="#22302f" opacity="0.75"/>
+        <rect x="905" y="1080" width="46" height="9" fill="#22302f" opacity="0.75"/>
+        <rect x="905" y="1440" width="46" height="9" fill="#22302f" opacity="0.75"/>
+      </g>
+      <g opacity="0.6">
+        <rect x="1002" y="120" width="30" height="1800" fill="url(#culm2)"/>
+        <rect x="1002" y="600" width="30" height="7" fill="#3a4a48" opacity="0.5"/>
+        <rect x="1002" y="1010" width="30" height="7" fill="#3a4a48" opacity="0.5"/>
+      </g>
+      <!-- leaves: filled lanceolate blades, thick, no squiggles -->
+      <g id="leaves" fill="#26332f">
+        <path d="M905 452 L742 396 L768 438 L806 456 Z" opacity="0.82"/>
+        <path d="M905 470 L768 520 L818 522 L866 496 Z" opacity="0.7"/>
+        <path d="M951 742 L1078 692 L1030 738 L982 754 Z" opacity="0.62"/>
+        <path d="M905 766 L748 812 L800 820 L862 792 Z" opacity="0.78"/>
+        <path d="M905 1078 L780 1020 L820 1064 L864 1080 Z" opacity="0.7"/>
+        <path d="M951 1094 L1064 1140 L1010 1140 L972 1114 Z" opacity="0.55"/>
+        <path d="M905 1436 L790 1490 L842 1494 L872 1466 Z" opacity="0.68"/>
+      </g>
+    </g>
+
+    <!-- plum branch entering top-left, in front of the image edge -->
+    <g id="plum">
+      <path d="M-30 236 L118 268 L246 330 L336 404 L392 470 L404 512 L386 502 L326 434 L238 362 L110 300 L-30 268 Z" fill="#2e3733" opacity="0.86"/>
+      <path d="M246 330 L286 268 L318 232 L326 246 L300 284 L262 344 Z" fill="#2e3733" opacity="0.8"/>
+      <path d="M118 268 L142 200 L162 172 L168 188 L152 216 L134 276 Z" fill="#2e3733" opacity="0.74"/>
+      <g id="blossoms">
+        <g transform="translate(320,232)"><circle r="16" fill="#e8f0ea" opacity="0.95"/><circle r="16" fill="none" stroke="#b0453c" stroke-width="3" opacity="0.55"/><circle r="4" fill="#b0453c" opacity="0.8"/></g>
+        <g transform="translate(164,170)"><circle r="14" fill="#eef2ea" opacity="0.95"/><circle r="14" fill="none" stroke="#b0453c" stroke-width="3" opacity="0.5"/><circle r="3.5" fill="#b0453c" opacity="0.8"/></g>
+        <g transform="translate(392,470)"><circle r="13" fill="#edf1e9" opacity="0.9"/><circle r="13" fill="none" stroke="#b0453c" stroke-width="3" opacity="0.5"/><circle r="3" fill="#b0453c" opacity="0.8"/></g>
+        <g transform="translate(60,254)"><circle r="11" fill="#eef2ea" opacity="0.85"/><circle r="11" fill="none" stroke="#b0453c" stroke-width="2.6" opacity="0.45"/></g>
+      </g>
+    </g>
+
+    <!-- puddle ground: broad wet ink band, soft top edge, no hard cutoff -->
+    <g id="ground">
+      <path d="M0 1640 C 180 1600, 380 1666, 560 1636 C 760 1602, 900 1660, 1080 1622 L1080 1920 L0 1920 Z" fill="#5d6d70" opacity="0.30"/>
+      <path d="M0 1732 C 220 1698, 420 1758, 640 1722 C 840 1690, 960 1742, 1080 1714 L1080 1920 L0 1920 Z" fill="#3f4f55" opacity="0.34"/>
+      <rect x="0" y="1866" width="1080" height="54" fill="url(#fadeUp)" opacity="0.5"/>
+    </g>
+  </svg>
+
+  <!-- rain + ripples, animated canvas at half resolution -->
+  <canvas id="rainc" class="layer" width="540" height="960"></canvas>
+
+  <div id="bloom"></div>
+  <div id="glow"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div id="seal"></div>
+  <div id="stamp">2026-08-23</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  /* ---------- date seed ---------- */
+  var DATE = "2026-08-23";
+  var seed = 0; for (var i=0;i<DATE.length;i++) seed = (seed*131 + DATE.charCodeAt(i)) >>> 0;
+  function rnd(){ seed ^= seed<<13; seed>>>=0; seed ^= seed>>17; seed ^= seed<<5; seed>>>=0; return seed/4294967296; }
+  var slant = 0.16 + rnd()*0.14;           // rain slant, deterministic per day
+  var densityBase = 74 + Math.floor(rnd()*18);
+
+  /* =========================================================
+     LAYER 1 — static ink wash behind the image, drawn ONCE
+     Distant rain-veiled hills + far bamboo grove, xieyi wash.
+     ========================================================= */
+  (function drawWash(){
+    var c = document.getElementById('wash'), g = c.getContext('2d');
+    var W = c.width, H = c.height;
+    g.clearRect(0,0,W,H);
+
+    // far sky wash: pale, high-key
+    var sky = g.createLinearGradient(0,0,0,H*0.62);
+    sky.addColorStop(0,'rgba(150,166,176,0.30)');
+    sky.addColorStop(0.45,'rgba(176,188,192,0.14)');
+    sky.addColorStop(1,'rgba(200,206,200,0.02)');
+    g.fillStyle = sky; g.fillRect(0,0,W,H*0.62);
+
+    // hills: filled silhouettes with soft top blur via layered alpha
+    function hill(baseY, amp, alpha, tint, phase){
+      g.beginPath();
+      g.moveTo(0, baseY);
+      for (var x=0;x<=W;x+=6){
+        var t = x/W;
+        var y = baseY - Math.sin(t*Math.PI*1.1 + phase)*amp - Math.sin(t*7.3+phase)*amp*0.14;
+        g.lineTo(x,y);
+      }
+      g.lineTo(W,H); g.lineTo(0,H); g.closePath();
+      g.fillStyle = tint.replace('A', alpha);
+      g.fill();
+    }
+    hill(H*0.46, 62, 0.16, 'rgba(104,124,136,A)', 0.6);
+    hill(H*0.54, 44, 0.20, 'rgba(84,104,112,A)', 2.1);
+    hill(H*0.60, 30, 0.16, 'rgba(70,88,96,A)', 4.0);
+
+    // far bamboo grove: pale vertical culms, flat blocks, thin at distance
+    for (var k=0;k<16;k++){
+      var x = 20 + rnd()*(W-40);
+      var w = 3 + rnd()*5;
+      var top = H*0.30 + rnd()*H*0.16;
+      var a = 0.06 + rnd()*0.10;
+      g.fillStyle = 'rgba(60,76,74,'+a.toFixed(3)+')';
+      g.fillRect(x, top, w, H*0.68 - (top - H*0.30));
+      // nodes
+      g.fillStyle = 'rgba(46,60,58,'+(a*1.5).toFixed(3)+')';
+      for (var n=top+40;n<H*0.95;n+=64+rnd()*40) g.fillRect(x, n, w, 1.6);
+      // a couple of filled blades
+      if (rnd()>0.45){
+        var by = top + 60 + rnd()*200, dir = rnd()>0.5?1:-1;
+        g.beginPath();
+        g.moveTo(x + (dir>0?w:0), by);
+        g.lineTo(x + dir*(34+rnd()*30), by - 16);
+        g.lineTo(x + dir*(20+rnd()*16), by + 8);
+        g.closePath();
+        g.fillStyle = 'rgba(52,68,64,'+(a*1.3).toFixed(3)+')';
+        g.fill();
+      }
+    }
+
+    // horizontal rain veils: broad soft bands (ribbons, not squiggles)
+    for (var v=0;v<7;v++){
+      var yy = H*0.18 + rnd()*H*0.5;
+      var hh = 18 + rnd()*46;
+      var grd = g.createLinearGradient(0,yy,0,yy+hh);
+      grd.addColorStop(0,'rgba(255,255,250,0)');
+      grd.addColorStop(0.5,'rgba(255,255,250,'+(0.16+rnd()*0.16).toFixed(3)+')');
+      grd.addColorStop(1,'rgba(255,255,250,0)');
+      g.fillStyle = grd; g.fillRect(0,yy,W,hh);
+    }
+
+    // wet ground reflection wash at the base
+    var wet = g.createLinearGradient(0,H*0.80,0,H);
+    wet.addColorStop(0,'rgba(90,110,116,0.0)');
+    wet.addColorStop(0.5,'rgba(78,98,106,0.18)');
+    wet.addColorStop(1,'rgba(62,80,90,0.30)');
+    g.fillStyle = wet; g.fillRect(0,H*0.78,W,H*0.22);
+  })();
+
+  /* =========================================================
+     LAYER 2 — animated rain + puddle ripples (half-res canvas)
+     ========================================================= */
+  var rc = document.getElementById('rainc');
+  var r = rc.getContext('2d');
+  var RW = rc.width, RH = rc.height;
+
+  // puddle basins along the wet ground (in half-res coords)
+  var puddles = [
+    {x:RW*0.30, y:RH*0.868, rx:RW*0.30, ry:20},
+    {x:RW*0.72, y:RH*0.912, rx:RW*0.26, ry:17},
+    {x:RW*0.48, y:RH*0.960, rx:RW*0.34, ry:20}
+  ];
+
+  // pre-render puddle ink pools once (static part) into an offscreen buffer
+  var pool = document.createElement('canvas'); pool.width=RW; pool.height=RH;
+  (function(){
+    var p = pool.getContext('2d');
+    puddles.forEach(function(pd){
+      var grd = p.createRadialGradient(pd.x, pd.y, 2, pd.x, pd.y, pd.rx);
+      grd.addColorStop(0,'rgba(46,62,70,0.34)');
+      grd.addColorStop(0.6,'rgba(58,76,84,0.18)');
+      grd.addColorStop(1,'rgba(70,88,96,0)');
+      p.save();
+      p.translate(pd.x, pd.y); p.scale(1, pd.ry/pd.rx); p.translate(-pd.x,-pd.y);
+      p.beginPath(); p.arc(pd.x,pd.y,pd.rx,0,6.2832); p.fillStyle=grd; p.fill();
+      p.restore();
+    });
+  })();
+
+  // rain drops
+  var drops = [];
+  for (var d=0; d<densityBase; d++){
+    drops.push({
+      x: rnd()*RW*1.25 - RW*0.15,
+      y: rnd()*RH,
+      len: 26 + rnd()*70,
+      sp: 5.4 + rnd()*7.0,
+      a: 0.14 + rnd()*0.34,
+      w: rnd()<0.16 ? 1.9 : 0.9
+    });
+  }
+
+  var rings = [];
+  function spawnRing(){
+    var pd = puddles[(Math.random()*puddles.length)|0];
+    var ang = Math.random()*Math.PI*2;
+    var rr = Math.sqrt(Math.random());
+    return {
+      x: pd.x + Math.cos(ang)*pd.rx*rr*0.92,
+      y: pd.y + Math.sin(ang)*pd.ry*rr*0.92,
+      rad: 1,
+      max: 22 + Math.random()*40,
+      squash: pd.ry/pd.rx * 2.6,
+      life: 0
+    };
+  }
+  for (var q=0;q<10;q++){ var rg = spawnRing(); rg.rad = Math.random()*rg.max; rings.push(rg); }
+
+  var last = performance.now(), acc = 0, STEP = 1000/60;
+
+  function step(){
+    // rain
+    for (var i=0;i<drops.length;i++){
+      var o = drops[i];
+      o.y += o.sp; o.x += o.sp*slant;
+      if (o.y > RH + 40){
+        o.y = -o.len - Math.random()*80;
+        o.x = Math.random()*RW*1.25 - RW*0.15;
+        // splash: rain hitting a puddle
+        for (var p=0;p<puddles.length;p++){
+          var pd = puddles[p];
+          if (Math.random() < 0.10){ rings.push(spawnRing()); break; }
+        }
+      }
+      if (o.x > RW + 40) o.x -= RW + 80;
+    }
+    if (rings.length < 34 && Math.random() < 0.30) rings.push(spawnRing());
+    // ripples
+    for (var j=rings.length-1;j>=0;j--){
+      var k = rings[j];
+      k.rad += 0.42; k.life = k.rad / k.max;
+      if (k.life >= 1) rings.splice(j,1);
+    }
+  }
+
+  function draw(){
+    r.clearRect(0,0,RW,RH);
+    r.drawImage(pool,0,0);
+
+    // rain streaks — straight ink strokes, slanted
+    r.lineCap = 'round';
+    for (var i=0;i<drops.length;i++){
+      var o = drops[i];
+      r.strokeStyle = 'rgba(58,74,84,'+o.a.toFixed(3)+')';
+      r.lineWidth = o.w;
+      r.beginPath();
+      r.moveTo(o.x, o.y);
+      r.lineTo(o.x - o.len*slant, o.y - o.len);
+      r.stroke();
+      if (o.w > 1.5){
+        r.strokeStyle = 'rgba(255,255,250,0.20)';
+        r.lineWidth = 0.7;
+        r.beginPath();
+        r.moveTo(o.x - o.len*slant*0.4, o.y - o.len*0.4);
+        r.lineTo(o.x - o.len*slant, o.y - o.len);
+        r.stroke();
+      }
+    }
+
+    // ripples — concentric ink rings, squashed to the water plane
+    for (var j=0;j<rings.length;j++){
+      var k = rings[j];
+      var fade = 1 - k.life;
+      r.save();
+      r.translate(k.x, k.y);
+      r.scale(1, 0.34);
+      r.strokeStyle = 'rgba(40,56,66,'+(0.30*fade*fade).toFixed(3)+')';
+      r.lineWidth = 1.6*fade + 0.5;
+      r.beginPath(); r.arc(0,0,k.rad,0,6.2832); r.stroke();
+      if (k.rad > 9){
+        r.strokeStyle = 'rgba(255,255,248,'+(0.20*fade).toFixed(3)+')';
+        r.lineWidth = 1;
+        r.beginPath(); r.arc(0,0,k.rad*0.58,0,6.2832); r.stroke();
+      }
+      r.restore();
+    }
+    // bright film on the water surface, keeps the base high-key
+    var sheen = r.createLinearGradient(0,RH*0.84,0,RH);
+    sheen.addColorStop(0,'rgba(255,255,250,0.00)');
+    sheen.addColorStop(0.55,'rgba(255,255,248,0.14)');
+    sheen.addColorStop(1,'rgba(255,255,246,0.05)');
+    r.fillStyle = sheen; r.fillRect(0,RH*0.82,RW,RH*0.18);
+  }
+
+  function frame(now){
+    var dt = now - last; last = now;
+    acc += dt;
+    var steps = Math.min(2, Math.floor(acc/STEP));
+    for (var s=0;s<steps;s++) step();
+    acc = 0;
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* =========================================================
+     LAYER 3 — procedural audio: rain drone + soft puddle taps
+     ========================================================= */
+  if (window.self === window.top){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC){
+        var ac = new AC();
+        var master = ac.createGain(); master.gain.value = 0.0; master.connect(ac.destination);
+        master.gain.linearRampToValueAtTime(0.055, ac.currentTime + 8);
+
+        // rain: filtered noise
+        var len = ac.sampleRate * 3;
+        var buf = ac.createBuffer(1, len, ac.sampleRate);
+        var ch = buf.getChannelData(0);
+        for (var n=0;n<len;n++) ch[n] = (Math.random()*2-1)*0.6;
+        var src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+        var bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1250; bp.Q.value=0.5;
+        var hp = ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=420;
+        src.connect(bp); bp.connect(hp); hp.connect(master); src.start();
+
+        // slow breathing of the veil
+        var lfo = ac.createOscillator(); lfo.frequency.value = 1/26;
+        var lg = ac.createGain(); lg.gain.value = 340;
+        lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
+
+        // occasional puddle taps
+        function tap(){
+          var t = ac.currentTime;
+          var o = ac.createOscillator(); o.type='sine';
+          var g2 = ac.createGain();
+          var f0 = 300 + Math.random()*520;
+          o.frequency.setValueAtTime(f0, t);
+          o.frequency.exponentialRampToValueAtTime(f0*0.45, t+0.16);
+          g2.gain.setValueAtTime(0.0, t);
+          g2.gain.linearRampToValueAtTime(0.028, t+0.01);
+          g2.gain.exponentialRampToValueAtTime(0.0005, t+0.28);
+          o.connect(g2); g2.connect(master); o.start(t); o.stop(t+0.32);
+          setTimeout(tap, 700 + Math.random()*2600);
+        }
+        setTimeout(tap, 3000);
+        if (ac.state === 'suspended') ac.resume();
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
