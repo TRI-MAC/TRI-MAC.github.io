@@ -1,8 +1,8 @@
 {
   "date": "2026-08-22",
-  "generator_provider": "anthropic",
-  "generator_model": "global.anthropic.claude-opus-5",
+  "generator_provider": "openai",
+  "generator_model": "gpt-5.6-sol",
   "critic_provider": "openai",
   "critic_model": "gpt-5.6-sol",
-  "critique": "Pickles is clearly translated rather than photographed: her low rose-taupe body, charcoal tufted face, floppy ears, glossy eye, pink nose, whiskers, and tiny clawed feet read convincingly as a skinny pig braving a recognisable Great Wave composition. The smooth gradients, circular foam blobs, and conspicuous ungraded video band weaken the ukiyo-e commitment, while placing her in a generic boat rather than decisively replacing a principal figure makes the compositional joke less immediate than the brief demands."
+  "critique": "The single uninterrupted vertical image keeps the presentation focused on the intended turf-and-animal encounter, without interface clutter or camera motion. However, the guinea pig’s species, distinctive rose-taupe skin and charcoal tufted face, scale, unobstructed placement, and Dürer-like botanical rendering are all unverified inside the unseen `art.png`, while the visible “2026-08-22” stamp directly violates the brief’s ban on lettering or signatures."
 }
