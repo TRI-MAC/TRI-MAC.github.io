@@ -6,338 +6,62 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<meta charset="utf-8">
-<title>Pickles at Dusk</title>
-<style>
-  html,body{margin:0;padding:0;background:#141a20;overflow:hidden;height:100%;}
-  body{display:flex;align-items:center;justify-content:center;}
-
-  #stage{
-    position:relative;
-    width:1080px;height:1920px;
-    max-width:100vw;max-height:100vh;
-    aspect-ratio:1080/1920;
-    background:#1b2530;
-    overflow:hidden;
-  }
-  /* scale down on smaller screens while keeping internal 1080x1920 coords */
-  @media (max-aspect-ratio:1080/1920){
-    #stage{width:100vw;height:calc(100vw * 1920 / 1080);}
-  }
-  @media (min-aspect-ratio:1080/1920){
-    #stage{height:100vh;width:calc(100vh * 1080 / 1920);}
-  }
-
-  /* ---------- painted DOM sky: continues the image palette upward ---------- */
-  #sky{
-    position:absolute;inset:0;
-    background:
-      radial-gradient(120% 60% at 62% 30%, rgba(226,164,88,0.42) 0%, rgba(226,164,88,0) 60%),
-      radial-gradient(90% 45% at 22% 12%, rgba(58,124,120,0.55) 0%, rgba(58,124,120,0) 70%),
-      linear-gradient(#16202a 0%, #1d2c33 26%, #2a3a38 46%, #3d4335 62%, #56462f 78%, #6a4a2c 100%);
-  }
-
-  /* broad mid-century arc bands — same family, same palette, slow breathing */
-  .arcwrap{position:absolute;left:0;top:0;width:1080px;height:1920px;}
-  #sunwrap{transform:translate(660px,470px);}
-  #sun{
-    width:0;height:0;
-  }
-
-  #imgwrap{
-    position:absolute;left:0;right:0;bottom:0;
-    height:1330px;
-  }
-  #scene-image{
-    position:absolute;left:-2%;bottom:0;
-    width:104%;height:100%;
-    object-fit:cover;object-position:50% 42%;
-    -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 5%, rgba(0,0,0,0.85) 12%, #000 22%, #000 100%);
-            mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 5%, rgba(0,0,0,0.85) 12%, #000 22%, #000 100%);
-    animation:drift 64s ease-in-out infinite;
-    will-change:transform;
-  }
-  @keyframes drift{
-    0%,100%{transform:scale(1.012) translate3d(0,0,0);}
-    50%    {transform:scale(1.028) translate3d(-6px,-8px,0);}
-  }
-
-  /* canvas holding the painted strokes that bridge sky <-> image */
-  #brush{
-    position:absolute;left:0;top:0;width:100%;height:100%;
-    display:block;
-  }
-
-  /* single blended atmosphere layer (only one on the page) */
-  #atmos{
-    position:absolute;inset:0;
-    mix-blend-mode:soft-light;
-    background:
-      radial-gradient(70% 40% at 60% 78%, rgba(255,214,150,0.30) 0%, rgba(255,214,150,0) 70%),
-      radial-gradient(100% 60% at 20% 100%, rgba(20,40,52,0.55) 0%, rgba(20,40,52,0) 70%);
-    pointer-events:none;
-  }
-
-  #date{
-    position:absolute;left:34px;bottom:26px;
-    font:400 15px/1 "Futura","Century Gothic","Avenir Next",Helvetica,sans-serif;
-    letter-spacing:.34em;text-transform:uppercase;
-    color:#f2dcb4;opacity:.42;
-    z-index:9;
-  }
-  #title{
-    position:absolute;right:36px;bottom:26px;
-    font:400 15px/1 "Futura","Century Gothic","Avenir Next",Helvetica,sans-serif;
-    letter-spacing:.30em;text-transform:uppercase;
-    color:#f2dcb4;opacity:.34;
-    z-index:9;
-  }
-  #guinea-pig{
-    position:absolute;
-    width:16px;
-    left:88px;bottom:352px;
-    opacity:0.62;
-    transform:rotate(-7deg);
-    z-index:6;
-    pointer-events:none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026-08-21 — Hall of Fame</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    iframe {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #hof-badge {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.45);
+      color: rgba(255, 255, 255, 0.75);
+      font-family: 'Georgia', serif;
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 7px 11px;
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 9999;
+      text-align: right;
+      backdrop-filter: blur(4px);
+      letter-spacing: 0.04em;
+    }
+    #hof-badge .label {
+      display: block;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+      margin-bottom: 2px;
+    }
+    #hof-date {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: rgba(255, 255, 255, 0.3);
+      font-family: monospace;
+      font-size: 10px;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body>
-<div id="stage">
-
-  <div id="sky"></div>
-
-  <!-- broad organic bands in the image's palette: sky-side scenery, same medium -->
-  <svg class="arcwrap" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="gMust" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#e6a94e" stop-opacity="0.90"/>
-        <stop offset="1" stop-color="#c9782f" stop-opacity="0.72"/>
-      </linearGradient>
-      <linearGradient id="gTeal" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#2f6f6d" stop-opacity="0.85"/>
-        <stop offset="1" stop-color="#1f4a52" stop-opacity="0.55"/>
-      </linearGradient>
-      <linearGradient id="gClay" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#a9542f" stop-opacity="0.75"/>
-        <stop offset="1" stop-color="#6d3826" stop-opacity="0.42"/>
-      </linearGradient>
-      <radialGradient id="gSun" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stop-color="#ffd489" stop-opacity="0.95"/>
-        <stop offset="0.55" stop-color="#e8a24c" stop-opacity="0.72"/>
-        <stop offset="1" stop-color="#e8a24c" stop-opacity="0"/>
-      </radialGradient>
-      <linearGradient id="fadeMask" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fff" stop-opacity="0"/>
-        <stop offset="0.35" stop-color="#fff" stop-opacity="1"/>
-        <stop offset="1" stop-color="#fff" stop-opacity="1"/>
-      </linearGradient>
-      <mask id="topFade">
-        <rect x="0" y="0" width="1080" height="900" fill="url(#fadeMask)"/>
-      </mask>
-    </defs>
-
-    <!-- atomic-age disc, sitting well inside the canvas, feathered -->
-    <g id="disc" style="transform-origin:672px 452px">
-      <circle cx="672" cy="452" r="330" fill="url(#gSun)"/>
-      <circle cx="672" cy="452" r="168" fill="#f0b45c" opacity="0.88"/>
-    </g>
-
-    <!-- broad concentric bands, one family, masked so nothing clips at the top -->
-    <g mask="url(#topFade)">
-      <g id="bandA">
-        <path d="M -140 700 Q 340 300 1220 660 L 1220 760 Q 340 400 -140 800 Z" fill="url(#gTeal)"/>
-      </g>
-      <g id="bandB">
-        <path d="M -140 820 Q 420 430 1220 780 L 1220 900 Q 420 540 -140 930 Z" fill="url(#gMust)" opacity="0.62"/>
-      </g>
-      <g id="bandC">
-        <path d="M -140 560 Q 260 250 1220 520 L 1220 585 Q 260 330 -140 640 Z" fill="url(#gClay)" opacity="0.7"/>
-      </g>
-    </g>
-  </svg>
-
-  <!-- painted strokes bridging sky and photograph (canvas, half-res backing store) -->
-  <canvas id="brush" width="540" height="960"></canvas>
-
-  <div id="imgwrap">
-    <img id="scene-image" src="scene.png" alt="">
+  <iframe src="https://tri-mac.github.io/artagent/2026-08-20/" allowfullscreen></iframe>
+  <div id="hof-badge">
+    <span class="label">Hall of Fame</span>
+    2026-08-20
   </div>
-
-  <img id="guinea-pig" src="guineapig.png" alt="">
-
-  <div id="atmos"></div>
-
-  <div id="date">2026 · 08 · 21</div>
-  <div id="title">Pickles, Close and Curious</div>
-</div>
-
-<script>
-(function(){
-  /* ---------------- date seed ---------------- */
-  const DATE = "2026-08-21";
-  let h = 2166136261;
-  for (let i=0;i<DATE.length;i++){ h ^= DATE.charCodeAt(i); h = Math.imul(h,16777619); }
-  let s = (h>>>0) || 12345;
-  function rnd(){ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; }
-  function rr(a,b){ return a + (b-a)*rnd(); }
-
-  /* ---------------- SVG band motion (transform only) ---------------- */
-  const disc = document.getElementById('disc');
-  const bandA = document.getElementById('bandA');
-  const bandB = document.getElementById('bandB');
-  const bandC = document.getElementById('bandC');
-  const phase = rr(0, Math.PI*2);
-
-  /* ---------------- painted stroke field ----------------
-     Broad, flat, curved petal/leaf shapes in the image palette.
-     They are FILLED forms (no thin squiggles), drawn once into an
-     offscreen buffer, then blitted with a slow parallax sway. */
-  const cv = document.getElementById('brush');
-  const ctx = cv.getContext('2d');
-  const W = cv.width, H = cv.height;
-
-  const PAL = [
-    'rgba(230,169,78,0.90)',
-    'rgba(201,120,47,0.86)',
-    'rgba(47,111,109,0.88)',
-    'rgba(31,74,82,0.82)',
-    'rgba(169,84,47,0.84)',
-    'rgba(242,220,180,0.80)',
-    'rgba(120,132,86,0.82)'
-  ];
-
-  // three offscreen stroke layers -> parallax without re-painting
-  function makeLayer(count, yTop, yBot, scale, alpha){
-    const o = document.createElement('canvas');
-    o.width = W; o.height = H;
-    const c = o.getContext('2d');
-    c.globalAlpha = alpha;
-    for (let i=0;i<count;i++){
-      const cx = rr(-40, W+40);
-      const cy = rr(yTop, yBot);
-      const w  = rr(26, 92)*scale;
-      const hh = rr(9, 26)*scale;
-      const rot = rr(-0.55, 0.28);
-      c.save();
-      c.translate(cx, cy);
-      c.rotate(rot);
-      c.fillStyle = PAL[(Math.random()*0)|0 + ((i*7 + (s&7))%PAL.length)];
-      // flat mid-century leaf: two arcs, filled — a solid form, not a line
-      c.beginPath();
-      c.ellipse(0,0,w,hh,0,0,Math.PI*2);
-      c.fill();
-      // hard-edged inner notch for that cut-paper feel
-      if (i%3===0){
-        c.globalCompositeOperation='destination-out';
-        c.beginPath();
-        c.ellipse(w*0.22,-hh*0.25,w*0.42,hh*0.34,0,0,Math.PI*2);
-        c.fill();
-        c.globalCompositeOperation='source-over';
-      }
-      c.restore();
-    }
-    return o;
-  }
-
-  // horizon of the image sits ~ y 0.30*H in canvas coords (sky/photo seam)
-  const seam = H*0.305;
-  const layers = [
-    { cvs: makeLayer(46, seam-150, seam+40, 1.35, 0.85), amp: 9,  spd: 0.038, off: 0.0 },
-    { cvs: makeLayer(58, seam-90,  seam+95, 1.00, 0.80), amp: 15, spd: 0.055, off: 1.7 },
-    { cvs: makeLayer(40, seam-30,  seam+150,0.72, 0.72), amp: 22, spd: 0.081, off: 3.4 }
-  ];
-
-  // a solid mustard shelf that hides the rectangular top edge of the photo
-  const shelf = document.createElement('canvas');
-  shelf.width = W; shelf.height = H;
-  (function(){
-    const c = shelf.getContext('2d');
-    const g = c.createLinearGradient(0, seam-70, 0, seam+90);
-    g.addColorStop(0,'rgba(214,148,66,0)');
-    g.addColorStop(0.42,'rgba(198,124,54,0.42)');
-    g.addColorStop(1,'rgba(120,74,42,0)');
-    c.fillStyle = g;
-    // one broad organic sweep, not a rectangle
-    c.beginPath();
-    c.moveTo(-20, seam+96);
-    c.bezierCurveTo(W*0.25, seam-38, W*0.62, seam+70, W+20, seam-24);
-    c.lineTo(W+20, seam+150);
-    c.lineTo(-20, seam+150);
-    c.closePath();
-    c.fill();
-  })();
-
-  let t0 = performance.now();
-  function frame(now){
-    const t = (now - t0)/1000;
-
-    ctx.clearRect(0,0,W,H);
-    ctx.drawImage(shelf,0,0);
-    for (const L of layers){
-      const dx = Math.sin(t*L.spd + L.off + phase)*L.amp;
-      const dy = Math.cos(t*L.spd*0.72 + L.off)*L.amp*0.34;
-      ctx.drawImage(L.cvs, dx, dy);
-    }
-
-    // slow structural motion on the SVG bands (transform only)
-    const b = Math.sin(t*0.052 + phase);
-    const b2 = Math.sin(t*0.037 + phase*1.7);
-    disc.style.transform  = 'scale(' + (1 + b*0.022) + ')';
-    bandA.style.transform = 'translate(' + (b*16) + 'px,' + (b2*9)  + 'px)';
-    bandB.style.transform = 'translate(' + (-b*24) + 'px,' + (b*7)  + 'px)';
-    bandC.style.transform = 'translate(' + (b2*30) + 'px,' + (-b*6) + 'px)';
-
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  /* ---------------- procedural audio: warm low drone ---------------- */
-  if (window.self === window.top){
-    let started = false;
-    const boot = function(){
-      if (started) return; started = true;
-      try{
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        const ac = new AC();
-        const out = ac.createGain();
-        out.gain.value = 0.0;
-        out.connect(ac.destination);
-
-        const lp = ac.createBiquadFilter();
-        lp.type='lowpass'; lp.frequency.value = 520; lp.Q.value = 0.7;
-        lp.connect(out);
-
-        const base = 96 + Math.round(rr(-6,10)); // date-seeded root
-        const ratios = [1, 1.5, 2, 3.0];
-        ratios.forEach(function(r,i){
-          const o = ac.createOscillator();
-          o.type = i<2 ? 'sine' : 'triangle';
-          o.frequency.value = base*r;
-          const g = ac.createGain();
-          g.gain.value = 0.30/(i+1.2);
-          // slow amplitude swell per voice
-          const lfo = ac.createOscillator();
-          lfo.type='sine';
-          lfo.frequency.value = 0.03 + i*0.017;
-          const lg = ac.createGain();
-          lg.gain.value = g.gain.value*0.55;
-          lfo.connect(lg); lg.connect(g.gain);
-          o.connect(g); g.connect(lp);
-          o.start(); lfo.start();
-        });
-
-        out.gain.linearRampToValueAtTime(0.055, ac.currentTime + 8);
-        if (ac.state === 'suspended') ac.resume();
-      }catch(e){}
-    };
-    boot();
-    // browsers may block until a gesture exists; retry silently on visibility
-    document.addEventListener('visibilitychange', boot, {once:true});
-  }
-})();
-</script>
+  <div id="hof-date">2026-08-21</div>
 </body>
 </html>
