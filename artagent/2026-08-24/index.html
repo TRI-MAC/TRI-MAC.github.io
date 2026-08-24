@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Weight Ledger</title>
+<style>
+  html,body{margin:0;padding:0;background:#e8e3d5;overflow:hidden;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    margin:0 auto;
+    background:#f4efe1;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:auto;} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:auto;} }
+
+  /* The scale: a light field. The ground plane is a single pale wash. */
+  #ground{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,#fbf8ee 0%,#f5efdd 46%,#efe6cf 72%,#eadfc4 100%);
+  }
+
+  /* video lives INSIDE the hanging pan — the only "material" in the piece */
+  #panwrap{
+    position:absolute;
+    left:11.5%; top:44.2%;
+    width:52%; height:26%;
+    transform-origin:50% -140%;
+    animation:swingA 26s ease-in-out infinite;
+    z-index:3;
+  }
+  #background-video{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    opacity:.92;
+    clip-path:polygon(6% 0%,94% 0%,100% 78%,50% 100%,0% 78%);
+  }
+  #panwrap .lip{
+    position:absolute;inset:0;
+    clip-path:polygon(6% 0%,94% 0%,100% 78%,50% 100%,0% 78%);
+    box-sizing:border-box;
+    border-top:9px solid #16130e;
+    background:linear-gradient(180deg,rgba(255,244,214,.30),rgba(20,17,12,.10) 70%,rgba(20,17,12,.22));
+  }
+
+  #counterwrap{
+    position:absolute;
+    right:12%; top:36%;
+    width:30%; height:15%;
+    transform-origin:50% -260%;
+    animation:swingB 26s ease-in-out infinite;
+    z-index:3;
+  }
+  #counterwrap .slab{
+    position:absolute;inset:0;
+    background:#c9342a;
+    clip-path:polygon(0% 0%,100% 0%,86% 100%,14% 100%);
+    box-shadow:inset 0 -14px 0 rgba(22,19,14,.35);
+  }
+
+  @keyframes swingA{
+    0%,100%{transform:rotate(-3.6deg) translateY(0px);}
+    50%    {transform:rotate(2.2deg) translateY(-26px);}
+  }
+  @keyframes swingB{
+    0%,100%{transform:rotate(2.9deg) translateY(-30px);}
+    50%    {transform:rotate(-1.8deg) translateY(18px);}
+  }
+
+  #frame{position:absolute;inset:0;z-index:4;}
+  #tally{position:absolute;inset:0;z-index:2;}
+
+  /* soft feather so nothing clips hard at the edge */
+  #feather{
+    position:absolute;inset:0;z-index:6;pointer-events:none;
+    background:radial-gradient(130% 92% at 50% 46%,rgba(244,239,225,0) 58%,rgba(246,241,228,.85) 100%);
+  }
+
+  #guinea-pig{
+    position:absolute;
+    left:8.9%; top:71.3%;
+    width:16px;
+    opacity:.62;
+    z-index:5;
+    transform:rotate(-8deg);
+  }
+
+  #date{
+    position:absolute;left:5.5%;bottom:3.2%;
+    z-index:7;
+    font:400 15px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.34em;
+    color:#16130e;opacity:.42;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="ground"></div>
+
+  <!-- BEHIND: the tally strokes the beam has already written -->
+  <canvas id="tally" width="540" height="960"></canvas>
+
+  <div id="panwrap">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+    <div class="lip"></div>
+  </div>
+
+  <div id="counterwrap"><div class="slab"></div></div>
+
+  <!-- IN FRONT: beam, fulcrum, cords -->
+  <svg id="frame" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="mast" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#16130e"/>
+        <stop offset="1" stop-color="#3a3327"/>
+      </linearGradient>
+      <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#16130e" stop-opacity="1"/>
+        <stop offset=".72" stop-color="#16130e" stop-opacity="1"/>
+        <stop offset="1" stop-color="#16130e" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- mast, fading before the bottom edge -->
+    <rect x="524" y="330" width="30" height="1330" fill="url(#fadeDown)"/>
+
+    <!-- the one large form: the beam -->
+    <g id="beam">
+      <polygon points="150,318 930,318 906,352 174,352" fill="url(#mast)"/>
+      <circle cx="540" cy="335" r="46" fill="#f4efe1" stroke="#16130e" stroke-width="16"/>
+      <circle cx="540" cy="335" r="11" fill="#c9342a"/>
+      <!-- cords -->
+      <path d="M186,346 L186,470" stroke="#16130e" stroke-width="7" fill="none"/>
+      <path d="M894,346 L894,432" stroke="#16130e" stroke-width="7" fill="none"/>
+    </g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="feather"></div>
+  <div id="date">2026 · 08 · 24</div>
+</div>
+
+<script>
+(function(){
+  /* ---------- deterministic seed from the date ---------- */
+  var D = "2026-08-24";
+  var seed = 0; for (var i=0;i<D.length;i++) seed = (seed*131 + D.charCodeAt(i)) >>> 0;
+  function rnd(){ seed = (seed*1664525 + 1013904223) >>> 0; return seed/4294967296; }
+
+  /* ---------- ONE IDEA -------------------------------------------------
+     A balance that weighs the video against a red counterweight, and
+     records each excursion of the beam as a single blunt tally stroke on
+     the ground. The ledger is the artwork; it fills, is struck through,
+     and clears — endlessly.
+     Drawn into a small backing store, scaled by CSS.
+  --------------------------------------------------------------------- */
+  var c = document.getElementById('tally');
+  var g = c.getContext('2d');
+  var W = c.width, H = c.height;
+  c.style.width = '100%'; c.style.height = '100%';
+  c.style.position = 'absolute'; c.style.left = 0; c.style.top = 0;
+
+  var INK = '#16130e', RED = '#c9342a';
+
+  // fixed lattice of possible stroke slots — spare, wide interval
+  var slots = [];
+  var cols = 5, rows = 4;
+  for (var r=0;r<rows;r++){
+    for (var q=0;q<cols;q++){
+      slots.push({
+        x: 92 + q*80 + (rnd()-0.5)*7,
+        y: 700 + r*54 + (rnd()-0.5)*5,
+        lean: (rnd()-0.5)*0.20,
+        len: 34 + rnd()*10,
+        w: 7 + rnd()*4
+      });
+    }
+  }
+
+  var count = 0;          // strokes drawn
+  var phase = 'writing';  // writing -> struck -> clearing
+  var t0 = performance.now();
+  var nextAt = 2200;      // ms until next stroke
+  var strikeProg = 0, clearProg = 0;
+
+  function drawStroke(s, amount){
+    g.save();
+    g.translate(s.x, s.y);
+    g.rotate(s.lean);
+    g.fillStyle = INK;
+    g.fillRect(-s.w/2, -s.len/2, s.w, s.len*amount);
+    g.restore();
+  }
+
+  function redraw(now){
+    g.clearRect(0,0,W,H);
+
+    var shown = Math.min(count, slots.length);
+    var fade = (phase==='clearing') ? (1-clearProg) : 1;
+    g.globalAlpha = fade;
+    for (var i=0;i<shown;i++){
+      var a = 1;
+      if (i === shown-1 && phase==='writing') a = growth;
+      drawStroke(slots[i], a);
+    }
+    // the strike-through: one long red bar, the ledger closed
+    if (phase==='struck' || phase==='clearing'){
+      g.globalAlpha = fade;
+      g.strokeStyle = RED;
+      g.lineWidth = 9;
+      g.lineCap = 'butt';
+      var x0 = 66, y0 = 812, x1 = 66 + 400*strikeProg, y1 = 812 - 118*strikeProg;
+      g.beginPath(); g.moveTo(x0,y0); g.lineTo(x1,y1); g.stroke();
+    }
+    g.globalAlpha = 1;
+  }
+
+  var growth = 0;
+  var last = performance.now();
+
+  function loop(now){
+    var dt = Math.min(now - last, 50); last = now;
+
+    if (phase === 'writing'){
+      if (now - t0 > nextAt){
+        count++;
+        growth = 0;
+        t0 = now;
+        nextAt = 1700 + rnd()*1500;
+        if (count >= slots.length){ phase = 'struck'; strikeProg = 0; t0 = now; }
+      } else {
+        // last stroke grows in quickly then holds
+        growth = Math.min(1, (now - t0)/420);
+      }
+    } else if (phase === 'struck'){
+      strikeProg = Math.min(1, (now - t0)/2600);
+      if (strikeProg >= 1 && now - t0 > 5200){ phase='clearing'; clearProg=0; t0=now; }
+    } else {
+      clearProg = Math.min(1, (now - t0)/3400);
+      if (clearProg >= 1){
+        phase='writing'; count=0; growth=0; strikeProg=0; t0=now;
+        nextAt = 1600;
+        // re-jitter the lattice so each ledger differs
+        for (var i=0;i<slots.length;i++){
+          slots[i].lean = (rnd()-0.5)*0.20;
+          slots[i].len  = 34 + rnd()*10;
+          slots[i].w    = 7 + rnd()*4;
+        }
+      }
+    }
+
+    redraw(now);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ---------- procedural audio: one low creak per tally ---------- */
+  if (window.self === window.top){
+    var ac = null;
+    function ensure(){
+      if (!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ac=null; } }
+      return ac;
+    }
+    // sparse wooden knock tied to stroke events
+    var lastCount = 0;
+    setInterval(function(){
+      if (count !== lastCount){
+        lastCount = count;
+        var a = ensure(); if (!a) return;
+        if (a.state === 'suspended') a.resume();
+        var o = a.createOscillator(), gn = a.createGain(), f = a.createBiquadFilter();
+        o.type='triangle';
+        o.frequency.value = 96 + (count%5)*7;
+        f.type='lowpass'; f.frequency.value = 620;
+        gn.gain.setValueAtTime(0.0001, a.currentTime);
+        gn.gain.exponentialRampToValueAtTime(0.06, a.currentTime+0.012);
+        gn.gain.exponentialRampToValueAtTime(0.0001, a.currentTime+0.9);
+        o.connect(f); f.connect(gn); gn.connect(a.destination);
+        o.start(); o.stop(a.currentTime+1.0);
+      }
+    }, 120);
+  }
+})();
+</script>
+</body>
+</html>
