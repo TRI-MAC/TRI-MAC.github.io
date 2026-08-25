@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Two Halves of One Morning</title>
+<style>
+  html,body{margin:0;padding:0;background:#efe7db;overflow:hidden;}
+  body{width:100%;height:100%;}
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    margin:0 auto;
+    background:#f4ecdf;
+    overflow:hidden;
+  }
+  /* ---------- base scene image, full bleed ---------- */
+  #scene-image{
+    position:absolute;
+    left:-2%; top:-2%;
+    width:104%; height:104%;
+    object-fit:cover;
+    opacity:0.97;
+    animation:drift 68s ease-in-out infinite;
+    z-index:2;
+  }
+  @keyframes drift{
+    0%   {transform:translate3d(0,0,0) scale(1.02);}
+    50%  {transform:translate3d(-0.7%,0.5%,0) scale(1.045);}
+    100% {transform:translate3d(0,0,0) scale(1.02);}
+  }
+
+  /* ---------- feathering fields: soft-edged shapes sampled from palette ---------- */
+  .feather{position:absolute;pointer-events:none;}
+  #feather-top{
+    left:-12%; top:-16%; width:124%; height:34%;
+    background:radial-gradient(120% 100% at 50% 0%, rgba(246,238,224,0.95) 0%, rgba(246,238,224,0.70) 42%, rgba(246,238,224,0) 78%);
+    z-index:3;
+    animation:breatheA 54s ease-in-out infinite;
+  }
+  #feather-bottom{
+    left:-14%; bottom:-18%; width:128%; height:36%;
+    background:radial-gradient(120% 100% at 50% 100%, rgba(238,226,206,0.95) 0%, rgba(240,229,209,0.62) 45%, rgba(240,229,209,0) 80%);
+    z-index:3;
+    animation:breatheB 61s ease-in-out infinite;
+  }
+  #feather-left{
+    left:-22%; top:-6%; width:44%; height:112%;
+    background:radial-gradient(70% 60% at 0% 50%, rgba(230,214,190,0.92) 0%, rgba(234,220,198,0.55) 46%, rgba(234,220,198,0) 82%);
+    z-index:3;
+    animation:breatheA 72s ease-in-out infinite reverse;
+  }
+  #feather-right{
+    right:-22%; top:-8%; width:44%; height:114%;
+    background:radial-gradient(70% 60% at 100% 50%, rgba(247,241,229,0.94) 0%, rgba(247,241,229,0.55) 46%, rgba(247,241,229,0) 82%);
+    z-index:3;
+    animation:breatheB 66s ease-in-out infinite reverse;
+  }
+  @keyframes breatheA{
+    0%,100%{transform:translate3d(0,0,0) scale(1);opacity:1;}
+    50%{transform:translate3d(0,-1.2%,0) scale(1.05);opacity:0.82;}
+  }
+  @keyframes breatheB{
+    0%,100%{transform:translate3d(0,0,0) scale(1.02);opacity:0.9;}
+    50%{transform:translate3d(0.8%,1%,0) scale(1.07);opacity:1;}
+  }
+
+  /* ---------- the two halves ---------- */
+  /* WARM half wash (left of divide) and COOL half wash (right of divide) */
+  #half-warm, #half-cool{
+    position:absolute; top:-4%; height:108%;
+    z-index:4; pointer-events:none;
+  }
+  #half-warm{
+    left:-4%; width:56%;
+    background:linear-gradient(100deg, rgba(226,118,58,0.30) 0%, rgba(232,152,74,0.20) 46%, rgba(236,178,96,0.06) 78%, rgba(236,178,96,0) 100%);
+    animation:washWarm 46s ease-in-out infinite;
+  }
+  #half-cool{
+    right:-4%; width:56%;
+    background:linear-gradient(260deg, rgba(58,104,150,0.30) 0%, rgba(84,138,168,0.20) 46%, rgba(120,166,182,0.06) 78%, rgba(120,166,182,0) 100%);
+    animation:washCool 46s ease-in-out infinite;
+  }
+  @keyframes washWarm{
+    0%,100%{opacity:0.95;}
+    50%{opacity:0.55;}
+  }
+  @keyframes washCool{
+    0%,100%{opacity:0.55;}
+    50%{opacity:0.95;}
+  }
+
+  /* the sharp line itself */
+  #divide{
+    position:absolute;
+    left:50%; top:0;
+    width:3px; height:100%;
+    margin-left:-1.5px;
+    background:#22201d;
+    z-index:9;
+    animation:divideShift 88s ease-in-out infinite;
+  }
+  @keyframes divideShift{
+    0%,100%{transform:translate3d(0,0,0);}
+    50%{transform:translate3d(-1.6%,0,0);}
+  }
+
+  /* ---------- canvas layers ---------- */
+  #marks{
+    position:absolute; left:0; top:0; width:100%; height:100%;
+    z-index:6;
+  }
+  #grain{
+    position:absolute; left:0; top:0; width:100%; height:100%;
+    z-index:8; opacity:0.34;
+  }
+
+  #svgmarks{
+    position:absolute; left:0; top:0; width:100%; height:100%;
+    z-index:7;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    left:6.1%; bottom:4.4%;
+    width:16px;
+    opacity:0.62;
+    z-index:10;
+    transform:rotate(-7deg);
+  }
+
+  #datestamp{
+    position:absolute;
+    left:0; bottom:14px;
+    width:100%;
+    text-align:center;
+    z-index:11;
+    font:400 11px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing:0.34em;
+    color:#2a2724;
+    opacity:0.42;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <img id="scene-image" src="scene.png" alt="">
+
+  <div class="feather" id="feather-left"></div>
+  <div class="feather" id="feather-right"></div>
+  <div class="feather" id="feather-top"></div>
+  <div class="feather" id="feather-bottom"></div>
+
+  <div id="half-warm"></div>
+  <div id="half-cool"></div>
+
+  <canvas id="marks"></canvas>
+
+  <svg id="svgmarks" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="gWarm" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d9662f" stop-opacity="0"/>
+        <stop offset="0.18" stop-color="#d9662f" stop-opacity="0.85"/>
+        <stop offset="0.82" stop-color="#c8541f" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#c8541f" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="gCool" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2f6188" stop-opacity="0"/>
+        <stop offset="0.18" stop-color="#2f6188" stop-opacity="0.85"/>
+        <stop offset="0.82" stop-color="#264f72" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#264f72" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- WARM HALF: one large solid form, the sun-side reading -->
+    <g id="warmForm">
+      <circle cx="268" cy="486" r="196" fill="#e07a34" opacity="0.88"/>
+      <circle cx="268" cy="486" r="196" fill="none" stroke="#22201d" stroke-width="3" opacity="0.55"/>
+    </g>
+
+    <!-- COOL HALF: the same form, hollowed out — the shade-side reading -->
+    <g id="coolForm">
+      <circle cx="812" cy="1434" r="196" fill="none" stroke="#2f6188" stroke-width="26" opacity="0.9"/>
+      <circle cx="812" cy="1434" r="196" fill="none" stroke="#22201d" stroke-width="2" opacity="0.4"/>
+    </g>
+
+    <!-- measured ticks along the divide: same count each side, opposite weight -->
+    <g id="ticksWarm" opacity="0.85">
+      <rect x="430" y="230" width="106" height="7" fill="url(#gWarm)"/>
+      <rect x="392" y="600" width="144" height="7" fill="url(#gWarm)"/>
+      <rect x="448" y="980" width="88"  height="7" fill="url(#gWarm)"/>
+      <rect x="356" y="1352" width="180" height="7" fill="url(#gWarm)"/>
+      <rect x="464" y="1704" width="72"  height="7" fill="url(#gWarm)"/>
+    </g>
+    <g id="ticksCool" opacity="0.85">
+      <rect x="544" y="420"  width="180" height="7" fill="url(#gCool)"/>
+      <rect x="544" y="790"  width="88"  height="7" fill="url(#gCool)"/>
+      <rect x="544" y="1160" width="144" height="7" fill="url(#gCool)"/>
+      <rect x="544" y="1540" width="106" height="7" fill="url(#gCool)"/>
+      <rect x="544" y="1826" width="72"  height="7" fill="url(#gCool)"/>
+    </g>
+  </svg>
+
+  <canvas id="grain"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div id="datestamp">2026 · 08 · 25</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- date seed ---------------- */
+  var DATE = "2026-08-25";
+  function hash(str){
+    var h = 2166136261 >>> 0;
+    for (var i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  var seed = hash(DATE);
+  function rnd(){
+    seed ^= seed << 13; seed >>>= 0;
+    seed ^= seed >>> 17;
+    seed ^= seed << 5;  seed >>>= 0;
+    return seed / 4294967296;
+  }
+
+  /* seed-driven variation: where the sharp line sits, and the wash phase */
+  var divideX = 0.46 + rnd()*0.08;           /* 46%..54% */
+  document.getElementById('divide').style.left = (divideX*100).toFixed(2) + '%';
+  document.getElementById('half-warm').style.width = (divideX*100 + 4).toFixed(2) + '%';
+  document.getElementById('half-cool').style.width = ((1-divideX)*100 + 4).toFixed(2) + '%';
+
+  /* ---------------- grain: drawn ONCE, static ---------------- */
+  (function(){
+    var g = document.getElementById('grain');
+    var W = 540, H = 960;
+    g.width = W; g.height = H;
+    var ctx = g.getContext('2d');
+    var img = ctx.createImageData(W,H);
+    var d = img.data;
+    for (var i=0;i<d.length;i+=4){
+      var v = 200 + Math.floor(rnd()*56);
+      d[i]=v; d[i+1]=v-4; d[i+2]=v-14;
+      d[i+3]= Math.floor(rnd()*30);
+    }
+    ctx.putImageData(img,0,0);
+    /* a few soft paper blooms, same medium as the wash */
+    ctx.globalCompositeOperation = 'source-over';
+    for (var b=0;b<9;b++){
+      var cx = rnd()*W, cy = rnd()*H, r = 60 + rnd()*140;
+      var grd = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      grd.addColorStop(0,'rgba(255,250,240,0.07)');
+      grd.addColorStop(1,'rgba(255,250,240,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    }
+  })();
+
+  /* ---------------- marks canvas: slow structural crossing ---------------- */
+  var cv = document.getElementById('marks');
+  var W = 540, H = 960;
+  cv.width = W; cv.height = H;
+  cv.style.width = '100%'; cv.style.height = '100%';
+  var ctx = cv.getContext('2d');
+
+  var DX = divideX * W;
+
+  /* Two form families only:
+     (1) horizontal bands that grow from the divide outward — the two readings
+         of the same measure, one warm, one cool;
+     (2) a single wide arc band per side, thick, ribbon-like.
+     Everything is a filled shape. */
+
+  var bands = [];
+  var nB = 7;
+  for (var i=0;i<nB;i++){
+    var t = (i+0.5)/nB;
+    bands.push({
+      y: 70 + t*(H-160) + (rnd()-0.5)*26,
+      h: 6 + rnd()*22,
+      lenL: 90 + rnd()*180,
+      lenR: 90 + rnd()*180,
+      phase: rnd()*Math.PI*2,
+      speed: 0.055 + rnd()*0.05
+    });
+  }
+
+  var arcs = [
+    { side:-1, cx: DX, cy: H*0.30, r: W*0.42, w: 20, a0: Math.PI*0.60, a1: Math.PI*1.28, col:'rgba(216,98,44,' },
+    { side: 1, cx: DX, cy: H*0.74, r: W*0.44, w: 20, a0:-Math.PI*0.30, a1: Math.PI*0.34, col:'rgba(44,92,132,' }
+  ];
+
+  var t0 = performance.now();
+
+  function frame(now){
+    var T = (now - t0)/1000;
+    ctx.clearRect(0,0,W,H);
+
+    /* --- bands: warm side extends while cool contracts, then reverses --- */
+    for (var i=0;i<bands.length;i++){
+      var b = bands[i];
+      var s = Math.sin(T*b.speed*0.9 + b.phase);
+      var eW = 0.35 + 0.65*(0.5 + 0.5*s);
+      var eC = 0.35 + 0.65*(0.5 - 0.5*s);
+
+      /* warm (left of divide): SOLID, filled */
+      var lw = b.lenL * eW;
+      ctx.fillStyle = 'rgba(206,86,32,0.62)';
+      ctx.fillRect(DX - 2 - lw, b.y, lw, b.h);
+
+      /* cool (right of divide): the same measure rendered as an open outline —
+         contrasting interpretation of the identical structure */
+      var rw = b.lenR * eC;
+      ctx.strokeStyle = 'rgba(38,84,124,0.72)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(DX + 2.5, b.y + 0.5, Math.max(rw,3), Math.max(b.h-1,2));
+    }
+
+    /* --- two thick arc ribbons, one each side, counter-swinging --- */
+    for (var k=0;k<arcs.length;k++){
+      var a = arcs[k];
+      var swing = Math.sin(T*0.045 + k*Math.PI) * 0.16;
+      var alpha = 0.34 + 0.20*(0.5 + 0.5*Math.sin(T*0.045 + k*Math.PI));
+      ctx.save();
+      /* clip to the correct half so the ribbon respects the sharp line */
+      ctx.beginPath();
+      if (a.side < 0) ctx.rect(0,0,DX-1.5,H);
+      else ctx.rect(DX+1.5,0,W-DX,H);
+      ctx.clip();
+
+      ctx.beginPath();
+      ctx.arc(a.cx, a.cy, a.r, a.a0 + swing, a.a1 + swing);
+      ctx.lineWidth = a.w;
+      ctx.lineCap = 'butt';
+      ctx.strokeStyle = a.col + alpha.toFixed(3) + ')';
+      ctx.stroke();
+
+      /* inner hairline, same medium, keeps the ribbon reading as drawn */
+      ctx.beginPath();
+      ctx.arc(a.cx, a.cy, a.r, a.a0 + swing, a.a1 + swing);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(34,32,29,0.30)';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------------- SVG form breathing (transform only, on wrappers) ---------------- */
+  var warmForm = document.getElementById('warmForm');
+  var coolForm = document.getElementById('coolForm');
+  var tw = document.getElementById('ticksWarm');
+  var tc = document.getElementById('ticksCool');
+
+  function svgLoop(now){
+    var T = now/1000;
+    var s = Math.sin(T*0.055);
+    var kw = 1 + 0.045*s;
+    var kc = 1 - 0.045*s;
+    warmForm.setAttribute('transform',
+      'translate(268,486) scale(' + kw.toFixed(4) + ') translate(-268,-486)');
+    coolForm.setAttribute('transform',
+      'translate(812,1434) scale(' + kc.toFixed(4) + ') translate(-812,-1434)');
+    tw.setAttribute('opacity', (0.45 + 0.45*(0.5+0.5*s)).toFixed(3));
+    tc.setAttribute('opacity', (0.45 + 0.45*(0.5-0.5*s)).toFixed(3));
+    requestAnimationFrame(svgLoop);
+  }
+  requestAnimationFrame(svgLoop);
+
+  /* ---------------- procedural audio: two drones, one each side ---------------- */
+  if (window.self === window.top){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC){
+        var ac = new AC();
+        var master = ac.createGain();
+        master.gain.value = 0.0;
+        master.connect(ac.destination);
+
+        function voice(freq, pan, lfoRate, phase){
+          var o = ac.createOscillator();
+          o.type = 'sine';
+          o.frequency.value = freq;
+          var g = ac.createGain();
+          g.gain.value = 0.10;
+          var p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+          var lfo = ac.createOscillator();
+          lfo.frequency.value = lfoRate;
+          var lg = ac.createGain();
+          lg.gain.value = 0.075;
+          lfo.connect(lg); lg.connect(g.gain);
+          o.connect(g);
+          if (p){ p.pan.value = pan; g.connect(p); p.connect(master); }
+          else { g.connect(master); }
+          o.start(ac.currentTime + phase);
+          lfo.start();
+          return o;
+        }
+
+        /* warm side: fifth below; cool side: fifth above. Same interval, two readings. */
+        var base = 98 + Math.floor(rnd()*6);   /* ~G2 */
+        voice(base,        -0.75, 0.055, 0);
+        voice(base*1.5,     0.75, 0.048, 0.5);
+        voice(base*3.0,     0.20, 0.031, 1.0);
+
+        master.gain.setValueAtTime(0.0, ac.currentTime);
+        master.gain.linearRampToValueAtTime(0.055, ac.currentTime + 14);
+
+        if (ac.state === 'suspended'){
+          var resume = function(){ ac.resume(); };
+          setTimeout(resume, 400);
+        }
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
