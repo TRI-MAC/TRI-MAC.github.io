@@ -11,6 +11,7 @@
     --rule: #e2ddd3;
     --ground: #faf8f4;
     --card: #fffefb;
+    --accent: #7a3b12;
   }
   * { box-sizing: border-box; }
   body {
@@ -41,7 +42,17 @@
     background: #efeae1;
     border-bottom: 1px solid var(--rule);
     overflow: hidden;
+    cursor: pointer;
   }
+  .frame:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .frame .poster {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* The iframe is injected on click, never present at load. pointer-events off
+     so a click lands on the frame and toggles it, rather than inside the piece. */
   .frame iframe {
     position: absolute; top: 0; left: 0;
     width: 1080px; height: 1920px;
@@ -55,6 +66,17 @@
     color: var(--muted); font-size: 12px; letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .frame .play {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px; height: 46px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(27, 26, 23, 0.42);
+    color: #fffefb; font-size: 15px; padding-left: 3px;
+    transition: background 120ms ease, transform 120ms ease;
+  }
+  .frame:hover .play { background: rgba(27, 26, 23, 0.72); transform: translate(-50%, -50%) scale(1.06); }
+  .frame.playing .poster, .frame.playing .play, .frame.playing .idle { display: none; }
   .meta { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
   .date {
     font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -73,22 +95,22 @@
     padding: 2px 8px;
     font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
   }
-  .open { margin-left: auto; color: #7a3b12; text-decoration: none; font-weight: 600; }
+  .open { margin-left: auto; color: var(--accent); text-decoration: none; font-weight: 600; }
   .open:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <header>
   <h1>Artagent — Hall of Fame</h1>
-  <p class="sub">16 entries, newest first. Previews are the live published
-  pages, so they animate; scroll slowly. Click a title to open one full size.</p>
+  <p class="sub">16 entries, newest first. Click a poster to play that piece —
+  one plays at a time. Click a title to open one full size.</p>
 </header>
 <div class="grid">
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-08-27/" title="Mid-century Bauhaus Geological Infographic (2026-08-27)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-08-27/" data-title="Mid-century Bauhaus Geological Infographic (2026-08-27)"
+         role="button" tabindex="0" aria-label="Play Mid-century Bauhaus Geological Infographic (2026-08-27)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-08-27.webp" alt="Mid-century Bauhaus Geological Infographic" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-08-27</div>
@@ -101,10 +123,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-08-20/" title="Ukiyo-e Kabuki / Flat-Vector Ma (2026-08-20)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-08-20/" data-title="Ukiyo-e Kabuki / Flat-Vector Ma (2026-08-20)"
+         role="button" tabindex="0" aria-label="Play Ukiyo-e Kabuki / Flat-Vector Ma (2026-08-20)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-08-20.webp" alt="Ukiyo-e Kabuki / Flat-Vector Ma" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-08-20</div>
@@ -117,10 +139,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-08-10/" title="Southwest Suprematist Textile Cosmology (2026-08-10)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-08-10/" data-title="Southwest Suprematist Textile Cosmology (2026-08-10)"
+         role="button" tabindex="0" aria-label="Play Southwest Suprematist Textile Cosmology (2026-08-10)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-08-10.webp" alt="Southwest Suprematist Textile Cosmology" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-08-10</div>
@@ -133,10 +155,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-08-04/" title="Baroque Tenebrist Underwater Triptych (2026-08-04)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-08-04/" data-title="Baroque Tenebrist Underwater Triptych (2026-08-04)"
+         role="button" tabindex="0" aria-label="Play Baroque Tenebrist Underwater Triptych (2026-08-04)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-08-04.webp" alt="Baroque Tenebrist Underwater Triptych" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-08-04</div>
@@ -149,10 +171,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-06-04/" title="Cyber / Neon Sandscape (2026-06-04)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-06-04/" data-title="Cyber / Neon Sandscape (2026-06-04)"
+         role="button" tabindex="0" aria-label="Play Cyber / Neon Sandscape (2026-06-04)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-06-04.webp" alt="Cyber / Neon Sandscape" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-06-04</div>
@@ -165,10 +187,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-06-02/" title="Pop Art / Vinyl Koi (2026-06-02)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-06-02/" data-title="Pop Art / Vinyl Koi (2026-06-02)"
+         role="button" tabindex="0" aria-label="Play Pop Art / Vinyl Koi (2026-06-02)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-06-02.webp" alt="Pop Art / Vinyl Koi" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-06-02</div>
@@ -181,10 +203,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-21/" title="Synthwave / Neon-Noir Auto-Runner (2026-05-21)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-21/" data-title="Synthwave / Neon-Noir Auto-Runner (2026-05-21)"
+         role="button" tabindex="0" aria-label="Play Synthwave / Neon-Noir Auto-Runner (2026-05-21)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-21.webp" alt="Synthwave / Neon-Noir Auto-Runner" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-21</div>
@@ -197,10 +219,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-14/" title="Minimalism / Anti-pattern (2026-05-14)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-14/" data-title="Minimalism / Anti-pattern (2026-05-14)"
+         role="button" tabindex="0" aria-label="Play Minimalism / Anti-pattern (2026-05-14)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-14.webp" alt="Minimalism / Anti-pattern" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-14</div>
@@ -213,10 +235,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-12/" title="HTML Primitives / Interface Archaeology (2026-05-12)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-12/" data-title="HTML Primitives / Interface Archaeology (2026-05-12)"
+         role="button" tabindex="0" aria-label="Play HTML Primitives / Interface Archaeology (2026-05-12)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-12.webp" alt="HTML Primitives / Interface Archaeology" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-12</div>
@@ -229,10 +251,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-05/" title="Vaporwave / Cyberpunk Pixel Art (2026-05-05)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-05/" data-title="Vaporwave / Cyberpunk Pixel Art (2026-05-05)"
+         role="button" tabindex="0" aria-label="Play Vaporwave / Cyberpunk Pixel Art (2026-05-05)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-05.webp" alt="Vaporwave / Cyberpunk Pixel Art" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-05</div>
@@ -245,10 +267,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-03/" title="Vaporwave / Cyber (2026-05-03)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-03/" data-title="Vaporwave / Cyber (2026-05-03)"
+         role="button" tabindex="0" aria-label="Play Vaporwave / Cyber (2026-05-03)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-03.webp" alt="Vaporwave / Cyber" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-03</div>
@@ -261,10 +283,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-05-01/" title="De Stijl (2026-05-01)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-05-01/" data-title="De Stijl (2026-05-01)"
+         role="button" tabindex="0" aria-label="Play De Stijl (2026-05-01)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-05-01.webp" alt="De Stijl" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-05-01</div>
@@ -277,10 +299,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-04-27/" title="Op Art (2026-04-27)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-04-27/" data-title="Op Art (2026-04-27)"
+         role="button" tabindex="0" aria-label="Play Op Art (2026-04-27)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-04-27.webp" alt="Op Art" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-04-27</div>
@@ -293,10 +315,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-04-09/" title="Japanese sumi-e cherry blossom painting meets The Matrix (2026-04-09)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-04-09/" data-title="Japanese sumi-e cherry blossom painting meets The Matrix (2026-04-09)"
+         role="button" tabindex="0" aria-label="Play Japanese sumi-e cherry blossom painting meets The Matrix (2026-04-09)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-04-09.webp" alt="Japanese sumi-e cherry blossom painting meets The Matrix" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-04-09</div>
@@ -309,10 +331,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-04-02/" title="Space Pop / Cosmic Pop Art (2026-04-02)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-04-02/" data-title="Space Pop / Cosmic Pop Art (2026-04-02)"
+         role="button" tabindex="0" aria-label="Play Space Pop / Cosmic Pop Art (2026-04-02)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-04-02.webp" alt="Space Pop / Cosmic Pop Art" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-04-02</div>
@@ -325,10 +347,10 @@
     </div>
   </article>
   <article class="card">
-    <div class="frame">
-      <div class="idle">preview</div>
-      <iframe data-src="https://tri-mac.github.io/artagent/2026-03-26/" title="Pop Art (2026-03-26)" loading="lazy"
-              scrolling="no" referrerpolicy="no-referrer"></iframe>
+    <div class="frame" data-src="https://tri-mac.github.io/artagent/2026-03-26/" data-title="Pop Art (2026-03-26)"
+         role="button" tabindex="0" aria-label="Play Pop Art (2026-03-26)">
+      <img class="poster" src="https://tri-mac.github.io/artagent/hof/thumbs/2026-03-26.webp" alt="Pop Art" loading="lazy" decoding="async">
+      <span class="play" aria-hidden="true">&#9654;</span>
     </div>
     <div class="meta">
       <div class="date">2026-03-26</div>
@@ -347,36 +369,60 @@
   // column the full width of the page. A fixed 270/1080 left the frame's
   // own background showing down the right and bottom edge of every card.
   var SRC_W = 1080;
+  var playing = null;
+
   function fit(frame) {
     var iframe = frame.querySelector('iframe');
     if (iframe) iframe.style.transform = 'scale(' + frame.clientWidth / SRC_W + ')';
   }
+
+  function stop(frame) {
+    if (!frame) return;
+    var iframe = frame.querySelector('iframe');
+    // Drop the src before removing the node: that is what actually halts the
+    // piece's timers and audio, rather than leaving it running detached.
+    if (iframe) { iframe.removeAttribute('src'); iframe.remove(); }
+    frame.classList.remove('playing');
+    if (playing === frame) playing = null;
+  }
+
+  function play(frame) {
+    if (frame.classList.contains('playing')) { stop(frame); return; }
+    stop(playing);   // one animation at a time; that is the whole point here
+    var iframe = document.createElement('iframe');
+    iframe.title = frame.dataset.title || '';
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('referrerpolicy', 'no-referrer');
+    iframe.src = frame.dataset.src;
+    frame.appendChild(iframe);
+    frame.classList.add('playing');
+    playing = frame;
+    fit(frame);
+  }
+
   var ro = new ResizeObserver(function (entries) {
     entries.forEach(function (entry) { fit(entry.target); });
   });
-  // Each piece is a full animation, so keep only the cards near the viewport
-  // loaded. Without this, fourteen simultaneous canvas/WebGL loops make the
-  // review page itself unusable.
+  // Nothing autoloads any more, so this no longer gates loading — it just stops
+  // a piece you scrolled away from, instead of leaving it looping offscreen.
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      var frame = entry.target;
-      var iframe = frame.querySelector('iframe');
-      var idle = frame.querySelector('.idle');
-      if (entry.isIntersecting) {
-        if (!iframe.src) {
-          iframe.src = iframe.dataset.src;
-          if (idle) idle.textContent = 'loading';
-        }
-      } else if (iframe.src) {
-        iframe.removeAttribute('src');
-        if (idle) idle.textContent = 'paused';
+      if (!entry.isIntersecting && entry.target.classList.contains('playing')) {
+        stop(entry.target);
       }
     });
-  }, { rootMargin: '400px 0px' });
+  }, { rootMargin: '200px 0px' });
+
   document.querySelectorAll('.frame').forEach(function (f) {
-    fit(f);
     ro.observe(f);
     io.observe(f);
+    f.addEventListener('click', function () { play(f); });
+    f.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+        ev.preventDefault();
+        play(f);
+      }
+    });
   });
 </script>
 </body>
