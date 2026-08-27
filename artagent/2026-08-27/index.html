@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Sediment Ledger</title>
+<style>
+  html,body{margin:0;padding:0;background:#e9e2d3;overflow:hidden;}
+  body{display:flex;align-items:center;justify-content:center;height:100vh;}
+  #stage{
+    position:relative;width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    background:#f2ecdd;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(30,26,22,.12);
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:auto;} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:auto;} }
+
+  /* base ground: pale layered strata, structured not busy */
+  #ground{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,
+        #fbf6e9 0%,
+        #f6efdd 24%,
+        #f0e7d1 40%,
+        #efe4cc 52%,
+        #eddfc2 64%,
+        #ecdbb8 76%,
+        #e8d5ad 88%,
+        #e3ceA2 100%);
+  }
+  #grain{
+    position:absolute;inset:0;
+    opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(38,32,26,.055) 0px, rgba(38,32,26,.055) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 5px),
+      repeating-linear-gradient(90deg, rgba(38,32,26,.03) 0px, rgba(38,32,26,.03) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 9px);
+    mix-blend-mode:multiply; /* the ONE blended full-viewport layer */
+  }
+
+  /* the art image sits as a lower-third horizon band */
+  #art-image{
+    position:absolute;
+    left:-4%;
+    top:52.5%;
+    width:108%;
+    height:29%;
+    object-fit:cover;
+    opacity:.96;
+    filter:saturate(1.12) contrast(1.05) brightness(1.06) hue-rotate(-4deg);
+    box-shadow:0 26px 60px -18px rgba(58,40,26,.42);
+    z-index:4;
+  }
+  /* feather the image's top and bottom edges into the strata */
+  #art-mask{
+    position:absolute;
+    left:-4%;top:52.5%;width:108%;height:29%;
+    z-index:5;pointer-events:none;
+    background:
+      linear-gradient(180deg, #f4ecda 0%, rgba(244,236,218,.55) 7%, rgba(244,236,218,0) 17%,
+        rgba(226,205,167,0) 78%, rgba(226,205,167,.5) 93%, #e2cda7 100%);
+  }
+
+  #cnv{position:absolute;inset:0;width:100%;height:100%;z-index:6;}
+  #svg{position:absolute;inset:0;width:100%;height:100%;z-index:7;}
+  #front{position:absolute;inset:0;width:100%;height:100%;z-index:9;}
+
+  #datestamp{
+    position:absolute;left:34px;bottom:26px;z-index:20;
+    font:500 15px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.34em;color:#3a2f26;opacity:.5;
+  }
+  #guinea-pig{
+    position:absolute;z-index:8;
+    width:17px;height:auto;
+    left:81.4%;top:80.6%;
+    opacity:.62;
+    transform:rotate(-7deg);
+  }
+  .drift{animation:drift 64s ease-in-out infinite;}
+  @keyframes drift{
+    0%{transform:translate3d(0,0,0) scale(1.0);}
+    50%{transform:translate3d(0,-9px,0) scale(1.012);}
+    100%{transform:translate3d(0,0,0) scale(1.0);}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="ground"></div>
+
+  <!-- BEHIND the image: deep core-shafts rising from the strata -->
+  <svg id="behind" viewBox="0 0 1080 1920" preserveAspectRatio="none"
+       style="position:absolute;inset:0;width:100%;height:100%;z-index:2">
+    <defs>
+      <linearGradient id="shaftG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2f7f6b" stop-opacity="0"/>
+        <stop offset=".35" stop-color="#2f7f6b" stop-opacity=".38"/>
+        <stop offset="1" stop-color="#1d5a4c" stop-opacity=".62"/>
+      </linearGradient>
+      <linearGradient id="shaftR" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d1462b" stop-opacity="0"/>
+        <stop offset=".4" stop-color="#d1462b" stop-opacity=".34"/>
+        <stop offset="1" stop-color="#a9301c" stop-opacity=".55"/>
+      </linearGradient>
+    </defs>
+    <g id="shafts"></g>
+  </svg>
+
+  <img id="art-image" class="drift" src="art.png" alt="">
+  <div id="art-mask"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <!-- animated core-samples (moderate canvas resolution) -->
+  <canvas id="cnv"></canvas>
+
+  <!-- hard-edged instrument geometry, drawn once + slow transforms -->
+  <svg id="svg" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <g id="ledger"></g>
+  </svg>
+
+  <!-- IN FRONT of the image: foreground terrain wedge occupying lower third -->
+  <svg id="front" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="fgA" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#e8d09f"/>
+        <stop offset="1" stop-color="#d8b678"/>
+      </linearGradient>
+      <linearGradient id="fgB" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1f5c4d"/>
+        <stop offset="1" stop-color="#2c7a63"/>
+      </linearGradient>
+    </defs>
+    <g id="fg"></g>
+  </svg>
+
+  <div id="datestamp">2026 · 08 · 27</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- date seed ---------- */
+const DATE="2026-08-27";
+let s=0; for(let i=0;i<DATE.length;i++) s=(s*131+DATE.charCodeAt(i))>>>0;
+function rnd(){ s^=s<<13;s>>>=0; s^=s>>17; s^=s<<5;s>>>=0; return s/4294967296; }
+function rr(a,b){ return a+(b-a)*rnd(); }
+function ri(a,b){ return Math.floor(rr(a,b+1)); }
+
+/* =========================================================
+   ONE IDEA — "SEDIMENT LEDGER"
+   A row of vertical core samples is continuously extruded
+   upward out of the strata horizon. Each core is a stack of
+   hard-edged banded segments; new bands are deposited at the
+   base and the whole column creeps up, so the composition is
+   a slowly rewriting record. Alien shape family: notched
+   lozenge-capped columns with tick-registrations beside them.
+   ========================================================= */
+
+const SVGNS="http://www.w3.org/2000/svg";
+function el(t,a){const n=document.createElementNS(SVGNS,t);for(const k in a)n.setAttribute(k,a[k]);return n;}
+
+/* ---------- palette: high key, hue-against-hue ---------- */
+const PAL=["#d1462b","#e0a11c","#1f5c4d","#2f8f74","#3352a3","#c8577f","#7a3c8f","#b5471f"];
+const INK="#2b241d";
+
+/* ---------- behind: core shafts descending below horizon ---------- */
+const HORIZON_Y = 1920*0.545;      // top of art image band
+const BASE_Y    = 1920*0.815;      // bottom of art image band
+
+const shafts=document.getElementById("shafts");
+const CORE_N = 6;
+const cores=[];
+const marginL=118, marginR=118;
+const spanW=1080-marginL-marginR;
+for(let i=0;i<CORE_N;i++){
+  const t=(i+0.5)/CORE_N;
+  const x=marginL+t*spanW+rr(-9,9);
+  const w=rr(46,86);
+  cores.push({x:x,w:w,hue:PAL[(i*3+ri(0,7))%PAL.length]});
+}
+cores.forEach((c,i)=>{
+  shafts.appendChild(el("rect",{x:c.x-c.w*0.34,y:BASE_Y-40,width:c.w*0.68,
+    height:1920-(BASE_Y-40),fill:(i%2? "url(#shaftR)":"url(#shaftG)")}));
+});
+
+/* =========================================================
+   CANVAS — the extruding core columns (540x960 backing store)
+   ========================================================= */
+const cv=document.getElementById("cnv");
+const CW=540, CH=960, SC=0.5;   // world 1080x1920 -> canvas 540x960
+cv.width=CW; cv.height=CH;
+const g=cv.getContext("2d");
+
+/* static under-plate drawn once: registration plinth beneath cores */
+const plate=document.createElement("canvas");
+plate.width=CW; plate.height=CH;
+(function(){
+  const p=plate.getContext("2d");
+  // pale plinth band under the horizon: warm rose slab
+  p.fillStyle="#eddcc9";
+  p.fillRect(0,BASE_Y*SC-6, CW, 26);
+  p.fillStyle="rgba(43,36,29,.16)";
+  p.fillRect(0,BASE_Y*SC+19, CW, 2);
+  // tick registrations on left rail
+  p.fillStyle="rgba(43,36,29,.55)";
+  for(let y=HORIZON_Y*SC-260; y<BASE_Y*SC; y+=14){
+    const long = (Math.round((y)/14)%5===0);
+    p.fillRect(30, y, long?20:10, 1.6);
+  }
+  p.fillStyle="rgba(43,36,29,.35)";
+  p.fillRect(30, HORIZON_Y*SC-262, 1.6, (BASE_Y*SC)-(HORIZON_Y*SC-262));
+})();
+
+/* each core: a queue of bands. band = {h, col, notch} */
+const TOP_LIMIT = 1920*0.115;      // columns dissolve above here
+cores.forEach((c,i)=>{
+  c.bands=[];
+  c.grow = rr(6.5,11.5);           // world px per second
+  c.phase= rr(0,6.28);
+  c.height=0;
+  // seed with existing history so the piece opens fully formed
+  let h=0;
+  while(h < (BASE_Y-HORIZON_Y) + rr(120,420)){
+    const bh=rr(9,34);
+    c.bands.push({h:bh,col:pickCol(c),notch:rnd()<0.22});
+    h+=bh;
+  }
+  c.height=h;
+});
+function pickCol(c){
+  return rnd()<0.42 ? c.hue : (rnd()<0.5 ? PAL[ri(0,PAL.length-1)] : (rnd()<0.5?"#f6efdd":INK));
+}
+
+let last=performance.now(), acc=0;
+const STEP=1/60;
+
+function drawFrame(){
+  g.clearRect(0,0,CW,CH);
+  g.drawImage(plate,0,0);
+
+  for(let i=0;i<cores.length;i++){
+    const c=cores[i];
+    const cx=c.x*SC, halfBase=(c.w*0.5)*SC;
+    let y=BASE_Y*SC;   // bands stack upward from base
+
+    for(let b=0;b<c.bands.length;b++){
+      const bd=c.bands[b];
+      const bh=bd.h*SC;
+      const yTop=y-bh;
+      if(y < TOP_LIMIT*SC) break;
+
+      // taper: columns narrow with age/height
+      const age=(BASE_Y*SC-yTop)/(BASE_Y*SC);
+      const hw=halfBase*(1-0.30*age);
+
+      // fade out near the top so nothing clips the edge
+      let a=1;
+      const fadeStart=TOP_LIMIT*SC+180, fadeEnd=TOP_LIMIT*SC;
+      if(yTop<fadeStart) a=Math.max(0,(yTop-fadeEnd)/(fadeStart-fadeEnd));
+      if(a<=0.01){ y=yTop; continue; }
+
+      g.globalAlpha=a;
+      g.fillStyle=bd.col;
+      if(bd.notch){
+        // notched lozenge band — the alien shape family
+        g.beginPath();
+        g.moveTo(cx-hw, yTop+bh*0.5);
+        g.lineTo(cx-hw*0.42, yTop);
+        g.lineTo(cx+hw*0.42, yTop);
+        g.lineTo(cx+hw, yTop+bh*0.5);
+        g.lineTo(cx+hw*0.42, y);
+        g.lineTo(cx-hw*0.42, y);
+        g.closePath();
+        g.fill();
+      }else{
+        g.fillRect(cx-hw, yTop, hw*2, bh+0.6);
+      }
+      // hard hairline seam
+      g.globalAlpha=a*0.5;
+      g.fillStyle="rgba(43,36,29,.85)";
+      g.fillRect(cx-hw, yTop, hw*2, 1);
+      g.globalAlpha=1;
+
+      y=yTop;
+    }
+
+    // capstone lozenge at the growing tip
+    if(y>TOP_LIMIT*SC+30){
+      const age=(BASE_Y*SC-y)/(BASE_Y*SC);
+      const hw=halfBase*(1-0.30*age);
+      const capH=hw*1.05;
+      let a=1;
+      const fs=TOP_LIMIT*SC+220;
+      if(y<fs) a=Math.max(0,(y-TOP_LIMIT*SC)/(fs-TOP_LIMIT*SC));
+      g.globalAlpha=a;
+      g.fillStyle=c.hue;
+      g.beginPath();
+      g.moveTo(cx, y-capH);
+      g.lineTo(cx+hw, y-capH*0.32);
+      g.lineTo(cx+hw*0.55, y);
+      g.lineTo(cx-hw*0.55, y);
+      g.lineTo(cx-hw, y-capH*0.32);
+      g.closePath();
+      g.fill();
+      g.fillStyle="#f6efdd";
+      g.beginPath();
+      g.arc(cx, y-capH*0.44, Math.max(1.6,hw*0.19), 0, 6.2832);
+      g.fill();
+      g.globalAlpha=1;
+    }
+  }
+}
+
+let t=0;
+function tick(now){
+  let dt=(now-last)/1000; last=now;
+  if(dt>0.05) dt=0.05;
+  acc+=dt;
+  let steps=0;
+  while(acc>=STEP && steps<2){ acc-=STEP; steps++; t+=STEP; update(STEP); }
+  if(steps===0 && acc>STEP) acc=0;
+  drawFrame();
+  requestAnimationFrame(tick);
+}
+
+function update(dt){
+  for(let i=0;i<cores.length;i++){
+    const c=cores[i];
+    const rate=c.grow*(0.72+0.28*Math.sin(t*0.11+c.phase));
+    // deposit at base: extend bottom band, spawn a new one when tall enough
+    const first=c.bands[0];
+    first.h += rate*dt;
+    if(first.h > rr(11,32)){
+      c.bands.unshift({h:0.5,col:pickCol(c),notch:rnd()<0.22});
+    }
+    // retire bands that have travelled above the visible zone
+    let total=0;
+    for(let b=0;b<c.bands.length;b++){
+      total+=c.bands[b].h;
+      if(BASE_Y-total < TOP_LIMIT-60){ c.bands.length=b+1; break; }
+    }
+  }
+}
+
+/* =========================================================
+   SVG LEDGER — hard-edged measuring frame keyed to the cores
+   ========================================================= */
+const ledger=document.getElementById("ledger");
+// horizontal datum rules across the upper field, thick bands not lines
+const datums=[
+  {y:1920*0.155,h:9, c:"#3352a3", a:.30},
+  {y:1920*0.255,h:5, c:INK,       a:.24},
+  {y:1920*0.352,h:14,c:"#e0a11c", a:.34},
+  {y:1920*0.448,h:6, c:"#d1462b", a:.30}
+];
+datums.forEach((d,i)=>{
+  const grad=el("linearGradient",{id:"dg"+i,x1:"0",y1:"0",x2:"1",y2:"0"});
+  [["0",0],["0.09",1],["0.91",1],["1",0]].forEach(([o,op])=>{
+    grad.appendChild(el("stop",{offset:o,"stop-color":d.c,"stop-opacity":op*d.a}));
+  });
+  ledger.appendChild(grad);
+  ledger.appendChild(el("rect",{x:0,y:d.y,width:1080,height:d.h,fill:"url(#dg"+i+")"}));
+  // registration blocks sitting on each datum, aligned to cores
+  cores.forEach((c,ci)=>{
+    if((ci+i)%3===0){
+      const w=c.w*0.5, hh=d.h+16;
+      ledger.appendChild(el("rect",{x:c.x-w/2,y:d.y-8,width:w,height:hh,
+        fill:d.c,opacity:0.55}));
+    }
+  });
+});
+
+// slow vertical creep of the whole datum frame — one structural motion
+const anim=el("animateTransform",{attributeName:"transform",type:"translate",
+  values:"0 0; 0 -34; 0 0", dur:"78s", repeatCount:"indefinite",
+  calcMode:"spline", keyTimes:"0;0.5;1",
+  keySplines:"0.4 0 0.6 1;0.4 0 0.6 1"});
+ledger.appendChild(anim);
+
+/* =========================================================
+   FOREGROUND — terrain wedge in the lower third, in front of image
+   ========================================================= */
+const fg=document.getElementById("fg");
+// pale dune slab (light key) with a hard emerald notch cutting it
+const dune="M0,1560 L150,1512 L330,1548 L470,1498 L640,1540 L820,1494 L1000,1536 L1080,1508 L1080,1920 L0,1920 Z";
+fg.appendChild(el("path",{d:dune,fill:"url(#fgA)"}));
+fg.appendChild(el("path",{d:"M0,1560 L150,1512 L330,1548 L470,1498 L640,1540 L820,1494 L1000,1536 L1080,1508 L1080,1520 L0,1572 Z",
+  fill:INK,opacity:".55"}));
+// emerald wedge: a cut trench revealing the sample column roots
+fg.appendChild(el("path",{d:"M262,1920 L392,1596 L688,1596 L806,1920 Z",fill:"url(#fgB)"}));
+fg.appendChild(el("path",{d:"M392,1596 L688,1596 L676,1636 L404,1636 Z",fill:"#f0e6cf",opacity:".9"}));
+// vermilion depth marks inside the trench (thick bars, hue vs hue)
+for(let i=0;i<5;i++){
+  const y=1668+i*50;
+  const inset=18+i*11;
+  fg.appendChild(el("rect",{x:404+inset,y:y,width:272-inset*2,height:11,
+    fill:i%2?"#d1462b":"#e0a11c",opacity:.9}));
+}
+// two column stubs breaking the image edge upward from foreground
+[cores[1],cores[4]].forEach((c,k)=>{
+  const wrap=el("g",{});
+  wrap.appendChild(el("rect",{x:c.x-c.w*0.30,y:1500,width:c.w*0.60,height:230,
+    fill:k?"#7a3c8f":"#3352a3",opacity:".92"}));
+  wrap.appendChild(el("rect",{x:c.x-c.w*0.30,y:1500,width:c.w*0.60,height:12,fill:INK,opacity:".7"}));
+  const a=el("animateTransform",{attributeName:"transform",type:"translate",
+    values:"0 0; 0 -16; 0 0",dur:(46+k*11)+"s",repeatCount:"indefinite",
+    calcMode:"spline",keyTimes:"0;0.5;1",keySplines:"0.4 0 0.6 1;0.4 0 0.6 1"});
+  wrap.appendChild(a);
+  fg.appendChild(wrap);
+});
+
+requestAnimationFrame(function(n){last=n;requestAnimationFrame(tick);});
+
+/* =========================================================
+   PROCEDURAL AUDIO — low deposition drone, direct view only
+   ========================================================= */
+if(window.self===window.top){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      const ac=new AC();
+      const master=ac.createGain(); master.gain.value=0.0;
+      const lp=ac.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=520;
+      lp.connect(master); master.connect(ac.destination);
+      [73.4,110.0,146.8,220.0].forEach((f,i)=>{
+        const o=ac.createOscillator(); o.type=i%2?"triangle":"sine"; o.frequency.value=f;
+        const gg=ac.createGain(); gg.gain.value=0.09/(i+1);
+        const lfo=ac.createOscillator(); lfo.type="sine"; lfo.frequency.value=0.031+i*0.017;
+        const la=ac.createGain(); la.gain.value=0.035/(i+1);
+        lfo.connect(la); la.connect(gg.gain);
+        o.connect(gg); gg.connect(lp); o.start(); lfo.start();
+      });
+      master.gain.linearRampToValueAtTime(0.16, ac.currentTime+14);
+      const res=()=>{ if(ac.state==="suspended") ac.resume(); };
+      res(); setTimeout(res,1200);
+    }
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>
