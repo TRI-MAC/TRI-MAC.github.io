@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Jellyfish Drift</title>
+<style>
+  html,body{margin:0;padding:0;background:#e9e2d2;overflow:hidden;}
+  body{display:flex;align-items:center;justify-content:center;height:100vh;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:9/16;
+    overflow:hidden;
+    /* HIGH KEY: pale bleached water — light ground, darks only as marks */
+    background:
+      radial-gradient(120% 70% at 50% 12%, #fffdf4 0%, #f6efdc 38%, #ecdfc4 66%, #e2d3b4 100%),
+      linear-gradient(#f7f1e2,#e6d8bb);
+  }
+
+  /* --- the impossible horizon: a pale plane where the water inverts --- */
+  #plane{
+    position:absolute;left:-8%;top:56%;width:116%;height:44%;
+    background:linear-gradient(#dcd0b6 0%, #e7ddc6 26%, #f2ecdb 70%, #f8f4e8 100%);
+    transform-origin:50% 0%;
+    animation:tilt 96s ease-in-out infinite;
+    -webkit-mask-image:linear-gradient(#000 0%,#000 72%,transparent 100%);
+            mask-image:linear-gradient(#000 0%,#000 72%,transparent 100%);
+  }
+  @keyframes tilt{
+    0%,100%{transform:scaleY(1) rotate(-0.6deg);}
+    50%    {transform:scaleY(1.06) rotate(0.6deg);}
+  }
+
+  /* --- video: the water body itself, tucked as a soft luminous column --- */
+  #background-video{
+    position:absolute;left:50%;top:50%;
+    width:1180px;height:1180px;
+    transform:translate(-50%,-50%);
+    object-fit:cover;
+    opacity:.78;
+    mix-blend-mode:multiply;   /* the ONE blended full-area layer */
+    -webkit-mask-image:radial-gradient(closest-side ellipse at 50% 50%, #000 30%, rgba(0,0,0,.55) 62%, transparent 100%);
+            mask-image:radial-gradient(closest-side ellipse at 50% 50%, #000 30%, rgba(0,0,0,.55) 62%, transparent 100%);
+    pointer-events:none;
+  }
+
+  /* --- animated jellyfish canvas (low-res backing store, CSS-scaled) --- */
+  #jelly{
+    position:absolute;inset:0;width:100%;height:100%;
+    display:block;
+  }
+
+  #date{
+    position:absolute;left:34px;bottom:28px;
+    font:400 15px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.28em;color:#4a3b2a;opacity:.42;
+  }
+
+  #guinea-pig{
+    position:absolute;right:38px;bottom:120px;
+    width:17px;height:auto;opacity:.62;
+    transform:rotate(-9deg);
+    filter:sepia(.35) saturate(.7);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="plane"></div>
+
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <!-- SVG: the melting bell-shadow cast onto the pale plane; drawn at real viewBox coords -->
+  <svg id="cast" viewBox="0 0 1080 1920" preserveAspectRatio="none"
+       style="position:absolute;inset:0;width:100%;height:100%;">
+    <defs>
+      <linearGradient id="pool" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0"   stop-color="#b8a37e" stop-opacity=".55"/>
+        <stop offset="0.6" stop-color="#c9b795" stop-opacity=".28"/>
+        <stop offset="1"   stop-color="#d8cbad" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="drip" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8f7c58" stop-opacity=".42"/>
+        <stop offset="1" stop-color="#8f7c58" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- one large melting pool: the big jellyfish's shadow, sagging off the plane -->
+    <g id="pooling" transform="translate(0,0)">
+      <ellipse cx="530" cy="1264" rx="326" ry="52" fill="url(#pool)"/>
+      <path d="M300 1264 Q296 1520 322 1690 L392 1690 Q372 1470 384 1264 Z" fill="url(#drip)"/>
+      <path d="M672 1264 Q690 1470 668 1662 L722 1662 Q748 1462 748 1264 Z" fill="url(#drip)"/>
+      <ellipse cx="530" cy="1272" rx="150" ry="20" fill="#7d6b49" opacity=".22"/>
+    </g>
+  </svg>
+
+  <canvas id="jelly"></canvas>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 08 · 29</div>
+</div>
+
+<script>
+(function(){
+  // ---------- deterministic seed from the date ----------
+  const DATE = "2026-08-29";
+  let h = 2166136261;
+  for (const c of DATE){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  function rnd(){ h ^= h<<13; h>>>=0; h ^= h>>17; h ^= h<<5; h>>>=0; return h/4294967296; }
+  for(let i=0;i<7;i++) rnd();
+
+  const cv = document.getElementById('jelly');
+  const W = 540, H = 960;                     // half-res backing store (perf lever)
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+
+  // Surrealist jellyfish palette held to a narrow, high-key range:
+  // vermilion / emerald / cobalt as saturated marks on pale ground.
+  const PAL = [
+    {bell:'#d8412c', edge:'#7d1a10', glow:'rgba(216,65,44,0.30)'},   // vermilion
+    {bell:'#1e7a5e', edge:'#0d3b2c', glow:'rgba(30,122,94,0.28)'},   // emerald
+    {bell:'#2f4bab', edge:'#131f52', glow:'rgba(47,75,171,0.26)'}    // cobalt
+  ];
+
+  // SPARE: five jellyfish total. One enormous, four small.
+  const jf = [];
+  function mk(x, r, pi, sp, ph, tn){
+    return {x:x, y: -r*1.6 - rnd()*H*0.9, r:r, p:PAL[pi], sp:sp, ph:ph, tn:tn, sway:rnd()*6.283};
+  }
+  jf.push(mk(W*0.49, 168, 0, 5.0, 0.0, 9));    // the giant — carries the composition
+  jf.push(mk(W*0.16,  44, 1, 8.5, 1.7, 6));
+  jf.push(mk(W*0.83,  38, 2, 7.2, 3.1, 6));
+  jf.push(mk(W*0.72,  27, 1, 10.5, 4.4, 5));
+  jf.push(mk(W*0.28,  22, 2, 11.8, 2.2, 5));
+  jf.forEach((j,i)=>{ j.y = -j.r*1.6 - (i/jf.length)*(H+j.r*3.2); });
+
+  const LOOP = H + 460;   // seamless vertical wrap distance
+
+  function bell(j, t){
+    const pulse = Math.sin(t*1.15 + j.ph);          // slow contraction
+    const rx = j.r * (1 + 0.11*pulse);
+    const ry = j.r * (0.74 - 0.16*pulse);
+    const x = j.x + Math.sin(t*0.32 + j.sway) * j.r*0.22;
+    const y = j.y;
+
+    // subtle bioluminescent halo (filled, cheap, feathered — no clipping)
+    const hg = g.createRadialGradient(x, y, ry*0.3, x, y, rx*2.0);
+    hg.addColorStop(0, j.p.glow);
+    hg.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = hg;
+    g.beginPath(); g.arc(x, y, rx*2.0, 0, 6.2832); g.fill();
+
+    // ---- tentacles: thick ribbon bands, not squiggle lines ----
+    const n = j.tn;
+    for(let i=0;i<n;i++){
+      const f = (i/(n-1) - 0.5);
+      const bx = x + f * rx * 1.5;
+      const len = j.r * (2.3 + 1.5*Math.abs(f)) * (1 + 0.14*pulse);
+      const w0 = j.r * (0.15 - 0.06*Math.abs(f));
+      const drift = Math.sin(t*0.75 + j.ph + i*0.9) * j.r*0.30;
+      // melting taper — a solid filled band
+      g.beginPath();
+      g.moveTo(bx - w0, y + ry*0.55);
+      g.lineTo(bx + w0, y + ry*0.55);
+      g.lineTo(bx + w0*0.28 + drift, y + ry*0.55 + len*0.62);
+      g.lineTo(bx + drift*1.55, y + ry*0.55 + len);
+      g.lineTo(bx - w0*0.28 + drift, y + ry*0.55 + len*0.62);
+      g.closePath();
+      g.fillStyle = j.p.bell;
+      g.globalAlpha = 0.42;
+      g.fill();
+      g.globalAlpha = 1;
+    }
+
+    // ---- bell: flat surrealist plane with a hard drawn edge ----
+    const bg = g.createLinearGradient(x, y-ry*1.1, x, y+ry*1.1);
+    bg.addColorStop(0, '#fbf5e6');
+    bg.addColorStop(0.42, j.p.bell);
+    bg.addColorStop(1, j.p.edge);
+    g.beginPath();
+    g.ellipse(x, y, rx, ry, 0, Math.PI, 0);
+    // sagging melted skirt closes the bell
+    g.bezierCurveTo(x+rx*0.55, y+ry*0.85, x-rx*0.55, y+ry*0.85, x-rx, y);
+    g.closePath();
+    g.globalAlpha = 0.90;
+    g.fillStyle = bg; g.fill();
+    g.globalAlpha = 1;
+    g.lineWidth = Math.max(1, j.r*0.028);
+    g.strokeStyle = j.p.edge; g.stroke();
+
+    // inner ring — concentric mark, part of the same grammar
+    g.beginPath();
+    g.ellipse(x, y - ry*0.10, rx*0.52, ry*0.50, 0, Math.PI*1.02, Math.PI*1.98);
+    g.strokeStyle = 'rgba(252,246,232,0.75)';
+    g.lineWidth = Math.max(1, j.r*0.05);
+    g.stroke();
+  }
+
+  let t0 = performance.now();
+  function frame(now){
+    const t = (now - t0)/1000;
+    g.clearRect(0,0,W,H);
+    for(const j of jf){
+      j.y += j.sp * 0.016 * 3.0;                 // slow downward drift
+      if (j.y > H + j.r*2.6) j.y -= LOOP;        // seamless wrap
+      bell(j, t);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // slow drift of the cast shadow group, tied to the giant's sway
+  const pooling = document.getElementById('pooling');
+  (function drift(){
+    const s = performance.now()/1000;
+    pooling.setAttribute('transform','translate('+ (Math.sin(s*0.32)*74).toFixed(2) +',0)');
+    requestAnimationFrame(drift);
+  })();
+
+  // ---------- procedural audio: a low submarine drone (direct view only) ----------
+  if (window.self === window.top){
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC){
+        const ac = new AC();
+        const out = ac.createGain(); out.gain.value = 0.0; out.connect(ac.destination);
+        const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=340; lp.Q.value=0.6;
+        lp.connect(out);
+        [58.27, 87.31, 116.54].forEach((f,i)=>{
+          const o = ac.createOscillator(); o.type = i===2 ? 'triangle':'sine'; o.frequency.value=f;
+          const gg = ac.createGain(); gg.gain.value = 0.22/(i+1);
+          const lfo = ac.createOscillator(); lfo.frequency.value = 0.05 + i*0.021;
+          const la = ac.createGain(); la.gain.value = 0.10/(i+1);
+          lfo.connect(la); la.connect(gg.gain);
+          o.connect(gg); gg.connect(lp);
+          o.start(); lfo.start();
+        });
+        out.gain.linearRampToValueAtTime(0.12, ac.currentTime + 9);
+        const go = ()=>{ if(ac.state==='suspended') ac.resume(); };
+        go(); document.addEventListener('visibilitychange', go);
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
