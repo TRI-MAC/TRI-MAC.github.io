@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Sediment Ledger — 2026-08-30</title>
+<style>
+  html,body{margin:0;padding:0;background:#efe6d3;overflow:hidden;}
+  #stage{
+    position:relative;
+    width:1080px;height:1920px;
+    max-width:100vw;max-height:100vh;
+    aspect-ratio:1080/1920;
+    margin:0 auto;
+    background:#f4ecd9;
+    overflow:hidden;
+  }
+  @media (max-aspect-ratio:1080/1920){ #stage{width:100vw;height:calc(100vw*1920/1080);} }
+  @media (min-aspect-ratio:1080/1920){ #stage{height:100vh;width:calc(100vh*1080/1920);} }
+
+  /* the growth ground: light, papery, warm */
+  #paper{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 70% at 22% 8%, #fffaf0 0%, rgba(255,250,240,0) 60%),
+      radial-gradient(90% 60% at 88% 96%, #f6e2b8 0%, rgba(246,226,184,0) 55%),
+      linear-gradient(180deg,#fbf4e2 0%, #f2e7cd 46%, #eddcbb 100%);
+  }
+
+  /* video is the mineral seam the colonies feed on — held inside a hard band */
+  #vidwrap{
+    position:absolute;
+    left:0; right:0;
+    top:38.2%; height:23.6%;
+    overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  }
+  #background-video{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    width:100%;height:100%;
+    object-fit:cover;
+    opacity:.82;
+  }
+  #seamTint{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(255,244,214,.42),rgba(255,214,120,.10) 40%,rgba(20,60,90,.14) 100%);
+  }
+
+  /* single blend layer for the whole page (budget: exactly one) */
+  #grain{
+    position:absolute;inset:0;
+    mix-blend-mode:multiply;
+    opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120,96,60,.13) 0 1px, rgba(120,96,60,0) 1px 5px),
+      repeating-linear-gradient(90deg, rgba(140,110,70,.07) 0 1px, rgba(140,110,70,0) 1px 7px),
+      radial-gradient(140% 90% at 50% 50%, rgba(255,255,255,0) 52%, rgba(150,120,80,.28) 100%);
+  }
+
+  #colonies{position:absolute;inset:0;width:100%;height:100%;}
+
+  svg#ledger{position:absolute;inset:0;width:100%;height:100%;}
+
+  .rule{stroke:#1d2a33;fill:none;}
+  .tick{stroke:#1d2a33;}
+
+  #datestamp{
+    position:absolute;right:22px;bottom:18px;
+    font:500 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.22em;
+    color:#2a3742;opacity:.55;
+  }
+  #title{
+    position:absolute;left:26px;bottom:18px;
+    font:500 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.16em;
+    color:#2a3742;opacity:.5;
+  }
+
+  #guinea-pig{
+    position:absolute;
+    left:3.1%; top:36.6%;
+    width:15px;height:auto;
+    opacity:.62;
+    transform:rotate(-8deg);
+    z-index:6;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="paper"></div>
+
+  <div id="vidwrap">
+    <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+    <div id="seamTint"></div>
+  </div>
+
+  <canvas id="colonies" width="540" height="960"></canvas>
+
+  <svg id="ledger" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <g id="rules"></g>
+  </svg>
+
+  <div id="grain"></div>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <div id="title">SEDIMENT LEDGER</div>
+  <div id="datestamp">2026-08-30</div>
+</div>
+
+<script>
+/* ============================================================
+   ONE IDEA:
+   A vertical LEDGER of accreting mineral colonies.
+   Every colony is a member of one shape family: a stacked
+   "shelf-plate" — a hard-edged flattened lobe that buds new
+   plates only sideways and downward, hanging off ruled datum
+   lines. The whole page is one growing crust, read top to
+   bottom, resetting by dissolving the oldest plates upward.
+   Nothing else. No particles, no curves, no second system.
+   ============================================================ */
+
+/* ---- date seed ---- */
+const DATE = "2026-08-30";
+let _s = 0; for (let i=0;i<DATE.length;i++) _s = (_s*131 + DATE.charCodeAt(i)) >>> 0;
+_s = (_s ^ 0x9e3779b9) >>> 0;
+function rnd(){ _s ^= _s<<13; _s>>>=0; _s ^= _s>>17; _s ^= _s<<5; _s>>>=0; return _s/4294967296; }
+function rr(a,b){ return a + (b-a)*rnd(); }
+function ri(a,b){ return Math.floor(rr(a,b+1)); }
+function pick(a){ return a[Math.floor(rnd()*a.length)]; }
+
+/* ---- palette: high key, hue-against-hue ---- */
+const INK   = '#1d2a33';
+const HUES = [
+  '#e2402a', // vermilion
+  '#118a6a', // emerald
+  '#f2b41d', // chrome yellow
+  '#2c53b8', // cobalt
+  '#d9557f', // rose
+  '#5fbfb4'  // pale turquoise
+];
+/* tonight's colony assignment, seeded */
+const FAMILY = [];
+{
+  const shuffled = HUES.slice();
+  for (let i=shuffled.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; }
+  for (let i=0;i<shuffled.length;i++) FAMILY.push(shuffled[i]);
+}
+
+/* ============================================================
+   SVG datum ledger — drawn ONCE. The visible rule of the crowd.
+   ============================================================ */
+(function buildRules(){
+  const g = document.getElementById('rules');
+  const NS = 'http://www.w3.org/2000/svg';
+  const lines = [];
+  // datum lines, irregular but monotone spacing (a ledger, not a grid)
+  let y = 96;
+  let step = 74;
+  while (y < 1880){
+    lines.push(y);
+    step = step*0.995 + rr(-9,11);
+    step = Math.max(52, Math.min(122, step));
+    y += step;
+  }
+  window.DATUMS = lines;
+
+  lines.forEach((yy,idx)=>{
+    const major = (idx % 4 === 0);
+    const x0 = major ? 34 : rr(34, 150);
+    const x1 = major ? 1046 : rr(930, 1046);
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',x0.toFixed(1)); l.setAttribute('y1',yy.toFixed(1));
+    l.setAttribute('x2',x1.toFixed(1)); l.setAttribute('y2',yy.toFixed(1));
+    l.setAttribute('class','rule');
+    l.setAttribute('stroke-width', major ? 2.2 : 1);
+    l.setAttribute('stroke-opacity', major ? 0.5 : 0.22);
+    g.appendChild(l);
+
+    // depth ticks: short vertical marks, only on major datums
+    if (major){
+      const n = ri(5,9);
+      for (let i=0;i<n;i++){
+        const tx = rr(50,1030);
+        const t = document.createElementNS(NS,'line');
+        t.setAttribute('x1',tx.toFixed(1)); t.setAttribute('y1',(yy).toFixed(1));
+        t.setAttribute('x2',tx.toFixed(1)); t.setAttribute('y2',(yy+rr(7,17)).toFixed(1));
+        t.setAttribute('class','tick');
+        t.setAttribute('stroke-width','1.6');
+        t.setAttribute('stroke-opacity','0.34');
+        g.appendChild(t);
+      }
+    }
+  });
+
+  // two long spine columns the colonies hang between
+  [ [148, .30], [932, .30] ].forEach(([x,op])=>{
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',x); l.setAttribute('y1',60);
+    l.setAttribute('x2',x); l.setAttribute('y2',1876);
+    l.setAttribute('class','rule');
+    l.setAttribute('stroke-width','1.4');
+    l.setAttribute('stroke-opacity',op);
+    g.appendChild(l);
+  });
+})();
+
+/* ============================================================
+   CANVAS: the accreting plates.
+   Backing store 540x960, CSS-scaled 2x. Scene coords = 540x960.
+   ============================================================ */
+const cv = document.getElementById('colonies');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const SC = 0.5; // 1080-space -> 540-space
+
+/* --- the single shape family: a shelf-plate ---
+   flattened lobe, hard edges, faceted underside.
+   Built from straight segments only. No beziers. */
+function platePath(c, x, y, w, h, tilt, notch){
+  const hw = w*0.5;
+  c.beginPath();
+  // top edge: flat with one shallow step
+  c.moveTo(x-hw, y);
+  c.lineTo(x-hw*notch, y - h*0.16);
+  c.lineTo(x+hw*0.42, y - h*0.22 - tilt*h*0.18);
+  c.lineTo(x+hw, y - h*0.05 - tilt*h*0.10);
+  // right shoulder
+  c.lineTo(x+hw*0.96, y + h*0.34);
+  // faceted underside, 4 facets
+  c.lineTo(x+hw*0.46, y + h*0.86);
+  c.lineTo(x - hw*0.06, y + h);
+  c.lineTo(x-hw*0.58, y + h*0.72);
+  c.lineTo(x-hw*0.98, y + h*0.28);
+  c.closePath();
+}
+
+class Plate{
+  constructor(x,y,w,h,colonyIdx,gen,tilt,notch){
+    this.x=x; this.y=y; this.w=w; this.h=h;
+    this.col=colonyIdx; this.gen=gen;
+    this.tilt=tilt; this.notch=notch;
+    this.grow=0;          // 0..1 accretion
+    this.dissolve=0;      // 0..1
+    this.rate = rr(0.010,0.020);
+  }
+}
+
+class Colony{
+  constructor(seedX, datumIdx, colIdx){
+    this.colIdx = colIdx;
+    this.hue = FAMILY[colIdx % FAMILY.length];
+    this.plates = [];
+    this.frontier = [];
+    this.datumIdx = datumIdx;
+    this.dir = rnd()<0.5 ? -1 : 1;
+    const y = (window.DATUMS[datumIdx]||200) * SC;
+    const w = rr(34,62), h = rr(13,22);
+    const p = new Plate(seedX, y, w, h, colIdx, 0, rr(-.5,.5), rr(.35,.8));
+    this.plates.push(p); this.frontier.push(p);
+    this.budTimer = rr(0,40);
+    this.maxGen = ri(7,13);
+    this.age = 0;
+  }
+  step(){
+    this.age++;
+    for (const p of this.plates){
+      if (p.grow < 1) p.grow = Math.min(1, p.grow + p.rate);
+    }
+    this.budTimer -= 1;
+    if (this.budTimer > 0) return;
+    this.budTimer = rr(9,26);
+
+    // bud only from a mature frontier plate: sideways along the datum,
+    // or downward onto the next datum. Never upward.
+    const cand = this.frontier.filter(p=>p.grow>0.55 && p.gen < this.maxGen);
+    if (!cand.length) return;
+    const parent = cand[Math.floor(rnd()*cand.length)];
+    const downward = rnd() < 0.30;
+
+    let nx, ny, nw, nh;
+    if (downward){
+      const di = this.datumIdx + 1;
+      const dy = window.DATUMS[di];
+      if (dy === undefined) return;
+      ny = dy * SC;
+      nx = parent.x + rr(-14,14);
+      nw = parent.w * rr(0.72,1.02);
+      nh = parent.h * rr(0.85,1.12);
+      this.datumIdx = di;
+    } else {
+      nx = parent.x + this.dir * (parent.w*rr(0.52,0.78));
+      ny = parent.y + rr(-2.5,2.5);
+      nw = parent.w * rr(0.70,1.00);
+      nh = parent.h * rr(0.82,1.10);
+      if (rnd()<0.12) this.dir *= -1;
+    }
+    if (nx < 14 || nx > W-14) { this.dir *= -1; return; }
+    if (ny > H-10 || ny < 8) return;
+    nw = Math.max(9, Math.min(74, nw));
+    nh = Math.max(5, Math.min(26, nh));
+
+    const np = new Plate(nx, ny, nw, nh, this.colIdx, parent.gen+1, rr(-.6,.6), rr(.3,.85));
+    this.plates.push(np);
+    this.frontier.push(np);
+    if (this.frontier.length > 7) this.frontier.shift();
+  }
+  get done(){
+    return this.plates.every(p=>p.grow>=1) && this.plates.some(p=>p.gen>=this.maxGen-1);
+  }
+}
+
+/* --- population, seeded from the datum ledger --- */
+let colonies = [];
+function seedColonies(){
+  colonies = [];
+  const n = 26;
+  for (let i=0;i<n;i++){
+    const di = ri(1, window.DATUMS.length-3);
+    const x = rr(40, W-40);
+    colonies.push(new Colony(x, di, ri(0,FAMILY.length-1)));
+  }
+}
+seedColonies();
+
+/* --- draw one plate: flat hue field + ink underline facet --- */
+function drawPlate(p){
+  const g = p.grow;
+  if (g<=0) return;
+  const a = (1 - p.dissolve);
+  if (a<=0.01) return;
+  const w = p.w * (0.28 + 0.72*g);
+  const h = p.h * (0.42 + 0.58*g);
+
+  const hue = FAMILY[p.col % FAMILY.length];
+
+  ctx.globalAlpha = a * 0.95;
+  platePath(ctx, p.x, p.y, w, h, p.tilt, p.notch);
+  ctx.fillStyle = hue;
+  ctx.fill();
+
+  // lighter top step: the fresh accretion band
+  ctx.globalAlpha = a * 0.42;
+  ctx.beginPath();
+  ctx.moveTo(p.x-w*0.5, p.y);
+  ctx.lineTo(p.x-w*0.5*p.notch, p.y-h*0.16);
+  ctx.lineTo(p.x+w*0.21, p.y-h*0.22-p.tilt*h*0.18);
+  ctx.lineTo(p.x+w*0.5, p.y-h*0.05-p.tilt*h*0.10);
+  ctx.lineTo(p.x+w*0.48, p.y+h*0.06);
+  ctx.lineTo(p.x-w*0.49, p.y+h*0.05);
+  ctx.closePath();
+  ctx.fillStyle = '#fff8e6';
+  ctx.fill();
+
+  // hard ink contour — the drawing mark
+  ctx.globalAlpha = a * 0.72;
+  platePath(ctx, p.x, p.y, w, h, p.tilt, p.notch);
+  ctx.lineWidth = 1.15;
+  ctx.strokeStyle = INK;
+  ctx.stroke();
+
+  // underside shadow facet, small deep accent
+  if (g>0.6){
+    ctx.globalAlpha = a * 0.30;
+    ctx.beginPath();
+    ctx.moveTo(p.x+w*0.46, p.y+h*0.86);
+    ctx.lineTo(p.x-w*0.06, p.y+h);
+    ctx.lineTo(p.x-w*0.58, p.y+h*0.72);
+    ctx.lineTo(p.x-w*0.30, p.y+h*0.58);
+    ctx.lineTo(p.x+w*0.34, p.y+h*0.62);
+    ctx.closePath();
+    ctx.fillStyle = INK;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* --- fixed-step accumulator --- */
+let last = performance.now();
+let acc = 0;
+const STEP = 1000/40;
+let phase = 'grow';   // grow -> hold -> dissolve -> reseed
+let holdT = 0;
+
+function tick(now){
+  let dt = now - last; last = now;
+  if (dt > 200) dt = 200;
+  acc += dt;
+  let steps = 0;
+  while (acc >= STEP && steps < 2){ update(); acc -= STEP; steps++; }
+  if (acc > STEP) acc = 0;
+  render();
+  requestAnimationFrame(tick);
+}
+
+function update(){
+  if (phase === 'grow'){
+    let allDone = true;
+    for (const c of colonies){ c.step(); if (!c.done) allDone = false; }
+    if (allDone){ phase='hold'; holdT = 280; }
+  } else if (phase === 'hold'){
+    for (const c of colonies) for (const p of c.plates) p.grow = Math.min(1,p.grow+p.rate);
+    if (--holdT <= 0) phase = 'dissolve';
+  } else if (phase === 'dissolve'){
+    // oldest generations dissolve first, upward through the ledger
+    let alive = false;
+    for (const c of colonies){
+      for (const p of c.plates){
+        const delay = p.gen * 6;
+        if (c.dt === undefined) c.dt = 0;
+        if (c.dt > delay) p.dissolve = Math.min(1, p.dissolve + 0.016);
+        if (p.dissolve < 1) alive = true;
+      }
+      c.dt = (c.dt||0) + 1;
+    }
+    if (!alive){
+      // reseed deterministically from the same stream: seamless loop
+      seedColonies();
+      phase = 'grow';
+    }
+  }
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  // draw back-to-front by generation so newer plates overlap older ones
+  for (let gen=0; gen<16; gen++){
+    for (const c of colonies){
+      for (const p of c.plates){
+        if (p.gen === gen) drawPlate(p);
+      }
+    }
+  }
+}
+requestAnimationFrame(tick);
+
+/* ============================================================
+   PROCEDURAL AUDIO — a slow mineral drone that thickens as the
+   crust accretes. Direct view only.
+   ============================================================ */
+if (window.self === window.top){
+  const start = ()=>{
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ac = new AC();
+      const out = ac.createGain();
+      out.gain.value = 0.0;
+      out.connect(ac.destination);
+
+      const lp = ac.createBiquadFilter();
+      lp.type='lowpass'; lp.frequency.value=520; lp.Q.value=0.6;
+      lp.connect(out);
+
+      const base = 96 + (_s % 17);
+      [1, 1.5, 2.005, 3.01].forEach((m,i)=>{
+        const o = ac.createOscillator();
+        o.type = i%2 ? 'sine' : 'triangle';
+        o.frequency.value = base*m;
+        const g = ac.createGain();
+        g.gain.value = 0.16/(i+1);
+        // slow independent swell per partial
+        const lfo = ac.createOscillator();
+        lfo.type='sine'; lfo.frequency.value = 0.017 + i*0.011;
+        const lg = ac.createGain(); lg.gain.value = 0.09/(i+1);
+        lfo.connect(lg); lg.connect(g.gain);
+        o.connect(g); g.connect(lp);
+        o.start(); lfo.start();
+      });
+
+      out.gain.linearRampToValueAtTime(0.055, ac.currentTime + 12);
+      const resume = ()=>{ if (ac.state==='suspended') ac.resume(); };
+      resume(); setTimeout(resume, 1500);
+    }catch(e){}
+  };
+  start();
+}
+</script>
+</body>
+</html>
