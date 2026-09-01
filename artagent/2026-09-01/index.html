@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<meta charset="utf-8">
+<title>Ma — Cubist Interval</title>
+<style>
+  html,body{margin:0;padding:0;background:#c9c2b0;height:100%;overflow:hidden;}
+  body{display:flex;align-items:center;justify-content:center;}
+  #stage{
+    position:relative;
+    width:min(100vw, calc(100vh * 0.5625));
+    height:min(100vh, calc(100vw / 0.5625));
+    background:#efe7d4;
+    overflow:hidden;
+    box-shadow:0 0 60px rgba(60,48,34,0.35);
+  }
+  #ground{
+    position:absolute;inset:0;width:100%;height:100%;display:block;
+  }
+  #marks{
+    position:absolute;inset:0;width:100%;height:100%;display:block;
+  }
+  #datestamp{
+    position:absolute;left:34px;bottom:30px;
+    font:400 13px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:0.34em;
+    color:#5c4a35;opacity:0.5;
+    z-index:6;
+  }
+  #guinea-pig{
+    position:absolute;
+    width:15px;height:auto;
+    left:calc(50% + 236px);
+    top:calc(50% + 402px);
+    opacity:0.62;
+    transform:rotate(-7deg);
+    z-index:5;
+    pointer-events:none;
+  }
+  /* structural, glacial motion on select planes only */
+  .drift-a{
+    transform-box:fill-box;transform-origin:50% 50%;
+    animation:driftA 74s ease-in-out infinite;
+  }
+  .drift-b{
+    transform-box:fill-box;transform-origin:50% 50%;
+    animation:driftB 96s ease-in-out infinite;
+  }
+  .drift-c{
+    transform-box:fill-box;transform-origin:50% 50%;
+    animation:driftC 62s ease-in-out infinite;
+  }
+  .breathe{
+    transform-box:fill-box;transform-origin:50% 50%;
+    animation:breathe 108s ease-in-out infinite;
+  }
+  @keyframes driftA{
+    0%{transform:translate(0,0) rotate(0deg);}
+    50%{transform:translate(-14px,10px) rotate(-1.1deg);}
+    100%{transform:translate(0,0) rotate(0deg);}
+  }
+  @keyframes driftB{
+    0%{transform:translate(0,0) rotate(0deg);}
+    50%{transform:translate(11px,-13px) rotate(0.9deg);}
+    100%{transform:translate(0,0) rotate(0deg);}
+  }
+  @keyframes driftC{
+    0%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(6px,7px) scale(1.018);}
+    100%{transform:translate(0,0) scale(1);}
+  }
+  @keyframes breathe{
+    0%{transform:scale(1) rotate(0deg);}
+    50%{transform:scale(1.012) rotate(0.35deg);}
+    100%{transform:scale(1) rotate(0deg);}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- static painterly ground: drawn once, never redrawn -->
+  <canvas id="ground" width="540" height="960"></canvas>
+
+  <!-- the four marks: fractured cubist planes at maximum interval -->
+  <svg id="marks" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-label="Four cubist planes separated by empty ground">
+    <defs>
+      <linearGradient id="gOchre" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#d98a1f"/>
+        <stop offset="1" stop-color="#b4651a"/>
+      </linearGradient>
+      <linearGradient id="gTeal" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#1f6a68"/>
+        <stop offset="1" stop-color="#357f74"/>
+      </linearGradient>
+      <linearGradient id="gClay" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#a8452c"/>
+        <stop offset="1" stop-color="#7d3220"/>
+      </linearGradient>
+      <linearGradient id="gSand" x1="0" y1="0" x2="1" y2="0.6">
+        <stop offset="0" stop-color="#e6d3a8"/>
+        <stop offset="1" stop-color="#cbb180"/>
+      </linearGradient>
+      <linearGradient id="gStone" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#8d8467"/>
+        <stop offset="1" stop-color="#6d6550"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ============ MARK ONE — the monumental fractured column, upper left ============ -->
+    <g transform="translate(0,0)">
+      <g class="breathe">
+        <!-- broad sand plane, the body of the form -->
+        <polygon points="118,196 552,148 616,566 452,742 152,690"
+                 fill="url(#gSand)"/>
+        <!-- shifted facet: ochre wedge, a second viewpoint of the same volume -->
+        <polygon points="552,148 616,566 780,470 700,206"
+                 fill="url(#gOchre)"/>
+        <!-- deep clay shard, the shadow side seen from below -->
+        <polygon points="452,742 616,566 780,470 690,764 520,806"
+                 fill="url(#gClay)"/>
+        <!-- teal counter-plane, hue against hue -->
+        <polygon points="118,196 152,690 44,606 62,244"
+                 fill="url(#gTeal)"/>
+        <!-- stone facet slipping out of register -->
+        <g class="drift-a">
+          <polygon points="264,168 552,148 496,404 240,438" fill="url(#gStone)" opacity="0.92"/>
+        </g>
+        <!-- drawing marks: the analytic scaffold -->
+        <g fill="none" stroke="#2e2418" stroke-width="4" stroke-linejoin="round">
+          <polygon points="118,196 552,148 616,566 452,742 152,690"/>
+          <polyline points="552,148 700,206 780,470 690,764 520,806 452,742"/>
+          <line x1="616" y1="566" x2="780" y2="470"/>
+          <line x1="118" y1="196" x2="62" y2="244"/>
+          <line x1="152" y1="690" x2="44" y2="606"/>
+          <line x1="264" y1="168" x2="240" y2="438"/>
+          <line x1="240" y1="438" x2="496" y2="404"/>
+        </g>
+        <g class="drift-b">
+          <polygon points="330,300 470,286 452,392 344,400" fill="#efe7d4" opacity="0.85"/>
+          <polygon points="330,300 470,286 452,392 344,400" fill="none" stroke="#2e2418" stroke-width="3.5"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ============ MARK TWO — small clay shard, far right, mid-height ============ -->
+    <g transform="translate(0,0)">
+      <g class="drift-c">
+        <polygon points="912,972 1024,930 1046,1052 928,1082" fill="url(#gClay)"/>
+        <polygon points="912,972 1024,930 1004,996 906,1018" fill="url(#gOchre)" opacity="0.95"/>
+        <g fill="none" stroke="#2e2418" stroke-width="4" stroke-linejoin="round">
+          <polygon points="912,972 1024,930 1046,1052 928,1082"/>
+          <line x1="906" y1="1018" x2="1004" y2="996"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ============ MARK THREE — the long low plane, lower left ============ -->
+    <g transform="translate(0,0)">
+      <g class="drift-b">
+        <polygon points="86,1486 396,1436 428,1560 104,1614" fill="url(#gTeal)"/>
+        <polygon points="396,1436 428,1560 512,1522 470,1424" fill="url(#gStone)"/>
+        <g fill="none" stroke="#2e2418" stroke-width="4" stroke-linejoin="round">
+          <polygon points="86,1486 396,1436 428,1560 104,1614"/>
+          <polyline points="396,1436 470,1424 512,1522 428,1560"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ============ MARK FOUR — the single upright accent, far lower right ============ -->
+    <g transform="translate(0,0)">
+      <g class="drift-a">
+        <polygon points="836,1660 890,1650 902,1836 848,1846" fill="url(#gOchre)"/>
+        <polygon points="890,1650 902,1836 940,1826 926,1642" fill="url(#gClay)" opacity="0.9"/>
+        <g fill="none" stroke="#2e2418" stroke-width="4" stroke-linejoin="round">
+          <polygon points="836,1660 890,1650 902,1836 848,1846"/>
+          <polyline points="890,1650 926,1642 940,1826 902,1836"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="datestamp">2026 · 09 · 01</div>
+</div>
+
+<script>
+(function(){
+  // ---------- date seed ----------
+  var DATE = "2026-09-01";
+  function seedFrom(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; }
+  var seed = seedFrom(DATE);
+  function rnd(){ seed ^= seed<<13; seed>>>=0; seed ^= seed>>17; seed ^= seed<<5; seed>>>=0; return seed/4294967296; }
+
+  // ---------- static ground, drawn ONCE ----------
+  var cv = document.getElementById('ground');
+  var g = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+
+  // one field: unprimed linen, warmed by a very slow tonal lean seeded by the date
+  var lean = 0.5 + rnd()*0.4;
+  var base = g.createLinearGradient(W*lean, 0, W*(1-lean*0.5), H);
+  base.addColorStop(0.00, '#f4ecda');
+  base.addColorStop(0.45, '#eee5d0');
+  base.addColorStop(1.00, '#e3d8bf');
+  g.fillStyle = base;
+  g.fillRect(0,0,W,H);
+
+  // canvas weave: fine, even, no filler motif — the tooth of the ground only
+  g.globalAlpha = 0.045;
+  g.fillStyle = '#6b5a3f';
+  var step = 3;
+  for(var y=0;y<H;y+=step){
+    for(var x=((y/step)%2)*1.5; x<W; x+=step){
+      g.fillRect(x, y, 1, 1);
+    }
+  }
+  g.globalAlpha = 1;
+
+  // one broad ruled plane division: the ground's own single fracture,
+  // holding the interval between the four marks without occupying it
+  g.save();
+  g.beginPath();
+  g.moveTo(0, H*0.585);
+  g.lineTo(W, H*0.470);
+  g.lineTo(W, H*0.505);
+  g.lineTo(0, H*0.622);
+  g.closePath();
+  g.fillStyle = 'rgba(196,180,148,0.55)';
+  g.fill();
+  g.restore();
+
+  g.save();
+  g.strokeStyle = 'rgba(60,48,32,0.30)';
+  g.lineWidth = 1.2;
+  g.beginPath();
+  g.moveTo(0, H*0.585); g.lineTo(W, H*0.470);
+  g.stroke();
+  g.restore();
+
+  // faint underdrawing: the paper's residual construction lines, sparse
+  g.save();
+  g.strokeStyle = 'rgba(72,58,40,0.14)';
+  g.lineWidth = 1;
+  var lines = [
+    [0.00,0.145, 1.00,0.088],
+    [0.62,0.000, 0.46,1.000],
+    [0.00,0.880, 1.00,0.932]
+  ];
+  for(var i=0;i<lines.length;i++){
+    var L=lines[i];
+    g.beginPath();
+    g.moveTo(L[0]*W, L[1]*H);
+    g.lineTo(L[2]*W, L[3]*H);
+    g.stroke();
+  }
+  g.restore();
+
+  // edge feather so nothing terminates hard at the boundary
+  var vg = g.createRadialGradient(W*0.5, H*0.46, W*0.30, W*0.5, H*0.5, H*0.72);
+  vg.addColorStop(0, 'rgba(230,218,190,0)');
+  vg.addColorStop(1, 'rgba(198,184,154,0.42)');
+  g.fillStyle = vg;
+  g.fillRect(0,0,W,H);
+
+  // ---------- procedural audio: a single low interval, the sound of ma ----------
+  if (window.self === window.top){
+    var started = false;
+    function startAudio(){
+      if(started) return; started = true;
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return;
+        var ac = new AC();
+        var out = ac.createGain();
+        out.gain.value = 0.0;
+        out.connect(ac.destination);
+
+        var lp = ac.createBiquadFilter();
+        lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=0.6;
+        lp.connect(out);
+
+        // two tones, a wide interval — the space between them is the drone
+        var freqs = [58.27, 87.31];
+        for(var i=0;i<freqs.length;i++){
+          var o = ac.createOscillator();
+          o.type = 'sine';
+          o.frequency.value = freqs[i];
+          var gn = ac.createGain();
+          gn.gain.value = i===0 ? 0.5 : 0.26;
+          o.connect(gn); gn.connect(lp);
+          o.start();
+
+          // very slow amplitude breathing, offset per voice
+          var lfo = ac.createOscillator();
+          lfo.type='sine';
+          lfo.frequency.value = 0.014 + i*0.007;
+          var lg = ac.createGain();
+          lg.gain.value = i===0 ? 0.20 : 0.12;
+          lfo.connect(lg); lg.connect(gn.gain);
+          lfo.start();
+        }
+        out.gain.linearRampToValueAtTime(0.06, ac.currentTime + 14);
+        if(ac.state === 'suspended'){ ac.resume(); }
+      }catch(e){}
+    }
+    startAudio();
+    document.addEventListener('visibilitychange', function(){
+      if(!document.hidden) startAudio();
+    });
+  }
+})();
+</script>
+</body>
+</html>
