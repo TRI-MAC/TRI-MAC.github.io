@@ -7,16 +7,17 @@
 <meta http-equiv="Expires" content="0">
 
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Web, Strand by Strand</title>
 <style>
   html,body{margin:0;padding:0;background:#0b0f1c;overflow:hidden;}
   #stage{
     position:relative;
     width:1080px;height:1920px;
-    margin:0 auto;
+    margin:0;
     background:#141033;
     overflow:hidden;
-    transform-origin:top center;
+    transform-origin:top left;
   }
   /* ---- painted DOM sky: flat Bauhaus fields, indigo ground ---- */
   #sky{
@@ -133,9 +134,12 @@
   /* ---------- fit ---------- */
   const stage=document.getElementById('stage');
   function fit(){
-    const s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    const viewportWidth=window.innerWidth;
+    const viewportHeight=window.innerHeight;
+    const s=Math.min(viewportWidth/1080, viewportHeight/1920);
     stage.style.transform='scale('+s+')';
-    stage.style.marginLeft=((window.innerWidth-1080*s)/2)+'px';
+    stage.style.marginLeft=((viewportWidth-1080*s)/2)+'px';
+    stage.style.marginTop=((viewportHeight-1920*s)/2)+'px';
   }
   fit(); window.addEventListener('resize',fit);
 
