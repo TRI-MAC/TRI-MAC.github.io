@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-04</title>
+<script>
+(function(){
+  function strip(){
+    var m=document.querySelectorAll('meta[http-equiv]');
+    for(var i=0;i<m.length;i++){
+      var v=(m[i].getAttribute('http-equiv')||'').toLowerCase();
+      if(v==='refresh'&&m[i].parentNode) m[i].parentNode.removeChild(m[i]);
+    }
+  }
+  strip();
+  new MutationObserver(strip).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<style>
+  html,body{margin:0;padding:0;background:#0d0906;overflow:hidden;height:100%;}
+  #stage{
+    position:absolute;left:0;top:0;width:1080px;height:1920px;
+    transform-origin:top left;overflow:hidden;
+    background:#efe3cd;
+  }
+  #background-video{
+    position:absolute;left:-4%;top:-3%;width:108%;height:106%;
+    object-fit:cover;opacity:0.82;
+  }
+  #veil{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 70% at 50% 8%, rgba(255,238,196,0.42) 0%, rgba(255,238,196,0.0) 60%),
+      linear-gradient(180deg, rgba(226,196,140,0.30) 0%, rgba(120,74,40,0.12) 42%, rgba(38,24,14,0.46) 100%);
+  }
+  canvas{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  #baked{opacity:0.98;}
+  #live{}
+  svg#frame{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  #date{
+    position:absolute;right:26px;bottom:20px;
+    font:400 15px/1 "Courier New",monospace;letter-spacing:.22em;
+    color:#3a2412;opacity:.42;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <div id="veil"></div>
+  <canvas id="baked" width="1080" height="1920"></canvas>
+  <canvas id="live" width="540" height="960"></canvas>
+  <svg id="frame" viewBox="0 0 1080 1920" aria-hidden="true">
+    <g id="sway">
+      <path d="M0 1920 L0 1700 Q60 1660 40 1560 Q120 1620 150 1720 L170 1920 Z" fill="#2c1a0d" opacity="0.30"/>
+      <path d="M1080 1920 L1080 1650 Q1010 1600 1040 1500 Q950 1580 930 1700 L910 1920 Z" fill="#2c1a0d" opacity="0.26"/>
+    </g>
+  </svg>
+  <div id="date">2026-09-04</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- responsive stage ---------- */
+var stage=document.getElementById('stage');
+function fit(){
+  var w=window.innerWidth,h=window.innerHeight;
+  var s=Math.min(w/1080,h/1920);
+  stage.style.transform='translate('+((w-1080*s)/2)+'px,'+((h-1920*s)/2)+'px) scale('+s+')';
+}
+fit();window.addEventListener('resize',fit);
+
+/* ---------- seeded rng (date) ---------- */
+var DATE="2026-09-04";
+function h32(str){var h=2166136261;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+var seed=(h32(DATE)^(Date.now()&0xffff))>>>0;
+function rnd(){seed^=seed<<13;seed>>>=0;seed^=seed>>17;seed^=seed<<5;seed>>>=0;return seed/4294967296;}
+function rr(a,b){return a+(b-a)*rnd();}
+function ri(a,b){return Math.floor(rr(a,b+1));}
+function pick(a){return a[Math.floor(rnd()*a.length)];}
+
+/* ---------- palette (warm resin / amber wood ) ---------- */
+var P={
+  comb:['#e6a527','#d98f1d','#f0bb46','#c87c17'],
+  combDark:'#8a5411',
+  wax:'#f6dfa4',
+  resin:['#b8541f','#9a4218','#cf6b26'],
+  moss:['#6d7a2c','#8a9438','#566322'],
+  body:'#2b1a0c',
+  fur:'#e8b64a',
+  wing:'rgba(255,247,224,0.55)'
+};
+
+/* ---------- canvases ---------- */
+var baked=document.getElementById('baked'), bx=baked.getContext('2d');
+var live=document.getElementById('live'), lx=live.getContext('2d');
+lx.scale(0.5,0.5); // draw in 1080x1920 coords, render at 540x960
+
+/* ---------- world ---------- */
+/*
+  Worker: a resin-mason wasp-like builder ("the mason").
+  It builds a hanging comb-city: cells, capped cells, resin buttresses,
+  moss packing, and travel varnish trails. All finished work is BAKED.
+*/
+var W=1080,H=1920;
+
+// anchor beam near top from which the comb hangs
+var beamY=300;
+
+// cells stored in a hex-ish lattice; keyed by "q,r"
+var cells={};             // key -> {x,y,r,state:0 wall,1 built,2 capped,3 weathered, gen}
+var cellList=[];
+var CELLR=27;
+var buttresses=[];        // finished struts
+var mossPatches=[];
+var trailSegs=[];         // varnish arcs (baked faintly)
+var maxCells=900;
+
+function key(q,r){return q+","+r;}
+function hexPos(q,r){
+  var x=W/2 + (q + r/2)*(CELLR*1.74);
+  var y=beamY + r*(CELLR*1.52);
+  return {x:x,y:y};
+}
+function neighbors(q,r){
+  return [[q+1,r],[q-1,r],[q,r+1],[q,r-1],[q+1,r-1],[q-1,r+1]];
+}
+function cellAt(q,r){return cells[key(q,r)];}
+
+/* ---------- baked drawing helpers ---------- */
+function hexPath(ctx,x,y,r,rot){
+  ctx.beginPath();
+  for(var i=0;i<6;i++){
+    var a=rot+i*Math.PI/3;
+    var px=x+Math.cos(a)*r, py=y+Math.sin(a)*r;
+    if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.closePath();
+}
+
+function drawCellBaked(c){
+  var x=c.x,y=c.y,r=CELLR;
+  bx.save();
+  // wall body
+  hexPath(bx,x,y,r*0.98,c.rot);
+  var g=bx.createLinearGradient(x-r,y-r,x+r,y+r);
+  if(c.state>=2){ // capped
+    g.addColorStop(0,P.wax);g.addColorStop(1,'#d9b463');
+  }else{
+    g.addColorStop(0,c.col);g.addColorStop(1,P.combDark);
+  }
+  bx.fillStyle=g;bx.fill();
+
+  if(c.state>=2){
+    // capped: domed wax cap
+    hexPath(bx,x,y,r*0.72,c.rot);
+    bx.fillStyle='rgba(255,240,200,0.85)';bx.fill();
+    var rg=bx.createRadialGradient(x-r*0.22,y-r*0.25,1,x,y,r*0.8);
+    rg.addColorStop(0,'rgba(255,255,240,0.9)');
+    rg.addColorStop(1,'rgba(196,148,70,0.5)');
+    bx.fillStyle=rg;
+    hexPath(bx,x,y,r*0.7,c.rot);bx.fill();
+  }else{
+    // open cell: dark interior
+    hexPath(bx,x,y,r*0.66,c.rot);
+    bx.fillStyle='rgba(52,30,14,0.88)';bx.fill();
+    // inner rim highlight
+    hexPath(bx,x,y,r*0.66,c.rot);
+    bx.strokeStyle='rgba(255,214,140,0.35)';bx.lineWidth=3;bx.stroke();
+  }
+  // outer rim
+  hexPath(bx,x,y,r*0.98,c.rot);
+  bx.strokeStyle='rgba(66,38,16,0.75)';bx.lineWidth=3.2;bx.stroke();
+  hexPath(bx,x,y,r*0.86,c.rot);
+  bx.strokeStyle='rgba(255,226,160,0.28)';bx.lineWidth=2;bx.stroke();
+
+  if(c.state===3){ // weathered / repurposed: darker, lichen fleck
+    hexPath(bx,x,y,r*0.98,c.rot);
+    bx.fillStyle='rgba(60,44,20,0.34)';bx.fill();
+  }
+  bx.restore();
+}
+
+function drawButtressBaked(b){
+  bx.save();
+  bx.lineCap='round';
+  // thick resin strut
+  bx.beginPath();
+  bx.moveTo(b.x1,b.y1);
+  bx.quadraticCurveTo(b.cx,b.cy,b.x2,b.y2);
+  bx.strokeStyle=b.col;bx.lineWidth=b.w;bx.stroke();
+  bx.beginPath();
+  bx.moveTo(b.x1,b.y1);
+  bx.quadraticCurveTo(b.cx,b.cy,b.x2,b.y2);
+  bx.strokeStyle='rgba(255,208,140,0.30)';bx.lineWidth=b.w*0.38;bx.stroke();
+  // knuckle blobs
+  bx.beginPath();bx.arc(b.x1,b.y1,b.w*0.62,0,6.3);bx.fillStyle=b.col;bx.fill();
+  bx.beginPath();bx.arc(b.x2,b.y2,b.w*0.55,0,6.3);bx.fillStyle=b.col;bx.fill();
+  bx.restore();
+}
+
+function drawMossBaked(m){
+  bx.save();
+  var g=bx.createRadialGradient(m.x,m.y,1,m.x,m.y,m.r);
+  g.addColorStop(0,m.col);
+  g.addColorStop(1,'rgba(60,72,26,0)');
+  bx.fillStyle=g;
+  bx.beginPath();bx.arc(m.x,m.y,m.r,0,6.3);bx.fill();
+  // solid lobes, no squiggles
+  for(var i=0;i<m.lobes;i++){
+    var a=m.a0+i*(6.283/m.lobes);
+    var rr2=m.r*0.42;
+    bx.beginPath();
+    bx.arc(m.x+Math.cos(a)*m.r*0.45,m.y+Math.sin(a)*m.r*0.45,rr2*0.7,0,6.3);
+    bx.fillStyle=m.col2;bx.fill();
+  }
+  bx.restore();
+}
+
+function drawTrailBaked(t){
+  bx.save();
+  bx.globalAlpha=0.13;
+  bx.strokeStyle='rgba(255,226,168,1)';
+  bx.lineWidth=t.w;bx.lineCap='round';
+  bx.beginPath();bx.moveTo(t.x1,t.y1);bx.lineTo(t.x2,t.y2);bx.stroke();
+  bx.restore();
+}
+
+/* ---------- initial spare state ---------- */
+// the beam: one solid anchoring bar drawn once
+function drawBeam(){
+  bx.save();
+  var g=bx.createLinearGradient(0,beamY-46,0,beamY+18);
+  g.addColorStop(0,'#4a2c14');g.addColorStop(0.55,'#7a4a20');g.addColorStop(1,'#301a0a');
+  bx.fillStyle=g;
+  bx.fillRect(0,beamY-46,W,64);
+  bx.fillStyle='rgba(255,214,150,0.16)';
+  bx.fillRect(0,beamY-46,W,7);
+  bx.fillStyle='rgba(20,10,4,0.35)';
+  bx.fillRect(0,beamY+14,W,10);
+  // hanging root nubs
+  for(var i=0;i<9;i++){
+    var x=60+i*120+ (i%2?18:-12);
+    bx.beginPath();
+    bx.moveTo(x-16,beamY+18);bx.lineTo(x+16,beamY+18);bx.lineTo(x,beamY+52);
+    bx.closePath();bx.fillStyle='#3b2210';bx.fill();
+  }
+  bx.restore();
+}
+drawBeam();
+
+function addCell(q,r,state){
+  var k=key(q,r);
+  if(cells[k])return cells[k];
+  if(cellList.length>=maxCells)return null;
+  var p=hexPos(q,r);
+  if(p.x<70||p.x>W-70||p.y<beamY+30||p.y>H-140)return null;
+  var c={q:q,r:r,x:p.x,y:p.y,state:state||1,rot:Math.PI/6+rr(-0.035,0.035),
+         col:pick(P.comb),born:0};
+  cells[k]=c;cellList.push(c);
+  drawCellBaked(c);
+  return c;
+}
+
+// seed: three founding cells hanging from beam
+(function seedComb(){
+  var q0=ri(-1,1);
+  addCell(q0,1,1);
+  addCell(q0+1,1,1);
+  addCell(q0,2,1);
+})();
+
+/* ---------- the mason (worker) ---------- */
+var mason={
+  x:W/2, y:beamY+120, vx:0, vy:0,
+  tx:W/2, ty:beamY+140,
+  phase:'seek',      // seek | work | rest | ferry
+  task:null,
+  workT:0, workDur:1,
+  restT:0,
+  load:0,            // carried material 0..1
+  loadKind:'resin',
+  facing:1,
+  wingPhase:0,
+  stuck:0,
+  lastX:0,lastY:0,
+  bob:0
+};
+
+var quarry={x:0,y:0,kind:'resin'};
+function newQuarry(){
+  // material sources at the world edges/bottom (spare, implied)
+  var side=rnd();
+  if(side<0.4){quarry.x=rr(80,240);quarry.y=rr(1520,1800);quarry.kind='resin';}
+  else if(side<0.8){quarry.x=rr(840,1000);quarry.y=rr(1500,1790);quarry.kind='resin';}
+  else{quarry.x=rr(300,780);quarry.y=rr(1760,1860);quarry.kind='moss';}
+}
+newQuarry();
+
+/* ---------- task selection: what does the world need? ---------- */
+function frontierCandidates(){
+  var out=[],seen={};
+  for(var i=0;i<cellList.length;i++){
+    var c=cellList[i];
+    if(c.state===0)continue;
+    var nb=neighbors(c.q,c.r);
+    for(var j=0;j<nb.length;j++){
+      var k=key(nb[j][0],nb[j][1]);
+      if(cells[k]||seen[k])continue;
+      var p=hexPos(nb[j][0],nb[j][1]);
+      if(p.x<70||p.x>W-70||p.y<beamY+30||p.y>H-160)continue;
+      seen[k]=1;
+      // support score: more existing neighbours = better
+      var sup=0,nb2=neighbors(nb[j][0],nb[j][1]);
+      for(var m=0;m<nb2.length;m++) if(cells[key(nb2[m][0],nb2[m][1])])sup++;
+      out.push({q:nb[j][0],r:nb[j][1],x:p.x,y:p.y,sup:sup});
+    }
+  }
+  return out;
+}
+
+function chooseTask(){
+  var openCells=[],builtOpen=[];
+  for(var i=0;i<cellList.length;i++){
+    var c=cellList[i];
+    if(c.state===1)builtOpen.push(c);
+    if(c.state===2&&c.born<now-260&&rnd()<0.02)openCells.push(c);
+  }
+  var frontier=frontierCandidates();
+  var roll=rnd();
+
+  // consolidate: weather/repurpose old capped cells occasionally
+  if(cellList.length>120&&roll<0.08){
+    var old=null,best=1e9;
+    for(var i2=0;i2<cellList.length;i2++){
+      var cc=cellList[i2];
+      if(cc.state===2&&cc.born<best){best=cc.born;old=cc;}
+    }
+    if(old&&now-old.born>90){
+      return {type:'repurpose',cell:old,x:old.x,y:old.y,dur:rr(3,6)};
+    }
+  }
+
+  // cap an open built cell (needs load)
+  if(builtOpen.length&&roll<0.42){
+    var c2=pick(builtOpen);
+    return {type:'cap',cell:c2,x:c2.x,y:c2.y,dur:rr(2.6,5.2),needs:'resin'};
+  }
+  // add buttress where the comb overhangs
+  if(cellList.length>16&&roll<0.56){
+    var c3=pick(cellList);
+    return {type:'buttress',cell:c3,x:c3.x,y:c3.y,dur:rr(3.4,6.4),needs:'resin'};
+  }
+  // moss packing in gaps
+  if(cellList.length>30&&roll<0.66){
+    var c4=pick(cellList);
+    return {type:'moss',x:c4.x+rr(-52,52),y:c4.y+rr(-52,52),dur:rr(2.4,4.4),needs:'moss'};
+  }
+  // build new cell at best-supported frontier
+  if(frontier.length){
+    frontier.sort(function(a,b){return (b.sup+ (rnd()*1.9)) - (a.sup + (rnd()*1.9));});
+    var f=frontier[Math.min(frontier.length-1, Math.floor(Math.abs(rnd()*rnd())*4))];
+    return {type:'build',q:f.q,r:f.r,x:f.x,y:f.y,dur:rr(3.2,6.6),needs:'resin'};
+  }
+  return {type:'moss',x:rr(140,940),y:rr(500,1500),dur:rr(2,4),needs:'moss'};
+}
+
+/* ---------- task completion (leaves lasting evidence) ---------- */
+function completeTask(t){
+  if(t.type==='build'){
+    addCell(t.q,t.r,1);
+  }else if(t.type==='cap'){
+    if(t.cell.state===1){t.cell.state=2;t.cell.born=now;drawCellBaked(t.cell);}
+  }else if(t.type==='repurpose'){
+    t.cell.state=3;drawCellBaked(t.cell);
+    // nested inner cell -> accumulation without new pixels
+    bx.save();
+    hexPath(bx,t.cell.x,t.cell.y,CELLR*0.5,t.cell.rot);
+    bx.fillStyle='rgba(255,236,186,0.85)';bx.fill();
+    hexPath(bx,t.cell.x,t.cell.y,CELLR*0.32,t.cell.rot);
+    bx.fillStyle='rgba(70,42,18,0.9)';bx.fill();
+    bx.restore();
+    t.cell.state=1;t.cell.born=now;
+  }else if(t.type==='buttress'){
+    var c=t.cell;
+    var ang=rr(0,6.283);
+    var len=rr(60,150);
+    var b={x1:c.x,y1:c.y,
+           x2:c.x+Math.cos(ang)*len,y2:c.y+Math.sin(ang)*len*0.8,
+           cx:c.x+Math.cos(ang)*len*0.5+rr(-24,24),
+           cy:c.y+Math.sin(ang)*len*0.45+rr(-18,18),
+           w:rr(10,20),col:pick(P.resin)};
+    if(b.x2>50&&b.x2<W-50&&b.y2>beamY+10&&b.y2<H-110){
+      buttresses.push(b);drawButtressBaked(b);
+      if(buttresses.length>420)buttresses.shift();
+    }
+  }else if(t.type==='moss'){
+    var m={x:t.x,y:t.y,r:rr(22,52),col:pick(P.moss),col2:pick(P.moss),
+           lobes:ri(3,6),a0:rr(0,6.28)};
+    mossPatches.push(m);drawMossBaked(m);
+    if(mossPatches.length>500)mossPatches.shift();
+  }
+  mason.load=0;
+}
+
+/* ---------- motion ---------- */
+var now=0;
+function setTarget(x,y){mason.tx=x;mason.ty=y;}
+
+function beginSeek(){
+  mason.task=chooseTask();
+  if(mason.task.needs&&mason.load<=0){
+    // fetch material first
+    if(mason.task.needs==='moss'&&quarry.kind!=='moss') newQuarry();
+    if(rnd()<0.35)newQuarry();
+    mason.phase='ferry';
+    setTarget(quarry.x,quarry.y);
+  }else{
+    mason.phase='seek';
+    setTarget(mason.task.x,mason.task.y);
+  }
+}
+beginSeek();
+
+var lastTrail=0;
+function step(dt){
+  now+=dt;
+  mason.wingPhase+=dt*34;
+  mason.bob+=dt*2.2;
+
+  // steering
+  var dx=mason.tx-mason.x, dy=mason.ty-mason.y;
+  var d=Math.hypot(dx,dy)||1;
+
+  if(mason.phase==='seek'||mason.phase==='ferry'){
+    var sp=(mason.phase==='ferry'?230:200)*(mason.load>0?0.86:1);
+    var ax=(dx/d)*sp, ay=(dy/d)*sp;
+    // slight wander
+    ax+=Math.cos(now*2.1+mason.x*0.01)*46;
+    ay+=Math.sin(now*1.7+mason.y*0.01)*40;
+    mason.vx+=(ax-mason.vx)*Math.min(1,dt*4.2);
+    mason.vy+=(ay-mason.vy)*Math.min(1,dt*4.2);
+    mason.x+=mason.vx*dt;mason.y+=mason.vy*dt;
+    if(mason.vx>8)mason.facing=1;else if(mason.vx<-8)mason.facing=-1;
+
+    // varnish trail evidence (sparse, baked faint)
+    if(now-lastTrail>0.55){
+      var t={x1:mason.lastX||mason.x,y1:mason.lastY||mason.y,x2:mason.x,y2:mason.y,w:mason.load>0?4.5:2.4};
+      if(Math.hypot(t.x2-t.x1,t.y2-t.y1)<260){drawTrailBaked(t);}
+      mason.lastX=mason.x;mason.lastY=mason.y;lastTrail=now;
+    }
+
+    if(d<26){
+      if(mason.phase==='ferry'){
+        mason.load=1;mason.loadKind=quarry.kind;
+        mason.phase='seek';setTarget(mason.task.x,mason.task.y);
+        mason.stuck=0;
+      }else{
+        mason.phase='work';mason.workT=0;mason.workDur=mason.task.dur;
+        mason.vx=mason.vy=0;mason.stuck=0;
+      }
+    }else{
+      mason.stuck+=dt;
+      if(mason.stuck>16){ // escape hatch: abandon target
+        mason.stuck=0;mason.load=0;beginSeek();
+      }
+    }
+  }else if(mason.phase==='work'){
+    mason.workT+=dt;
+    // small labouring oscillation
+    mason.x+=Math.cos(now*11)*0.7;
+    mason.y+=Math.sin(now*13)*0.6;
+    // changes its mind sometimes
+    if(rnd()<dt*0.035){mason.phase='seek';beginSeek();return;}
+    if(mason.workT>=mason.workDur){
+      completeTask(mason.task);
+      if(rnd()<0.30){mason.phase='rest';mason.restT=rr(1.4,4.0);}
+      else beginSeek();
+    }
+  }else if(mason.phase==='rest'){
+    mason.restT-=dt;
+    mason.y+=Math.sin(now*1.4)*0.3;
+    if(mason.restT<=0)beginSeek();
+  }
+
+  // bounds
+  if(mason.x<40){mason.x=40;mason.vx=Math.abs(mason.vx);}
+  if(mason.x>W-40){mason.x=W-40;mason.vx=-Math.abs(mason.vx);}
+  if(mason.y<beamY+40){mason.y=beamY+40;mason.vy=Math.abs(mason.vy);}
+  if(mason.y>H-60){mason.y=H-60;mason.vy=-Math.abs(mason.vy);}
+}
+
+/* ---------- catch-up for throttled tabs (reconcile, not replay) ---------- */
+function reconcile(seconds){
+  // Estimate completed tasks over the missing span and bake them in bulk.
+  var avg=6.0; // seconds per task incl. travel
+  var n=Math.min(220, Math.floor(seconds/avg));
+  for(var i=0;i<n;i++){
+    now+=avg;
+    var t=chooseTask();
+    completeTask(t);
+  }
+  now+=Math.max(0,seconds-n*avg);
+  mason.load=0;
+  beginSeek();
+}
+
+/* ---------- live rendering (worker + current labour only) ---------- */
+function drawMason(){
+  lx.clearRect(0,0,W,H);
+
+  var mx=mason.x, my=mason.y+Math.sin(mason.bob)*3;
+
+  // work glow / material sparks at the site
+  if(mason.phase==='work'){
+    var pr=0.55+0.45*Math.sin(now*6);
+    var g=lx.createRadialGradient(mason.task.x,mason.task.y,2,mason.task.x,mason.task.y,52+8*pr);
+    g.addColorStop(0,'rgba(255,226,150,0.55)');
+    g.addColorStop(1,'rgba(255,200,110,0)');
+    lx.fillStyle=g;
+    lx.beginPath();lx.arc(mason.task.x,mason.task.y,58,0,6.3);lx.fill();
+    // deposited dabs
+    for(var i=0;i<4;i++){
+      var a=now*3+i*1.57;
+      lx.beginPath();
+      lx.arc(mason.task.x+Math.cos(a)*20,mason.task.y+Math.sin(a)*17,4.5,0,6.3);
+      lx.fillStyle=(mason.task.needs==='moss')?'rgba(140,158,60,0.9)':'rgba(206,110,44,0.9)';
+      lx.fill();
+    }
+  }
+
+  lx.save();
+  lx.translate(mx,my);
+  lx.scale(mason.facing,1);
+
+  // wings: solid translucent lobes
+  var wf=Math.sin(mason.wingPhase);
+  var flying=(mason.phase!=='work'&&mason.phase!=='rest');
+  var spread=flying?(0.55+0.35*wf):0.16;
+  for(var s=-1;s<=1;s+=2){
+    lx.save();
+    lx.rotate(-0.5+spread*0.9*s*0.5 + (s<0?-0.55:0.25));
+    lx.beginPath();
+    lx.ellipse(-6, -20*(s<0?1:0.72), 46, 15, -0.5, 0, 6.3);
+    lx.fillStyle=P.wing;lx.fill();
+    lx.strokeStyle='rgba(255,255,240,0.55)';lx.lineWidth=2;lx.stroke();
+    lx.restore();
+  }
+
+  // abdomen (solid tapered form)
+  lx.beginPath();
+  lx.ellipse(-26,6,26,17,0.24,0,6.3);
+  var ag=lx.createLinearGradient(-50,-8,-4,22);
+  ag.addColorStop(0,P.fur);ag.addColorStop(0.5,'#3a2410');ag.addColorStop(1,P.fur);
+  lx.fillStyle=ag;lx.fill();
+  lx.strokeStyle='rgba(28,16,6,0.85)';lx.lineWidth=2.4;lx.stroke();
+  // bands
+  for(var b=0;b<3;b++){
+    lx.beginPath();
+    lx.ellipse(-30+b*10,6,5.2,14-b*1.4,0.24,0,6.3);
+    lx.fillStyle='rgba(30,18,8,0.85)';lx.fill();
+  }
+
+  // thorax
+  lx.beginPath();
+  lx.ellipse(2,0,20,15,0,0,6.3);
+  lx.fillStyle=P.body;lx.fill();
+  lx.strokeStyle='rgba(255,200,110,0.5)';lx.lineWidth=2.2;lx.stroke();
+
+  // head
+  lx.beginPath();lx.arc(26,-3,12.5,0,6.3);
+  lx.fillStyle='#241407';lx.fill();
+  lx.beginPath();lx.arc(30,-6,4.2,0,6.3);
+  lx.fillStyle='#f5d78f';lx.fill();
+  // antennae: short thick angular segments (no squiggle)
+  lx.strokeStyle='#1e1206';lx.lineWidth=3.4;lx.lineCap='round';
+  lx.beginPath();lx.moveTo(32,-10);lx.lineTo(46,-22);lx.lineTo(56,-19);lx.stroke();
+  lx.beginPath();lx.moveTo(31,-4);lx.lineTo(45,-12);lx.lineTo(55,-8);lx.stroke();
+
+  // legs (angular, animate with gait)
+  lx.strokeStyle='#1c1005';lx.lineWidth=3.6;
+  for(var L=0;L<3;L++){
+    var ph=now*(flying?4:9)+L*2.1;
+    var kx=6-L*14, ky=12;
+    var e=Math.sin(ph)*7;
+    lx.beginPath();
+    lx.moveTo(kx,ky);
+    lx.lineTo(kx-6+e,ky+16);
+    lx.lineTo(kx+4+e*1.4,ky+28);
+    lx.stroke();
+  }
+
+  // carried load: a solid resin bead or moss ball
+  if(mason.load>0){
+    lx.beginPath();lx.arc(36,10,11,0,6.3);
+    if(mason.loadKind==='moss'){
+      lx.fillStyle='#7e8c31';lx.fill();
+      lx.beginPath();lx.arc(33,7,4,0,6.3);lx.fillStyle='#a8b64a';lx.fill();
+    }else{
+      var rg=lx.createRadialGradient(32,6,1,36,10,12);
+      rg.addColorStop(0,'#ffcf7a');rg.addColorStop(1,'#a8451a');
+      lx.fillStyle=rg;lx.fill();
+    }
+    lx.strokeStyle='rgba(40,22,8,0.8)';lx.lineWidth=2;lx.stroke();
+  }
+  lx.restore();
+
+  // quarry marker: solid resin nodule glow where it mines
+  if(mason.phase==='ferry'){
+    var qg=lx.createRadialGradient(quarry.x,quarry.y,2,quarry.x,quarry.y,46);
+    qg.addColorStop(0,quarry.kind==='moss'?'rgba(150,170,70,0.5)':'rgba(226,132,48,0.55)');
+    qg.addColorStop(1,'rgba(226,132,48,0)');
+    lx.fillStyle=qg;
+    lx.beginPath();lx.arc(quarry.x,quarry.y,46,0,6.3);lx.fill();
+    lx.beginPath();lx.arc(quarry.x,quarry.y,13,0,6.3);
+    lx.fillStyle=quarry.kind==='moss'?'#6f7d2b':'#b8541f';lx.fill();
+  }
+}
+
+/* ---------- gentle sway of silhouettes (transform only) ---------- */
+var swayG=document.getElementById('sway');
+function sway(t){
+  swayG.setAttribute('transform','translate('+(Math.sin(t*0.22)*7).toFixed(2)+',0)');
+}
+
+/* ---------- loop with fixed accumulator + reconcile ---------- */
+var last=performance.now(), acc=0, STEP=1/60;
+function frame(t){
+  var dt=(t-last)/1000; last=t;
+  if(dt>1.5){ reconcile(dt); acc=0; }
+  else{
+    acc+=dt;
+    var steps=0;
+    while(acc>=STEP&&steps<2){step(STEP);acc-=STEP;steps++;}
+    if(acc>STEP)acc=0;
+  }
+  drawMason();
+  sway(t/1000);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden) last=performance.now();
+});
+
+/* ---------- procedural ambience (direct view only) ---------- */
+if(window.self===window.top){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      var ac=new AC();
+      var master=ac.createGain();master.gain.value=0.0;master.connect(ac.destination);
+      // low resin drone
+      var o1=ac.createOscillator();o1.type='sine';o1.frequency.value=62;
+      var o2=ac.createOscillator();o2.type='sine';o2.frequency.value=93.5;
+      var g1=ac.createGain();g1.gain.value=0.10;
+      var g2=ac.createGain();g2.gain.value=0.045;
+      o1.connect(g1).connect(master);o2.connect(g2).connect(master);
+      // wing hum, modulated by activity
+      var hum=ac.createOscillator();hum.type='triangle';hum.frequency.value=182;
+      var hg=ac.createGain();hg.gain.value=0.0;
+      var hf=ac.createBiquadFilter();hf.type='lowpass';hf.frequency.value=900;
+      hum.connect(hf).connect(hg).connect(master);
+      o1.start();o2.start();hum.start();
+      master.gain.linearRampToValueAtTime(0.16,ac.currentTime+6);
+      setInterval(function(){
+        var flying=(mason.phase==='seek'||mason.phase==='ferry');
+        var target=flying?0.05:0.012;
+        hg.gain.setTargetAtTime(target,ac.currentTime,0.5);
+        hum.frequency.setTargetAtTime(flying?176+Math.abs(mason.vx)*0.09:150,ac.currentTime,0.6);
+      },700);
+      var resume=function(){if(ac.state==='suspended')ac.resume();};
+      document.addEventListener('visibilitychange',resume);
+      setTimeout(resume,400);
+    }
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>
