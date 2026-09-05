@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Two Inks, One Water</title>
+<style>
+  html,body{margin:0;padding:0;background:#efece4;overflow:hidden;}
+  #stage{
+    position:absolute;top:0;left:0;
+    width:1080px;height:1920px;
+    transform-origin:top left;
+    background:#f4f1e8;
+    overflow:hidden;
+  }
+  /* paper field — single flat plane, faint warm tint only */
+  #paper{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 34%, #fbf9f2 0%, #f3f0e6 55%, #eae6d9 100%);
+  }
+  /* the fluid: low-res canvas scaled up, no filters, no blend modes */
+  #fluid{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    display:block;
+  }
+  /* one thin drawn mark: the vessel rim, pure line, high-key ground */
+  #rim{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+  }
+  #date{
+    position:absolute;left:56px;bottom:52px;
+    font:400 15px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.34em;
+    color:#5a5648;opacity:.5;
+    text-transform:uppercase;
+  }
+  #title{
+    position:absolute;left:56px;bottom:80px;
+    font:400 15px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing:.18em;
+    color:#5a5648;opacity:.42;
+  }
+  #guinea-pig{
+    position:absolute;
+    left:1006px;top:1806px;
+    width:17px;height:auto;
+    opacity:0.6;
+    transform:rotate(-8deg);
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="paper"></div>
+  <canvas id="fluid" width="540" height="960"></canvas>
+  <svg id="rim" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="rimFade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#2b2a24" stop-opacity="0"/>
+        <stop offset="0.18" stop-color="#2b2a24" stop-opacity="0.55"/>
+        <stop offset="0.5" stop-color="#2b2a24" stop-opacity="0.62"/>
+        <stop offset="0.82" stop-color="#2b2a24" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="#2b2a24" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M 62 1452 C 300 1478, 780 1478, 1018 1452"
+          fill="none" stroke="url(#rimFade)" stroke-width="3"/>
+  </svg>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="title">two inks, one water</div>
+  <div id="date">2026 · 09 · 05</div>
+</div>
+
+<script>
+(function(){
+  /* ---------- responsive stage ---------- */
+  const stage = document.getElementById('stage');
+  function fit(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const s = Math.min(vw/1080, vh/1920);
+    stage.style.transform = 'scale('+s+')';
+    stage.style.left = Math.round((vw - 1080*s)/2) + 'px';
+    stage.style.top  = Math.round((vh - 1920*s)/2) + 'px';
+  }
+  fit(); window.addEventListener('resize', fit);
+
+  /* ---------- date seed ---------- */
+  const DATE = '2026-09-05';
+  let seed = 0;
+  for (let i=0;i<DATE.length;i++) seed = (seed*31 + DATE.charCodeAt(i)) >>> 0;
+  function rnd(){ seed ^= seed<<13; seed>>>=0; seed ^= seed>>17; seed ^= seed<<5; seed>>>=0; return seed/4294967296; }
+
+  /* ---------- fluid grid (semi-Lagrangian advection + diffusion) ---------- */
+  const NX = 108, NY = 192;          // simulation grid
+  const N  = NX*NY;
+  const cvs = document.getElementById('fluid');
+  const ctx = cvs.getContext('2d', {alpha:true});
+  ctx.imageSmoothingEnabled = true;
+
+  // velocity
+  let u  = new Float32Array(N), v  = new Float32Array(N);
+  let u0 = new Float32Array(N), v0 = new Float32Array(N);
+  // two dye species (hue-against-hue pair, similar brightness)
+  let a  = new Float32Array(N), a0 = new Float32Array(N);
+  let b  = new Float32Array(N), b0 = new Float32Array(N);
+  let p  = new Float32Array(N), div = new Float32Array(N);
+
+  const IX = (x,y)=> x + y*NX;
+
+  // deterministic curl-noise-ish base field, built once from the seed
+  const fA = 1.2 + rnd()*0.8, fB = 0.7 + rnd()*0.6;
+  const phA = rnd()*6.283, phB = rnd()*6.283;
+  const swirlX = 0.30 + rnd()*0.40;   // 0..1 across width
+  const swirlY = 0.40 + rnd()*0.20;
+
+  function bnd(f){
+    for(let x=0;x<NX;x++){ f[IX(x,0)]=f[IX(x,1)]; f[IX(x,NY-1)]=f[IX(x,NY-2)]; }
+    for(let y=0;y<NY;y++){ f[IX(0,y)]=f[IX(1,y)]; f[IX(NX-1,y)]=f[IX(NX-2,y)]; }
+  }
+  function bndVel(){
+    for(let x=0;x<NX;x++){ v[IX(x,0)]=0; v[IX(x,NY-1)]=0; u[IX(x,0)]=u[IX(x,1)]; u[IX(x,NY-1)]=u[IX(x,NY-2)]; }
+    for(let y=0;y<NY;y++){ u[IX(0,y)]=0; u[IX(NX-1,y)]=0; v[IX(0,y)]=v[IX(1,y)]; v[IX(NX-1,y)]=v[IX(NX-2,y)]; }
+  }
+
+  function project(){
+    for(let y=1;y<NY-1;y++) for(let x=1;x<NX-1;x++){
+      div[IX(x,y)] = -0.5*(u[IX(x+1,y)]-u[IX(x-1,y)] + v[IX(x,y+1)]-v[IX(x,y-1)]);
+      p[IX(x,y)] = 0;
+    }
+    bnd(div); bnd(p);
+    for(let k=0;k<12;k++){
+      for(let y=1;y<NY-1;y++) for(let x=1;x<NX-1;x++){
+        p[IX(x,y)] = (div[IX(x,y)] + p[IX(x-1,y)]+p[IX(x+1,y)]+p[IX(x,y-1)]+p[IX(x,y+1)])*0.25;
+      }
+      bnd(p);
+    }
+    for(let y=1;y<NY-1;y++) for(let x=1;x<NX-1;x++){
+      u[IX(x,y)] -= 0.5*(p[IX(x+1,y)]-p[IX(x-1,y)]);
+      v[IX(x,y)] -= 0.5*(p[IX(x,y+1)]-p[IX(x,y-1)]);
+    }
+    bndVel();
+  }
+
+  function advect(d, d0, dt){
+    const dtx = dt*NX, dty = dt*NY;
+    for(let y=1;y<NY-1;y++) for(let x=1;x<NX-1;x++){
+      const i = IX(x,y);
+      let px = x - dtx*u[i];
+      let py = y - dty*v[i];
+      if(px<0.5)px=0.5; if(px>NX-1.5)px=NX-1.5;
+      if(py<0.5)py=0.5; if(py>NY-1.5)py=NY-1.5;
+      const i0=px|0, j0=py|0, i1=i0+1, j1=j0+1;
+      const s1=px-i0, s0=1-s1, t1=py-j0, t0=1-t1;
+      d[i] = s0*(t0*d0[IX(i0,j0)] + t1*d0[IX(i0,j1)])
+           + s1*(t0*d0[IX(i1,j0)] + t1*d0[IX(i1,j1)]);
+    }
+    bnd(d);
+  }
+
+  function diffuse(d, d0, amt){
+    const A = amt;
+    const c = 1/(1+4*A);
+    for(let k=0;k<3;k++){
+      for(let y=1;y<NY-1;y++) for(let x=1;x<NX-1;x++){
+        const i=IX(x,y);
+        d[i] = (d0[i] + A*(d[IX(x-1,y)]+d[IX(x+1,y)]+d[IX(x,y-1)]+d[IX(x,y+1)]))*c;
+      }
+      bnd(d);
+    }
+  }
+
+  /* ---------- forcing: two slow gyres, one plume rising ---------- */
+  const gx1 = swirlX*NX, gy1 = swirlY*NY;
+  const gx2 = (1-swirlX*0.85)*NX, gy2 = (swirlY+0.22)*NY;
+
+  function addForces(t){
+    const s1 = Math.sin(t*0.11 + phA);
+    const s2 = Math.sin(t*0.083 + phB);
+    for(let y=1;y<NY-1;y++){
+      for(let x=1;x<NX-1;x++){
+        const i = IX(x,y);
+        // gyre 1
+        let dx = x-gx1, dy = y-gy1;
+        let r2 = dx*dx+dy*dy;
+        let w = Math.exp(-r2/1400) * 0.0060 * (0.6+0.4*s1);
+        u[i] += -dy*w; v[i] +=  dx*w;
+        // gyre 2 (counter-rotating)
+        dx = x-gx2; dy = y-gy2; r2 = dx*dx+dy*dy;
+        w = Math.exp(-r2/1900) * 0.0046 * (0.6+0.4*s2);
+        u[i] +=  dy*w; v[i] += -dx*w;
+        // slow buoyant lift where dye is dense: ink climbing in water
+        const dens = a[i]+b[i];
+        if(dens>0.02) v[i] -= dens*0.00055;
+        // gentle large-scale shear so the whole body breathes
+        u[i] += Math.sin(y*0.045 + t*0.07*fA)*0.00042;
+        v[i] += Math.sin(x*0.052 + t*0.06*fB)*0.00030;
+      }
+    }
+    bndVel();
+  }
+
+  // dye injection: two sources, opposite hues, injected in slow alternating pulses
+  const srcA = { x: Math.round(NX*0.34), y: Math.round(NY*0.70) };
+  const srcB = { x: Math.round(NX*0.66), y: Math.round(NY*0.56) };
+
+  function inject(t){
+    // envelope 0..1, long period, always some flow so the loop never dies
+    const eA = 0.28 + 0.72*Math.max(0, Math.sin(t*0.058));
+    const eB = 0.28 + 0.72*Math.max(0, Math.sin(t*0.058 + 2.2));
+    splat(a, srcA.x, srcA.y, 5.0, 0.085*eA);
+    splat(b, srcB.x, srcB.y, 4.4, 0.078*eB);
+    // small upward impulse at each nozzle
+    for(let dy=-3;dy<=3;dy++) for(let dx=-3;dx<=3;dx++){
+      let i = IX(srcA.x+dx, srcA.y+dy);
+      if(i>0&&i<N){ v[i] -= 0.0030*eA; u[i] += 0.0009*eA; }
+      i = IX(srcB.x+dx, srcB.y+dy);
+      if(i>0&&i<N){ v[i] -= 0.0026*eB; u[i] -= 0.0011*eB; }
+    }
+  }
+  function splat(f, cx, cy, rad, amt){
+    const r2 = rad*rad;
+    for(let y=Math.max(1,cy-rad|0); y<=Math.min(NY-2,cy+rad|0); y++){
+      for(let x=Math.max(1,cx-rad|0); x<=Math.min(NX-2,cx+rad|0); x++){
+        const dx=x-cx, dy=y-cy, d=dx*dx+dy*dy;
+        if(d<r2) f[IX(x,y)] += amt*(1-d/r2);
+      }
+    }
+  }
+
+  /* ---------- palette: hue against hue on a light ground ---------- */
+  // A = vermilion-madder, B = deep emerald/cobalt-green. Subtractive mixing on paper.
+  const A_COL = [193, 41, 34];    // vermilion
+  const B_COL = [11, 106, 96];    // emerald
+  const PAPER = [246, 243, 234];
+
+  const img = ctx.createImageData(NX, NY);
+  const data = img.data;
+
+  // small offscreen at grid res, then scale up smoothly to the display canvas
+  const grid = document.createElement('canvas');
+  grid.width = NX; grid.height = NY;
+  const gctx = grid.getContext('2d');
+
+  function render(){
+    for(let i=0;i<N;i++){
+      // concentrations -> optical density, clamped
+      let ca = a[i], cb = b[i];
+      if(ca<0)ca=0; if(cb<0)cb=0;
+      // saturating response keeps the field airy rather than solid
+      const da = 1 - Math.exp(-ca*2.35);
+      const db = 1 - Math.exp(-cb*2.35);
+      // subtractive: each dye absorbs from paper white
+      let r = PAPER[0] * (1 - da*(1-A_COL[0]/255)) * (1 - db*(1-B_COL[0]/255));
+      let g = PAPER[1] * (1 - da*(1-A_COL[1]/255)) * (1 - db*(1-B_COL[1]/255));
+      let bl= PAPER[2] * (1 - da*(1-A_COL[2]/255)) * (1 - db*(1-B_COL[2]/255));
+      const alpha = Math.min(1, (da+db)*1.5);
+      const o = i*4;
+      // premultiplied-free: canvas expects straight alpha
+      data[o]   = r;
+      data[o+1] = g;
+      data[o+2] = bl;
+      data[o+3] = alpha*255;
+    }
+    gctx.putImageData(img,0,0);
+    ctx.clearRect(0,0,540,960);
+    ctx.drawImage(grid, 0, 0, 540, 960);
+  }
+
+  /* ---------- fixed-step loop ---------- */
+  const STEP = 1/30;
+  let acc = 0, last = performance.now()/1000, t = rnd()*40;
+
+  function step(){
+    // velocity
+    addForces(t);
+    u0.set(u); v0.set(v);
+    advect(u, u0, STEP*0.9); advect(v, v0, STEP*0.9);
+    bndVel();
+    project();
+
+    // slight viscosity so motion stays syrupy
+    u0.set(u); diffuse(u,u0,0.030);
+    v0.set(v); diffuse(v,v0,0.030);
+    bndVel(); project();
+
+    // dye
+    inject(t);
+    a0.set(a); advect(a, a0, STEP*0.9); a0.set(a); diffuse(a,a0,0.055);
+    b0.set(b); advect(b, b0, STEP*0.9); b0.set(b); diffuse(b,b0,0.055);
+
+    // slow washout keeps the bath from saturating — steady state, endless loop
+    for(let i=0;i<N;i++){
+      a[i] *= 0.9905; if(a[i]<1e-5) a[i]=0;
+      b[i] *= 0.9905; if(b[i]<1e-5) b[i]=0;
+    }
+    t += STEP;
+  }
+
+  // pre-roll so the bath already has ink when the page appears
+  for(let k=0;k<140;k++) step();
+
+  function frame(now){
+    const nowS = now/1000;
+    let dt = nowS - last; last = nowS;
+    if(dt>0.2) dt = 0.2;
+    acc += dt;
+    let steps = 0;
+    while(acc >= STEP && steps < 2){ step(); acc -= STEP; steps++; }
+    if(acc > STEP) acc = 0;
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------- procedural water drone (direct view only) ---------- */
+  if (window.self === window.top){
+    let started = false;
+    const boot = ()=>{
+      if(started) return; started = true;
+      try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return;
+        const ac = new AC();
+        const out = ac.createGain(); out.gain.value = 0.0; out.connect(ac.destination);
+        out.gain.linearRampToValueAtTime(0.055, ac.currentTime + 8);
+
+        // two barely-detuned sines: the two inks, sounding
+        [96.5, 144.9].forEach((f,i)=>{
+          const o = ac.createOscillator(); o.type='sine'; o.frequency.value=f;
+          const g = ac.createGain(); g.gain.value = i?0.35:0.5;
+          const lfo = ac.createOscillator(); lfo.type='sine';
+          lfo.frequency.value = 0.041 + i*0.017;
+          const lg = ac.createGain(); lg.gain.value = i?0.18:0.24;
+          lfo.connect(lg); lg.connect(g.gain);
+          o.connect(g); g.connect(out); o.start(); lfo.start();
+        });
+        // filtered noise: water body
+        const len = ac.sampleRate*4;
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const ch = buf.getChannelData(0);
+        let lp=0;
+        for(let i=0;i<len;i++){ lp += (Math.random()*2-1 - lp)*0.02; ch[i]=lp*2.2; }
+        const src = ac.createBufferSource(); src.buffer=buf; src.loop=true;
+        const bp = ac.createBiquadFilter(); bp.type='lowpass'; bp.frequency.value=340; bp.Q.value=0.7;
+        const ng = ac.createGain(); ng.gain.value=0.16;
+        src.connect(bp); bp.connect(ng); ng.connect(out); src.start();
+      }catch(e){}
+    };
+    window.addEventListener('pointerdown', boot, {once:true});
+    window.addEventListener('keydown', boot, {once:true});
+    setTimeout(boot, 400);
+  }
+})();
+</script>
+</body>
+</html>
