@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-08</title>
+<style>
+  html,body{margin:0;height:100%;background:#d9efe9;overflow:hidden}
+  #stage{
+    position:absolute;left:0;top:0;width:1080px;height:1920px;
+    transform-origin:top left;overflow:hidden;
+    background:#d9efe9;
+  }
+  /* far plane behind the horizon image */
+  #sun{
+    position:absolute;left:150px;top:-40px;width:520px;height:520px;border-radius:50%;
+    background:#f2a23a;
+  }
+  #farplane{
+    position:absolute;left:0;top:690px;width:1080px;height:150px;
+    background:#efb8b0;
+  }
+  #art-image{
+    position:absolute;left:0;top:150px;width:1080px;height:620px;object-fit:cover;
+    filter:saturate(1.15) hue-rotate(-8deg) contrast(1.04) brightness(1.03);
+    -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, #000 12%, #000 80%, rgba(0,0,0,0) 100%);
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,0) 0%, #000 12%, #000 80%, rgba(0,0,0,0) 100%);
+    animation:drift 90s ease-in-out infinite alternate;
+  }
+  @keyframes drift{
+    from{transform:translateY(0) scale(1)}
+    to{transform:translateY(-10px) scale(1.02)}
+  }
+  #cv{position:absolute;left:0;top:0;width:1080px;height:1920px}
+  #guinea-pig{
+    position:absolute;left:411px;top:1849px;width:18px;height:auto;opacity:0.6;
+    filter:saturate(0.5);
+  }
+  #date{
+    position:absolute;right:34px;bottom:26px;font:500 15px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:0.18em;color:#1f4fb3;opacity:0.55;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="sun"></div>
+  <div id="farplane"></div>
+  <img id="art-image" src="art.png" alt="">
+  <canvas id="cv" width="540" height="960"></canvas>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-09-08</div>
+</div>
+<script>
+(function(){
+  // responsive shell
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    var w=1080*s,h=1920*s;
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((window.innerWidth-w)/2)+'px';
+    stage.style.top=((window.innerHeight-h)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+
+  // date seed
+  var ds='2026-09-08', seed=0;
+  for(var i=0;i<ds.length;i++) seed=(seed*31+ds.charCodeAt(i))>>>0;
+  function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+
+  var N=7+Math.floor(rnd()*2);          // rungs on the ladder
+  var slot=(1815-640)/(N-1);             // slot spacing
+  var period=(9+rnd()*4);                // seconds per slot advance
+  var R=340+rnd()*90;                    // flight sweep radius
+  var phase0=rnd();
+
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var S=0.5; // canvas scale (540x960 backing store)
+  var cx=540, railL=430, railR=650, railW=26, rungW=railR-railL+railW, rungH=22;
+  var yTop=640, yBot=1815;
+
+  function drawRung(x,y,ang){
+    ctx.save(); ctx.translate(x*S,y*S); ctx.rotate(ang);
+    ctx.fillStyle='#e2451b';
+    ctx.fillRect(-rungW/2*S,-rungH/2*S,rungW*S,rungH*S);
+    ctx.restore();
+  }
+
+  function frame(now){
+    var t=now/1000;
+    ctx.clearRect(0,0,540,960);
+
+    // emerald cast shadow of the ladder, slanting left into the open ground
+    ctx.fillStyle='#19a06a';
+    ctx.beginPath();
+    ctx.moveTo((railL-8)*S, 1880*S);
+    ctx.lineTo((railL-8-560)*S, (yTop+140)*S);
+    ctx.lineTo((railL-8-560+40)*S, (yTop+140)*S);
+    ctx.lineTo((railL+railW-8)*S, 1880*S);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo((railR-8)*S, 1880*S);
+    ctx.lineTo((railR-8-560)*S, (yTop+140)*S);
+    ctx.lineTo((railR-8-560+40)*S, (yTop+140)*S);
+    ctx.lineTo((railR+railW-8)*S, 1880*S);
+    ctx.closePath(); ctx.fill();
+
+    // rails
+    ctx.fillStyle='#e2451b';
+    ctx.fillRect(railL*S, 560*S, railW*S, (1880-560)*S);
+    ctx.fillRect(railR*S, 560*S, railW*S, (1880-560)*S);
+
+    // rungs: N on the ladder, one always in flight
+    var adv=(t/period+phase0);
+    for(var k=0;k<N+1;k++){
+      var idx=(k+adv)%(N+1);
+      if(idx<N){
+        var y=yBot-idx*slot;
+        drawRung(cx+railW/2, y, 0);
+      }else{
+        var u=idx-N; // 0..1 flight from top slot back to bottom slot
+        var e=u; 
+        var x=cx+railW/2 + R*Math.sin(Math.PI*e);
+        var y2=yTop + (yBot-yTop)*(1-Math.cos(Math.PI*e))/2;
+        var ang=e*Math.PI*2;
+        drawRung(x,y2,ang);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
