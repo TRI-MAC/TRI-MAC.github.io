@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-09",
+  "joke": "An AI told me a fantastic joke yesterday. I looked it up afterwards and it doesn't exist.",
+  "model": {
+    "family": "fable",
+    "id": "claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": null,
+  "attempts": 1,
+  "source": "hand-picked; told in a Claude Code session and chosen by the editors",
+  "generated_at": "2026-09-09T17:07:07Z"
+}
