@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Weight Distribution</title>
+<style>
+  html,body{margin:0;padding:0;background:#7d4a2e;overflow:hidden;}
+  #stage{
+    position:absolute;top:0;left:0;width:1080px;height:1920px;
+    transform-origin:top left;
+    background:#b5722f;
+    overflow:hidden;
+  }
+  /* the single field: a mid-key terracotta plane, very slightly graded */
+  #field{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(120% 70% at 52% 38%, #c07f33 0%, #b5722f 45%, #a5652b 100%);
+  }
+  #plates{position:absolute;inset:0;}
+  #wire{position:absolute;inset:0;}
+  #date{
+    position:absolute;left:44px;bottom:38px;
+    font:400 17px/1 ui-monospace,Menlo,Consolas,monospace;
+    letter-spacing:.22em;color:#3a1f12;opacity:.5;
+  }
+  #guinea-pig{
+    position:absolute;width:16px;height:auto;
+    left:906px;top:1712px;opacity:.62;
+    transform:rotate(-9deg);
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="field"></div>
+  <canvas id="wire" width="540" height="960"></canvas>
+  <svg id="plates" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026·09·10</div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   ONE IDEA — "Weight Distribution"
+   A single hanging chain of flat slabs re-negotiates how much mass
+   each of them carries. Mass is a quantity the forms trade between
+   themselves: as one slab absorbs mass it swells and sinks, its
+   neighbour thins and rises, and the whole suspended column slowly
+   re-balances around a fixed anchor. The tension line that carries
+   the load is redrawn continuously by the transfer.
+   Nothing else on the page.
+---------------------------------------------------------------- */
+
+/* deterministic seed from date */
+const SEED = (2026*10000 + 9*100 + 10);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;}}
+const rnd = mulberry32(SEED);
+
+/* ---- responsive scale ---- */
+const stage = document.getElementById('stage');
+function fit(){
+  const w = window.innerWidth, h = window.innerHeight;
+  const s = Math.min(w/1080, h/1920);
+  stage.style.transform = `scale(${s})`;
+  stage.style.left = Math.round((w - 1080*s)/2) + 'px';
+  stage.style.top  = Math.round((h - 1920*s)/2) + 'px';
+}
+addEventListener('resize', fit); fit();
+
+/* ---- the form family: five flat slabs on one tension line ---- */
+const NS='http://www.w3.org/2000/svg';
+const svg = document.getElementById('plates');
+
+const ANCHOR_X = 560, ANCHOR_Y = 168;
+
+// mass values sum to 1. seeded start.
+const N = 5;
+let mass = [];
+{
+  let raw = [];
+  for(let i=0;i<N;i++) raw.push(0.5 + rnd());
+  const s = raw.reduce((a,b)=>a+b,0);
+  mass = raw.map(v=>v/s);
+}
+// target the system slowly drifts toward; regenerated when reached
+let target = mass.slice();
+function newTarget(){
+  let raw=[];
+  for(let i=0;i<N;i++) raw.push(0.35 + rnd()*1.4);
+  const s = raw.reduce((a,b)=>a+b,0);
+  target = raw.map(v=>v/s);
+}
+newTarget();
+
+/* two hues only: a bone-pale slab family and one darker slab that
+   holds the heaviest mass — value marks against the terracotta field */
+const PALE = '#e8ddc4';
+const DEEP = '#2b1a12';
+const OLIVE= '#6f7a3c';
+
+const slabs = [];
+for(let i=0;i<N;i++){
+  const g = document.createElementNS(NS,'g');
+  const shape = document.createElementNS(NS,'path');
+  shape.setAttribute('stroke','#2b1a12');
+  shape.setAttribute('stroke-width','3');
+  shape.setAttribute('stroke-linejoin','miter');
+  g.appendChild(shape);
+  // a single incised notch marks the slab's load-bearing point
+  const notch = document.createElementNS(NS,'path');
+  notch.setAttribute('fill','none');
+  notch.setAttribute('stroke','#2b1a12');
+  notch.setAttribute('stroke-width','3');
+  notch.setAttribute('opacity','.55');
+  g.appendChild(notch);
+  svg.appendChild(g);
+  slabs.push({g, shape, notch, sway: rnd()*Math.PI*2, skew:(rnd()-0.5)});
+}
+
+/* ---- tension wire, drawn on a small canvas ---- */
+const cv = document.getElementById('wire');
+const ctx = cv.getContext('2d');
+const CS = 0.5; // canvas is half stage resolution
+
+/* geometry solve: each slab hangs below the previous, its half-height
+   proportional to its mass; horizontal offset proportional to the
+   difference between it and its neighbour (the imbalance visibly leans) */
+function layout(t){
+  const out=[];
+  let y = ANCHOR_Y + 96;
+  for(let i=0;i<N;i++){
+    const m = mass[i];
+    const h = 74 + m*920;            // mass -> vertical bulk
+    const w = 168 + m*640;           // mass -> width
+    const imbalance = (i>0? mass[i]-mass[i-1] : mass[i]-1/N);
+    const lean = imbalance*760;
+    const sway = Math.sin(t*0.00021 + slabs[i].sway)*(10 + m*26);
+    const cx = ANCHOR_X + lean*0.55 + sway;
+    out.push({cx, cy: y + h/2, w, h, m});
+    y += h + 30 + m*54;              // heavier slabs open bigger gaps
+  }
+  // recentre column vertically inside the frame
+  const top = out[0].cy - out[0].h/2;
+  const bot = out[N-1].cy + out[N-1].h/2;
+  const span = bot-top;
+  const shift = (1920 - span)/2 - top + 40;
+  out.forEach(o=>o.cy += shift*0.55);
+  return out;
+}
+
+function slabPath(o, skew){
+  // hard-edged asymmetric quadrilateral — not a rectangle
+  const hw = o.w/2, hh = o.h/2;
+  const k = skew * o.w * 0.16;
+  const x0 = o.cx - hw + k, x1 = o.cx + hw + k*0.3;
+  const x2 = o.cx + hw - k, x3 = o.cx - hw - k*0.6;
+  const y0 = o.cy - hh, y1 = o.cy + hh;
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)} L${x1.toFixed(1)} ${y0.toFixed(1)} L${x2.toFixed(1)} ${y1.toFixed(1)} L${x3.toFixed(1)} ${y1.toFixed(1)} Z`;
+}
+
+let last = performance.now();
+let holdTimer = 0;
+
+function frame(now){
+  const dt = Math.min(48, now - last); last = now;
+
+  // slow mass transfer toward target
+  let done = true;
+  for(let i=0;i<N;i++){
+    const d = target[i]-mass[i];
+    if(Math.abs(d) > 0.0012) done = false;
+    mass[i] += d * (1 - Math.pow(0.9994, dt));
+  }
+  // renormalise
+  const s = mass.reduce((a,b)=>a+b,0);
+  for(let i=0;i<N;i++) mass[i]/=s;
+
+  if(done){ holdTimer += dt; if(holdTimer > 3200){ holdTimer = 0; newTarget(); } }
+  else holdTimer = 0;
+
+  const geo = layout(now);
+
+  // heaviest slab takes the dark value, second heaviest the olive
+  const order = geo.map((o,i)=>({i,m:o.m})).sort((a,b)=>b.m-a.m);
+  const heavy = order[0].i, second = order[1].i;
+
+  for(let i=0;i<N;i++){
+    const o = geo[i];
+    slabs[i].shape.setAttribute('d', slabPath(o, slabs[i].skew));
+    slabs[i].shape.setAttribute('fill', i===heavy? DEEP : (i===second? OLIVE : PALE));
+    const nx = o.cx + slabs[i].skew*o.w*0.08;
+    const nlen = Math.min(o.w*0.30, 150);
+    slabs[i].notch.setAttribute('d', `M${(nx-nlen/2).toFixed(1)} ${(o.cy).toFixed(1)} L${(nx+nlen/2).toFixed(1)} ${(o.cy).toFixed(1)}`);
+    slabs[i].notch.setAttribute('stroke', i===heavy? '#c08a4a' : '#2b1a12');
+  }
+
+  // ---- tension wire ----
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.lineCap='round';
+  ctx.strokeStyle='#2b1a12';
+  ctx.lineWidth=1.6;
+  ctx.beginPath();
+  ctx.moveTo(ANCHOR_X*CS, 0);
+  ctx.lineTo(ANCHOR_X*CS, ANCHOR_Y*CS);
+  ctx.stroke();
+
+  // anchor block: the only fixed thing on the page
+  ctx.fillStyle='#2b1a12';
+  ctx.fillRect((ANCHOR_X-96)*CS,(ANCHOR_Y-26)*CS,192*CS,26*CS);
+
+  // wire from anchor through each slab's notch; thickness = load carried below
+  let prev = {x:ANCHOR_X, y:ANCHOR_Y};
+  let remaining = 1;
+  for(let i=0;i<N;i++){
+    const o = geo[i];
+    const nx = o.cx + slabs[i].skew*o.w*0.08;
+    ctx.strokeStyle='#2b1a12';
+    ctx.lineWidth = Math.max(1.2, (1.5 + remaining*7.5)*CS);
+    ctx.beginPath();
+    ctx.moveTo(prev.x*CS, prev.y*CS);
+    ctx.lineTo(nx*CS, o.cy*CS);
+    ctx.stroke();
+    remaining -= o.m;
+    prev = {x:nx, y:o.cy};
+  }
+  // the wire continues past the last slab and thins to nothing
+  ctx.strokeStyle='rgba(43,26,18,0.5)';
+  ctx.lineWidth=1.2;
+  ctx.beginPath();
+  ctx.moveTo(prev.x*CS, prev.y*CS);
+  ctx.lineTo(prev.x*CS, cv.height);
+  ctx.stroke();
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---- procedural audio: a low resonance whose pitch follows the
+       heaviest slab's mass. Silent inside an iframe. ---- */
+if (window.self === window.top) {
+  let started=false;
+  const start = ()=>{
+    if(started) return; started=true;
+    try{
+      const AC = window.AudioContext||window.webkitAudioContext;
+      const ac = new AC();
+      const g = ac.createGain(); g.gain.value=0.0; g.connect(ac.destination);
+      const o1 = ac.createOscillator(); o1.type='triangle'; o1.frequency.value=61;
+      const o2 = ac.createOscillator(); o2.type='sine'; o2.frequency.value=91.5;
+      const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=340; lp.Q.value=3;
+      o1.connect(lp); o2.connect(lp); lp.connect(g);
+      o1.start(); o2.start();
+      g.gain.linearRampToValueAtTime(0.045, ac.currentTime+6);
+      setInterval(()=>{
+        const mx = Math.max.apply(null, mass);
+        const f = 52 + mx*70;
+        o1.frequency.setTargetAtTime(f, ac.currentTime, 3.0);
+        o2.frequency.setTargetAtTime(f*1.5, ac.currentTime, 3.0);
+        lp.frequency.setTargetAtTime(260 + mx*420, ac.currentTime, 3.0);
+      }, 2000);
+      if(ac.state==='suspended') ac.resume();
+    }catch(e){}
+  };
+  window.addEventListener('load', start);
+  setTimeout(start, 1200);
+}
+</script>
+</body>
+</html>
