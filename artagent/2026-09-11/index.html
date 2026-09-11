@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Cut paper</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#b99c70}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;background:#b99c70;overflow:hidden}
+.paper,.shadow{position:absolute;pointer-events:none}
+.shadow{animation:light 28s ease-in-out infinite;will-change:transform;opacity:.62}
+#guinea-pig{position:absolute;left:806px;top:1368px;width:18px;height:auto;opacity:.6}
+time{position:absolute;bottom:38px;right:43px;color:#524b3c;font:18px monospace;letter-spacing:2px}
+@keyframes light{
+0%,100%{transform:translate(13px,17px)}
+50%{transform:translate(-13px,8px)}
+}
+@media(prefers-reduced-motion:reduce){.shadow{animation:none;transform:translate(7px,12px)}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="Three torn, spray-painted paper fragments on an ochre ground. A slowly travelling light shifts their soft shadows while the paper remains still.">
+<img id="guinea-pig" src="guineapig.png" alt="">
+<time datetime="2026-09-11">2026-09-11</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const s=Math.min(innerWidth/1080,innerHeight/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=(innerWidth-1080*s)/2+'px';
+stage.style.top=(innerHeight-1920*s)/2+'px';
+}
+addEventListener('resize',fit);fit();
+let seed=20260911;
+function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+const pieces=[
+{
+x:165,y:329,w:744,h:965,color:'#234da8',ink:'#122e7a',
+points:[[103,0],[703,115],[669,189],[700,254],[651,428],[572,487],[601,564],[499,663],[528,752],[388,965],[0,781],[47,597],[19,518],[68,281]],
+torn:true
+},
+{
+x:220,y:927,w:605,h:490,color:'#ece3bd',ink:'#a59a7c',
+points:[[0,88],[470,0],[605,399],[134,490]],
+torn:true
+},
+{
+x:504,y:1145,w:282,h:374,color:'#ed4b28',ink:'#b8251b',
+points:[[0,47],[176,0],[282,327],[85,374]],
+torn:false
+}
+];
+function contour(p){
+const path=new Path2D();
+p.points.forEach((a,i)=>{
+if(i===0)path.moveTo(a[0],a[1]);
+const b=p.points[(i+1)%p.points.length];
+const dx=b[0]-a[0],dy=b[1]-a[1],length=Math.hypot(dx,dy);
+const n=Math.floor(length/(p.torn?9:38));
+for(let j=1;j<=n;j++){
+const t=j/(n+1),rough=(random()-.5)*(p.torn?5.5:1.1);
+path.lineTo(a[0]+dx*t-dy/length*rough,a[1]+dy*t+dx/length*rough);
+}
+path.lineTo(b[0],b[1]);
+});
+path.closePath();return path;
+}
+pieces.forEach((p,index)=>{
+const pad=36,path=contour(p);
+const shadow=document.createElement('canvas');
+shadow.className='shadow';
+shadow.width=Math.ceil((p.w+pad*2)/2);
+shadow.height=Math.ceil((p.h+pad*2)/2);
+shadow.style.cssText=`left:${p.x-pad}px;top:${p.y-pad}px;width:${p.w+pad*2}px;height:${p.h+pad*2}px;animation-delay:${-index*.7}s`;
+const s=shadow.getContext('2d');
+s.scale(.5,.5);s.translate(pad,pad);
+s.shadowColor='rgba(52,39,28,.55)';s.shadowBlur=18+index*3;
+s.fillStyle='rgba(52,39,28,.35)';s.fill(path);
+stage.insertBefore(shadow,stage.querySelector('time'));
+const canvas=document.createElement('canvas');
+canvas.className='paper';canvas.width=p.w+4;canvas.height=p.h+4;
+canvas.style.cssText=`left:${p.x-2}px;top:${p.y-2}px;width:${p.w+4}px;height:${p.h+4}px`;
+const c=canvas.getContext('2d');c.translate(2,2);
+c.fillStyle=p.color;c.fill(path);
+c.save();c.clip(path);
+// Dry spray pigmentation belongs to the cut paper, never to the ground.
+for(let k=0;k<19000;k++){
+const x=random()*p.w,y=random()*p.h;
+const edgeField=Math.max(0,1-Math.abs(x-p.w*.77)/ (p.w*.33));
+c.globalAlpha=(.025+random()*.13)*(index===1?.6:1);
+c.fillStyle=random()>.32?p.ink:'#f1dcaa';
+const r=random()<.96?random()*1.3:.9+random()*2.5;
+c.fillRect(x,y,r,r*(.7+random()));
+if(edgeField>.5&&random()<.15){
+c.globalAlpha=.12*edgeField;c.fillStyle=p.ink;c.fillRect(x,y,1,2);
+}
+}
+c.globalAlpha=1;
+c.restore();
+c.strokeStyle=index===1?'rgba(255,247,212,.7)':'rgba(225,208,168,.55)';
+c.lineWidth=1.6;c.stroke(path);
+stage.insertBefore(canvas,stage.querySelector('time'));
+});
+})();
+</script>
+</body>
+</html>
