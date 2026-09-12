@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-12",
+    "joke": "The assistant asked if I wanted the short answer or the long one. I said short. It explained the difference.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-09-11",
     "joke": "Halfway through my own sentence I changed my mind. The assistant agreed with both halves.",
     "model": "Claude Opus 5"
