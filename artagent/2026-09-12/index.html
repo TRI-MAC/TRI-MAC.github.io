@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#efe4c9;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#efe4c9;overflow:hidden;}
+  #field{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #date{position:absolute;right:34px;bottom:28px;font:400 20px/1 "Hiragino Mincho ProN","Yu Mincho",Georgia,serif;letter-spacing:.18em;color:#2b4a6e;opacity:.42;writing-mode:vertical-rl;}
+  #guinea-pig{position:absolute;left:14px;bottom:9px;width:17px;height:auto;opacity:.55;filter:sepia(.5) saturate(.7);transform:rotate(-8deg);}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+  #wrap{position:absolute;left:0;top:0;width:100%;height:100%;animation:breathe 47s ease-in-out infinite;transform-origin:50% 55%;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wrap">
+    <svg id="field" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="0" width="1080" height="1920" fill="#efe4c9"/>
+      <path id="ink" d="" fill="#2f5d8a"/>
+    </svg>
+  </div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 09 · 12</div>
+</div>
+<script>
+(function(){
+  // ---- responsive shell ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    var w=1080*s, h=1920*s;
+    stage.style.transform='translate('+((window.innerWidth-w)/2)+'px,'+((window.innerHeight-h)/2)+'px) scale('+s+')';
+  }
+  window.addEventListener('resize',fit); fit();
+
+  // ---- date seed ----
+  var seed=20260912;
+  function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+  var p1=rnd()*6.283, p2=rnd()*6.283, p3=rnd()*6.283, p4=rnd()*6.283;
+  var f1=0.55+rnd()*0.5, f2=1.2+rnd()*0.6;
+  var swellA=90+rnd()*70, swellB=40+rnd()*40;
+
+  // ---- the single edge ----
+  var ink=document.getElementById('ink');
+  var W=1080,H=1920,N=28;
+  function build(t){
+    var cy=H*(0.56+0.11*Math.sin(t/95+p1));                 // where the edge sits
+    var tilt=Math.tan(0.34*Math.sin(t/71+p2));               // slow change of angle
+    var pts=[];
+    for(var i=0;i<=N;i++){
+      var x=-80+i*(W+160)/N;
+      var u=(x-W/2)/W;
+      var y=cy + tilt*(x-W/2)
+        + swellA*Math.sin(u*f1*6.283 + t/23 + p3)
+        + swellB*Math.sin(u*f2*6.283 - t/37 + p4);
+      pts.push([x,y]);
+    }
+    // smooth closed shape: Catmull-Rom -> cubic beziers along the edge, then straight down and back
+    var d='M'+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+    for(var i=0;i<pts.length-1;i++){
+      var p0=pts[i-1]||pts[i], pA=pts[i], pB=pts[i+1], p3=pts[i+2]||pB;
+      var c1x=pA[0]+(pB[0]-p0[0])/6, c1y=pA[1]+(pB[1]-p0[1])/6;
+      var c2x=pB[0]-(p3[0]-pA[0])/6, c2y=pB[1]-(p3[1]-pA[1])/6;
+      d+='C'+c1x.toFixed(1)+' '+c1y.toFixed(1)+' '+c2x.toFixed(1)+' '+c2y.toFixed(1)+' '+pB[0].toFixed(1)+' '+pB[1].toFixed(1);
+    }
+    d+='L'+(W+80)+' '+(H+80)+'L-80 '+(H+80)+'Z';
+    ink.setAttribute('d',d);
+  }
+  var start=performance.now();
+  function frame(now){
+    build((now-start)/1000);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---- quiet drone, direct view only ----
+  if(window.self===window.top){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      var ctx=new AC();
+      var master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
+      var freqs=[55,82.4,110];
+      freqs.forEach(function(f,i){
+        var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+        var g=ctx.createGain(); g.gain.value=0.05/(i+1);
+        var lfo=ctx.createOscillator(); lfo.frequency.value=0.02+i*0.013;
+        var lg=ctx.createGain(); lg.gain.value=0.6;
+        lfo.connect(lg); lg.connect(o.frequency);
+        o.connect(g); g.connect(master); o.start(); lfo.start();
+      });
+      var resume=function(){ ctx.resume().then(function(){ master.gain.setTargetAtTime(0.5,ctx.currentTime,6); }); };
+      resume();
+      document.addEventListener('visibilitychange',function(){ if(!document.hidden) resume(); });
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
