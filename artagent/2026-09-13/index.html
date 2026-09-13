@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-13</title>
+<style>
+  html,body{margin:0;padding:0;background:#efe6d2;overflow:hidden;width:100%;height:100%;}
+  #stage{
+    position:absolute;left:0;top:0;width:1080px;height:1920px;
+    transform-origin:top left;
+    background:#f1e9d6;
+    overflow:hidden;
+  }
+  .gear{position:absolute;will-change:transform;}
+  #gearA{left:290px;top:700px;width:800px;height:800px;animation:spinA 144s linear infinite;z-index:1;}
+  #gearB{left:98px;top:1272px;width:420px;height:420px;animation:spinB 72s linear infinite;z-index:3;}
+  #gearC{left:13px;top:1077px;width:290px;height:290px;animation:spinC 48s linear infinite;z-index:3;}
+  @keyframes spinA{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes spinB{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+  @keyframes spinC{from{transform:rotate(7.5deg)}to{transform:rotate(367.5deg)}}
+  #art-image{
+    position:absolute;left:90px;top:220px;width:600px;height:800px;object-fit:cover;
+    z-index:2;opacity:0.95;
+    filter:sepia(0.4) saturate(0.55) contrast(0.92) brightness(1.06);
+    box-shadow:14px 22px 40px rgba(40,36,30,0.28);
+  }
+  #frame{position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:2;pointer-events:none;}
+  #pend{position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:4;pointer-events:none;}
+  #pendulum{transform-origin:880px 140px;transform-box:view-box;animation:swing 4s ease-in-out infinite alternate;will-change:transform;}
+  @keyframes swing{from{transform:rotate(-11deg)}to{transform:rotate(11deg)}}
+  #date{position:absolute;right:38px;bottom:30px;font:15px/1 Georgia,"Times New Roman",serif;letter-spacing:2px;color:#4a4540;opacity:.55;z-index:5;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gearA" class="gear" width="800" height="800"></canvas>
+  <img id="art-image" src="art.png" alt="">
+  <svg id="frame" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1c1b1a"/>
+        <stop offset="0.5" stop-color="#3a3835"/>
+        <stop offset="1" stop-color="#171615"/>
+      </linearGradient>
+    </defs>
+    <!-- thick ink frame -->
+    <rect x="70" y="200" width="640" height="840" fill="none" stroke="url(#ink)" stroke-width="30" stroke-linejoin="round" opacity="0.92"/>
+    <rect x="62" y="194" width="654" height="852" fill="none" stroke="#5b5754" stroke-width="10" opacity="0.38"/>
+    <!-- brush overshoots at corners -->
+    <line x1="52" y1="200" x2="760" y2="200" stroke="#1c1b1a" stroke-width="22" stroke-linecap="round" opacity="0.85"/>
+    <line x1="70" y1="1040" x2="740" y2="1040" stroke="#1c1b1a" stroke-width="26" stroke-linecap="round" opacity="0.88"/>
+    <line x1="710" y1="170" x2="710" y2="1065" stroke="#1c1b1a" stroke-width="20" stroke-linecap="round" opacity="0.8"/>
+    <line x1="70" y1="180" x2="70" y2="1090" stroke="#1c1b1a" stroke-width="24" stroke-linecap="round" opacity="0.86"/>
+    <!-- ink spilling from the frame -->
+    <circle cx="790" cy="198" r="9" fill="#1c1b1a" opacity="0.7"/>
+    <circle cx="822" cy="212" r="5" fill="#1c1b1a" opacity="0.55"/>
+    <circle cx="774" cy="1052" r="7" fill="#1c1b1a" opacity="0.6"/>
+    <circle cx="70" cy="1122" r="10" fill="#1c1b1a" opacity="0.65"/>
+    <circle cx="86" cy="1150" r="4" fill="#1c1b1a" opacity="0.5"/>
+    <circle cx="42" cy="172" r="6" fill="#1c1b1a" opacity="0.55"/>
+    <circle cx="742" cy="152" r="5" fill="#1c1b1a" opacity="0.45"/>
+    <!-- hidden guinea pig, tucked in the frame's lower shadow -->
+    <g opacity="0.32" fill="#3a3734" transform="translate(124,1056)">
+      <ellipse cx="7" cy="4" rx="7" ry="4"/>
+      <circle cx="13" cy="3" r="3"/>
+      <circle cx="12" cy="0.5" r="1"/>
+    </g>
+  </svg>
+  <canvas id="gearB" class="gear" width="420" height="420"></canvas>
+  <canvas id="gearC" class="gear" width="290" height="290"></canvas>
+  <svg id="pend" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bob" cx="0.4" cy="0.38" r="0.7">
+        <stop offset="0" stop-color="#4a4744"/>
+        <stop offset="0.6" stop-color="#1e1d1c"/>
+        <stop offset="1" stop-color="#0f0f0f"/>
+      </radialGradient>
+    </defs>
+    <g id="pendulum">
+      <polygon points="872,140 888,140 885,1000 875,1000" fill="#1c1b1a" opacity="0.9"/>
+      <circle cx="880" cy="1046" r="66" fill="url(#bob)" opacity="0.95"/>
+      <circle cx="880" cy="1046" r="74" fill="none" stroke="#1c1b1a" stroke-width="5" opacity="0.4"/>
+    </g>
+    <circle cx="880" cy="140" r="16" fill="#c8402a" opacity="0.92"/>
+  </svg>
+  <div id="date">2026 · 09 · 13</div>
+</div>
+<script>
+(function(){
+  // date seed
+  var seed = 20260913;
+  function rnd(){ seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; }
+
+  function drawGear(cv, N, pitch, tooth, colorA, colorB, spokes){
+    var ctx = cv.getContext('2d');
+    var cx = cv.width/2, cy = cv.height/2;
+    var Ro = pitch + tooth*0.5, Ri = pitch - tooth*0.5;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    // ink wash body
+    var g = ctx.createRadialGradient(cx*0.85, cy*0.85, Ri*0.1, cx, cy, Ro);
+    g.addColorStop(0, colorB);
+    g.addColorStop(0.55, colorA);
+    g.addColorStop(1, colorB);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    var step = Math.PI*2/N;
+    for (var k=0;k<N;k++){
+      var a = k*step;
+      var pts = [
+        [a - step*0.30, Ri],[a - step*0.20, Ro],[a + step*0.20, Ro],[a + step*0.30, Ri]
+      ];
+      for (var i=0;i<pts.length;i++){
+        var ang = pts[i][0], r = pts[i][1] + (rnd()-0.5)*tooth*0.18;
+        var x = cx + Math.cos(ang)*r, y = cy + Math.sin(ang)*r;
+        if (k===0 && i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+    }
+    ctx.closePath();
+    ctx.fill();
+    // dry-brush lightening streaks (subtractive)
+    ctx.globalCompositeOperation = 'destination-out';
+    for (var s=0;s<28;s++){
+      var ra = rnd()*Math.PI*2, rr = Ri*(0.35+rnd()*0.6);
+      ctx.globalAlpha = 0.12 + rnd()*0.2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rr, ra, ra + 0.3 + rnd()*0.9);
+      ctx.lineWidth = 2 + rnd()*5;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // hollow ring between hub and rim
+    ctx.beginPath();
+    ctx.arc(cx, cy, Ri*0.72, 0, Math.PI*2);
+    ctx.arc(cx, cy, Ri*0.30, 0, Math.PI*2, true);
+    ctx.fill();
+    // hub hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, Ri*0.11, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    // spokes as single brush strokes
+    ctx.fillStyle = colorA;
+    for (var sp=0; sp<spokes; sp++){
+      var an = sp*Math.PI*2/spokes + 0.2;
+      var w1 = Ri*0.09, w2 = Ri*0.05;
+      var c = Math.cos(an), sn = Math.sin(an), nx = -sn, ny = c;
+      var r1 = Ri*0.28, r2 = Ri*0.76;
+      ctx.beginPath();
+      ctx.moveTo(cx+c*r1+nx*w1, cy+sn*r1+ny*w1);
+      ctx.lineTo(cx+c*r2+nx*w2, cy+sn*r2+ny*w2);
+      ctx.lineTo(cx+c*r2-nx*w2, cy+sn*r2-ny*w2);
+      ctx.lineTo(cx+c*r1-nx*w1, cy+sn*r1-ny*w1);
+      ctx.closePath();
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  drawGear(document.getElementById('gearA'), 24, 360, 40, '#262524', '#4d4a46', 3);
+  drawGear(document.getElementById('gearB'), 12, 180, 30, '#c8402a', '#e0623f', 4);
+  drawGear(document.getElementById('gearC'), 8, 120, 26, '#1e1d1c', '#3e3b38', 3);
+
+  // responsive stage
+  var stage = document.getElementById('stage');
+  function fit(){
+    var s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    var ox = (window.innerWidth - 1080*s)/2, oy = (window.innerHeight - 1920*s)/2;
+    stage.style.transform = 'translate(' + ox + 'px,' + oy + 'px) scale(' + s + ')';
+  }
+  fit(); window.addEventListener('resize', fit);
+
+  // soft escapement tick, synchronous with the pendulum extremes
+  if (window.self === window.top && (window.AudioContext || window.webkitAudioContext)) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      var ac = new AC();
+      var master = ac.createGain(); master.gain.value = 0.06; master.connect(ac.destination);
+      function tick(){
+        if (ac.state !== 'running') { ac.resume().catch(function(){}); return; }
+        var t = ac.currentTime;
+        var o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = 1600 + Math.floor(Math.random()*100);
+        var gn = ac.createGain(); gn.gain.setValueAtTime(0.0001, t);
+        gn.gain.exponentialRampToValueAtTime(1, t+0.004);
+        gn.gain.exponentialRampToValueAtTime(0.0001, t+0.09);
+        o.connect(gn); gn.connect(master); o.start(t); o.stop(t+0.1);
+      }
+      setInterval(tick, 2000);
+    } catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
