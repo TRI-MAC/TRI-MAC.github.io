@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-14</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f0e5}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f3f0e5}
+#scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#foreground{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pleat{animation:yield 24s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 90%}
+.second{animation-delay:-8s;animation-duration:28s}
+.third{animation-delay:-17s;animation-duration:32s}
+@keyframes yield{
+0%,100%{transform:translateY(0) scaleX(.93) skewY(-2deg)}
+50%{transform:translateY(-19px) scaleX(1.06) skewY(2deg)}
+}
+#guinea-pig{position:absolute;left:963px;top:1801px;width:18px;height:auto;opacity:.57;clip-path:inset(0 0 22% 0)}
+time{position:absolute;bottom:30px;left:36px;font:16px/1.2 monospace;letter-spacing:2px;color:#545a54;opacity:.65}
+@media(prefers-reduced-motion:reduce){.pleat{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="An invented figure in an open scene. Three quiet folds gather and release the surrounding colour.">
+<img id="scene-image" src="scene.png" alt="An original artwork containing an invented human figure.">
+<svg id="foreground" viewBox="0 0 1080 1920" aria-hidden="true">
+<defs>
+<linearGradient id="leftColor" x1="0" y1="0" x2="1" y2=".2">
+<stop offset="0" stop-color="#e5e9da" stop-opacity="0"/>
+<stop offset=".3" stop-color="#c2cfba" stop-opacity=".72"/>
+<stop offset=".76" stop-color="#839e80" stop-opacity=".85"/>
+<stop offset="1" stop-color="#dce4cc" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="rightColor" x1="1" y1=".4" x2="0" y2=".5">
+<stop offset="0" stop-color="#eee4d3" stop-opacity="0"/>
+<stop offset=".3" stop-color="#dcb695" stop-opacity=".72"/>
+<stop offset=".76" stop-color="#c68b66" stop-opacity=".85"/>
+<stop offset="1" stop-color="#f0d8bf" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="lowerColor" x1=".3" y1="1" x2=".6" y2="0">
+<stop offset="0" stop-color="#e8e7d4" stop-opacity="0"/>
+<stop offset=".3" stop-color="#c6cba9" stop-opacity=".72"/>
+<stop offset=".76" stop-color="#9ea579" stop-opacity=".85"/>
+<stop offset="1" stop-color="#e5e7c9" stop-opacity="0"/>
+</linearGradient>
+</defs>
+<!-- Broad areas of folded colour, confined to the lower periphery. -->
+<g>
+<path class="pleat" fill="url(#leftColor)" d="M-45 1260 C36 1330 149 1349 208 1424 C158 1436 93 1460 50 1553 C26 1474 -19 1427 -45 1420Z"/>
+<path class="pleat second" fill="url(#rightColor)" d="M1124 1451 C1041 1519 922 1518 858 1619 C921 1608 990 1652 1035 1748 C1043 1621 1107 1606 1124 1591Z"/>
+<path class="pleat third" fill="url(#lowerColor)" d="M734 1962 C744 1861 799 1789 884 1775 C852 1833 862 1862 951 1918 L951 1962Z"/>
+</g>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<time datetime="2026-09-14">2026-09-14</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ stage.style.transform=`translate(${(w-1080*s)/2}px,${(h-1920*s)/2}px) scale(${s})`;
+}
+addEventListener('resize',fit,{passive:true});fit();
+
+const image=document.getElementById('scene-image');
+// The scene itself supplies the material of the foreground folds.
+// Sampling is local, one-time, and never changes the supplied image.
+function integrate(){
+ try{
+  const c=document.createElement('canvas');c.width=54;c.height=96;
+  const g=c.getContext('2d',{willReadFrequently:true});
+  const scale=Math.max(54/image.naturalWidth,96/image.naturalHeight);
+  const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
+  g.drawImage(image,(54-w)/2,(96-h)/2,w,h);
+  const seed=20260914;
+  function colour(x,y){
+   const p=g.getImageData(x,y,1,1).data;
+   return [p[0],p[1],p[2]];
+  }
+  const regions=[
+   ['leftColor',[[2,66],[5,70],[8,72],[3,76]]],
+   ['rightColor',[[51,75],[49,79],[46,82],[51,85]]],
+   ['lowerColor',[[38,94],[40,92],[43,89],[46,94]]]
+  ];
+  regions.forEach(([id,points],i)=>{
+   const stops=document.getElementById(id).children;
+   points.forEach(([x,y],j)=>{
+    const p=colour(x,Math.min(95,y+(seed%3)-1));
+    stops[j].setAttribute('stop-color',`rgb(${p.join(',')})`);
+   });
+  });
+  const edge=colour(0,4);
+  document.body.style.background=`rgb(${edge.join(',')})`;
+ }catch(e){
+  // Sandboxed local images may disallow pixel reads; the image remains intact.
+ }
+}
+if(image.complete&&image.naturalWidth)integrate();
+else image.addEventListener('load',integrate,{once:true});
+})();
+</script>
+</body>
+</html>
