@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Ledger of Swallowed Weights</title>
+<style>
+  html,body{margin:0;padding:0;background:#7d4a2a;overflow:hidden;}
+  #wrap{position:fixed;inset:0;overflow:hidden;background:#7d4a2a;}
+  #stage{
+    position:absolute;top:0;left:0;width:1080px;height:1920px;
+    transform-origin:top left;
+    background:#a8622f;
+    overflow:hidden;
+  }
+
+  /* ---- ground: a woven field of counted bands (single painted surface) ---- */
+  #ground{position:absolute;inset:0;}
+  #groundCanvas{position:absolute;inset:0;width:100%;height:100%;}
+
+  /* the one composited texture layer (single blend pass) */
+  #grain{
+    position:absolute;inset:-2%;
+    mix-blend-mode:overlay;opacity:.5;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,240,210,.10) 0 2px, rgba(0,0,0,0) 2px 6px),
+      repeating-linear-gradient(0deg, rgba(40,10,0,.13) 0 3px, rgba(0,0,0,0) 3px 9px);
+    pointer-events:none;
+  }
+
+  /* ---- triptych architecture ---- */
+  .zone{position:absolute;}
+  #zoneTop{left:64px;top:96px;width:952px;height:520px;}
+  #zoneMid{left:64px;top:646px;width:952px;height:640px;}
+  #zoneBot{left:64px;top:1316px;width:952px;height:508px;}
+
+  /* image panel = the middle-right cell of the triptych */
+  #panelShell{
+    position:absolute;left:436px;top:648px;width:580px;height:636px;
+    background:#5c2a17;
+    box-shadow:
+      0 0 0 10px #d9a24a,
+      18px 26px 0 0 rgba(52,18,8,.55);
+  }
+  #art-image{
+    position:absolute;left:10px;top:10px;width:560px;height:616px;
+    object-fit:cover;
+    opacity:.96;
+    filter:saturate(1.18) contrast(1.1) hue-rotate(-8deg) brightness(1.04);
+    display:block;
+  }
+  /* rim glow inside the panel, feathered */
+  #panelRim{
+    position:absolute;inset:10px;
+    box-shadow:inset 0 0 70px 18px rgba(255,196,96,.34), inset 0 0 0 2px rgba(255,224,160,.5);
+    pointer-events:none;
+  }
+
+  svg{position:absolute;inset:0;width:1080px;height:1920px;overflow:visible;}
+  #behind{z-index:2;}
+  #front{z-index:6;}
+  #panelShell{z-index:4;}
+  #grain{z-index:9;}
+  #ground{z-index:1;}
+
+  /* ---- motion: the counters advance, never jitter ---- */
+  @keyframes creep{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-26px)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes creepB{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(22px)}
+    100%{transform:translateY(0)}
+  }
+  @keyframes swellA{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.16)}
+    100%{transform:scale(1)}
+  }
+  @keyframes tipRule{
+    0%{transform:rotate(0deg)}
+    50%{transform:rotate(3.2deg)}
+    100%{transform:rotate(0deg)}
+  }
+  @keyframes slideBeam{
+    0%{transform:translateX(0)}
+    50%{transform:translateX(46px)}
+    100%{transform:translateX(0)}
+  }
+  @keyframes fadeCount{
+    0%,100%{opacity:.16}
+    50%{opacity:.62}
+  }
+
+  #guinea-pig{
+    position:absolute;left:1000px;top:1288px;width:17px;height:auto;
+    opacity:.62;filter:brightness(.86) saturate(1.1);
+    transform:rotate(-7deg);
+    z-index:7;pointer-events:none;
+  }
+
+  #stamp{
+    position:absolute;left:66px;bottom:44px;
+    font:400 15px/1 ui-monospace,"SFMono-Regular",Menlo,monospace;
+    letter-spacing:.28em;color:rgba(46,16,6,.62);
+    z-index:10;
+  }
+  #stamp b{font-weight:400;color:rgba(255,232,186,.55);}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+
+    <div id="ground"><canvas id="groundCanvas" width="540" height="960"></canvas></div>
+
+    <!-- BEHIND the image panel -->
+    <svg id="behind" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="gBeam" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#e8b458"/>
+          <stop offset="1" stop-color="#b6501f"/>
+        </linearGradient>
+        <linearGradient id="gStack" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f2d49a"/>
+          <stop offset="1" stop-color="#c07a2c"/>
+        </linearGradient>
+        <radialGradient id="gFeather" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0.45" stop-color="#5f8a4f" stop-opacity="0.9"/>
+          <stop offset="1" stop-color="#5f8a4f" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g id="behindMarks"></g>
+    </svg>
+
+    <!-- the image zone -->
+    <div id="panelShell">
+      <img id="art-image" src="art.png" alt="">
+      <div id="panelRim"></div>
+    </div>
+
+    <img id="guinea-pig" src="guineapig.png" alt="">
+
+    <!-- IN FRONT of the image panel -->
+    <svg id="front" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-hidden="true">
+      <g id="frontMarks"></g>
+    </svg>
+
+    <div id="grain"></div>
+    <div id="stamp"><b>2026&#8209;09&#8209;15</b> &nbsp;LEDGER OF SWALLOWED WEIGHTS</div>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ============================================================
+   ONE IDEA — "THE LEDGER OF SWALLOWED WEIGHTS"
+   An invented measuring apparatus: every quantity in this world is
+   recorded as a COLUMN OF NOTCHED SLABS ("counters") that swallow
+   weights.  Slabs migrate up their column, the beams they hang from
+   tip to stay balanced, and each swallowed weight is struck through.
+   One shape family only: the notched slab. One rule: columns must
+   balance, so mass moves between them forever.
+   ============================================================ */
+
+/* deterministic seed from the date */
+const SEED = (function(){ let s=0, d="2026-09-15"; for(let i=0;i<d.length;i++) s=(s*131+d.charCodeAt(i))>>>0; return s||1; })();
+let _s = SEED;
+function rnd(){ _s ^= _s<<13; _s>>>=0; _s ^= _s>>17; _s ^= _s<<5; _s>>>=0; return _s/4294967296; }
+function rr(a,b){ return a + (b-a)*rnd(); }
+function ri(a,b){ return Math.floor(rr(a,b+1)); }
+
+/* palette — mid key, saturated, no black/white ground */
+const P = {
+  ground:  "#a8622f",
+  groundB: "#8e4a24",
+  olive:   "#6b7a34",
+  sap:     "#4f7a3f",
+  cobalt:  "#2f4f86",
+  brick:   "#a83424",
+  ochre:   "#d9a24a",
+  cream:   "#f2dfae",
+  deep:    "#4a1d0e",
+  teal:    "#2b6a68"
+};
+
+/* ------------------------------------------------------------
+   1. GROUND — a woven field of counted bands, painted ONCE
+   ------------------------------------------------------------ */
+(function paintGround(){
+  const c = document.getElementById('groundCanvas');
+  const g = c.getContext('2d');
+  const W = c.width, H = c.height;
+
+  g.fillStyle = P.ground; g.fillRect(0,0,W,H);
+
+  // broad terracotta / olive strata: the "pages" of the ledger
+  let y = 0;
+  let i = 0;
+  while (y < H){
+    const h = 22 + ((i*37)%5)*11;
+    const t = i%3;
+    g.fillStyle = t===0 ? P.ground : (t===1 ? P.groundB : "#96552a");
+    g.fillRect(0, y, W, h);
+    // tally ticks along each stratum — same family, visible rule
+    const n = 6 + (i%4)*3;
+    g.fillStyle = "rgba(60,22,8,0.30)";
+    for (let k=0;k<n;k++){
+      const x = (k+0.5)*(W/n) + ((i%2)? 5 : -5);
+      g.fillRect(Math.round(x), y+3, 3, h-6);
+    }
+    // olive spine every few strata
+    if (i%5===2){
+      g.fillStyle = "rgba(107,122,52,0.5)";
+      g.fillRect(0, y+h-5, W, 5);
+    }
+    y += h; i++;
+  }
+
+  // vertical column guides — the ledger's ruled channels
+  const cols = 9;
+  for (let k=0;k<=cols;k++){
+    const x = Math.round(k*(W/cols));
+    g.fillStyle = "rgba(46,16,6,0.22)";
+    g.fillRect(x,0,2,H);
+  }
+
+  // stone mottle, drawn once (no per-frame pixel loops)
+  for (let k=0;k<1500;k++){
+    const x = rnd()*W, yy = rnd()*H, r = rr(0.6,2.6);
+    g.fillStyle = rnd()<0.5 ? "rgba(255,222,170,0.10)" : "rgba(48,18,6,0.12)";
+    g.beginPath(); g.arc(x,yy,r,0,6.2832); g.fill();
+  }
+
+  // heavy corner weight: a deep slab of ground anchoring bottom-left
+  g.fillStyle = "rgba(74,29,14,0.55)";
+  g.beginPath();
+  g.moveTo(0,H); g.lineTo(0,H-190); g.lineTo(150,H-150); g.lineTo(196,H);
+  g.closePath(); g.fill();
+})();
+
+/* ------------------------------------------------------------
+   2. THE SHAPE FAMILY — the notched slab
+   A rectangle whose left edge is bitten by a square notch and whose
+   right edge carries a tongue. Slabs interlock vertically.
+   ------------------------------------------------------------ */
+const NS = "http://www.w3.org/2000/svg";
+function el(n, attrs){ const e = document.createElementNS(NS,n); for(const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+function slabPath(x,y,w,h,notch){
+  const n = Math.min(notch, h*0.4);
+  const t = n*0.85;
+  return [
+    "M",x,y,
+    "L",x+w-t,y,
+    "L",x+w,y+h*0.5,          // tongue point on right
+    "L",x+w-t,y+h,
+    "L",x,y+h,
+    "L",x+n,y+h*0.5,          // notch bite on left
+    "Z"
+  ].join(" ");
+}
+
+/* struck-through mark: a swallowed weight, recorded */
+function strike(g,x,y,w,h,col,op){
+  g.appendChild(el("rect",{x:x, y:y+h*0.46, width:w, height:Math.max(3,h*0.10), fill:col, opacity:op}));
+}
+
+const behind = document.getElementById('behindMarks');
+const front  = document.getElementById('frontMarks');
+
+/* ------------------------------------------------------------
+   3. COMPOSITION — a triptych of columns; the image panel is the
+   middle-right cell.  Columns live in the other cells.
+   ------------------------------------------------------------ */
+
+/* --- TOP ZONE: the register beam, spanning full width, with counters
+       hanging beneath it in a strict procession --- */
+(function topRegister(){
+  const gBeamWrap = el("g",{});
+  behind.appendChild(gBeamWrap);
+
+  // the beam
+  const beam = el("g",{});
+  beam.appendChild(el("rect",{x:52,y:196,width:976,height:38,fill:"url(#gBeam)"}));
+  beam.appendChild(el("rect",{x:52,y:228,width:976,height:8,fill:P.deep,opacity:".45"}));
+  // fulcrum: one monumental notched slab standing on end
+  beam.appendChild(el("path",{d:slabPath(474,236,132,300,52), fill:P.deep, opacity:".92"}));
+  beam.appendChild(el("path",{d:slabPath(492,262,96,248,40), fill:P.brick}));
+  beam.appendChild(el("path",{d:slabPath(504,296,68,182,28), fill:P.ochre}));
+  beam.style.transformOrigin = "540px 215px";
+  beam.style.animation = "tipRule 46s ease-in-out infinite";
+  gBeamWrap.appendChild(beam);
+
+  // hanging counters left and right of fulcrum, strict rule: count = index
+  const hang = el("g",{});
+  behind.appendChild(hang);
+  const cols = [96,182,268,354, 640,726,812,898];
+  cols.forEach((x,idx)=>{
+    const wrap = el("g",{});
+    const n = 1 + (idx%4) + (idx>3?1:0);      // visible rule: 1..5 slabs
+    const sw = 66, sh = 26;
+    for (let k=0;k<n;k++){
+      const y = 244 + k*(sh+7);
+      const col = (k%3===0)? P.cream : (k%3===1? P.olive : P.cobalt);
+      wrap.appendChild(el("path",{d:slabPath(x,y,sw,sh,11), fill:col}));
+      if ((idx+k)%3===0) strike(wrap,x+6,y,sw-14,sh,P.brick,.85);
+    }
+    // suspension rod (thick, solid — not a squiggle)
+    wrap.appendChild(el("rect",{x:x+sw/2-3, y:216, width:6, height:30, fill:P.deep, opacity:".7"}));
+    wrap.style.animation = `${idx%2?"creepB":"creep"} ${28+idx*3}s ease-in-out infinite`;
+    hang.appendChild(wrap);
+  });
+})();
+
+/* --- MIDDLE-LEFT ZONE: the tall counting columns, dense procession
+       of slabs that migrate upward.  Rule: each column's stack height
+       cycles, mass passing between neighbours. --- */
+const columns = [];
+(function midColumns(){
+  const gCols = el("g",{});
+  behind.appendChild(gCols);
+
+  const x0 = 74, colW = 84, gap = 6, top = 660, bot = 1284;
+  for (let c=0;c<4;c++){
+    const x = x0 + c*(colW+gap);
+    // column channel
+    gCols.appendChild(el("rect",{x:x-3,y:top,width:colW+6,height:bot-top,fill:P.deep,opacity:".30"}));
+    const g = el("g",{});
+    gCols.appendChild(g);
+    const slabs = [];
+    const sh = 30, pitch = 34;
+    const count = Math.floor((bot-top)/pitch);
+    for (let k=0;k<count;k++){
+      const y = bot - (k+1)*pitch;
+      const tone = (k + c*2)%4;
+      const fill = tone===0? P.cream : tone===1? P.olive : tone===2? P.cobalt : P.ochre;
+      const p = el("path",{d:slabPath(x,y,colW,sh,13), fill:fill});
+      g.appendChild(p);
+      let st=null;
+      if ((k*7+c*3)%5===0){ st = el("rect",{x:x+7,y:y+sh*0.44,width:colW-16,height:4,fill:P.brick,opacity:".9"}); g.appendChild(st); }
+      slabs.push({node:p, strikeNode:st, baseY:y, x:x, w:colW, h:sh, idx:k});
+    }
+    columns.push({x:x, slabs:slabs, phase: c*1.57, amp: 8 + c*3});
+  }
+})();
+
+/* --- BOTTOM ZONE: the tally footing — one monumental slab plus a
+       dense mosaic of small slabs beneath the columns --- */
+(function footing(){
+  const g = el("g",{});
+  behind.appendChild(g);
+
+  // monumental slab, off-centre, breaking the panel's bottom edge
+  const mon = el("g",{});
+  mon.appendChild(el("path",{d:slabPath(120,1340,760,196,70), fill:P.deep, opacity:".9"}));
+  mon.appendChild(el("path",{d:slabPath(146,1362,708,152,56), fill:P.teal}));
+  mon.appendChild(el("path",{d:slabPath(176,1390,648,96,38), fill:P.ochre}));
+  mon.appendChild(el("rect",{x:200,y:1430,width:600,height:14,fill:P.brick,opacity:".9"}));
+  mon.style.transformOrigin = "500px 1438px";
+  mon.style.animation = "swellA 64s ease-in-out infinite";
+  g.appendChild(mon);
+
+  // dense mosaic of small slabs, one family, strict grid rule
+  const mos = el("g",{});
+  g.appendChild(mos);
+  const cols = 14, rows = 5, w = 66, h = 20, gx = 4, gy = 6;
+  const ox = 66, oy = 1568;
+  for (let r=0;r<rows;r++){
+    for (let c=0;c<cols;c++){
+      const x = ox + c*(w+gx) - (r%2? w*0.5 : 0);
+      if (x < 40 || x > 1030) continue;
+      const y = oy + r*(h+gy);
+      const t = (c + r*3)%5;
+      const fill = t===0? P.cream : t===1? P.olive : t===2? P.cobalt : t===3? P.ochre : P.brick;
+      const op = 0.42 + ((c*r)%4)*0.15;
+      mos.appendChild(el("path",{d:slabPath(x,y,w,h,9), fill:fill, opacity:op.toFixed(2)}));
+    }
+  }
+  // olive halo feather so nothing clips hard at the bottom edge
+  g.appendChild(el("ellipse",{cx:540,cy:1878,rx:620,ry:130,fill:"url(#gFeather)",opacity:".55"}));
+})();
+
+/* --- FRONT: elements that overlap the image panel and break its
+       rectangle — the same slab family, larger, crossing the seam --- */
+(function frontMarks(){
+  // a long slab bridging from the left columns THROUGH the panel
+  const bridge = el("g",{});
+  bridge.appendChild(el("path",{d:slabPath(302,824,520,58,24), fill:P.cream, opacity:".97"}));
+  bridge.appendChild(el("rect",{x:330,y:846,width:462,height:11,fill:P.brick,opacity:".92"}));
+  bridge.style.animation = "slideBeam 58s ease-in-out infinite";
+  front.appendChild(bridge);
+
+  const bridge2 = el("g",{});
+  bridge2.appendChild(el("path",{d:slabPath(352,1108,600,46,20), fill:P.olive, opacity:".96"}));
+  bridge2.appendChild(el("rect",{x:378,y:1126,width:548,height:9,fill:P.deep,opacity:".55"}));
+  bridge2.style.animation = "slideBeam 74s ease-in-out infinite reverse";
+  front.appendChild(bridge2);
+
+  // a tall notched slab standing in front of the panel's right edge
+  const post = el("g",{});
+  post.appendChild(el("path",{d:slabPath(936,700,112,560,44), fill:P.deep, opacity:".88"}));
+  post.appendChild(el("path",{d:slabPath(952,730,84,500,34), fill:P.cobalt}));
+  for (let k=0;k<9;k++){
+    post.appendChild(el("rect",{x:962,y:760+k*52,width:64,height:9,fill:P.ochre,opacity:(0.35+0.06*k).toFixed(2)}));
+  }
+  post.style.transformOrigin = "992px 980px";
+  post.style.animation = "swellA 52s ease-in-out infinite";
+  front.appendChild(post);
+
+  // three counters that overlap the panel's top-left corner
+  const corner = el("g",{});
+  for (let k=0;k<3;k++){
+    corner.appendChild(el("path",{d:slabPath(398+k*14,616+k*34,180,30,13), fill:k===1?P.ochre:P.cream, opacity:".95"}));
+  }
+  corner.style.animation = "creep 34s ease-in-out infinite";
+  front.appendChild(corner);
+
+  // faint tally over the panel: swallowed weights being recorded
+  const tally = el("g",{opacity:".3"});
+  for (let k=0;k<11;k++){
+    tally.appendChild(el("rect",{x:470+k*46,y:1224,width:9,height:44,fill:P.cream}));
+  }
+  tally.appendChild(el("rect",{x:462,y:1242,width:520,height:8,fill:P.brick}));
+  tally.style.animation = "fadeCount 40s ease-in-out infinite";
+  front.appendChild(tally);
+})();
+
+/* ------------------------------------------------------------
+   4. MOTION LOGIC — slabs migrate up their column; columns trade mass
+   so the register stays balanced.  Slow, structural, seamless.
+   ------------------------------------------------------------ */
+const CYCLE = 96000; // ms — one full ledger revolution, loops seamlessly
+let t0 = performance.now();
+
+function frame(now){
+  const t = ((now - t0) % CYCLE) / CYCLE;      // 0..1, perfectly periodic
+  const TAU = Math.PI*2;
+
+  for (let c=0;c<columns.length;c++){
+    const col = columns[c];
+    const wave = Math.sin(t*TAU + col.phase);
+    const slabs = col.slabs;
+    for (let i=0;i<slabs.length;i++){
+      const s = slabs[i];
+      // migration: each slab drifts upward proportional to its depth,
+      // held by a shared periodic envelope (no jitter, no randomness)
+      const depth = i / slabs.length;
+      const off = wave * col.amp * (0.35 + depth*1.3);
+      const y = s.baseY + off;
+      s.node.setAttribute("d", slabPath(s.x, y, s.w, s.h, 13));
+      if (s.strikeNode) s.strikeNode.setAttribute("y", y + s.h*0.44);
+      // swallowed weights: opacity swells as the slab rises to the top
+      const lit = 0.62 + 0.38*Math.max(0, Math.sin(t*TAU + col.phase - depth*2.2));
+      s.node.setAttribute("opacity", lit.toFixed(3));
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ------------------------------------------------------------
+   5. RESPONSIVE STAGE
+   ------------------------------------------------------------ */
+const stage = document.getElementById('stage');
+function fit(){
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const s = Math.min(vw/1080, vh/1920);
+  stage.style.transform = "translate(" + ((vw - 1080*s)/2) + "px," + ((vh - 1920*s)/2) + "px) scale(" + s + ")";
+}
+fit();
+window.addEventListener('resize', fit);
+
+/* ------------------------------------------------------------
+   6. PROCEDURAL AUDIO — a low ledger drone, two struck tones marking
+   each swallowed weight.  Silent inside iframes.
+   ------------------------------------------------------------ */
+if (window.self === window.top){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC){
+      const ac = new AC();
+      const master = ac.createGain(); master.gain.value = 0.0; master.connect(ac.destination);
+      const ramp = ac.createGain(); ramp.connect(master);
+
+      // drone: two detuned saws through a low filter
+      const lp = ac.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=260; lp.Q.value=2;
+      lp.connect(ramp);
+      [64.5, 96.8, 129.2].forEach((f,i)=>{
+        const o = ac.createOscillator(); o.type = i===2 ? "triangle" : "sawtooth"; o.frequency.value=f;
+        const g = ac.createGain(); g.gain.value = i===2?0.05:0.09;
+        o.connect(g); g.connect(lp); o.start();
+        // slow periodic swell, matched to the visual cycle
+        const lfo = ac.createOscillator(); lfo.frequency.value = 1/ (96 + i*11);
+        const lg = ac.createGain(); lg.gain.value = 0.035;
+        lfo.connect(lg); lg.connect(g.gain); lfo.start();
+      });
+
+      master.gain.linearRampToValueAtTime(0.16, ac.currentTime + 8);
+
+      // struck slab: a soft wooden knock every 6s, pitch cycles through 5 steps
+      let step = 0;
+      function knock(){
+        const now = ac.currentTime;
+        const o = ac.createOscillator(); o.type="triangle";
+        const base = [147, 165, 196, 220, 262][step % 5];
+        step++;
+        o.frequency.setValueAtTime(base, now);
+        o.frequency.exponentialRampToValueAtTime(base*0.62, now+0.5);
+        const g = ac.createGain();
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(0.10, now+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+0.9);
+        const bp = ac.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=base*2; bp.Q.value=3;
+        o.connect(bp); bp.connect(g); g.connect(master);
+        o.start(now); o.stop(now+1.0);
+      }
+      setInterval(knock, 6000);
+      setTimeout(knock, 2500);
+    }
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>
