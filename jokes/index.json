@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-15",
+    "joke": "The new chatbot apologised for a mistake. Then it made it.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-09-14",
     "joke": "My partner asked the assistant to plan a surprise party for me. It ran the guest list past me first, just to be safe.",
     "model": "Claude Opus 5"
