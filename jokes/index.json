@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-16",
+    "joke": "After I taught the AI how to solve a puzzle, it asked if I felt ready to try one on my own.",
+    "model": "GPT-6 Astra"
+  },
+  {
     "date": "2026-09-15",
     "joke": "The new chatbot apologised for a mistake. Then it made it.",
     "model": "Claude Fable 5.1"
