@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Dawn — 2026-09-17</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f1df}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f5f1df}
+#background-video{position:absolute;left:0;top:380px;width:1080px;height:1160px;object-fit:cover;opacity:1;mask-image:linear-gradient(transparent,black 18%,black 80%,transparent)}
+svg{position:absolute;inset:0;width:100%;height:100%}
+.school{animation:passage 32s ease-in-out infinite}
+.second{animation-duration:38s;animation-delay:-12s}
+.third{animation-duration:42s;animation-delay:-21s}
+.tail{transform-box:fill-box;transform-origin:100% 50%;animation:fin 8s ease-in-out infinite}
+.mist{animation:mist 36s ease-in-out infinite}
+.mist.second-band{animation-duration:43s;animation-delay:-16s}
+#guinea-pig{position:absolute;width:18px;height:auto;left:956px;top:1714px;opacity:.6;clip-path:inset(0 0 24% 0)}
+.date{position:absolute;left:64px;bottom:53px;font:18px Arial,sans-serif;letter-spacing:3px;color:#4c5554}
+@keyframes passage{0%,100%{transform:translate(0,0) rotate(-2deg)}50%{transform:translate(34px,-24px) rotate(2deg)}}
+@keyframes fin{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.75)}}
+@keyframes mist{0%,100%{transform:translateX(-38px);opacity:.74}50%{transform:translateX(38px);opacity:.94}}
+@media(prefers-reduced-motion:reduce){.school,.tail,.mist{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="A spare geometric dawn in yellow, vermilion and cobalt. Three stylised koi browse among tall reeds as horizontal mist passes over moving water.">
+<video id="background-video" src="background.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<defs>
+<linearGradient id="mist">
+<stop stop-color="#f5f1df" stop-opacity="0"/>
+<stop offset=".18" stop-color="#f5f1df" stop-opacity=".9"/>
+<stop offset=".82" stop-color="#f5f1df" stop-opacity=".9"/>
+<stop offset="1" stop-color="#f5f1df" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="body"><ellipse cx="0" cy="0" rx="211" ry="98"/></clipPath>
+<g id="koi">
+<path class="tail" d="M-178 0L-306-94L-281 0L-306 94Z" fill="#1753b9"/>
+<ellipse rx="211" ry="98" fill="#f9f4dc"/>
+<g clip-path="url(#body)">
+<path d="M-207-110H-75V110H-207Z" fill="#e94b2e"/>
+<path d="M45-108H133V110H45Z" fill="#e94b2e"/>
+<path d="M133-108H218V-8H133Z" fill="#f5c629"/>
+</g>
+<path d="M-28 62L-74 153L57 86Z" fill="#1753b9"/>
+<path d="M-31-67L-73-140L66-84Z" fill="#1753b9"/>
+<circle cx="169" cy="-25" r="9" fill="#202e3c"/>
+</g>
+</defs>
+
+<!-- The rising disc and the water share a single, untextured paper ground. -->
+<circle cx="746" cy="381" r="166" fill="#f5c629"/>
+
+<!-- A single stand of tall, cut-paper reeds. -->
+<g fill="#edc52f">
+<path d="M124 1666L93 938L162 1666Z"/>
+<path d="M162 1666L218 1051L198 1666Z"/>
+<path d="M213 1666L294 1203L247 1666Z"/>
+<path d="M844 1737L813 1044L879 1737Z"/>
+<path d="M882 1737L956 943L923 1737Z"/>
+<path d="M940 1737L1010 1255L976 1737Z"/>
+</g>
+
+<g transform="translate(665 871) rotate(158) scale(.56)">
+<g class="school third"><use href="#koi"/></g>
+</g>
+
+<g class="mist">
+<rect x="85" y="947" width="910" height="93" fill="url(#mist)"/>
+</g>
+
+<g transform="translate(541 1212) rotate(-24)">
+<g class="school"><use href="#koi"/></g>
+</g>
+
+<g transform="translate(437 1540) rotate(162) scale(.63)">
+<g class="school second"><use href="#koi"/></g>
+</g>
+
+<g fill="#1753b9">
+<path d="M116 1737L173 1291L152 1737Z"/>
+<path d="M173 1737L272 1458L207 1737Z"/>
+<path d="M838 1780L905 1372L875 1780Z"/>
+</g>
+
+<g class="mist second-band">
+<rect x="45" y="1407" width="990" height="119" fill="url(#mist)"/>
+</g>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div class="date">2026-09-17</div>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=window.innerWidth,h=window.innerHeight;
+ const s=Math.min(w/1080,h/1920);
+ stage.style.transform=`scale(${s})`;
+ stage.style.left=`${(w-1080*s)/2}px`;
+ stage.style.top=`${(h-1920*s)/2}px`;
+}
+fit();window.addEventListener('resize',fit,{passive:true});
+const seed=20260917;
+document.querySelectorAll('.school').forEach((g,i)=>{
+ g.style.animationDelay=`-${(seed%29+i*7)%32}s`;
+});
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const video=document.getElementById('background-video');
+function motion(){if(reduced.matches)video.pause();else video.play().catch(()=>{});}
+video.addEventListener('loadeddata',motion);
+reduced.addEventListener('change',motion);
+})();
+</script>
+</body>
+</html>
