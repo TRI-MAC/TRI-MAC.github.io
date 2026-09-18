@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-18</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#171b35}
+#stage{position:absolute;width:1080px;height:1920px;overflow:hidden;transform-origin:top left;background:#191e43}
+svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#art-image{position:absolute;left:190px;top:362px;width:760px;height:1200px;object-fit:cover;opacity:1;filter:saturate(1.13) contrast(1.06);box-shadow:22px 24px 0 #11162f}
+.travel{animation:transfer 32s cubic-bezier(.45,0,.55,1) infinite}
+.counter{animation:counter 32s cubic-bezier(.45,0,.55,1) infinite}
+.latch{animation:latch 32s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes transfer{
+0%,12%,100%{transform:translateX(0)}
+43%,62%{transform:translateX(174px)}
+}
+@keyframes counter{
+0%,12%,100%{transform:translateX(0)}
+43%,62%{transform:translateX(-174px)}
+}
+@keyframes latch{
+0%,12%,100%{transform:translateY(0)}
+43%,62%{transform:translateY(116px)}
+}
+#guinea-pig{position:absolute;left:982px;top:1687px;width:18px;height:18px;object-fit:contain;opacity:.57}
+.pig-cover{position:absolute;left:979px;top:1700px;width:25px;height:10px;background:#11162f}
+time{position:absolute;left:70px;bottom:48px;color:#a3a8bd;font:17px/1 monospace;letter-spacing:2px}
+@media(prefers-reduced-motion:reduce){.travel,.counter,.latch{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="An architectural composition in primary colours and deep indigo. Rectangular partitions slowly exchange space around a recessed image, like rooms lending their dimensions to one another.">
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<!-- The fixed ledger of rooms. All joints end inside the canvas. -->
+<path fill="#11162f" d="M56 142H1024V1766H56Z"/>
+<path fill="#243169" d="M72 158H1008V1750H72Z"/>
+<path fill="#eae7dc" d="M72 158H670V340H72Z"/>
+<path fill="#df2b22" d="M688 158H1008V340H688Z"/>
+<path fill="#e9b921" d="M72 358H172V1036H72Z"/>
+<path fill="#1746b3" d="M72 1054H172V1580H72Z"/>
+<path fill="#eae7dc" d="M72 1598H386V1750H72Z"/>
+<path fill="#d72c24" d="M404 1598H774V1750H404Z"/>
+<path fill="#e9b921" d="M792 1598H1008V1750H792Z"/>
+<path fill="#121831" d="M968 358H1008V1580H968Z"/>
+<path fill="#eae7dc" d="M982 376H1008V832H982Z"/>
+<path fill="#254abc" d="M982 852H1008V1580H982Z"/>
+</svg>
+
+<img id="art-image" src="art.png" alt="Generated artwork integrated into the central rectangular chamber.">
+
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<!-- A common moving seam: the upper room gains exactly what the lower loses. -->
+<g class="travel">
+<path fill="#11162f" d="M172 340H358V1110H172Z"/>
+<path fill="#eeeadd" d="M190 358H340V722H190Z"/>
+<path fill="#e7b820" d="M190 740H340V1092H190Z"/>
+<path fill="#11162f" d="M190 722H610V740H190Z"/>
+<path fill="#11162f" d="M340 340H358V1262H340Z"/>
+</g>
+<g class="counter">
+<path fill="#11162f" d="M762 862H968V1598H762Z"/>
+<path fill="#d92722" d="M780 880H950V1234H780Z"/>
+<path fill="#eeeadd" d="M780 1252H950V1580H780Z"/>
+<path fill="#11162f" d="M514 1234H950V1252H514Z"/>
+<path fill="#11162f" d="M762 654H780V1598H762Z"/>
+</g>
+<!-- This transverse partition slides through, rather than floating above, the rooms. -->
+<g class="latch">
+<path fill="#11162f" d="M358 340H762V442H358Z"/>
+<path fill="#1745b6" d="M376 358H744V424H376Z"/>
+<path fill="#11162f" d="M358 1444H762V1546H358Z"/>
+<path fill="#e8b821" d="M376 1462H744V1528H376Z"/>
+</g>
+<!-- Fixed abutments keep the exchange legible. -->
+<path fill="#11162f" d="M56 1036H190V1054H56ZM950 832H1024V852H950Z"/>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div class="pig-cover" aria-hidden="true"></div>
+<time datetime="2026-09-18">2026-09-18</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const w=window.innerWidth,h=window.innerHeight,s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=`${(w-1080*s)/2}px`;
+stage.style.top=`${(h-1920*s)/2}px`;
+}
+fit();
+window.addEventListener('resize',fit,{passive:true});
+// A date-locked starting position keeps all three partitions mechanically coupled.
+const seed=20260918;
+const phase=-(seed%32000)/1000;
+document.querySelectorAll('.travel,.counter,.latch').forEach(el=>{
+el.style.animationDelay=phase+'s';
+});
+})();
+</script>
+</body>
+</html>
