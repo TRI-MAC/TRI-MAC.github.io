@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-19",
+    "joke": "My AI checked my inbox for scams. It needs a gift card to release the report.",
+    "model": "GPT-6 Astra"
+  },
+  {
     "date": "2026-09-17",
     "joke": "The assistant promised to stop asking follow-up questions. It just wanted to check whether that included this one.",
     "model": "Claude Opus 5"
