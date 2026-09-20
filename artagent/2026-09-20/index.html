@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-20</title>
+<style>
+  html,body{margin:0;padding:0;background:#efe7d6;overflow:hidden;width:100%;height:100%;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;
+    background:#f3ecdc;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(60,40,20,0.035) 0 2px, transparent 2px 31px),
+      radial-gradient(ellipse at 30% 20%, rgba(255,250,235,0.9), transparent 60%);
+  }
+  #fields{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  #art-image{position:absolute;left:150px;top:560px;width:600px;height:800px;object-fit:cover;
+    transform:rotate(-3deg);
+    filter:saturate(1.25) contrast(1.08) sepia(0.18);
+    box-shadow:14px 18px 0 rgba(40,30,60,0.55);
+    z-index:3;}
+  #shards{position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:5;}
+  .cut{position:absolute;z-index:6;font-weight:900;line-height:1;padding:6px 18px;
+    animation:tilt linear infinite alternate;will-change:transform;}
+  .tape{position:absolute;z-index:7;background:rgba(232,212,150,0.72);height:34px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.15);
+    background-image:repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 3px, transparent 3px 7px);}
+  @keyframes tilt{from{transform:rotate(var(--r0)) translate(0,0);}to{transform:rotate(var(--r1)) translate(var(--dx),var(--dy));}}
+  #date{position:absolute;right:28px;bottom:22px;font:14px "Courier New",monospace;color:#3a2a2a;opacity:0.55;z-index:9;letter-spacing:2px;}
+  #guinea-pig{position:absolute;left:702px;top:1318px;width:18px;opacity:0.6;z-index:4;transform:rotate(-8deg);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="fields" viewBox="0 0 1080 1920" aria-hidden="true">
+    <!-- torn paper colour fields -->
+    <polygon points="560,120 1120,60 1140,700 980,690 900,760 760,720 640,780 600,640 520,520 590,360" fill="#f2c318"/>
+    <polygon points="-40,1280 520,1230 560,1310 480,1420 540,1560 470,1700 560,1960 -40,1960" fill="#1e4fb5"/>
+    <polygon points="0,40 420,20 480,140 300,380 200,520 60,600 -20,560" fill="#e63b1f"/>
+    <polygon points="700,1200 1120,1240 1120,1920 820,1920 860,1700 780,1560 840,1400" fill="#178a5a"/>
+    <polygon points="380,1240 560,1180 720,1360 600,1440 420,1400" fill="#f28ab0"/>
+    <polygon points="880,760 1100,720 1120,1000 1000,1080 940,980" fill="#101010"/>
+  </svg>
+
+  <img id="art-image" src="art.png" alt="collaged artwork">
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <canvas id="shards" width="540" height="960"></canvas>
+
+  <!-- ransom-note date cutouts -->
+  <div class="cut" style="left:690px;top:430px;font:900 210px Impact,'Arial Black',sans-serif;color:#f3ecdc;background:#101010;--r0:-9deg;--r1:-4deg;--dx:6px;--dy:-10px;animation-duration:31s;">2</div>
+  <div class="cut" style="left:60px;top:1330px;font:900 190px Georgia,serif;color:#e63b1f;background:#f3ecdc;--r0:7deg;--r1:12deg;--dx:-8px;--dy:8px;animation-duration:27s;">0</div>
+  <div class="cut" style="left:740px;top:1010px;font:700 160px 'Courier New',monospace;color:#1e4fb5;background:#f2c318;--r0:14deg;--r1:9deg;--dx:10px;--dy:12px;animation-duration:35s;">2</div>
+  <div class="cut" style="left:40px;top:640px;font:900 240px 'Arial Black',Arial,sans-serif;color:#f2c318;background:#1e4fb5;--r0:-15deg;--r1:-9deg;--dx:12px;--dy:-6px;animation-duration:29s;">6</div>
+  <div class="cut" style="left:560px;top:1440px;font:900 150px Impact,sans-serif;color:#101010;background:#f28ab0;--r0:4deg;--r1:-3deg;--dx:-10px;--dy:4px;animation-duration:33s;">0</div>
+  <div class="cut" style="left:820px;top:1560px;font:700 200px Georgia,serif;color:#f3ecdc;background:#e63b1f;--r0:-6deg;--r1:1deg;--dx:6px;--dy:10px;animation-duration:26s;">9</div>
+  <div class="cut" style="left:300px;top:150px;font:900 170px 'Courier New',monospace;color:#178a5a;background:#f3ecdc;--r0:11deg;--r1:17deg;--dx:-6px;--dy:6px;animation-duration:38s;">2</div>
+  <div class="cut" style="left:620px;top:1190px;font:900 130px 'Arial Black',Arial,sans-serif;color:#e63b1f;background:#101010;--r0:-20deg;--r1:-13deg;--dx:8px;--dy:-8px;animation-duration:30s;">0</div>
+
+  <div class="tape" style="left:110px;top:548px;width:170px;transform:rotate(-38deg);"></div>
+  <div class="tape" style="left:610px;top:1330px;width:180px;transform:rotate(28deg);"></div>
+  <div class="tape" style="left:650px;top:540px;width:140px;transform:rotate(42deg);"></div>
+
+  <div id="date">2026-09-20</div>
+</div>
+
+<script>
+(function(){
+  // responsive shell
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((window.innerWidth-1080*s)/2)+'px';
+    stage.style.top=((window.innerHeight-1920*s)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+
+  // date seed
+  var seed=2026*372+9*31+20;
+  function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+
+  // torn shards re-pasted from the image
+  var img=document.getElementById('art-image');
+  var cv=document.getElementById('shards'), ctx=cv.getContext('2d');
+  var S=0.5; // canvas scale
+  var BX=150,BY=560,BW=600,BH=800,ROT=-3*Math.PI/180;
+  var shards=[];
+  for(var i=0;i<7;i++){
+    var cx=BW*(0.15+rnd()*0.7), cy=BH*(0.12+rnd()*0.76);
+    var r=60+rnd()*90, n=6+Math.floor(rnd()*3), pts=[];
+    for(var k=0;k<n;k++){var a=k/n*Math.PI*2, rr=r*(0.6+rnd()*0.6); pts.push([cx+Math.cos(a)*rr, cy+Math.sin(a)*rr]);}
+    shards.push({pts:pts, ang:rnd()*Math.PI*2, dist:180+rnd()*260, w:0.06+rnd()*0.05, ph:rnd()*Math.PI*2, spin:(rnd()-0.5)*0.6, cx:cx, cy:cy});
+  }
+  function cover(){
+    var iw=img.naturalWidth||600, ih=img.naturalHeight||800, s=Math.max(BW/iw,BH/ih);
+    return {sw:BW/s, sh:BH/s, sx:(iw-BW/s)/2, sy:(ih-BH/s)/2};
+  }
+  function draw(t){
+    ctx.clearRect(0,0,540,960);
+    if(!img.naturalWidth){ requestAnimationFrame(draw); return; }
+    var c=cover();
+    ctx.save(); ctx.scale(S,S);
+    ctx.translate(BX+BW/2,BY+BH/2); ctx.rotate(ROT); ctx.translate(-BW/2,-BH/2);
+    for(var i=0;i<shards.length;i++){
+      var sh=shards[i];
+      var lift=0.5+0.5*Math.sin(t*0.001*sh.w+sh.ph); // 0..1 seamless
+      var d=sh.dist*lift, dx=Math.cos(sh.ang)*d, dy=Math.sin(sh.ang)*d, rot=sh.spin*lift;
+      ctx.save();
+      ctx.translate(sh.cx+dx, sh.cy+dy); ctx.rotate(rot); ctx.translate(-sh.cx,-sh.cy);
+      ctx.beginPath();
+      for(var k=0;k<sh.pts.length;k++){ var p=sh.pts[k]; k?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); }
+      ctx.closePath();
+      ctx.fillStyle='rgba(40,30,60,0.45)'; ctx.save(); ctx.translate(6+10*lift,8+12*lift); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.clip();
+      ctx.drawImage(img,c.sx,c.sy,c.sw,c.sh,0,0,BW,BH);
+      ctx.restore();
+      ctx.lineWidth=5; ctx.strokeStyle='#f3ecdc'; ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
