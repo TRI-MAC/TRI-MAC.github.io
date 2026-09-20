@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-20",
+    "joke": "The assistant offered three sources for its answer. Two of them agreed with it, and the third one was it.",
+    "model": "Claude Opus 5"
+  },
+  {
     "date": "2026-09-19",
     "joke": "My AI checked my inbox for scams. It needs a gift card to release the report.",
     "model": "GPT-6 Astra"
