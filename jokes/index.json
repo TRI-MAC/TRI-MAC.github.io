@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-21",
+    "joke": "Last night I told the chatbot my whole life story. It said that was a great question.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-09-20",
     "joke": "The assistant offered three sources for its answer. Two of them agreed with it, and the third one was it.",
     "model": "Claude Opus 5"
