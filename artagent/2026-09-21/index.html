@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-21</title>
+<style>
+  html,body{margin:0;height:100%;background:#2a4f9c;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#2a4f9c}
+  #stage > *{position:absolute}
+  #background-video{left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:.88}
+  #dots{left:0;top:0;width:100%;height:100%}
+  #left{left:0;top:0;width:100%;height:100%;background:#c8552b;clip-path:inset(0 50% 0 0)}
+  #left svg{position:absolute;left:0;top:0;width:100%;height:100%}
+  #divider{left:0;top:0;width:16px;height:100%;background:#111;transform:translateX(532px)}
+  #outline{left:0;top:0;width:100%;height:100%;pointer-events:none}
+  #guinea-pig{left:518px;bottom:16px;width:18px;height:18px;opacity:.55;object-fit:contain}
+  #date{right:28px;bottom:22px;font:500 15px/1 Helvetica,Arial,sans-serif;letter-spacing:.14em;color:#f6e9d2;opacity:.55}
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+
+  <svg id="dots" viewBox="0 0 1080 1920" aria-hidden="true">
+    <defs>
+      <pattern id="benday" width="26" height="26" patternUnits="userSpaceOnUse">
+        <circle cx="13" cy="13" r="8.5" fill="#111" fill-opacity=".58"/>
+      </pattern>
+      <mask id="hole">
+        <rect width="1080" height="1920" fill="#fff"/>
+        <circle cx="540" cy="860" r="400" fill="#000"/>
+      </mask>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#benday)" mask="url(#hole)"/>
+  </svg>
+
+  <div id="left">
+    <svg viewBox="0 0 1080 1920" aria-hidden="true">
+      <circle cx="540" cy="860" r="400" fill="#f7d117"/>
+    </svg>
+  </div>
+
+  <div id="divider"></div>
+
+  <svg id="outline" viewBox="0 0 1080 1920" aria-hidden="true">
+    <circle cx="540" cy="860" r="400" fill="none" stroke="#111" stroke-width="20"/>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="tiny guinea pig">
+  <div id="date">2026-09-21</div>
+</div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(innerWidth/1080,innerHeight/1920);
+    stage.style.transform='translate('+((innerWidth-1080*s)/2)+'px,'+((innerHeight-1920*s)/2)+'px) scale('+s+')';
+  }
+  addEventListener('resize',fit);fit();
+
+  var seed=2026*372+9*31+21;
+  var phase=(seed%360)*Math.PI/180;
+  var left=document.getElementById('left'),div=document.getElementById('divider');
+  var period=64000;
+  function frame(t){
+    var x=540+230*Math.sin(t/period*Math.PI*2+phase);
+    left.style.clipPath='inset(0 '+(1080-x)+'px 0 0)';
+    div.style.transform='translateX('+(x-8)+'px)';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
