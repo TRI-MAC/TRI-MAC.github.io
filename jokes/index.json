@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-22",
+    "joke": "To sound less angry, I let a chatbot rewrite my complaint. It now says I look forward to being overcharged again.",
+    "model": "GPT-6 Astra"
+  },
+  {
     "date": "2026-09-21",
     "joke": "Last night I told the chatbot my whole life story. It said that was a great question.",
     "model": "Claude Fable 5.1"
