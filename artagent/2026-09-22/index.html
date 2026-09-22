@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Cut Paper — 2026-09-22</title>
+<style>
+  html,body{margin:0;padding:0;background:#6b4a2f;overflow:hidden;}
+  #stage{
+    position:absolute;
+    top:0;left:0;
+    width:1080px;height:1920px;
+    transform-origin:top left;
+    background:#b06a34;
+    overflow:hidden;
+  }
+  #paperCanvas, #grainCanvas{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    display:block;
+  }
+  #grainCanvas{opacity:0.5;}
+  svg#art{position:absolute;top:0;left:0;width:1080px;height:1920px;}
+  #date{
+    position:absolute;left:44px;bottom:38px;
+    font:400 20px/1 "Courier New",monospace;
+    letter-spacing:.22em;
+    color:#3d2617;opacity:.45;
+    z-index:20;
+  }
+  #guinea-pig{
+    position:absolute;
+    left:892px;top:1631px;
+    width:17px;height:auto;
+    opacity:.62;
+    z-index:15;
+    transform:rotate(-7deg);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- ground + static paper bed, drawn once -->
+  <canvas id="paperCanvas" width="540" height="960"></canvas>
+
+  <!-- the cut shapes and their travelling shadows -->
+  <svg id="art" viewBox="0 0 1080 1920" preserveAspectRatio="none" aria-label="Flat torn-paper shapes resting on a terracotta ground; a large sagging paper oval melts downward while soft shadows travel slowly across the surfaces.">
+    <defs>
+      <!-- soft shadow blur -->
+      <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="16"/>
+      </filter>
+      <filter id="softer" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="30"/>
+      </filter>
+
+      <!-- torn edge roughening -->
+      <filter id="torn" x="-6%" y="-6%" width="112%" height="112%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="922" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="11" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="torn2" x="-6%" y="-6%" width="112%" height="112%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="1922" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+
+      <!-- matte paper fills, very slight tone variation only -->
+      <linearGradient id="fOchre" x1="0" y1="0" x2="0.4" y2="1">
+        <stop offset="0" stop-color="#e8c777"/><stop offset="1" stop-color="#dcb65f"/>
+      </linearGradient>
+      <linearGradient id="fTeal" x1="0" y1="0" x2="0.6" y2="1">
+        <stop offset="0" stop-color="#3f7d7a"/><stop offset="1" stop-color="#2f6a69"/>
+      </linearGradient>
+      <linearGradient id="fCrim" x1="0" y1="0" x2="0.3" y2="1">
+        <stop offset="0" stop-color="#b2372e"/><stop offset="1" stop-color="#992c26"/>
+      </linearGradient>
+      <linearGradient id="fCream" x1="0" y1="0" x2="0.5" y2="1">
+        <stop offset="0" stop-color="#f0e4cc"/><stop offset="1" stop-color="#e3d4b7"/>
+      </linearGradient>
+      <linearGradient id="fOlive" x1="0" y1="0" x2="0.5" y2="1">
+        <stop offset="0" stop-color="#6f7434"/><stop offset="1" stop-color="#5c6029"/>
+      </linearGradient>
+
+      <!-- the melting paper: an oval whose lower edge sags off the shape -->
+      <clipPath id="clipOval">
+        <ellipse cx="540" cy="720" rx="300" ry="330"/>
+      </clipPath>
+    </defs>
+
+    <!-- ============ SHADOW GROUP (moves) ============ -->
+    <g id="shadows" opacity="0.5">
+      <!-- big melting oval shadow -->
+      <g class="shcast" id="sh1">
+        <path filter="softer" fill="#5a2a18"
+          d="M540 390
+             C 720 390 852 540 852 720
+             C 852 900 720 1046 540 1046
+             C 470 1046 466 1180 440 1300
+             C 424 1382 392 1392 384 1300
+             C 372 1160 330 1050 300 980
+             C 250 880 228 800 228 720
+             C 228 540 360 390 540 390 Z"/>
+      </g>
+      <!-- crimson torn band shadow -->
+      <g class="shcast" id="sh2">
+        <path filter="soft" fill="#5a2a18"
+          d="M60 1330 L1020 1250 L1020 1420 L60 1500 Z"/>
+      </g>
+      <!-- ochre wedge shadow -->
+      <g class="shcast" id="sh3">
+        <path filter="soft" fill="#5a2a18"
+          d="M118 180 L640 120 L470 470 L140 430 Z"/>
+      </g>
+      <!-- olive tab shadow -->
+      <g class="shcast" id="sh4">
+        <path filter="soft" fill="#5a2a18"
+          d="M700 1580 L960 1560 L980 1760 L710 1780 Z"/>
+      </g>
+      <!-- cream sliver shadow -->
+      <g class="shcast" id="sh5">
+        <path filter="soft" fill="#5a2a18"
+          d="M760 200 L1000 320 L880 640 L700 520 Z"/>
+      </g>
+    </g>
+
+    <!-- ============ PAPER SHAPES (still) ============ -->
+
+    <!-- ochre torn wedge, upper left -->
+    <g filter="url(#torn)">
+      <path fill="url(#fOchre)"
+        d="M100 170 L622 108 L452 458 L122 418 Z"/>
+    </g>
+
+    <!-- cream sliver, upper right — a cut strip that curls impossibly -->
+    <g filter="url(#torn2)">
+      <path fill="url(#fCream)"
+        d="M742 186 L986 306 L866 626 L684 506 Z"/>
+    </g>
+
+    <!-- THE MELTING OVAL — central cut paper form whose lower edge drips -->
+    <g id="oval">
+      <g filter="url(#torn)">
+        <path fill="url(#fTeal)"
+          d="M540 372
+             C 720 372 838 528 838 708
+             C 838 888 706 1032 540 1032
+             C 476 1032 470 1170 446 1292
+             C 430 1376 398 1386 390 1292
+             C 378 1150 336 1040 306 968
+             C 256 866 242 792 242 708
+             C 242 528 360 372 540 372 Z"/>
+      </g>
+      <!-- cut hole in the paper: the ground shows through -->
+      <g filter="url(#torn2)">
+        <ellipse cx="540" cy="672" rx="96" ry="112" fill="#a8622f"/>
+      </g>
+      <!-- second drip, thinner, detaching from the sheet -->
+      <g filter="url(#torn2)">
+        <path fill="#2f6a69"
+          d="M628 1010 C 646 1080 640 1140 626 1192 C 618 1224 596 1224 592 1190 C 586 1136 592 1074 604 1010 Z"/>
+      </g>
+      <!-- a torn corner lifting away, floating free above the sheet -->
+      <g filter="url(#torn2)" id="corner">
+        <path fill="#4b8a86" d="M760 470 L872 500 L818 596 L716 552 Z"/>
+      </g>
+    </g>
+
+    <!-- crimson torn band, lower — a single long scissor cut across the field -->
+    <g filter="url(#torn)">
+      <path fill="url(#fCrim)"
+        d="M40 1310 L1040 1228 L1040 1398 L40 1480 Z"/>
+    </g>
+    <!-- the band's own cut notch -->
+    <g filter="url(#torn2)">
+      <path fill="#a8622f" d="M430 1286 L520 1280 L470 1400 L400 1404 Z"/>
+    </g>
+
+    <!-- olive tab, lower right, resting partly on the crimson band -->
+    <g filter="url(#torn2)">
+      <path fill="url(#fOlive)"
+        d="M686 1562 L944 1542 L966 1744 L696 1764 Z"/>
+    </g>
+
+    <!-- one moth cut from the cream paper, flat and matte, sitting on the ground -->
+    <g filter="url(#torn2)" id="moth" opacity="0.95">
+      <g transform="translate(206,1668) rotate(-9)">
+        <path fill="#e8dcc0" d="M0 0 L-104 -56 L-126 4 L-92 54 L-16 30 Z"/>
+        <path fill="#e8dcc0" d="M0 0 L104 -50 L128 10 L94 58 L16 32 Z"/>
+        <path fill="#d9c9a4" d="M-6 -16 L6 -16 L10 44 L0 58 L-10 44 Z"/>
+        <path fill="#d9c9a4" d="M-4 -18 L-30 -46 M4 -18 L30 -46" stroke="#d9c9a4" stroke-width="5"/>
+      </g>
+    </g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <!-- grain / paper tooth, drawn once, scaled up -->
+  <canvas id="grainCanvas" width="360" height="640"></canvas>
+
+  <div id="date">2026 · 09 · 22</div>
+</div>
+
+<script>
+(function(){
+  /* ---------- date seed ---------- */
+  var DATE="2026-09-22";
+  var seed=0; for(var i=0;i<DATE.length;i++) seed=(seed*131+DATE.charCodeAt(i))>>>0;
+  function rnd(){ seed^=seed<<13; seed>>>=0; seed^=seed>>17; seed^=seed<<5; seed>>>=0; return seed/4294967296; }
+
+  /* ---------- responsive stage ---------- */
+  var stage=document.getElementById('stage');
+  function fit(){
+    var w=window.innerWidth,h=window.innerHeight;
+    var s=Math.min(w/1080,h/1920);
+    stage.style.transform='translate('+((w-1080*s)/2)+'px,'+((h-1920*s)/2)+'px) scale('+s+')';
+  }
+  fit(); window.addEventListener('resize',fit);
+
+  /* ---------- ground: painted once at low res ---------- */
+  var pc=document.getElementById('paperCanvas'), g=pc.getContext('2d');
+  var W=pc.width,H=pc.height;
+
+  // mid-key terracotta field, broad tonal drift (not a dark vignette)
+  var grd=g.createLinearGradient(0,0,W*0.4,H);
+  grd.addColorStop(0,'#c07a3c');
+  grd.addColorStop(0.45,'#b06a34');
+  grd.addColorStop(1,'#9c5a2c');
+  g.fillStyle=grd; g.fillRect(0,0,W,H);
+
+  // impossible-space cue: broad flat wedges of the same ground at slightly
+  // different tone, as if the table itself were also cut paper
+  g.globalAlpha=0.35;
+  g.fillStyle='#a8602c';
+  g.beginPath();
+  g.moveTo(0,H*0.30); g.lineTo(W,H*0.22); g.lineTo(W,H*0.34); g.lineTo(0,H*0.44);
+  g.closePath(); g.fill();
+  g.fillStyle='#bd7a3f';
+  g.beginPath();
+  g.moveTo(0,H*0.70); g.lineTo(W,H*0.62); g.lineTo(W,H*0.78); g.lineTo(0,H*0.86);
+  g.closePath(); g.fill();
+  g.globalAlpha=1;
+
+  // a horizon that is also a cut edge — the ground folds where light changes
+  g.fillStyle='rgba(88,42,24,0.16)';
+  g.beginPath();
+  g.moveTo(0,H*0.44); g.lineTo(W,H*0.34); g.lineTo(W,H*0.36); g.lineTo(0,H*0.46);
+  g.closePath(); g.fill();
+
+  // paper tooth: coarse stipple of the ground, a couple of thousand flecks,
+  // drawn once. Filled dots only, no strokes.
+  var n=2600;
+  for(var k=0;k<n;k++){
+    var x=rnd()*W, y=rnd()*H, r=0.6+rnd()*1.7;
+    var up=rnd()>0.5;
+    g.fillStyle= up ? 'rgba(232,196,142,0.10)' : 'rgba(78,38,22,0.10)';
+    g.beginPath(); g.arc(x,y,r,0,6.2832); g.fill();
+  }
+
+  /* ---------- grain overlay: drawn once ---------- */
+  var gc=document.getElementById('grainCanvas'), q=gc.getContext('2d');
+  var gw=gc.width,gh=gc.height;
+  var img=q.createImageData(gw,gh), d=img.data;
+  for(var p=0;p<gw*gh;p++){
+    var v=rnd();
+    var a= v>0.88 ? 26 : (v<0.10 ? 22 : 0);
+    var light = v>0.88;
+    d[p*4]   = light?255:60;
+    d[p*4+1] = light?240:28;
+    d[p*4+2] = light?210:16;
+    d[p*4+3] = a;
+  }
+  q.putImageData(img,0,0);
+
+  /* ---------- the only motion: light travelling ---------- */
+  var casts=[
+    {el:document.getElementById('sh1'), dx:52, dy:26, ph:0.00, sc:1.0},
+    {el:document.getElementById('sh2'), dx:34, dy:17, ph:0.35, sc:1.0},
+    {el:document.getElementById('sh3'), dx:40, dy:20, ph:0.15, sc:1.0},
+    {el:document.getElementById('sh4'), dx:28, dy:14, ph:0.55, sc:1.0},
+    {el:document.getElementById('sh5'), dx:44, dy:22, ph:0.25, sc:1.0}
+  ];
+  var shadowGroup=document.getElementById('shadows');
+  var corner=document.getElementById('corner');
+  var moth=document.getElementById('moth');
+
+  var PERIOD=96000; // one full pass of the light, ms
+  var t0=performance.now();
+  var startPhase=rnd()*PERIOD;
+
+  function frame(now){
+    var t=((now-t0)+startPhase)%PERIOD;
+    var u=t/PERIOD;              // 0..1, loops seamlessly
+    var a=Math.sin(u*Math.PI*2); // -1..1
+    var b=Math.cos(u*Math.PI*2);
+
+    for(var i=0;i<casts.length;i++){
+      var c=casts[i];
+      var pa=Math.sin((u+c.ph)*Math.PI*2);
+      var pb=Math.cos((u+c.ph)*Math.PI*2);
+      var tx=pa*c.dx, ty=(0.55+0.45*pb)*c.dy;
+      c.el.setAttribute('transform','translate('+tx.toFixed(2)+','+ty.toFixed(2)+')');
+    }
+    // shadows soften as the light rises, deepen as it lowers
+    shadowGroup.setAttribute('opacity',(0.34+0.20*(0.5-0.5*b)).toFixed(3));
+
+    // the lifted corner drifts the smallest amount, as if unglued
+    corner.setAttribute('transform','translate('+(a*7).toFixed(2)+','+(b*4).toFixed(2)+') rotate('+(a*1.2).toFixed(2)+' 794 533)');
+
+    // the paper moth barely settles
+    moth.setAttribute('transform','translate('+(b*3).toFixed(2)+','+(a*2).toFixed(2)+')');
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

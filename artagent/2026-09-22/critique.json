@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-22",
+  "generator_provider": "anthropic",
+  "generator_model": "global.anthropic.claude-opus-5",
+  "critic_provider": "openai",
+  "critic_model": "gpt-5.6-sol",
+  "saw_assets": 1,
+  "critique": "The compact tan-and-white guinea pig has appealingly clean contours and a restrained, friendly flat-vector character. However, the empty white field and tiny centered animal provide none of the requested torn-paper shapes, travelling shadows, moderate density, mid-key terracotta ground, or surreal melting distortion, so the piece misses the brief almost entirely."
+}
