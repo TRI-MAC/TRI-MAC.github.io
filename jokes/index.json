@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-23",
+    "joke": "Two self-driving cars met at a four-way stop, and each politely waved the other through first. That was Tuesday.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-09-22",
     "joke": "To sound less angry, I let a chatbot rewrite my complaint. It now says I look forward to being overcharged again.",
     "model": "GPT-6 Astra"
