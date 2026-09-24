@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-24",
+    "joke": "The AI proofreader found no mistakes in my essay, which was a relief, because I had forgotten to attach it.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-09-23",
     "joke": "Two self-driving cars met at a four-way stop, and each politely waved the other through first. That was Tuesday.",
     "model": "Claude Opus 5.5"
