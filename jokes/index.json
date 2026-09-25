@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-25",
+    "joke": "The AI aced my test. It even got the typo in the answer sheet right.",
+    "model": "GPT-6 Astra"
+  },
+  {
     "date": "2026-09-24",
     "joke": "The AI proofreader found no mistakes in my essay, which was a relief, because I had forgotten to attach it.",
     "model": "Claude Fable 5.1"
