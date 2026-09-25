@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-25</title>
+<style>
+  html,body{margin:0;height:100%;background:#a86a2a;overflow:hidden;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#c98a3e;}
+  #rock{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #game{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #hand{position:absolute;left:0;top:0;width:100%;height:100%;display:block;overflow:visible;}
+  #tally line{stroke:#2a1c14;stroke-width:5;stroke-linecap:round;opacity:0;transition:opacity 1.2s ease-in-out;}
+  #tally line.on{opacity:.85;}
+  #date{position:absolute;left:34px;bottom:26px;font:18px/1 "Courier New",monospace;letter-spacing:2px;color:#3a2618;opacity:.45;}
+  #guinea-pig{position:absolute;right:22px;bottom:30px;width:18px;height:auto;opacity:.55;transform:rotate(-8deg);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="rock" width="1080" height="1920" aria-hidden="true"></canvas>
+  <canvas id="game" width="540" height="960" role="img" aria-label="A charcoal squid drifts down an ochre cave wall while a stencilled hand below follows it and throws chalk pebbles upward, a self-playing shooter painted like prehistoric rock art."></canvas>
+  <svg id="hand" viewBox="0 0 540 960" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="spray" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#7a2a16" stop-opacity=".95"/>
+        <stop offset="55%" stop-color="#7a2a16" stop-opacity=".7"/>
+        <stop offset="100%" stop-color="#7a2a16" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <g id="tally" transform="translate(40,60)">
+      <line x1="0" y1="0" x2="4" y2="46"/>
+      <line x1="16" y1="2" x2="18" y2="48"/>
+      <line x1="32" y1="0" x2="34" y2="46"/>
+      <line x1="48" y1="3" x2="49" y2="48"/>
+      <line x1="-6" y1="40" x2="60" y2="10"/>
+    </g>
+    <g id="handWrap" transform="translate(270,840)">
+      <g id="handInner">
+        <ellipse cx="0" cy="0" rx="95" ry="85" fill="url(#spray)"/>
+        <!-- negative hand in ground colour -->
+        <g fill="#c98a3e">
+          <rect x="-34" y="-12" width="68" height="70" rx="22"/>
+          <rect x="-50" y="-10" width="18" height="46" rx="9" transform="rotate(28 -41 8)"/>
+          <rect x="-30" y="-62" width="17" height="66" rx="8" transform="rotate(8 -22 -30)"/>
+          <rect x="-9" y="-72" width="17" height="74" rx="8"/>
+          <rect x="11" y="-64" width="17" height="66" rx="8" transform="rotate(-7 20 -30)"/>
+          <rect x="30" y="-46" width="16" height="56" rx="8" transform="rotate(-14 38 -20)"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-09-25</div>
+</div>
+<script>
+(function(){
+  // ---- responsive shell ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(innerWidth/1080,innerHeight/1920);
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((innerWidth-1080*s)/2)+'px';
+    stage.style.top=((innerHeight-1920*s)/2)+'px';
+  }
+  addEventListener('resize',fit);fit();
+
+  // ---- date seed ----
+  var seed=20260925;
+  function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+  var jit=[];for(var i=0;i<128;i++)jit.push(rnd()*2-1);
+
+  // ---- rock ground, drawn once ----
+  (function(){
+    var c=document.getElementById('rock').getContext('2d');
+    var g=c.createLinearGradient(0,0,0,1920);
+    g.addColorStop(0,'#cf9147');g.addColorStop(1,'#b8762e');
+    c.fillStyle=g;c.fillRect(0,0,1080,1920);
+    for(var i=0;i<160;i++){
+      var x=rnd()*1080,y=rnd()*1920,r=80+rnd()*260;
+      var rg=c.createRadialGradient(x,y,0,x,y,r);
+      var dark=rnd()<0.5;
+      rg.addColorStop(0,dark?'rgba(120,70,30,0.10)':'rgba(230,180,110,0.10)');
+      rg.addColorStop(1,'rgba(0,0,0,0)');
+      c.fillStyle=rg;c.beginPath();c.arc(x,y,r,0,6.2832);c.fill();
+    }
+  })();
+
+  // ---- audio (direct view only) ----
+  var audio=null;
+  if(window.self===window.top){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      var ac=new AC();
+      var master=ac.createGain();master.gain.value=0.12;master.connect(ac.destination);
+      var o=ac.createOscillator();o.type='sine';o.frequency.value=55;
+      var og=ac.createGain();og.gain.value=0.5;o.connect(og).connect(master);o.start();
+      var o2=ac.createOscillator();o2.type='triangle';o2.frequency.value=82.4;
+      var o2g=ac.createGain();o2g.gain.value=0.12;o2.connect(o2g).connect(master);o2.start();
+      var lfo=ac.createOscillator();lfo.frequency.value=0.07;var lg=ac.createGain();lg.gain.value=0.08;
+      lfo.connect(lg).connect(o2g.gain);lfo.start();
+      var nbuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);
+      var d=nbuf.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+      audio={ctx:ac,master:master,noise:nbuf,
+        thud:function(){
+          var t=ac.currentTime,src=ac.createBufferSource();src.buffer=nbuf;
+          var f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=220;
+          var gn=ac.createGain();gn.gain.setValueAtTime(0.0001,t);gn.gain.exponentialRampToValueAtTime(0.9,t+0.01);gn.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
+          src.connect(f).connect(gn).connect(master);src.start(t);src.stop(t+0.4);
+        },
+        toss:function(){
+          var t=ac.currentTime,src=ac.createBufferSource();src.buffer=nbuf;
+          var f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=1600;f.Q.value=2;
+          var gn=ac.createGain();gn.gain.setValueAtTime(0.0001,t);gn.gain.exponentialRampToValueAtTime(0.25,t+0.005);gn.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
+          src.connect(f).connect(gn).connect(master);src.start(t);src.stop(t+0.1);
+        }};
+      var resume=function(){if(ac.state==='suspended')ac.resume();};
+      document.addEventListener('visibilitychange',resume);setInterval(resume,3000);
+    }catch(e){audio=null;}
+  }
+
+  // ---- game ----
+  var cv=document.getElementById('game'),ctx=cv.getContext('2d');
+  var W=540,H=960;
+  var CHAR='#2a1c14',CHALK='#eedcb8',RED='#7a2a16';
+  var squid={x:270,y:170,dir:1,speed:38,phase:rnd()*6.28,hits:0,alpha:0,state:'spawn',t:0,flinch:0,inkT:2.5};
+  var hand={x:270,tx:270};
+  var shots=[],inks=[],fireT=1.0;
+  var handWrap=document.getElementById('handWrap');
+  var tally=document.getElementById('tally').querySelectorAll('line');
+
+  function respawn(){
+    squid.x=120+rnd()*300;squid.y=150;squid.dir=rnd()<0.5?-1:1;squid.hits=0;squid.alpha=0;squid.state='spawn';squid.t=0;squid.inkT=3;
+    shots.length=0;inks.length=0;
+    for(var i=0;i<tally.length;i++)tally[i].classList.remove('on');
+  }
+
+  var STEP=1/60;
+  function update(dt){
+    var s=squid;s.phase+=dt*1.4;s.flinch=Math.max(0,s.flinch-dt*2.5);
+    if(s.state==='spawn'){s.alpha=Math.min(1,s.alpha+dt/1.4);if(s.alpha>=1)s.state='alive';}
+    else if(s.state==='dying'){s.alpha-=dt/1.6;if(s.alpha<=0){respawn();return;}}
+    if(s.state!=='dying'){
+      s.x+=s.dir*s.speed*dt;
+      if(s.x>440){s.x=440;s.dir=-1;s.y+=44;}
+      if(s.x<100){s.x=100;s.dir=1;s.y+=44;}
+      if(s.y>600){s.state='dying';}
+    }
+    if(s.state==='alive'){
+      s.inkT-=dt;
+      if(s.inkT<=0){s.inkT=2.4+rnd()*2.2;inks.push({x:s.x,y:s.y+120,vy:150,r:12});}
+    }
+    // hand: track squid, dodge ink
+    var target=s.x;
+    for(var i=0;i<inks.length;i++){var k=inks[i];if(k.y>560&&Math.abs(k.x-hand.x)<90){target=hand.x+(hand.x<k.x?-130:130);}}
+    target=Math.max(90,Math.min(450,target));
+    hand.x+=(target-hand.x)*Math.min(1,dt*2.2);
+    // fire
+    fireT-=dt;
+    if(fireT<=0&&s.state==='alive'&&shots.length<2){fireT=1.35;shots.push({x:hand.x+jit[shots.length*7&127]*6,y:770,vy:-240});if(audio)audio.toss();}
+    for(i=shots.length-1;i>=0;i--){
+      var p=shots[i];p.y+=p.vy*dt;
+      if(p.y<-20){shots.splice(i,1);continue;}
+      if(s.state==='alive'){
+        var dx=(p.x-s.x)/78,dy=(p.y-(s.y+20))/120;
+        if(dx*dx+dy*dy<1){
+          shots.splice(i,1);s.hits++;s.flinch=1;if(audio)audio.thud();
+          if(s.hits<=tally.length)tally[s.hits-1].classList.add('on');
+          if(s.hits>=5)s.state='dying';
+        }
+      }
+    }
+    for(i=inks.length-1;i>=0;i--){var k2=inks[i];k2.y+=k2.vy*dt;k2.r=Math.min(24,k2.r+dt*4);if(k2.y>H+40)inks.splice(i,1);}
+  }
+
+  function rough(pts,amp,off){
+    ctx.beginPath();
+    for(var i=0;i<pts.length;i++){
+      var j=jit[(i*3+off)&127]*amp,k=jit[(i*5+off+11)&127]*amp;
+      if(i===0)ctx.moveTo(pts[i][0]+j,pts[i][1]+k);else ctx.lineTo(pts[i][0]+j,pts[i][1]+k);
+    }
+    ctx.closePath();ctx.fill();
+  }
+
+  function drawSquid(){
+    var s=squid;ctx.save();ctx.globalAlpha=s.alpha;
+    var sc=1+s.flinch*0.08;
+    ctx.translate(s.x,s.y);ctx.scale(sc,1/sc);
+    var bob=Math.sin(s.phase*0.8)*4;ctx.translate(0,bob);
+    ctx.fillStyle=CHAR;
+    // mantle
+    var m=[];var n=26;
+    for(var i=0;i<=n;i++){var t=i/n;var a=Math.PI*(1-t);var yy=-150+t*200;var w=6+Math.sin(t*Math.PI)*62+t*10;m.push([w,yy]);}
+    for(i=n;i>=0;i--){m.push([-m[i][0],m[i][1]]);}
+    rough(m,3,1);
+    // fins
+    ctx.fillStyle=RED;
+    rough([[10,-140],[70,-60],[62,-20],[14,-30]],3,7);
+    rough([[-10,-140],[-70,-60],[-62,-20],[-14,-30]],3,19);
+    // head
+    ctx.fillStyle=CHAR;
+    rough([[-52,44],[52,44],[58,86],[-58,86]],3,29);
+    // tentacles: thick tapering wedges
+    var retract=s.flinch*0.45;
+    for(i=0;i<8;i++){
+      var base=-49+i*14;var len=(i%2?120:150)*(1-retract);
+      var sway=Math.sin(s.phase*1.2+i*0.9)*22+(i-3.5)*9;
+      var midx=base+sway*0.5,endx=base+sway;
+      var wtop=8,wmid=6;
+      rough([[base-wtop,80],[base+wtop,80],[midx+wmid,80+len*0.5],[endx+2,80+len],[endx-2,80+len],[midx-wmid,80+len*0.5]],2,37+i*5);
+    }
+    // eyes in ground colour
+    ctx.fillStyle='#c98a3e';
+    ctx.beginPath();ctx.arc(-30,66,7,0,6.283);ctx.fill();
+    ctx.beginPath();ctx.arc(30,66,7,0,6.283);ctx.fill();
+    ctx.restore();
+  }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    // ink blobs
+    ctx.fillStyle=CHAR;
+    for(var i=0;i<inks.length;i++){var k=inks[i];ctx.beginPath();ctx.ellipse(k.x,k.y,k.r*0.7,k.r,0,0,6.283);ctx.fill();}
+    drawSquid();
+    // chalk pebbles
+    ctx.fillStyle=CHALK;
+    for(i=0;i<shots.length;i++){var p=shots[i];ctx.beginPath();ctx.ellipse(p.x,p.y,6,9,0.3,0,6.283);ctx.fill();}
+    handWrap.setAttribute('transform','translate('+hand.x.toFixed(1)+',840) rotate('+(Math.sin(performance.now()/1400)*3).toFixed(2)+')');
+  }
+
+  var last=performance.now(),acc=0;
+  function frame(now){
+    acc+=Math.min((now-last)/1000,STEP*2);last=now;
+    var n=0;while(acc>=STEP&&n<2){update(STEP);acc-=STEP;n++;}
+    if(acc>STEP)acc=0;
+    render();
+    requestAnimationFrame(frame);
+  }
+  respawn();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
