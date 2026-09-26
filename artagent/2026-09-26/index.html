@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-26</title>
+<style>
+  html,body{margin:0;height:100%;background:#f3ecd9;overflow:hidden}
+  #stage{
+    position:absolute;left:0;top:0;width:1080px;height:1920px;
+    transform-origin:top left;background:#f3ecd9;overflow:hidden;
+  }
+  .layer{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+  #art-image{
+    position:absolute;left:170px;top:520px;width:740px;height:960px;
+    object-fit:cover;display:block;
+    filter:saturate(1.12) contrast(1.04) brightness(1.03);
+    opacity:.97;
+  }
+  #cast{
+    position:absolute;left:206px;top:562px;width:740px;height:960px;
+    background:#2b4fcf;opacity:.16;
+  }
+  /* lens forms: identical motion on back and front copies, opacity crossfade = passing through the picture plane */
+  .lens{position:absolute;left:0;top:0;will-change:transform,opacity}
+  .l1{animation:m1 64s ease-in-out infinite alternate}
+  .l2{animation:m2 82s ease-in-out infinite alternate}
+  .l3{animation:m3 50s ease-in-out infinite alternate}
+  .back .l1{animation-name:m1,fb} .front .l1{animation-name:m1,ff}
+  .back .l2{animation-name:m2,fb} .front .l2{animation-name:m2,ff}
+  .back .l3{animation-name:m3,fb} .front .l3{animation-name:m3,ff}
+  .back .l1,.front .l1{animation-duration:64s,64s}
+  .back .l2,.front .l2{animation-duration:82s,82s}
+  .back .l3,.front .l3{animation-duration:50s,50s}
+  .back .lens,.front .lens{animation-timing-function:ease-in-out,ease-in-out;animation-iteration-count:infinite,infinite;animation-direction:alternate,alternate}
+  @keyframes m1{from{transform:translate(-60px,1160px) rotate(-14deg)}to{transform:translate(520px,300px) rotate(8deg)}}
+  @keyframes m2{from{transform:translate(620px,120px) rotate(24deg)}to{transform:translate(120px,900px) rotate(38deg)}}
+  @keyframes m3{from{transform:translate(700px,1500px) rotate(-70deg)}to{transform:translate(180px,1080px) rotate(-96deg)}}
+  @keyframes fb{0%{opacity:.78}38%{opacity:.78}62%{opacity:0}100%{opacity:0}}
+  @keyframes ff{0%{opacity:0}38%{opacity:0}62%{opacity:.78}100%{opacity:.78}}
+  #date{
+    position:absolute;left:36px;bottom:30px;font:500 18px/1 "Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.14em;color:#1a1a1a;opacity:.42
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="cast"></div>
+
+  <!-- forms BEHIND the picture plane -->
+  <svg class="layer back" viewBox="0 0 1080 1920" aria-hidden="true">
+    <g class="lens l1"><path d="M0 0 C 90 -220 330 -220 420 0 C 330 220 90 220 0 0 Z" fill="#e8401c" transform="translate(-210,0)"/></g>
+    <g class="lens l2"><path d="M0 0 C 110 -300 400 -300 510 0 C 400 300 110 300 0 0 Z" fill="#12945a" transform="translate(-255,0)"/></g>
+    <g class="lens l3"><path d="M0 0 C 70 -170 260 -170 330 0 C 260 170 70 170 0 0 Z" fill="#2b4fcf" transform="translate(-165,0)"/></g>
+  </svg>
+
+  <img id="art-image" src="art.png" alt="A generated painting, off-centre on chalk ground, with three coloured lens forms sinking through its surface">
+
+  <!-- forms IN FRONT of the picture plane -->
+  <svg class="layer front" viewBox="0 0 1080 1920" aria-hidden="true">
+    <g class="lens l1"><path d="M0 0 C 90 -220 330 -220 420 0 C 330 220 90 220 0 0 Z" fill="#e8401c" transform="translate(-210,0)"/></g>
+    <g class="lens l2"><path d="M0 0 C 110 -300 400 -300 510 0 C 400 300 110 300 0 0 Z" fill="#12945a" transform="translate(-255,0)"/></g>
+    <g class="lens l3"><path d="M0 0 C 70 -170 260 -170 330 0 C 260 170 70 170 0 0 Z" fill="#2b4fcf" transform="translate(-165,0)"/></g>
+    <!-- tucked beneath the picture's lower edge, colour-matched to the ground -->
+    <g transform="translate(884,1476)" opacity=".34">
+      <ellipse cx="8" cy="5" rx="8" ry="4.6" fill="#d9c9a4"/>
+      <circle cx="14.5" cy="3.6" r="3.2" fill="#d9c9a4"/>
+      <circle cx="15.6" cy="2.6" r=".6" fill="#6a5a3a"/>
+      <path d="M12.5 1.2 l1.2 -1.8 l1 1.6 Z" fill="#c9b78f"/>
+    </g>
+  </svg>
+
+  <div id="date">2026-09-26</div>
+</div>
+
+<script>
+(function(){
+  var st=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    var w=1080*s,h=1920*s;
+    st.style.transform='scale('+s+')';
+    st.style.left=((window.innerWidth-w)/2)+'px';
+    st.style.top=((window.innerHeight-h)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+  // date seed shifts the animation phases so each day's arrangement differs
+  var seed=2026*372+9*31+26, r=(seed*9301+49297)%233280/233280;
+  document.querySelectorAll('.lens').forEach(function(el,i){
+    var d=[64,82,50][i%3];
+    el.style.animationDelay=(-(r*d+i*7))+'s,'+(-(r*d+i*7))+'s';
+  });
+})();
+</script>
+</body>
+</html>
