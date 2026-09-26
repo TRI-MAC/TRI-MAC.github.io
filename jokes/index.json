@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-26",
+    "joke": "The meeting ran so long that the AI note-taker left early. Its summary just said: you had to be there.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-09-25",
     "joke": "The AI aced my test. It even got the typo in the answer sheet right.",
     "model": "GPT-6 Astra"
