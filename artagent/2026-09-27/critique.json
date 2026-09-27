@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-27",
+  "generator_provider": "openai",
+  "generator_model": "gpt-6-astra",
+  "critic_provider": "anthropic",
+  "critic_model": "global.anthropic.claude-opus-5-5",
+  "saw_assets": 2,
+  "critique": "The shader's nine nested neon box outlines, with their diagonal cyan-to-pink shift, faint glow falloff and cosine scan-lines, are exactly the low-key Shadertoy vocabulary the brief asked for, and the inset image's faceted cyan/magenta crystal against circuit traces and striped panels matches that palette closely. But the brief called for a single full-screen shader, and here an 842×1320 static image plus seven CSS clip-path slabs cover most of the frame, so the only generative motion is reduced to a few pixels of banding at the margins; the 18px, half-transparent, cropped guinea pig is also an invisible, unexplained sticker that should either be cut or given a real role."
+}

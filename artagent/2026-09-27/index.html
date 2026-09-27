@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-09-27</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#100e29}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#151039}
+#field{position:absolute;inset:0;width:100%;height:100%}
+.plane{position:absolute;pointer-events:none}
+.back-one{left:70px;top:302px;width:820px;height:1430px;background:#302478;clip-path:polygon(0 0,90% 0,90% 12%,100% 12%,100% 100%,15% 100%,15% 91%,0 91%)}
+.back-two{left:205px;top:266px;width:780px;height:1294px;background:#db296e;clip-path:polygon(0 0,100% 0,100% 73%,94% 73%,94% 6%,0 6%);animation:registration 24s ease-in-out infinite}
+.back-three{left:59px;top:572px;width:92px;height:934px;background:#20c9dc}
+#art-image{position:absolute;left:128px;top:354px;width:842px;height:1320px;object-fit:cover;opacity:1;filter:saturate(1.22) contrast(1.08);clip-path:polygon(0 0,87% 0,87% 5%,100% 5%,100% 87%,92% 87%,92% 100%,10% 100%,10% 95%,0 95%);background:#292368}
+.front-a{left:61px;top:1282px;width:182px;height:347px;background:linear-gradient(90deg,#1bcad7 0 23%,#155574 23% 40%,#141c48 40%);clip-path:polygon(0 0,56% 0,56% 65%,100% 65%,100% 100%,0 100%);animation:slide 24s ease-in-out infinite}
+.front-b{left:727px;top:303px;width:273px;height:220px;background:linear-gradient(180deg,#ff487e 0 25%,#941c68 25% 51%,#26103e 51%);clip-path:polygon(0 0,100% 0,100% 100%,78% 100%,78% 48%,0 48%);animation:registration 24s ease-in-out infinite reverse}
+.front-c{left:326px;top:1617px;width:535px;height:102px;background:linear-gradient(180deg,#22174c 0 43%,#6947d9 43% 67%,#c583f8 67% 75%,#322354 75%);clip-path:polygon(0 0,87% 0,87% 32%,100% 32%,100% 100%,0 100%);animation:slide 24s ease-in-out infinite reverse}
+#guinea-pig{position:absolute;left:861px;top:1696px;width:18px;height:18px;object-fit:contain;opacity:.57;clip-path:inset(0 0 22% 0)}
+.date{position:absolute;right:47px;bottom:36px;color:#9794ba;font:17px monospace;letter-spacing:3px;opacity:.72}
+@keyframes registration{0%,100%{transform:translateY(0)}50%{transform:translateY(35px)}}
+@keyframes slide{0%,100%{transform:translateX(0)}50%{transform:translateX(36px)}}
+@media(prefers-reduced-motion:reduce){.plane{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="A neon shader field of nested angular planes surrounds a large inset artwork, with cyan and magenta blocks passing across its edges.">
+<canvas id="field" width="540" height="960" aria-hidden="true"></canvas>
+<div class="plane back-one"></div>
+<div class="plane back-two"></div>
+<div class="plane back-three"></div>
+<img id="art-image" src="art.png" alt="Generated artwork integrated into a neon geometric field.">
+<div class="plane front-a"></div>
+<div class="plane front-b"></div>
+<div class="plane front-c"></div>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<time class="date" datetime="2026-09-27">2026-09-27</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ stage.style.transform=`scale(${s})`;
+ stage.style.left=((w-1080*s)/2)+'px';
+ stage.style.top=((h-1920*s)/2)+'px';
+}
+addEventListener('resize',fit);fit();
+const canvas=document.getElementById('field');
+const gl=canvas.getContext('webgl',{alpha:false,antialias:false,powerPreference:'low-power'});
+if(!gl)return;
+const vertex=`
+attribute vec2 p;
+void main(){gl_Position=vec4(p,0.,1.);}
+`;
+const fragment=`
+precision highp float;
+uniform vec2 resolution;
+uniform float phase;
+float box(vec2 p,vec2 b){vec2 q=abs(p)-b;return max(q.x,q.y);}
+void main(){
+ vec2 uv=gl_FragCoord.xy/resolution;
+ vec2 p=(uv-.5)*vec2(1.125,2.);
+ float pulse=sin(phase);
+ p-=vec2(.025*cos(phase),.06*pulse);
+ float angle=.075*sin(phase);
+ p=mat2(cos(angle),-sin(angle),sin(angle),cos(angle))*p;
+ vec3 ink=vec3(.052,.037,.145);
+ vec3 color=ink;
+ float seed=0.0927;
+ for(int i=0;i<9;i++){
+   float k=float(i);
+   float size=.17+k*.087;
+   vec2 center=vec2(.027*sin(phase+k*.48+seed),.026*cos(phase+k*.48));
+   float d=box(p-center,vec2(size,size*1.56));
+   float width=.026+.009*sin(k*.8+phase);
+   float band=1.-smoothstep(width,width+.003,abs(d));
+   float face=clamp(.5+(p.x-p.y)*1.1,0.,1.);
+   vec3 cyan=vec3(.025,.75,.86);
+   vec3 pink=vec3(.91,.075,.36);
+   vec3 violet=vec3(.32,.16,.76);
+   vec3 neon=mix(cyan,pink,smoothstep(-.1,.1,p.x+p.y*.31+.12*sin(phase)));
+   neon=mix(neon,violet,.25+.17*sin(k));
+   float bright=.50+.50*face;
+   color=mix(color,neon*bright,band);
+   float edge=1.-smoothstep(.002,.005,abs(d-width));
+   color+=neon*edge*.22;
+   float glow=exp(-abs(d)*65.)*.065;
+   color+=neon*glow;
+ }
+ float scan=.965+.035*cos(gl_FragCoord.y*3.14159265);
+ color*=scan;
+ float boundary=smoothstep(0.,.065,uv.x)*smoothstep(0.,.065,1.-uv.x)
+              *smoothstep(0.,.045,uv.y)*smoothstep(0.,.045,1.-uv.y);
+ color=mix(ink,color,boundary);
+ gl_FragColor=vec4(color,1.);
+}`;
+function shader(type,src){
+ const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+ if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))return null;
+ return s;
+}
+const vs=shader(gl.VERTEX_SHADER,vertex),fs=shader(gl.FRAGMENT_SHADER,fragment);
+if(!vs||!fs)return;
+const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
+if(!gl.getProgramParameter(program,gl.LINK_STATUS))return;
+gl.useProgram(program);
+const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+const a=gl.getAttribLocation(program,'p');
+gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+gl.uniform2f(gl.getUniformLocation(program,'resolution'),540,960);
+const time=gl.getUniformLocation(program,'phase');
+gl.viewport(0,0,540,960);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+let start=performance.now();
+function draw(now){
+ gl.uniform1f(time,reduce.matches?.927:((now-start)%48000)/48000*Math.PI*2+.927);
+ gl.drawArrays(gl.TRIANGLES,0,6);
+ if(!reduce.matches)requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+reduce.addEventListener('change',()=>{start=performance.now();requestAnimationFrame(draw)});
+})();
+</script>
+</body>
+</html>
