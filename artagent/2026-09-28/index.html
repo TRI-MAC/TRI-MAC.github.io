@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-09-28</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#8a6a3a}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#b8742e}
+#bg{position:absolute;inset:0;width:1080px;height:1920px}
+#fx{position:absolute;inset:0;width:1080px;height:1920px}
+#wrap{position:absolute;left:250px;top:620px;width:580px;height:580px;box-shadow:24px 30px 0 #5a3a1c}
+#art-image{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.15) sepia(.2) contrast(1.05)}
+#fg{position:absolute;inset:0;width:1080px;height:1920px;pointer-events:none}
+#date{position:absolute;right:28px;bottom:22px;font:16px monospace;color:#3a2410;opacity:.55}
+#guinea-pig{position:absolute;left:38px;top:1886px;width:16px;opacity:.5;filter:sepia(.6)}
+</style></head><body>
+<div id="stage">
+<canvas id="bg" width="540" height="960"></canvas>
+<div id="wrap"><img id="art-image" src="art.png" alt="Generated artwork held inside a field of rotating notched tiles"></div>
+<canvas id="fx" width="540" height="960"></canvas>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-09-28</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`translate(${(innerWidth-1080*s)/2}px,${(innerHeight-1920*s)/2}px) scale(${s})`}
+addEventListener('resize',fit);fit();
+let seed=20260928;function R(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+// Idea: "latches" — a grid of notched tiles, each a lock tumbler; a wave of unlocking travels
+// toward the image; tiles overlapping the image rotate open to reveal it, then close.
+const bg=document.getElementById('bg').getContext('2d');
+const fx=document.getElementById('fx').getContext('2d');
+const N=12,S=45,cols=N,rows=21,ox=0,oy=7;
+const pal=['#6f7a2e','#9c3f24','#3f5b86','#d9a441','#2d4a33'];
+const T=[];for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)T.push({x,y,c:pal[(R()*5)|0],k:(R()*4)|0,p:R()});
+// grain once
+for(let i=0;i<9000;i++){bg.fillStyle=R()<.5?'rgba(60,30,10,.18)':'rgba(255,220,160,.12)';bg.fillRect(R()*540,R()*960,1+R()*2,1+R()*2)}
+const img={x:125,y:310,w:290,h:290};
+function tile(g,cx,cy,a,c,k,cut){g.save();g.translate(cx,cy);g.rotate(a);g.fillStyle=c;
+g.beginPath();g.moveTo(-20,-20);g.lineTo(20,-20);g.lineTo(20,20);g.lineTo(-20,20);g.closePath();g.fill();
+g.fillStyle='#3a2410';g.beginPath();g.arc(0,0,7,0,7);g.fill();
+g.fillRect(-4,-20,8,12+k*3);g.fillStyle='#f2d8a0';g.fillRect(12,12,6,6);g.restore()}
+function frame(t){t/=1000;fx.clearRect(0,0,540,960);
+const cx=270,cy=455;
+for(const q of T){const px=q.x*S+22,py=q.y*S+oy+22;
+const d=Math.hypot(px-cx,py-cy);const ph=Math.sin(t*.35-d*.012+q.p*.4);
+const open=Math.max(0,ph);const inside=px>img.x-10&&px<img.x+img.w+10&&py>img.y-10&&py<img.y+img.h+10;
+const a=q.k*Math.PI/2+open*open*Math.PI/2*(q.k%2?1:-1);
+if(inside){const sc=1-open*0.85;if(sc<.2)continue;fx.save();fx.translate(px,py);fx.scale(sc,sc);tile(fx,0,0,a,q.c,q.k);fx.restore()}
+else tile(fx,px,py,a,q.c,q.k)}
+requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+if(window.self===window.top){try{const A=new AudioContext(),o=A.createOscillator(),g=A.createGain();o.type='triangle';o.frequency.value=73;g.gain.value=.02;o.connect(g).connect(A.destination);o.start()}catch(e){}}
+</script></body></html>
