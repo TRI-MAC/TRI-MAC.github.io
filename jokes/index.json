@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-29",
+    "joke": "Three hours into planning my wedding, the chatbot asked whether I was seeing anyone.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-09-28",
     "joke": "The chatbot solved my crossword. All I had to do was draw a few extra squares.",
     "model": "GPT-6 Astra"
