@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-09-30",
+    "joke": "The AI wrote me a heartfelt toast for my friend's wedding. Four of us gave it.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-09-29",
     "joke": "Three hours into planning my wedding, the chatbot asked whether I was seeing anyone.",
     "model": "Claude Opus 5.5"
