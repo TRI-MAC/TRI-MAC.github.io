@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-01</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#c4eee9}
+#stage{position:absolute;width:1080px;height:1920px;overflow:hidden;background:#c4eee9;transform-origin:top left}
+#background-video{position:absolute;left:0;top:1130px;width:1080px;height:790px;object-fit:cover;opacity:.75;mask-image:linear-gradient(to bottom,transparent,black 26%,black 84%,transparent);-webkit-mask-image:linear-gradient(to bottom,transparent,black 26%,black 84%,transparent)}
+svg{position:absolute;inset:0;width:100%;height:100%}
+.glide{animation:glide 32s ease-in-out infinite;transform-origin:0 0}
+.secondary{animation:second 32s ease-in-out infinite;transform-origin:0 0}
+.wings{animation:breathe 8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.shadow{opacity:.16}
+#guinea-pig{position:absolute;left:938px;top:1741px;width:18px;height:18px;object-fit:contain;opacity:.55;clip-path:inset(0 0 24% 0)}
+time{position:absolute;bottom:35px;left:42px;color:#225e66;font:18px monospace;letter-spacing:2px;opacity:.65}
+@keyframes glide{
+0%,100%{transform:translate(-25px,-38px) rotate(-4deg)}
+50%{transform:translate(45px,64px) rotate(3deg)}
+}
+@keyframes second{
+0%,100%{transform:translate(22px,45px) rotate(3deg)}
+50%{transform:translate(-38px,-52px) rotate(-4deg)}
+}
+@keyframes breathe{
+0%,100%{transform:scaleY(.94)}
+50%{transform:scaleY(1.045)}
+}
+@media(prefers-reduced-motion:reduce){
+.glide,.secondary,.wings{animation:none}
+}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Two monumental, geometrically patterned manta rays glide over pale blue water and a moving reef, their shadows crossing the seabed.">
+<video id="background-video" src="background.mp4" autoplay loop muted playsinline aria-hidden="true"></video>
+<svg viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs>
+<!-- A single broad silhouette: swept pectoral fins, paired cephalic lobes,
+     a compact body and a tapered tail. -->
+<path id="ray" d="M0 -145
+ C-34 -168 -51 -142 -44 -116
+ L-67 -97
+ C-130 -100 -232 -175 -420 -243
+ C-370 -117 -281 39 -114 99
+ C-61 119 -36 157 -18 180
+ L-9 371 L0 403 L10 360 L17 181
+ C40 151 65 122 118 101
+ C282 40 371 -117 420 -243
+ C231 -175 130 -101 68 -97
+ L44 -116
+ C51 -142 34 -168 0 -145Z"/>
+<clipPath id="ray-clip"><use href="#ray"/></clipPath>
+<pattern id="weave" width="160" height="160" patternUnits="userSpaceOnUse">
+<rect width="160" height="160" fill="#f2bd29"/>
+<path d="M0 0H80V80H0Z M80 80H160V160H80Z" fill="#ed542e"/>
+<path d="M80 0H160V80H80Z M0 80H80V160H0Z" fill="#138d78"/>
+<path d="M0 0L80 80H0Z M80 80L160 160H80Z" fill="#2463bd"/>
+<path d="M80 0L160 80H160V0Z M0 80L80 160H80V80Z" fill="#ffe374"/>
+<path d="M0 40L40 0L80 40L40 80Z M80 120L120 80L160 120L120 160Z" fill="#f4efe0"/>
+<path d="M16 40L40 16L64 40L40 64Z M96 120L120 96L144 120L120 144Z" fill="#174d68"/>
+</pattern>
+<pattern id="small-weave" width="120" height="120" patternUnits="userSpaceOnUse">
+<rect width="120" height="120" fill="#ef6a32"/>
+<path d="M0 0L60 60L120 0V30L60 90L0 30Z" fill="#ffce38"/>
+<path d="M0 60L60 120L120 60V90L90 120H30L0 90Z" fill="#138d78"/>
+<path d="M0 0H120V10H0Z M0 110H120V120H0Z" fill="#1f5198"/>
+</pattern>
+<g id="large-body">
+<use href="#ray" fill="url(#weave)" stroke="#174d68" stroke-width="10" stroke-linejoin="round"/>
+<g clip-path="url(#ray-clip)">
+<path d="M-24 -163H24V196H-24Z" fill="#1e619e"/>
+<path d="M-10 -132H10V103H-10Z" fill="#ffe374"/>
+<path d="M-398 -221L-72 -47L-112 13L-357 -133Z M398 -221L72 -47L112 13L357 -133Z" fill="#ed542e"/>
+<path d="M-368 -197L-94 -43L-105 -23L-353 -162Z M368 -197L94 -43L105 -23L353 -162Z" fill="#ffe374"/>
+</g>
+</g>
+</defs>
+
+<!-- Shadows remain readable marks, rather than darkening the water field. -->
+<g transform="translate(520 883) rotate(-18)">
+<g class="glide shadow">
+<g class="wings"><use href="#ray" fill="#276d7b" transform="scale(.88 .8)"/></g>
+</g>
+</g>
+<g transform="translate(520 675) rotate(-18)">
+<g class="glide">
+<g class="wings"><use href="#large-body"/></g>
+</g>
+</g>
+
+<g transform="translate(605 1494) rotate(153) scale(.57)">
+<g class="secondary shadow">
+<g class="wings"><use href="#ray" fill="#153e5b" transform="translate(50 -100)"/></g>
+</g>
+</g>
+<g transform="translate(550 1360) rotate(153) scale(.57)">
+<g class="secondary">
+<g class="wings">
+<use href="#ray" fill="url(#small-weave)" stroke="#174d68" stroke-width="12" stroke-linejoin="round"/>
+<g clip-path="url(#ray-clip)">
+<path d="M-35 -165H35V182H-35Z" fill="#2369b8"/>
+<path d="M-13 -128H13V121H-13Z" fill="#f7eedb"/>
+<path d="M-405 -228L-101 -62L-127 -11L-369 -142Z M405 -228L101 -62L127 -11L369 -142Z" fill="#138d78"/>
+</g>
+</g>
+</g>
+</g>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<time datetime="2026-10-01">2026-10-01</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const w=window.innerWidth,h=window.innerHeight;
+const s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=`${(w-1080*s)/2}px`;
+stage.style.top=`${(h-1920*s)/2}px`;
+}
+fit();
+window.addEventListener('resize',fit,{passive:true});
+/* Date-derived phase keeps the daily composition deterministic. */
+const seed=20261001;
+document.querySelectorAll('.glide,.secondary').forEach((el,i)=>{
+el.style.animationDelay=`-${(seed%23+i*7)%32}s`;
+});
+document.querySelectorAll('.wings').forEach((el,i)=>{
+el.style.animationDelay=`-${(seed%7+i*2)%8}s`;
+});
+if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+document.getElementById('background-video').pause();
+}
+})();
+</script>
+</body>
+</html>
