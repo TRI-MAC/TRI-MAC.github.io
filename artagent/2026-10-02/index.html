@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-02</title>
+<style>
+html,body{margin:0;height:100%;background:#1a0f2e;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#1a0f2e}
+#scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:drift 60s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1)}to{transform:scale(1.03)}}
+#fx{position:absolute;inset:0;width:100%;height:100%}
+.seed{transform-box:fill-box;transform-origin:center}
+#date{position:absolute;right:28px;bottom:22px;font:16px/1 monospace;color:#f3c76a;opacity:.4;letter-spacing:2px}
+#guinea-pig{position:absolute;left:14px;bottom:58px;width:16px;opacity:.5}
+</style>
+</head>
+<body>
+<div id="stage">
+<img id="scene-image" src="scene.png" alt="">
+<canvas id="fx" width="540" height="960"></canvas>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-10-02</div>
+</div>
+<script>
+function fit(){const s=document.getElementById('stage');const k=Math.min(innerWidth/1080,innerHeight/1920);s.style.transform=`scale(${k})`;s.style.left=(innerWidth-1080*k)/2+'px';s.style.top=(innerHeight-1920*k)/2+'px';}
+addEventListener('resize',fit);fit();
+// seed from date
+let seed=20261002;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+const c=document.getElementById('fx'),x=c.getContext('2d');
+// five slow gold seed-discs drifting upward along the edges, never through centre/face
+const cols=['#f3c76a','#e2572f','#3fb7a8','#f3c76a','#c03a7a'];
+const P=[];for(let i=0;i<5;i++){const left=i%2==0;P.push({x:left?30+rnd()*80:430+rnd()*80,r:10+rnd()*16,sp:.08+rnd()*.07,ph:rnd(),c:cols[i]});}
+function draw(t){
+ x.clearRect(0,0,540,960);
+ for(const p of P){
+  const y=960+60-((t*p.sp*0.06+p.ph*1100)%1100);
+  const a=Math.min(1,Math.min(y/120,(1000-y)/120));if(a<=0)continue;
+  x.globalAlpha=a*.85;
+  x.save();x.translate(p.x+Math.sin(t*.0003+p.ph*6)*12,y);x.rotate(t*.0002*(p.ph>.5?1:-1));
+  x.fillStyle=p.c;x.beginPath();x.arc(0,0,p.r,0,7);x.fill();
+  x.fillStyle='#1a0f2e';x.beginPath();x.arc(0,0,p.r*.55,0,7);x.fill();
+  x.fillStyle=p.c;for(let k=0;k<6;k++){const an=k*Math.PI/3;x.beginPath();x.arc(Math.cos(an)*p.r*.3,Math.sin(an)*p.r*.3,p.r*.1,0,7);x.fill();}
+  x.restore();
+ }
+ x.globalAlpha=1;requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+if(window.self===window.top){
+ addEventListener('load',()=>{try{const A=new AudioContext();const g=A.createGain();g.gain.value=.03;g.connect(A.destination);[55,82.5,110].forEach(f=>{const o=A.createOscillator();o.frequency.value=f;o.connect(g);o.start();});}catch(e){}});
+}
+</script>
+</body>
+</html>
