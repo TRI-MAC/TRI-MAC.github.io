@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-03</title>
+<style>
+  html,body{margin:0;height:100%;background:#b8732f;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#c4813a;overflow:hidden}
+  .layer{position:absolute;left:0;top:0;width:1080px;height:1920px}
+  #sun{position:absolute;left:640px;top:300px;width:240px;height:240px;border-radius:50%;background:#e8c58a}
+  .mist{position:absolute;left:-200px;width:1480px;will-change:transform}
+  #mist1{top:1130px;height:110px;background:linear-gradient(to bottom,rgba(238,222,186,0),rgba(238,222,186,.62) 45%,rgba(238,222,186,0));animation:driftA 64s ease-in-out infinite alternate}
+  #mist2{top:1290px;height:90px;background:linear-gradient(to bottom,rgba(240,226,190,0),rgba(240,226,190,.7) 50%,rgba(240,226,190,0));animation:driftB 48s ease-in-out infinite alternate}
+  #mist3{top:1400px;height:70px;background:linear-gradient(to bottom,rgba(236,224,196,0),rgba(236,224,196,.55) 50%,rgba(236,224,196,0));animation:driftA 82s ease-in-out infinite alternate-reverse}
+  @keyframes driftA{from{transform:translateX(-90px)}to{transform:translateX(90px)}}
+  @keyframes driftB{from{transform:translateX(70px)}to{transform:translateX(-70px)}}
+  .walk{animation:walk var(--dur) linear infinite;animation-delay:var(--del)}
+  @keyframes walk{from{transform:translateX(var(--x0))}to{transform:translateX(var(--x1))}}
+  .dip{animation:dip var(--gd) ease-in-out infinite;animation-delay:var(--gdel)}
+  @keyframes dip{0%,38%{transform:rotate(0deg)}52%,74%{transform:rotate(108deg)}88%,100%{transform:rotate(0deg)}}
+  #grass{position:absolute;left:0;top:1200px;width:1080px;height:720px}
+  #date{position:absolute;right:28px;bottom:22px;font:12px/1 Helvetica,Arial,sans-serif;letter-spacing:2px;color:#e8c58a;opacity:.55}
+  #guinea-pig{position:absolute;left:146px;top:1486px;width:17px;opacity:.55;filter:sepia(1) saturate(.6)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="sun"></div>
+  <svg id="far" class="layer" viewBox="0 0 1080 1920"></svg>
+  <div id="mist1" class="mist"></div>
+  <svg id="near" class="layer" viewBox="0 0 1080 1920"></svg>
+  <div id="mist2" class="mist"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <canvas id="grass" width="1080" height="720"></canvas>
+  <div id="mist3" class="mist"></div>
+  <div id="date">2026-10-03</div>
+</div>
+<script>
+(function(){
+  var DATE='2026-10-03';
+  var seed=0;for(var i=0;i<DATE.length;i++){seed=(seed*31+DATE.charCodeAt(i))>>>0;}
+  function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+
+  // ---- cranes (SVG) ----
+  function crane(s,y,color,dur,del,gd,gdel){
+    var x0=(1300/s).toFixed(1), x1=(-420/s).toFixed(1);
+    return '<g transform="translate(0,'+y+') scale('+s+')">'
+      +'<g class="walk" style="--dur:'+dur+'s;--del:'+del+'s;--x0:'+x0+'px;--x1:'+x1+'px" fill="'+color+'" stroke="'+color+'">'
+      +'<rect x="-14" y="18" width="6" height="116" stroke="none"/>'
+      +'<rect x="22" y="14" width="6" height="120" stroke="none"/>'
+      +'<ellipse cx="0" cy="0" rx="72" ry="32" stroke="none"/>'
+      +'<polygon points="-58,-14 -118,-34 -54,10" stroke="none"/>'
+      +'<g transform="translate(52,-10)"><g class="dip" style="--gd:'+gd+'s;--gdel:'+gdel+'s">'
+      +'<path d="M0 0 C 20 -40, 20 -80, 46 -102" fill="none" stroke-width="16" stroke-linecap="round"/>'
+      +'<circle cx="46" cy="-102" r="13" stroke="none"/>'
+      +'<polygon points="56,-107 56,-97 94,-102" stroke="none"/>'
+      +'</g></g></g></g>';
+  }
+  var far='',near='';
+  var farS=[0.42,0.52];
+  for(var i=0;i<farS.length;i++){
+    var s=farS[i], feet=1392+rnd()*20;
+    far+=crane(s,(feet-134*s).toFixed(1),'#7b4f2a',(260+rnd()*60).toFixed(0),(-rnd()*300).toFixed(0),(14+rnd()*8).toFixed(1),(-rnd()*20).toFixed(1));
+  }
+  var nearS=[0.95,1.12,1.28];
+  for(var j=0;j<nearS.length;j++){
+    var s2=nearS[j], feet2=1470+rnd()*50;
+    near+=crane(s2,(feet2-134*s2).toFixed(1),'#3a2616',(200+rnd()*70).toFixed(0),(-rnd()*280).toFixed(0),(13+rnd()*9).toFixed(1),(-rnd()*20).toFixed(1));
+  }
+  document.getElementById('far').innerHTML=far;
+  document.getElementById('near').innerHTML=near;
+
+  // ---- grass (canvas, drawn once) ----
+  var c=document.getElementById('grass'),g=c.getContext('2d');
+  var top=180;
+  g.fillStyle='#6f6d2c';g.fillRect(0,top,1080,720-top);
+  var cols=['#5e5c22','#7d7a33','#8c8a3a','#565417','#9a9440'];
+  for(var k=0;k<260;k++){
+    var bx=rnd()*1080, h=50+rnd()*190, w=3+rnd()*6, by=top+rnd()*40;
+    g.fillStyle=cols[Math.floor(rnd()*cols.length)];
+    g.beginPath();g.moveTo(bx-w/2,by);g.lineTo(bx+w/2,by);g.lineTo(bx+(rnd()-0.5)*14,by-h);g.closePath();g.fill();
+  }
+
+  // ---- responsive shell ----
+  var st=document.getElementById('stage');
+  function fit(){
+    var sc=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+    st.style.transform='translate('+((window.innerWidth-1080*sc)/2)+'px,'+((window.innerHeight-1920*sc)/2)+'px) scale('+sc+')';
+  }
+  window.addEventListener('resize',fit);fit();
+})();
+</script>
+</body>
+</html>
