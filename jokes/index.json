@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-03",
+    "joke": "I told the AI to make my essay twice as good. It sent two copies.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-02",
     "joke": "While I was on holiday, an AI answered my emails. I came back engaged.",
     "model": "Claude Opus 5.5"
