@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f2e9}
+#stage{position:absolute;width:1080px;height:1920px;overflow:hidden;transform-origin:top left;background:#f5f2e9}
+#scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:breath 36s ease-in-out infinite alternate}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#guinea-pig{position:absolute;left:891px;top:1751px;width:18px;height:18px;object-fit:contain;opacity:.58;clip-path:inset(0 0 24% 0)}
+time{position:absolute;left:46px;bottom:35px;color:#393732;font:15px monospace;letter-spacing:2px;opacity:.6}
+@keyframes breath{from{transform:scale(1)}to{transform:scale(1.008)}}
+@media(prefers-reduced-motion:reduce){#scene-image{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="A continuous primary-colour geometric line slowly traces across the lower portion of a full-bleed scene.">
+<img id="scene-image" src="scene.png" alt="An invented human figure within a Bauhaus scene.">
+<img id="guinea-pig" src="guineapig.png" alt="">
+<canvas id="line" width="540" height="960" aria-hidden="true"></canvas>
+<time datetime="2026-10-05">2026-10-05</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ stage.style.transform=`scale(${s})`;
+ stage.style.left=((w-1080*s)/2)+'px';
+ stage.style.top=((h-1920*s)/2)+'px';
+}
+addEventListener('resize',fit);fit();
+
+const canvas=document.getElementById('line'),ctx=canvas.getContext('2d');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const seed=20261005;
+const shift=(seed%17)-8;
+const points=[];
+function point(x,y){points.push({x,y});}
+function straight(x,y){
+ const a=points[points.length-1],n=Math.ceil(Math.hypot(x-a.x,y-a.y)/2);
+ for(let i=1;i<=n;i++)point(a.x+(x-a.x)*i/n,a.y+(y-a.y)*i/n);
+}
+function arc(cx,cy,r,start,end){
+ const n=Math.ceil(Math.abs(end-start)*r/2);
+ for(let i=1;i<=n;i++){
+  const t=start+(end-start)*i/n;
+  point(cx+Math.cos(t)*r,cy+Math.sin(t)*r);
+ }
+}
+// One unbroken route: a right angle opens into a semicircle,
+// folds through a square turn, then resolves into a horizontal stroke.
+// Its entire footprint stays below the portrait's face region.
+point(73,624+shift);
+straight(73,730+shift);
+straight(179,730+shift);
+straight(179,666+shift);
+arc(249,666+shift,70,Math.PI,Math.PI*2);
+straight(319,793+shift);
+straight(423,793+shift);
+straight(423,856+shift);
+straight(266,856+shift);
+straight(266,811+shift);
+straight(139,811+shift);
+straight(139,897+shift);
+straight(457,897+shift);
+
+const cumulative=[0];
+for(let i=1;i<points.length;i++)
+ cumulative[i]=cumulative[i-1]+Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);
+const total=cumulative[cumulative.length-1];
+const pigment=ctx.createLinearGradient(73,630,457,897);
+pigment.addColorStop(0,'#e43a25');
+pigment.addColorStop(.34,'#e43a25');
+pigment.addColorStop(.35,'#efbd16');
+pigment.addColorStop(.60,'#efbd16');
+pigment.addColorStop(.61,'#174fc0');
+pigment.addColorStop(1,'#174fc0');
+ctx.lineWidth=14;
+ctx.lineJoin='miter';
+ctx.lineCap='butt';
+const start=performance.now();
+function draw(now){
+ const phase=(now-start)/1000;
+ // Reversing along the same route keeps the virtual pen in contact:
+ // no reset, teleport, disconnected flourish, or brightness flash.
+ const amount=reduced?1:.12+.88*(.5-.5*Math.cos(2*Math.PI*(phase/64+.18)));
+ const limit=amount*total;
+ ctx.clearRect(0,0,540,960);
+ ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+ for(let i=1;i<points.length;i++){
+  if(cumulative[i]<=limit)ctx.lineTo(points[i].x,points[i].y);
+  else{
+   const f=(limit-cumulative[i-1])/(cumulative[i]-cumulative[i-1]);
+   ctx.lineTo(points[i-1].x+(points[i].x-points[i-1].x)*f,points[i-1].y+(points[i].y-points[i-1].y)*f);
+   break;
+  }
+ }
+ ctx.strokeStyle=pigment;ctx.stroke();
+ if(!reduced)requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
