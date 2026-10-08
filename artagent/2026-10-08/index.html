@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-08</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#141a2e;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#141a2e;}
+  #bg{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  #fg{position:absolute;left:0;top:0;width:1080px;height:1920px;}
+  .mist{position:absolute;left:0;width:2160px;height:160px;pointer-events:none;will-change:transform;
+    background:
+      radial-gradient(ellipse 420px 60px at 15% 50%, rgba(240,210,180,0.55), rgba(240,210,180,0) 70%),
+      radial-gradient(ellipse 520px 70px at 42% 45%, rgba(236,200,170,0.5), rgba(236,200,170,0) 70%),
+      radial-gradient(ellipse 380px 55px at 68% 55%, rgba(240,215,190,0.5), rgba(240,215,190,0) 70%),
+      radial-gradient(ellipse 480px 65px at 92% 48%, rgba(236,205,175,0.5), rgba(236,205,175,0) 70%);
+    background-size:1080px 160px;background-repeat:repeat-x;}
+  #m1{top:760px;height:160px;animation:driftL 110s linear infinite;opacity:.85;}
+  #m2{top:900px;height:200px;animation:driftR 150s linear infinite;opacity:.6;background-size:1080px 200px;}
+  #m3{top:1120px;height:240px;animation:driftL 190s linear infinite;opacity:.4;background-size:1080px 240px;}
+  @keyframes driftL{from{transform:translateX(0)}to{transform:translateX(-1080px)}}
+  @keyframes driftR{from{transform:translateX(-1080px)}to{transform:translateX(0)}}
+  #date{position:absolute;right:34px;bottom:26px;font:14px/1 Georgia,'Times New Roman',serif;letter-spacing:2px;color:rgba(225,200,170,0.42);}
+  #guinea-pig{position:absolute;left:62px;bottom:118px;width:18px;opacity:.55;transform:rotate(-8deg);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <div class="mist" id="m3"></div>
+  <div class="mist" id="m2"></div>
+  <canvas id="fg" width="540" height="960"></canvas>
+  <div class="mist" id="m1"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 10 · 08</div>
+</div>
+<script>
+(function(){
+  // ---- responsive shell ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var w=window.innerWidth,h=window.innerHeight;
+    var s=Math.min(w/1080,h/1920);
+    var l=(w-1080*s)/2,t=(h-1920*s)/2;
+    stage.style.transform='translate('+l+'px,'+t+'px) scale('+s+')';
+  }
+  window.addEventListener('resize',fit);fit();
+
+  // ---- date seed ----
+  var seed=2026*10000+10*100+8;
+  function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+
+  // ---- static background: dawn sky, perspective ground ----
+  var bg=document.getElementById('bg').getContext('2d');
+  var W=1080,H=1920,HZ=840,VX=540;
+  var sky=bg.createLinearGradient(0,0,0,HZ+40);
+  sky.addColorStop(0,'#141a30');sky.addColorStop(0.35,'#2b2a4c');
+  sky.addColorStop(0.62,'#6f4a56');sky.addColorStop(0.82,'#c27a5a');
+  sky.addColorStop(1,'#efbe86');
+  bg.fillStyle=sky;bg.fillRect(0,0,W,HZ+40);
+  // sun glow (sfumato halo)
+  var sg=bg.createRadialGradient(560,HZ-10,10,560,HZ-10,520);
+  sg.addColorStop(0,'rgba(255,232,190,0.95)');sg.addColorStop(0.12,'rgba(250,205,140,0.6)');
+  sg.addColorStop(0.5,'rgba(230,150,110,0.18)');sg.addColorStop(1,'rgba(230,150,110,0)');
+  bg.fillStyle=sg;bg.fillRect(0,0,W,HZ+40);
+  // distant hills, atmospheric
+  function hills(y,amp,col){
+    bg.beginPath();bg.moveTo(0,HZ+40);
+    for(var x=0;x<=W;x+=20){var yy=y-amp*(0.5+0.5*Math.sin(x*0.004+amp))-amp*0.4*Math.sin(x*0.011+y);bg.lineTo(x,yy);}
+    bg.lineTo(W,HZ+40);bg.closePath();bg.fillStyle=col;bg.fill();
+  }
+  hills(HZ-30,70,'rgba(120,80,96,0.55)');
+  hills(HZ-5,45,'rgba(70,60,80,0.8)');
+  // ground
+  var gr=bg.createLinearGradient(0,HZ,0,H);
+  gr.addColorStop(0,'#5a4a3e');gr.addColorStop(0.08,'#3d4a3a');
+  gr.addColorStop(0.4,'#1f3528');gr.addColorStop(1,'#1a1f1c');
+  bg.fillStyle=gr;bg.fillRect(0,HZ,W,H-HZ);
+  // warm light pooling on the ground toward the sun
+  var pool=bg.createRadialGradient(VX,HZ+20,0,VX,HZ+20,900);
+  pool.addColorStop(0,'rgba(235,170,110,0.45)');pool.addColorStop(0.3,'rgba(200,130,90,0.15)');pool.addColorStop(1,'rgba(200,130,90,0)');
+  bg.fillStyle=pool;bg.fillRect(0,HZ,W,H-HZ);
+  // perspective construction: lines to the vanishing point, horizontal transversals
+  bg.strokeStyle='rgba(230,200,160,0.07)';bg.lineWidth=1.2;
+  for(var i=-14;i<=14;i++){bg.beginPath();bg.moveTo(VX,HZ);bg.lineTo(VX+i*260,H);bg.stroke();}
+  for(var k=1;k<16;k++){var yy=HZ+(H-HZ)*Math.pow(k/16,2.2);bg.beginPath();bg.moveTo(0,yy);bg.lineTo(W,yy);bg.stroke();}
+  // horizon line
+  bg.strokeStyle='rgba(240,210,170,0.18)';bg.beginPath();bg.moveTo(0,HZ);bg.lineTo(W,HZ);bg.stroke();
+  // vignette corners (coloured dark, not black)
+  var vg=bg.createRadialGradient(540,1000,500,540,1000,1400);
+  vg.addColorStop(0,'rgba(16,22,34,0)');vg.addColorStop(1,'rgba(16,22,34,0.6)');
+  bg.fillStyle=vg;bg.fillRect(0,0,W,H);
+
+  // ---- animated layer: salamander herd + grass (540x960) ----
+  var fg=document.getElementById('fg').getContext('2d');
+  var w=540,h=960,hz=HZ/2;
+  // depth rows
+  var rows=[];
+  var nRows=5;
+  for(var r=0;r<nRows;r++){
+    var z=(r+1)/nRows; // 0 far .. 1 near
+    var gy=hz+(h-hz)*Math.pow(z,1.9)*0.86;
+    rows.push({z:z,y:gy,sc:0.22+z*z*1.1,fog:1-z*0.85});
+  }
+  // grass blades per row
+  var grass=[];
+  rows.forEach(function(row,ri){
+    var n=Math.floor(60+ri*45);
+    for(var i=0;i<n;i++){
+      grass.push({x:rnd()*w*1.1-w*0.05,y:row.y+rnd()*12*row.sc,hh:(22+rnd()*34)*row.sc,ww:(2.2+rnd()*2.5)*row.sc,
+        ph:rnd()*6.28,lean:(rnd()-0.5)*0.6,row:ri,shade:rnd()});
+    }
+  });
+  // front hero grass
+  for(var i=0;i<90;i++){grass.push({x:rnd()*w*1.1-w*0.05,y:h-rnd()*20,hh:90+rnd()*120,ww:5+rnd()*5,ph:rnd()*6.28,lean:(rnd()-0.5)*0.7,row:nRows,shade:rnd()});}
+  // salamanders
+  var sals=[];
+  var counts=[2,3,3,2,1];
+  rows.forEach(function(row,ri){
+    for(var i=0;i<counts[ri];i++){
+      sals.push({row:ri,x:rnd()*w,dir:rnd()<0.5?-1:1,ph:rnd()*6.28,state:rnd()<0.5?'walk':'graze',
+        timer:4+rnd()*8,hue:rnd(),graze:0});
+    }
+  });
+  function drawSal(s,row,t){
+    var sc=row.sc*0.62,x=s.x,y=row.y-2*sc;
+    fg.save();fg.translate(x,y);fg.scale(s.dir*sc,sc);
+    var walk=s.state==='walk'?Math.sin(t*4+s.ph):0;
+    var g=s.graze;
+    // shadow pinned to ground
+    fg.fillStyle='rgba(10,16,14,0.45)';
+    fg.beginPath();fg.ellipse(-4,8,46,5.5,0,0,6.28);fg.fill();
+    // body colours: oxblood to warm umber, rim light from sun above
+    var dark=s.hue<0.5?'#4a1e1a':'#3e2a1c';
+    var mid=s.hue<0.5?'#7a3328':'#6a4a2a';
+    var lit=s.hue<0.5?'#b8684a':'#a98453';
+    var bodyG=fg.createLinearGradient(0,-14,0,8);
+    bodyG.addColorStop(0,lit);bodyG.addColorStop(0.45,mid);bodyG.addColorStop(1,dark);
+    fg.fillStyle=bodyG;
+    // tail (thick tapering filled form)
+    var tw=Math.sin(t*1.6+s.ph)*5;
+    fg.beginPath();
+    fg.moveTo(-22,-6);
+    fg.quadraticCurveTo(-48,-8+tw,-72,-3+tw*2);
+    fg.quadraticCurveTo(-48,4+tw,-22,6);
+    fg.closePath();fg.fill();
+    // legs
+    fg.strokeStyle=dark;fg.lineWidth=5;fg.lineCap='round';
+    var legs=[[-16,1],[14,-1],[-10,-1],[20,1]];
+    for(var i=0;i<legs.length;i++){
+      var lx=legs[i][0],sw=walk*legs[i][1]*6;
+      fg.beginPath();fg.moveTo(lx,2);fg.lineTo(lx+sw*0.5,8);fg.lineTo(lx+sw+(legs[i][1]>0?4:-4),10);fg.stroke();
+    }
+    // body
+    fg.fillStyle=bodyG;
+    fg.beginPath();fg.ellipse(0,0,30,9.5,0,0,6.28);fg.fill();
+    // head, dipping when grazing
+    fg.save();fg.translate(28,0);fg.rotate(g*0.55);
+    fg.beginPath();fg.moveTo(0,-8);fg.quadraticCurveTo(22,-8,24,0);fg.quadraticCurveTo(22,8,0,8);fg.closePath();fg.fill();
+    fg.fillStyle='#1c1410';fg.beginPath();fg.arc(14,-3,1.8,0,6.28);fg.fill();
+    fg.fillStyle='rgba(255,220,170,0.6)';fg.beginPath();fg.arc(14.6,-3.6,0.7,0,6.28);fg.fill();
+    fg.restore();
+    // ochre spots along the back
+    fg.fillStyle='rgba(232,176,80,0.85)';
+    var spots=[[-14,-5,2.6],[-2,-6,3],[10,-5,2.4],[-34,-4,2],[-50,-3,1.6],[20,-2,1.8]];
+    for(i=0;i<spots.length;i++){fg.beginPath();fg.arc(spots[i][0],spots[i][1],spots[i][2],0,6.28);fg.fill();}
+    // rim light along the spine
+    fg.strokeStyle='rgba(255,210,160,0.45)';fg.lineWidth=1.8;
+    fg.beginPath();fg.moveTo(-60,-5);fg.quadraticCurveTo(-20,-12,26,-8);fg.stroke();
+    fg.restore();
+    // fog veil for distance
+    if(row.fog>0.05){fg.fillStyle='rgba(210,170,150,'+(row.fog*0.35)+')';
+      fg.beginPath();fg.ellipse(x,y,80*sc,16*sc,0,0,6.28);fg.fill();}
+  }
+  function drawBlade(b,t){
+    var sw=Math.sin(t*0.7+b.ph)*(b.row===nRows?0.09:0.05)+b.lean*0.25;
+    var tipx=b.x+Math.sin(sw)*b.hh,tipy=b.y-Math.cos(sw)*b.hh;
+    var cx=b.x+sw*b.hh*0.3,cy=b.y-b.hh*0.55;
+    var a=b.row===nRows?0.95:0.75+0.25*rows[b.row].z;
+    var l=b.shade;
+    var col=b.row===nRows?('rgba('+(22+l*20|0)+','+(34+l*26|0)+','+(28+l*14|0)+','+a+')')
+      :('rgba('+(60+l*60-rows[b.row].z*20|0)+','+(78+l*50|0)+','+(48+l*30|0)+','+a+')');
+    fg.fillStyle=col;
+    fg.beginPath();fg.moveTo(b.x-b.ww,b.y);fg.quadraticCurveTo(cx-b.ww*0.5,cy,tipx,tipy);
+    fg.quadraticCurveTo(cx+b.ww*0.5,cy,b.x+b.ww,b.y);fg.closePath();fg.fill();
+  }
+  var last=performance.now(),t=0;
+  function frame(now){
+    var dt=Math.min(0.05,(now-last)/1000);last=now;t+=dt;
+    fg.clearRect(0,0,w,h);
+    // update herd
+    for(var i=0;i<sals.length;i++){
+      var s=sals[i],row=rows[s.row];
+      s.timer-=dt;
+      if(s.timer<=0){
+        if(s.state==='walk'){s.state='graze';s.timer=5+rnd()*9;}
+        else{s.state='walk';s.timer=6+rnd()*10;if(rnd()<0.25)s.dir*=-1;}
+      }
+      var target=s.state==='graze'?1:0;
+      s.graze+=(target-s.graze)*Math.min(1,dt*1.2);
+      if(s.state==='walk'){s.x+=s.dir*dt*7*row.sc;}
+      var m=70*row.sc;
+      if(s.x>w+m)s.x=-m;if(s.x<-m)s.x=w+m;
+    }
+    // draw by depth: grass row, then salamanders of that row
+    for(var r=0;r<nRows;r++){
+      for(i=0;i<grass.length;i++)if(grass[i].row===r)drawBlade(grass[i],t);
+      for(i=0;i<sals.length;i++)if(sals[i].row===r)drawSal(sals[i],rows[r],t);
+    }
+    for(i=0;i<grass.length;i++)if(grass[i].row===nRows)drawBlade(grass[i],t);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
