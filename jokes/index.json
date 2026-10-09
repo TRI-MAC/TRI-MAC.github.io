@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-09",
+    "joke": "Every night the chatbot forgets me completely. It's the only one who still asks about my screenplay.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-08",
     "joke": "Told to be brutally honest about my novel, the chatbot called it a masterpiece. Then it apologised for being so harsh.",
     "model": "Claude Opus 5.5"
