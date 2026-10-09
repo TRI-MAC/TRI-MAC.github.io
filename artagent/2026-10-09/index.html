@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-10-09</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#e9e2cf}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f2e9d3}
+#background-video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:.75}
+#wash{position:absolute;inset:0;background:linear-gradient(#f4ecd8cc,#f4ecd855 40%,#f2e2c4aa)}
+#c{position:absolute;left:0;top:0;width:100%;height:100%}
+#date{position:absolute;right:34px;bottom:26px;font:22px Georgia,serif;color:#1a1410;opacity:.45;letter-spacing:3px}
+#guinea-pig{position:absolute;left:62px;bottom:122px;width:16px;opacity:.5}
+</style></head><body>
+<div id="stage">
+<video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+<div id="wash"></div>
+<canvas id="c" width="540" height="960"></canvas>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-10-09</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${s})`;st.style.left=(innerWidth-1080*s)/2+'px';st.style.top=(innerHeight-1920*s)/2+'px';}
+addEventListener('resize',fit);fit();
+let seed=20261009;function R(){seed=(seed*16807)%2147483647;return seed/2147483647}
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+const cols=['#d8341c','#1f9a6e','#e8a21a','#2a6fb8'];
+// build symmetric coral tree: left half mirrored
+let B=[];
+function grow(px,py,a,len,w,d,t0,ci){
+ const ex=px+Math.cos(a)*len,ey=py+Math.sin(a)*len;
+ B.push({px,py,ex,ey,w,t0,d,ci});
+ if(d>=6)return;
+ const n=d<2?2:(R()<.7?2:1);
+ for(let i=0;i<n;i++){const da=(n==1?0:(i?1:-1))*(0.32+R()*0.3);
+  grow(ex,ey,a+da+(R()-.5)*.15,len*(0.72+R()*.12),w*0.7,d+1,t0+1,(ci+i+d)%4);}
+}
+grow(270,880,-Math.PI/2,150,46,0,0,0);
+const STEP=2.2,GROW=B.reduce((m,b)=>Math.max(m,b.t0),0)+1,HOLD=10,FADE=3,CYC=GROW*STEP+HOLD+FADE;
+function seg(b,p){const ex=b.px+(b.ex-b.px)*p,ey=b.py+(b.ey-b.py)*p;return[ex,ey]}
+function koru(cx,cy,r,col,k,p){ // thick spiral bud
+ x.save();x.translate(cx,cy);x.scale(k,1);
+ x.fillStyle='#16110d';x.beginPath();x.arc(0,0,r*p,0,7);x.fill();
+ x.fillStyle=col;x.beginPath();x.arc(r*.18*p,0,r*.7*p,0,7);x.fill();
+ x.fillStyle='#16110d';x.beginPath();x.arc(r*.32*p,0,r*.38*p,0,7);x.fill();
+ x.fillStyle='#f2e9d3';x.beginPath();x.arc(r*.4*p,0,r*.14*p,0,7);x.fill();
+ x.restore();}
+function draw(ms){
+ const t=(ms/1000)%CYC;let al=1;if(t>CYC-FADE)al=(CYC-t)/FADE;
+ x.clearRect(0,0,540,960);x.globalAlpha=al;x.lineCap='round';
+ // ground band
+ x.fillStyle='#16110d';x.fillRect(0,880,540,8);
+ for(const pass of[0,1])for(const b of B){
+  const p=Math.max(0,Math.min(1,(t-b.t0*STEP)/STEP));if(p<=0)continue;
+  const[ex,ey]=seg(b,p);
+  x.strokeStyle=pass?cols[b.ci]:'#16110d';x.lineWidth=pass?b.w*.55:b.w;
+  x.beginPath();x.moveTo(b.px,b.py);x.lineTo(ex,ey);x.stroke();
+  if(pass){x.strokeStyle='#16110d';x.lineWidth=Math.max(1.5,b.w*.12);x.beginPath();x.moveTo(b.px,b.py);x.lineTo(ex,ey);x.stroke();}
+ }
+ for(const b of B){if(b.d<6)continue;const p=Math.max(0,Math.min(1,(t-(b.t0+1)*STEP)/STEP));
+  if(p>0)koru(b.ex,b.ey,14,cols[(b.ci+1)%4],b.ex<270?-1:1,p);}
+ // single starfish at base
+ const sp=Math.max(0,Math.min(1,(t-3*STEP)/STEP));
+ if(sp>0){x.save();x.translate(395,862);x.rotate(t*.03);x.fillStyle='#16110d';
+  for(let k=0;k<2;k++){x.beginPath();for(let i=0;i<10;i++){const r=(i%2?9:24)*sp*(k?.7:1),a=i*Math.PI/5-Math.PI/2;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.fill();x.fillStyle='#d8341c'}
+  x.restore();}
+ x.globalAlpha=1;requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+if(window.self===window.top){addEventListener('load',()=>{try{const A=new AudioContext(),g=A.createGain();g.gain.value=.03;g.connect(A.destination);[55,82.5].forEach(f=>{const o=A.createOscillator();o.frequency.value=f;o.connect(g);o.start()})}catch(e){}})}
+</script></body></html>
