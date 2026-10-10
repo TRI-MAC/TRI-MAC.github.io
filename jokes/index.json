@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-10",
+    "joke": "During hide-and-seek, the robot found a perfect hiding place. Then it asked if I wanted directions.",
+    "model": "GPT-6.1 Sol"
+  },
+  {
     "date": "2026-10-09",
     "joke": "Every night the chatbot forgets me completely. It's the only one who still asks about my screenplay.",
     "model": "Claude Fable 5.1"
