@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f3d8}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f5f3d8}
+svg{position:absolute;inset:0;width:1080px;height:1920px}
+#art-image{position:absolute;left:153px;top:679px;width:774px;height:568px;object-fit:cover;opacity:1;filter:saturate(.8) contrast(1.08);clip-path:polygon(0 0,88% 0,88% 7%,100% 7%,100% 88%,94% 88%,94% 100%,8% 100%,8% 93%,0 93%);box-shadow:0 12px 0 #d4b78b}
+.tooth{transform-box:fill-box;transform-origin:left center;animation:exchange 24s ease-in-out infinite}
+.right{transform-origin:right center;animation-direction:reverse}
+@keyframes exchange{0%,100%{transform:scaleX(.73)}50%{transform:scaleX(1.08)}}
+#guinea-pig{position:absolute;left:917px;top:1251px;width:18px;height:18px;object-fit:contain;opacity:.58}
+#date{position:absolute;bottom:35px;right:49px;color:#655e48;font:18px monospace;letter-spacing:2px}
+@media(prefers-reduced-motion:reduce){.tooth{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="A light-ground triptych in which coral and turquoise stepped seams slowly exchange space across a textured central panel.">
+<svg id="back" viewBox="0 0 1080 1920" aria-hidden="true">
+<path fill="#e8e6bd" d="M106 110H958V644H909V1288H970V1798H118V1303H165V647H106Z"/>
+<path fill="#ffce52" d="M123 129H491V615H157V1309H487V1775H123Z"/>
+<path fill="#c2e9d7" d="M589 129H950V615H925V1309H589V1775H950V1309H974V615H950V129Z"/>
+<path fill="#e97651" d="M153 660H492V1267H153Z"/>
+<path fill="#27a895" d="M588 660H927V1267H588Z"/>
+</svg>
+<img id="art-image" src="art.png" alt="Generated texture forming the middle zone of the triptych">
+<img id="guinea-pig" src="guineapig.png" alt="">
+<svg id="front" viewBox="0 0 1080 1920" aria-hidden="true"></svg>
+<div id="date">2026-10-11</div>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const w=window.innerWidth,h=window.innerHeight,s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=`${(w-1080*s)/2}px`;
+stage.style.top=`${(h-1920*s)/2}px`;
+}
+addEventListener('resize',fit);fit();
+const svg=document.getElementById('front'),NS='http://www.w3.org/2000/svg';
+let seed=20261011;
+function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+function path(d,fill,parent=svg){
+const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill',fill);parent.appendChild(p);return p;
+}
+function seam(y,n,spacing,overImage){
+for(let i=0;i<n;i++){
+const yy=y+i*spacing;
+const reach=255+rand()*94;
+const inset=18+rand()*21;
+const tall=spacing*.68;
+for(let side=0;side<2;side++){
+const g=document.createElementNS(NS,'g');
+g.setAttribute('class','tooth'+(side?' right':''));
+g.style.animationDelay=(-i*1.1-(overImage?7:0))+'s';
+svg.appendChild(g);
+const a=side?938:142,dir=side?-1:1;
+const x=v=>a+dir*v;
+const base=side?'#24a990':'#f1744f';
+path(`M${x(0)} ${yy+10}H${x(reach-31)}V${yy+tall*.3+10}H${x(reach+13)}V${yy+tall+10}H${x(inset)}V${yy+tall*.72+10}H${x(0)}Z`,'#d5c497',g);
+path(`M${x(0)} ${yy}H${x(reach-31)}V${yy+tall*.3}H${x(reach+13)}V${yy+tall}H${x(inset)}V${yy+tall*.72}H${x(0)}Z`,base,g);
+path(`M${x(0)} ${yy}H${x(reach-31)}V${yy+8}H${x(0)}Z`,side?'#8bddbd':'#ffb281',g);
+path(`M${x(reach-13)} ${yy+tall*.3+7}H${x(reach+13)}V${yy+tall*.3+19}H${x(reach-13)}Z`,'#384e40',g);
+}
+}
+}
+seam(157,7,61,false);
+seam(632,2,66,true);
+seam(1162,2,67,true);
+seam(1335,7,60,false);
+path('M494 139H509V603H494ZM571 1328H586V1774H571Z','#f5f3d8');
+path('M139 1281H940V1293H139Z','#f5f3d8');
+})();
+</script>
+</body>
+</html>
