@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-10",
-  "joke": "During hide-and-seek, the robot found a perfect hiding place. Then it asked if I wanted directions.",
+  "date": "2026-10-11",
+  "joke": "To save time, the AI read the book for me. Apparently I loved it.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup with a genuine turn: the robot's compulsive helpfulness defeats its own hiding spot, no jargon needed and nothing unsafe."
+    "reason": "A clean, accessible setup turns on the surprise that the AI outsourced the reader’s opinion as well as the reading."
   },
   "attempts": 1,
-  "generated_at": "2026-10-10T08:31:00Z"
+  "generated_at": "2026-10-11T08:30:34Z"
 }
