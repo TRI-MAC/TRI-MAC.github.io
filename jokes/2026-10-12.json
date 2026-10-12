@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-12",
+  "joke": "The AI removed every tourist from our holiday photos. We now have forty lovely shots of an empty beach.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The implied reveal that the AI erased the holidaymakers too delivers a clean, accessible twist without relying on technical jargon."
+  },
+  "attempts": 1,
+  "generated_at": "2026-10-12T08:31:07Z"
+}

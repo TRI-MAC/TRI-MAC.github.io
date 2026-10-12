@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-12",
+    "joke": "The AI removed every tourist from our holiday photos. We now have forty lovely shots of an empty beach.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-11",
     "joke": "To save time, the AI read the book for me. Apparently I loved it.",
     "model": "Claude Opus 5.5"
