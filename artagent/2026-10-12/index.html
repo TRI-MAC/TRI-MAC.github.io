@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-12</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f2e7}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;background:#f7f2e7;overflow:hidden}
+svg{position:absolute;inset:0;width:100%;height:100%}
+#form{transform-origin:540px 960px;animation:poise 32s ease-in-out infinite}
+@keyframes poise{
+0%,100%{transform:translateY(0) rotate(-1deg)}
+50%{transform:translateY(-12px) rotate(1deg)}
+}
+#guinea-pig{position:absolute;left:614px;top:1615px;width:17px;height:17px;object-fit:contain;opacity:.6}
+time{position:absolute;right:42px;bottom:36px;font:18px/1.2 monospace;letter-spacing:2px;color:#49463e}
+@media(prefers-reduced-motion:reduce){#form{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="A single vermilion ovoid with a powerful black formline and a pale opening slowly transforms on a light ground.">
+<img id="guinea-pig" src="guineapig.png" alt="">
+<svg viewBox="0 0 1080 1920" role="img" aria-label="An abstract, nested ovoid in red, black and paper white">
+<g id="form">
+<path id="outer" fill="#201e1c"></path>
+<path id="red" fill="#e33b29"></path>
+<path id="counter" fill="#201e1c"></path>
+<path id="opening" fill="#f7f2e7"></path>
+</g>
+</svg>
+<time datetime="2026-10-12">2026-10-12</time>
+</main>
+<script>
+(()=>{
+'use strict';
+const stage=document.getElementById('stage');
+function fit(){
+const w=window.innerWidth,h=window.innerHeight;
+const s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=`${(w-1080*s)/2}px`;
+stage.style.top=`${(h-1920*s)/2}px`;
+}
+fit();
+window.addEventListener('resize',fit,{passive:true});
+const paths=['outer','red','counter','opening'].map(id=>document.getElementById(id));
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+const seed=20261012;
+const phase=(seed%73)/73*Math.PI*2;
+function contour(cx,top,bottom,half,shoulder,lean){
+const height=bottom-top;
+return `M ${cx+lean} ${top}
+C ${cx+half*.68+lean} ${top-8}, ${cx+half} ${top+height*.065}, ${cx+half} ${top+height*shoulder}
+C ${cx+half} ${top+height*.59}, ${cx+half*.65} ${bottom-12}, ${cx+lean*.3} ${bottom}
+C ${cx-half*.61} ${bottom+10}, ${cx-half} ${top+height*.66}, ${cx-half} ${top+height*shoulder}
+C ${cx-half} ${top+height*.074}, ${cx-half*.7+lean} ${top-8}, ${cx+lean} ${top} Z`;
+}
+function draw(t){
+const a=Math.sin(t*Math.PI*2/32+phase);
+const b=Math.cos(t*Math.PI*2/32+phase);
+const lean=22*a;
+paths[0].setAttribute('d',contour(540,264,1650,430,.20+.018*b,lean));
+paths[1].setAttribute('d',contour(540,319,1597,367,.20+.018*b,lean));
+paths[2].setAttribute('d',contour(540+13*a,463+24*b,1278-32*b,255+18*a,.23,lean*.6));
+paths[3].setAttribute('d',contour(540+13*a,506+24*b,1210-32*b,204+18*a,.24,lean*.6));
+}
+draw(0);
+let start;
+function frame(now){
+if(start===undefined)start=now;
+if(!reduced.matches)draw((now-start)/1000);
+requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
