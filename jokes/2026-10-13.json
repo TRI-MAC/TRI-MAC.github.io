@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-13",
+  "joke": "The chatbot listed all the things I shouldn't worry about. I hadn't even thought of half of them.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean setup and a genuine reversal (the reassurance manufactures the anxiety) that anyone who has sat through a disclaimer gets, with no safety issues and no jargon doing the work."
+  },
+  "attempts": 1,
+  "generated_at": "2026-10-13T08:32:16Z"
+}
