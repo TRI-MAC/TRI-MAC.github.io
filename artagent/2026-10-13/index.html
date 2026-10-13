@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>Woven study</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#ac593e}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;background:#b65e40;overflow:hidden}
+svg{display:block;width:100%;height:100%}
+.weft{animation:settle 24s ease-in-out infinite}
+.second{animation-delay:-8s}
+.third{animation-delay:-16s}
+@keyframes settle{0%,100%{transform:translateY(-13px)}50%{transform:translateY(13px)}}
+#guinea-pig{position:absolute;left:863px;top:1342px;width:18px;height:18px;object-fit:contain;opacity:.58;clip-path:inset(0 0 5px 0)}
+.date{position:absolute;bottom:43px;right:48px;font:18px Georgia,serif;letter-spacing:2px;color:#efbd83;opacity:.7}
+@media(prefers-reduced-motion:reduce){.weft{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="Six broad, woodblock-like strands of indigo and golden ochre interlace on a terracotta field. The crosswise strands slowly settle through the weave.">
+<svg id="weave" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs id="definitions"></defs>
+<g id="back"></g>
+<g id="warp"></g>
+<g id="front"></g>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<time class="date" datetime="2026-10-13">2026-10-13</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ stage.style.transform=`scale(${s})`;
+ stage.style.left=(w-1080*s)/2+'px';
+ stage.style.top=(h-1920*s)/2+'px';
+}
+fit();addEventListener('resize',fit);
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){
+ const n=document.createElementNS(NS,tag);
+ for(const k in attrs)n.setAttribute(k,attrs[k]);
+ if(parent)parent.appendChild(n);
+ return n;
+}
+let seed=20261013;
+function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+const defs=document.getElementById('definitions');
+const xs=[222,471,720], ys=[594,903,1212];
+const widths=[145,162,145];
+function ribbon(id,x,y,w,h,color,vertical){
+ const group=el('g',{id},defs);
+ let points=[];
+ if(vertical){
+  points.push([x+5,y+8],[x+w*.43,y],[x+w-4,y+5]);
+  for(let j=0;j<=14;j++)points.push([x+w+(random()-.5)*5,y+12+(h-24)*j/14]);
+  points.push([x+w-6,y+h-2],[x+w*.6,y+h+4],[x+3,y+h]);
+  for(let j=14;j>=0;j--)points.push([x+(random()-.5)*5,y+12+(h-24)*j/14]);
+ }else{
+  points.push([x+5,y+6]);
+  for(let j=0;j<=12;j++)points.push([x+10+(w-20)*j/12,y+(random()-.5)*5]);
+  points.push([x+w-2,y+h*.4],[x+w+3,y+h-4]);
+  for(let j=12;j>=0;j--)points.push([x+10+(w-20)*j/12,y+h+(random()-.5)*5]);
+  points.push([x,y+h-7],[x+3,y+h*.6]);
+ }
+ const d=points.map(p=>p.join(',')).join(' ');
+ el('polygon',{points:d,fill:color},group);
+ // A handful of carved, longitudinal fibre channels remain inside each strand.
+ for(let i=0;i<11;i++){
+  let a=(i+1)/12;
+  const inset=20+random()*35;
+  const length=(vertical?h:w)-inset-20-random()*50;
+  if(vertical){
+   el('path',{d:`M ${x+w*a} ${y+inset} l ${random()*2-1} ${length}`,stroke:i%3?'#66818a':'#112f41','stroke-width':i%3?1.2:2.2,opacity:i%3?.28:.45},group);
+  }else{
+   el('path',{d:`M ${x+inset} ${y+h*a} l ${length} ${random()*2-1}`,stroke:i%3?'#f0c076':'#89602f','stroke-width':i%3?1.3:2,opacity:.38},group);
+  }
+ }
+ return group;
+}
+ys.forEach((y,i)=>ribbon('weft'+i,101-i*9,y,884+i*4,153,['#dba346','#c58a35','#dfa94e'][i],false));
+xs.forEach((x,i)=>ribbon('warp'+i,x,230-i*30,widths[i],1430+i*19,['#244b5c','#1e4356','#2c5360'][i],true));
+function movingUse(i,parent){
+ const g=el('g',{class:'weft '+(['','second','third'][i])},parent);
+ el('use',{href:'#weft'+i},g);
+ return g;
+}
+ys.forEach((_,i)=>movingUse(i,document.getElementById('back')));
+xs.forEach((_,i)=>el('use',{href:'#warp'+i},document.getElementById('warp')));
+ys.forEach((y,row)=>{
+ const clip=el('clipPath',{id:'cross'+row},defs);
+ xs.forEach((x,col)=>{
+  if((row+col)%2===0)el('rect',{x:x-5,y:y-35,width:widths[col]+10,height:225},clip);
+ });
+ const outer=el('g',{'clip-path':`url(#cross${row})`},document.getElementById('front'));
+ const g=el('g',{class:'weft '+(['','second','third'][row])},outer);
+ el('rect',{x:80,y:y+148,width:930,height:12,fill:'#122e36',opacity:'.3'},g);
+ el('use',{href:'#weft'+row},g);
+});
+})();
+</script>
+</body>
+</html>
