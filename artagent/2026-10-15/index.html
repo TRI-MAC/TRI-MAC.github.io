@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-10-15</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#f3ead8}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f6eedc}
+#sky{position:absolute;left:0;top:0;width:1080px;height:760px;background:linear-gradient(#fbf4e2,#f3e3c4 70%,#efd9b6)}
+#scene-image{position:absolute;left:0;bottom:0;width:1080px;height:1300px;object-fit:cover;
+ -webkit-mask-image:linear-gradient(transparent 0,#000 220px);mask-image:linear-gradient(transparent 0,#000 220px)}
+#veil{position:absolute;left:0;top:0;width:540px;height:960px;transform:scale(2);transform-origin:top left}
+.band{position:absolute;left:-60px;width:1200px;border-radius:60px;opacity:.85;animation:slide linear infinite alternate}
+@keyframes slide{from{transform:translateX(-40px)}to{transform:translateX(40px)}}
+#date{position:absolute;right:28px;bottom:22px;font:16px monospace;color:#4a3a2a;opacity:.45}
+#guinea-pig{position:absolute;left:14px;bottom:60px;width:16px;opacity:.55}
+</style></head><body>
+<div id="stage">
+<div id="sky"></div>
+<img id="scene-image" src="scene.png" alt="">
+<canvas id="veil" width="540" height="960"></canvas>
+<div class="band" style="top:560px;height:70px;background:#e98f6a;animation-duration:31s"></div>
+<div class="band" style="top:640px;height:46px;background:#7fc4b8;animation-duration:43s;opacity:.7"></div>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-10-15</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${s})`;
+st.style.left=(innerWidth-1080*s)/2+'px';st.style.top=(innerHeight-1920*s)/2+'px'}
+addEventListener('resize',fit);fit();
+let seed=20261015;const R=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const c=document.getElementById('veil').getContext('2d');
+const cols=['#e5603f','#f2b33d','#3f9e8a','#d9577a','#4a78c2'];
+const strokes=[];for(let i=0;i<9;i++)strokes.push({y:40+R()*300,h:14+R()*22,w:120+R()*240,c:cols[i%5],p:R()*6,s:.05+R()*.08});
+function f(t){t/=1000;c.clearRect(0,0,540,960);
+for(const k of strokes){const x=(Math.sin(t*k.s+k.p)*.5+.5)*(540-k.w);
+c.fillStyle=k.c;c.globalAlpha=.8;c.beginPath();c.ellipse(x+k.w/2,k.y,k.w/2,k.h/2,0,0,7);c.fill()}
+requestAnimationFrame(f)}requestAnimationFrame(f);
+</script></body></html>
