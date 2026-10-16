@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-10-16</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#e9e2cf}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;
+background:linear-gradient(180deg,#f3ecd8 0%,#d9e6dc 38%,#b9d6d0 70%,#e6d7b6 100%)}
+#persp{position:absolute;inset:0}
+#art-image{position:absolute;left:150px;top:430px;width:780px;height:880px;object-fit:cover;opacity:.95;
+filter:sepia(.25) saturate(.85) contrast(.95) brightness(1.05);
+-webkit-mask-image:radial-gradient(ellipse 70% 68% at 50% 50%,#000 55%,transparent 100%);
+mask-image:radial-gradient(ellipse 70% 68% at 50% 50%,#000 55%,transparent 100%);
+box-shadow:0 30px 80px rgba(90,70,40,.3);animation:br 40s ease-in-out infinite}
+@keyframes br{50%{transform:scale(1.02)}}
+#coral{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#rays{position:absolute;inset:0;pointer-events:none}
+.ray{position:absolute;top:-200px;width:160px;height:1500px;background:linear-gradient(180deg,rgba(255,250,225,.55),transparent);
+transform-origin:top center;animation:sway 22s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-14deg);opacity:.5}50%{transform:rotate(-8deg);opacity:.85}}
+#date{position:absolute;right:34px;bottom:26px;font:16px Georgia,serif;color:#6d5a3c;opacity:.55;letter-spacing:2px}
+#guinea-pig{position:absolute;left:58px;top:1798px;width:16px;opacity:.5}
+</style></head><body>
+<div id="stage">
+<svg id="persp" viewBox="0 0 1080 1920">
+<defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3d2a8"/><stop offset="1" stop-color="#cdb27a"/></linearGradient></defs>
+<polygon points="0,1350 1080,1350 1080,1920 0,1920" fill="url(#fl)"/>
+<g stroke="#a88c58" stroke-width="2" opacity=".55" id="grid"></g>
+</svg>
+<img id="art-image" src="art.png" alt="">
+<div id="rays"><div class="ray" style="left:300px"></div><div class="ray" style="left:620px;animation-delay:-9s;width:110px"></div></div>
+<canvas id="coral" width="540" height="960"></canvas>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">16 · X · MMXXVI</div>
+</div>
+<script>
+const S=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);S.style.transform=`scale(${s})`;S.style.left=(innerWidth-1080*s)/2+'px';S.style.top=(innerHeight-1920*s)/2+'px'}
+addEventListener('resize',fit);fit();
+// perspective grid on sea floor, vanishing point centered
+const g=document.getElementById('grid'),vx=540,vy=1000;let h='';
+for(let i=-10;i<=10;i++){const x=540+i*150;h+=`<line x1="${vx+(x-vx)*.12}" y1="1350" x2="${x}" y2="1920"/>`}
+for(let k=0;k<7;k++){const y=1350+570*Math.pow(k/6,1.8);h+=`<line x1="0" y1="${y}" x2="1080" y2="${y}"/>`}
+g.innerHTML=h;
+// seeded rng
+let sd=20261016;const R=()=>(sd=(sd*1664525+1013904223)>>>0)/4294967296;
+const c=document.getElementById('coral'),x=c.getContext('2d');
+const pal=[[200,70,50],[214,120,70],[150,60,90],[190,90,110],[70,120,110]];
+let colonies=[];
+function build(){
+ colonies=[];
+ const bases=[[70,900,1.2],[470,910,1.15],[150,700,.7],[400,690,.75],[275,760,.55]];
+ for(const [bx,by,sc] of bases){const segs=[];const col=pal[(R()*pal.length)|0];
+  (function br(px,py,a,len,w,d,t){const nx=px+Math.cos(a)*len,ny=py+Math.sin(a)*len;
+   segs.push({px,py,nx,ny,w,t,d});if(d>7||w<1.2)return;
+   const n=R()<.6?2:1;for(let i=0;i<n;i++)br(nx,ny,a+(R()-.5)*1.1+(n==2?(i?.35:-.35):0),len*(.78+R()*.12),w*.72,d+1,t+1+R()*.4)})
+  (bx,by,-Math.PI/2+(R()-.5)*.4,52*sc,16*sc,0,0);
+  colonies.push({segs,col,sc,off:R()*.3});}
+}
+build();
+const CYC=90;let t0=performance.now();
+function frame(now){
+ let p=((now-t0)/1000)%CYC/CYC; // 0..1
+ let grow=Math.min(1,p/0.7)*9, fade=p>0.88?1-(p-0.88)/0.12:1;
+ x.clearRect(0,0,540,960);x.globalAlpha=fade;x.lineCap='round';
+ for(const k of colonies){
+  const gr=grow-k.off*9;
+  for(const s of k.segs){let f=Math.max(0,Math.min(1,gr-s.t));if(!f)continue;
+   const ex=s.px+(s.nx-s.px)*f,ey=s.py+(s.ny-s.py)*f;
+   const m=Math.min(1,s.d/7),[r,gg,b]=k.col;
+   const cr=Math.round(235+(r-235)*Math.min(1,gr/6)),cg=Math.round(225+(gg-225)*Math.min(1,gr/6)),cb=Math.round(205+(b-205)*Math.min(1,gr/6));
+   x.strokeStyle=`rgb(${cr*(1-m*.15)|0},${cg|0},${cb|0})`;x.lineWidth=s.w*k.sc;
+   x.beginPath();x.moveTo(s.px,s.py);x.lineTo(ex,ey);x.stroke();
+   x.strokeStyle='rgba(255,245,220,.35)';x.lineWidth=s.w*k.sc*.3;
+   x.beginPath();x.moveTo(s.px-s.w*.2,s.py);x.lineTo(ex-s.w*.2,ey);x.stroke();
+   if(f==1&&s.d>6){x.fillStyle=`rgb(${cr},${cg+40},${cb+30})`;x.beginPath();x.arc(s.nx,s.ny,s.w*k.sc*.8,0,7);x.fill()}
+  }}
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+if(window.self===window.top){addEventListener('load',()=>{try{const a=new AudioContext(),o=a.createOscillator(),gn=a.createGain();o.type='sine';o.frequency.value=110;gn.gain.value=.02;o.connect(gn).connect(a.destination);o.start()}catch(e){}})}
+</script></body></html>
