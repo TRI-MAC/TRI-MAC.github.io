@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-15",
-  "joke": "The smart thermostat learned our routine in about a week. We've been sticking to it ever since.",
+  "date": "2026-10-16",
+  "joke": "After seeing a hundred photos of my cat, the AI asked why I'd given the sofa a name.",
   "model": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic"
-  },
-  "scheduled_family": "fable",
-  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "The familiar setup turns neatly into the people obeying the thermostat, a clean reversal that needs no technical knowledge."
+    "reason": "Clean setup with a genuine turn—the cat is so inseparable from the sofa the AI took it for upholstery—that lands for anyone who has owned a cat, no AI knowledge required, and it is entirely safe."
   },
   "attempts": 1,
-  "generated_at": "2026-10-15T08:31:08Z"
+  "generated_at": "2026-10-16T08:33:27Z"
 }
