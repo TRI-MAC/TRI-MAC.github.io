@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-17</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#c48b2b;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#c48b2b;overflow:hidden;}
+
+  /* cream plane behind the image — a Suprematist plane */
+  #plane{position:absolute;left:400px;top:1480px;width:560px;height:300px;background:#ece0c3;transform:rotate(-4deg);}
+
+  /* the image: textured panel of the diptych */
+  #art-image{position:absolute;left:470px;top:1150px;width:500px;height:700px;object-fit:cover;display:block;
+    filter:sepia(.45) saturate(1.25) contrast(1.06) brightness(.96);
+    transform:rotate(3deg);transform-origin:center;
+    box-shadow:14px 18px 0 0 rgba(21,18,16,.35);
+    animation:imgDrift 48s ease-in-out infinite;}
+  @keyframes imgDrift{0%,100%{transform:rotate(3deg) translate(0,0)}50%{transform:rotate(3deg) translate(4px,-6px)}}
+
+  /* woven panel */
+  #weave{position:absolute;left:150px;top:90px;width:720px;height:1200px;transform:rotate(-7deg);transform-origin:50% 0;image-rendering:pixelated;image-rendering:crisp-edges;}
+
+  /* black bar crossing the image edge, in front */
+  #bar{position:absolute;left:170px;top:1720px;width:800px;height:70px;transform:rotate(-12deg);
+    animation:barDrift 60s ease-in-out infinite;}
+  @keyframes barDrift{0%,100%{transform:rotate(-12deg) translateX(0)}50%{transform:rotate(-12deg) translateX(-40px)}}
+
+  /* red square, floating */
+  #redsq{position:absolute;left:880px;top:300px;width:96px;height:96px;transform:rotate(14deg);
+    animation:sqDrift 70s ease-in-out infinite;}
+  @keyframes sqDrift{0%,100%{transform:rotate(14deg) translate(0,0)}50%{transform:rotate(20deg) translate(-18px,30px)}}
+
+  #date{position:absolute;left:36px;bottom:30px;font:13px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.2em;color:#151210;opacity:.5;}
+  #guinea-pig{position:absolute;left:224px;top:1771px;width:17px;height:auto;opacity:.6;transform:rotate(-12deg);filter:sepia(.6) brightness(.8);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="plane"></div>
+  <img id="art-image" src="art.png" alt="">
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <canvas id="weave" width="480" height="800"></canvas>
+  <svg id="bar" viewBox="0 0 800 70" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="800" height="70" fill="#151210"/></svg>
+  <svg id="redsq" viewBox="0 0 96 96" aria-hidden="true"><rect x="0" y="0" width="96" height="96" fill="#c8311e"/></svg>
+  <div id="date">2026-10-17</div>
+</div>
+
+<script>
+(function(){
+  // ---------- responsive shell ----------
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((window.innerWidth-1080*s)/2)+'px';
+    stage.style.top=((window.innerHeight-1920*s)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+
+  // ---------- date seed ----------
+  var seed=20261017;
+  function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+
+  // ---------- weave ----------
+  var cv=document.getElementById('weave'), ctx=cv.getContext('2d');
+  var W=480,H=800,T=6, COLS=W/T, ROWS=H/T, WOVEN_MAX=104; // rows that can be woven; the rest hang loose
+  var BLACK='#151210', CREAM='#ece0c3', RED='#c8311e', OCHRE_D='#9a6a1c';
+
+  // warp colours per column: black with a few cream columns
+  var warpCol=[]; for(var i=0;i<COLS;i++) warpCol.push(BLACK);
+  var creamCount=3+Math.floor(rnd()*3);
+  for(var k=0;k<creamCount;k++){ var c=4+Math.floor(rnd()*(COLS-8)); warpCol[c]=CREAM; warpCol[Math.min(COLS-1,c+1)]=CREAM; }
+
+  // weft colours per row: cream with a red band
+  var weftCol=[]; var redStart=Math.floor(WOVEN_MAX*(0.45+rnd()*0.3)), redH=10+Math.floor(rnd()*8);
+  for(var j=0;j<ROWS;j++) weftCol.push(j>=redStart && j<redStart+redH ? RED : CREAM);
+
+  // design mask: warp-faced (1) inside a tilted large rectangle and a diagonal bar
+  var ang=(-0.22+rnd()*0.08), ca=Math.cos(ang), sa=Math.sin(ang);
+  var rcx=COLS*(0.44+rnd()*0.12), rcy=WOVEN_MAX*(0.42+rnd()*0.1), rw=COLS*0.34, rh=WOVEN_MAX*0.26;
+  var bAng=0.95+rnd()*0.3, cb=Math.cos(bAng), sb=Math.sin(bAng), bcx=COLS*0.62, bcy=WOVEN_MAX*0.62, bw=COLS*0.9, bh=COLS*0.07;
+  var mask=new Uint8Array(COLS*ROWS);
+  for(var j=0;j<ROWS;j++)for(var i=0;i<COLS;i++){
+    var x=i+0.5-rcx, y=j+0.5-rcy;
+    var u=x*ca+y*sa, v=-x*sa+y*ca;
+    var inRect=Math.abs(u)<rw/2 && Math.abs(v)<rh/2;
+    var x2=i+0.5-bcx, y2=j+0.5-bcy;
+    var u2=x2*cb+y2*sb, v2=-x2*sb+y2*cb;
+    var inBar=Math.abs(u2)<bw/2 && Math.abs(v2)<bh/2;
+    mask[j*COLS+i]=(inRect||inBar)?1:0;
+  }
+
+  // static layer: loose warp threads (drawn once)
+  var warpLayer=document.createElement('canvas'); warpLayer.width=W; warpLayer.height=H;
+  var wctx=warpLayer.getContext('2d');
+  for(var i=0;i<COLS;i++){ wctx.fillStyle=warpCol[i]; wctx.fillRect(i*T+2,0,2,H); }
+
+  function cellColor(i,j){
+    var warpUp=mask[j*COLS+i]===1;
+    var peek=((i+3*j)%5)===0;
+    if(warpUp!==peek) return warpCol[i];
+    return weftCol[j];
+  }
+
+  function drawRow(j,cols){
+    for(var i=0;i<cols;i++){
+      ctx.fillStyle=cellColor(i,j);
+      ctx.fillRect(i*T,j*T,T,T);
+    }
+    // weft shadow line gives the interlace relief
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.fillRect(0,j*T+T-1,cols*T,1);
+    for(var i=0;i<cols;i++){ if(mask[j*COLS+i]===1){ ctx.fillRect(i*T,j*T,1,T); } }
+  }
+
+  var CYCLE=72, WEAVE_T=48, HOLD_T=10;
+  function ease(x){ return x<0.5?2*x*x:1-Math.pow(-2*x+2,2)/2; }
+
+  function frame(){
+    var t=(performance.now()/1000)%CYCLE, p;
+    if(t<WEAVE_T) p=ease(t/WEAVE_T);
+    else if(t<WEAVE_T+HOLD_T) p=1;
+    else p=1-ease((t-WEAVE_T-HOLD_T)/(CYCLE-WEAVE_T-HOLD_T));
+    var prog=p*WOVEN_MAX, full=Math.floor(prog), frac=prog-full;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(warpLayer,0,0);
+    for(var j=0;j<full;j++) drawRow(j,COLS);
+    if(full<WOVEN_MAX){
+      var dir=(full%2===0);
+      var n=Math.floor(frac*COLS);
+      if(dir) drawRow(full,n);
+      else {
+        for(var i=COLS-n;i<COLS;i++){ ctx.fillStyle=cellColor(i,full); ctx.fillRect(i*T,full*T,T,T); }
+        ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect((COLS-n)*T,full*T+T-1,n*T,1);
+      }
+      // shuttle thread: the weft being carried across
+      ctx.fillStyle=weftCol[full];
+      var sx=dir?n*T:(COLS-n)*T-T*5;
+      ctx.fillRect(Math.max(0,sx),full*T+1,T*5,T-2);
+    }
+    // fell line
+    ctx.fillStyle=OCHRE_D;
+    ctx.fillRect(0,Math.min(WOVEN_MAX,full+(full<WOVEN_MAX?1:0))*T,W,1);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---------- quiet loom drone ----------
+  if(window.self===window.top){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(AC){
+        var ac=new AC(), g=ac.createGain(); g.gain.value=0.0; g.connect(ac.destination);
+        var o1=ac.createOscillator(), o2=ac.createOscillator();
+        o1.type='sine'; o2.type='sine'; o1.frequency.value=110; o2.frequency.value=165.2;
+        var g2=ac.createGain(); g2.gain.value=0.4; o2.connect(g2); g2.connect(g); o1.connect(g);
+        o1.start(); o2.start();
+        g.gain.linearRampToValueAtTime(0.04, ac.currentTime+8);
+        var resume=function(){ if(ac.state==='suspended') ac.resume(); };
+        document.addEventListener('visibilitychange',resume);
+        setTimeout(resume,500);
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
