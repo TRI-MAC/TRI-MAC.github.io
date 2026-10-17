@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-16",
-  "joke": "After seeing a hundred photos of my cat, the AI asked why I'd given the sofa a name.",
+  "date": "2026-10-17",
+  "joke": "Before I'd finished typing, the AI had already answered. Now I just need a question to go with it.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup with a genuine turn—the cat is so inseparable from the sofa the AI took it for upholstery—that lands for anyone who has owned a cat, no AI knowledge required, and it is entirely safe."
+    "reason": "The setup promises impressive speed, then turns it into absurd uselessness—a clean, accessible reversal that earns a smile."
   },
-  "attempts": 1,
-  "generated_at": "2026-10-16T08:33:27Z"
+  "attempts": 2,
+  "generated_at": "2026-10-17T08:30:54Z"
 }
