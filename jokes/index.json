@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-18",
+    "joke": "I've spent so long talking to the chatbot that I've picked up its habits. Let me know if you'd like me to expand on that.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-17",
     "joke": "Before I'd finished typing, the AI had already answered. Now I just need a question to go with it.",
     "model": "Claude Opus 5.5"
