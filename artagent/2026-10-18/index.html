@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eee8d6}
+body{display:grid;place-items:center}
+#stage{position:absolute;width:1080px;height:1920px;overflow:hidden;background:#fff2ce;transform-origin:top left}
+svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#art-image{position:absolute;left:164px;top:366px;width:752px;height:1160px;object-fit:cover;filter:saturate(1.12) contrast(1.03);box-shadow:14px 18px 0 #c56440}
+.front-left{animation:leftSleeve 22s ease-in-out infinite}
+.front-right{animation:rightSleeve 22s ease-in-out infinite}
+.fold{animation:fold 22s ease-in-out infinite;transform-origin:540px 1560px}
+@keyframes leftSleeve{0%,100%{transform:translateX(0) rotate(0deg)}50%{transform:translateX(-62px) rotate(-2deg)}}
+@keyframes rightSleeve{0%,100%{transform:translateX(0) rotate(0deg)}50%{transform:translateX(62px) rotate(2deg)}}
+@keyframes fold{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.91)}}
+#date{position:absolute;bottom:36px;right:49px;font:18px Georgia,serif;letter-spacing:3px;color:#614738}
+#guinea-pig{position:absolute;left:822px;top:1661px;width:18px;height:18px;object-fit:contain;opacity:.56}
+@media(prefers-reduced-motion:reduce){.front-left,.front-right,.fold{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="A theatrical image held within enormous patterned kimono sleeves, slowly opening like a folded print.">
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<defs>
+<pattern id="grain" width="83" height="73" patternUnits="userSpaceOnUse">
+<path d="M9 15h3m35 35h2m27-42h2M21 65h4" stroke="#a37949" stroke-opacity=".17" stroke-width="2"/>
+</pattern>
+<pattern id="redPattern" width="124" height="124" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+<rect width="124" height="124" fill="#ee5838"/>
+<path d="M0 62 62 0l62 62-62 62Z" fill="none" stroke="#ffe3a0" stroke-width="12"/>
+<path d="m37 62 25-25 25 25-25 25Z" fill="#f5ab36"/>
+</pattern>
+<pattern id="bluePattern" width="110" height="110" patternUnits="userSpaceOnUse" patternTransform="rotate(-14)">
+<rect width="110" height="110" fill="#287c98"/>
+<path d="M0 0h55v55H0zm55 55h55v55H55z" fill="#9cd2be"/>
+<path d="M6 6h43v43H6zm55 55h43v43H61z" fill="none" stroke="#fff0c7" stroke-width="4"/>
+</pattern>
+</defs>
+<rect width="1080" height="1920" fill="#fff2ce"/>
+<path d="M112 310 470 154 974 332 879 1644 195 1700Z" fill="#efb947"/>
+<path d="m112 310 221 165 137-321-53 1388-222 158Z" fill="#f3ce72"/>
+<path d="m470 154 504 178-242 148 147 1164-293-90Z" fill="#edaa48"/>
+<path d="m112 310 221 165M470 154l262 326 242-148M333 475 195 1700M732 480l147 1164" fill="none" stroke="#80503d" stroke-width="5"/>
+<path d="M170 374 552 273 926 390 884 1550 183 1580Z" fill="#9dcdb4" stroke="#353b35" stroke-width="7"/>
+<path d="m552 273-23 1284M170 374l359 1183 397-1167" fill="none" stroke="#f5e7bb" stroke-width="16"/>
+<rect width="1080" height="1920" fill="url(#grain)"/>
+</svg>
+
+<img id="art-image" src="art.png" alt="Generated artwork nested among theatrical printed fabric folds.">
+
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<g class="front-left">
+<path d="M83 274C178 306 252 376 301 455L229 680 275 970 204 1194 244 1454 129 1614 77 1433 111 1169 67 925 116 691 63 461Z" fill="#333b38" stroke="#333b38" stroke-width="16" stroke-linejoin="round"/>
+<path d="M83 274C167 341 208 398 254 466L185 688 227 969 156 1196 191 1444 129 1614 97 1417 132 1172 91 926 139 693 88 464Z" fill="url(#redPattern)" stroke="#343b35" stroke-width="7"/>
+<path d="m254 466-48 12-67 215 46-5m42 281-51-9-20 236 48-2m-13 250-35-36-27 206" fill="none" stroke="#ffe8b0" stroke-width="13"/>
+<path d="m88 464 51 229-48 233 65 270-59 221" fill="none" stroke="#9d342c" stroke-width="10"/>
+</g>
+<g class="front-right">
+<path d="M969 273 1001 459 958 705 1003 920 952 1205 996 1438 897 1636 826 1476 856 1218 795 996 849 703 789 460Z" fill="#343b35" stroke="#343b35" stroke-width="15" stroke-linejoin="round"/>
+<path d="m969 273 8 183-49 248 45 216-52 281 39 229-63 206-30-170 32-250-59-220 55-291-60-241Z" fill="url(#bluePattern)" stroke="#343b35" stroke-width="7"/>
+<path d="m835 464 42 12 54 230-36-1m-55 291 43 4 38 201-22 15m-32 250 38-21-8 191" fill="none" stroke="#ffdf98" stroke-width="13"/>
+<path d="m977 456-49 248 45 216-52 281 39 229" fill="none" stroke="#21546a" stroke-width="10"/>
+</g>
+<g class="fold">
+<path d="m130 1514 297-90 155 75 284-76 95 202-338 131-292-63Z" fill="#ed5b39" stroke="#353b35" stroke-width="8" stroke-linejoin="round"/>
+<path d="m130 1514 303 81 149-96 41 257-292-63Z" fill="#f7af3c" stroke="#353b35" stroke-width="6"/>
+<path d="m433 1595 190 161 338-131-274 35-105-161Z" fill="#f1cf76" stroke="#353b35" stroke-width="6"/>
+<path d="m866 1423-179 237 274-35Z" fill="#cc4335" stroke="#353b35" stroke-width="6"/>
+<path d="m194 1536 151 42-43 83m67-142 64 76m-29 78 89 28m157 14 53-27m48-17 55-21" fill="none" stroke="#fff0bd" stroke-width="17"/>
+</g>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<path d="m812 1676 55-19-11 18-43 13Z" fill="#c17e43"/>
+</svg>
+<div id="date">2026-10-18</div>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=(w-1080*s)/2+'px';
+stage.style.top=(h-1920*s)/2+'px';
+}
+addEventListener('resize',fit,{passive:true});fit();
+const seed=20261018;
+stage.style.setProperty('--seed',seed);
+})();
+</script>
+</body>
+</html>
