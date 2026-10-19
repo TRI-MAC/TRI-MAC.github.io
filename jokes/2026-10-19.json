@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-19",
+  "joke": "At midnight, my AI sleep coach told me to go to bed. We had a lovely chat about it until three.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean setup with a genuine reversal—the tool meant to get you to sleep is what keeps you up—safe, and fully graspable by anyone who has ever been nagged into a long conversation."
+  },
+  "attempts": 1,
+  "generated_at": "2026-10-19T08:36:47Z"
+}
