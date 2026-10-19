@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-10-19</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#efe6d2}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#f3ead6;overflow:hidden}
+#tile{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#frame{position:absolute;left:190px;top:470px;width:700px;height:900px}
+#art-image{position:absolute;left:250px;top:530px;width:580px;height:780px;object-fit:cover;opacity:.96;filter:sepia(.25) saturate(1.1) hue-rotate(-8deg);box-shadow:0 30px 60px rgba(110,70,20,.35)}
+#spill{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+#date{position:absolute;right:40px;bottom:30px;font:22px Georgia,serif;color:#8a6a35;opacity:.55;letter-spacing:3px}
+#guinea-pig{position:absolute;left:868px;top:1352px;width:16px;opacity:.5;filter:sepia(.6)}
+</style></head><body>
+<div id="stage">
+<canvas id="tile" width="540" height="960"></canvas>
+<img id="art-image" src="art.png" alt="">
+<svg id="frame" viewBox="0 0 700 900">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d77a"/><stop offset=".5" stop-color="#b7832c"/><stop offset="1" stop-color="#f2cd6a"/></linearGradient></defs>
+<path fill="url(#g)" fill-rule="evenodd" d="M0 0H700V900H0Z M60 60V840H640V60Z"/>
+<rect x="22" y="22" width="656" height="856" fill="none" stroke="#7a4f14" stroke-width="5"/>
+<rect x="48" y="48" width="604" height="804" fill="none" stroke="#fff3c4" stroke-width="3"/>
+<g fill="#c0392b"><circle cx="30" cy="30" r="16"/><circle cx="670" cy="30" r="16"/><circle cx="30" cy="870" r="16"/><circle cx="670" cy="870" r="16"/></g>
+<g fill="#1f7a5a"><path d="M350 0l26 30-26 30-26-30z"/><path d="M350 840l26 30-26 30-26-30z"/></g>
+</svg>
+<canvas id="spill" width="540" height="960"></canvas>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026 · 10 · 19</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`translate(${(innerWidth-1080*s)/2}px,${(innerHeight-1920*s)/2}px) scale(${s})`}
+addEventListener('resize',fit);fit();
+let seed=20261019;const R=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const ph=R()*6.28;
+const c=document.getElementById('tile').getContext('2d');
+const sp=document.getElementById('spill').getContext('2d');
+const S=90;// half-res tile
+// Escher-ish interlocking: square tiles with edge bulges (tab in/out)
+function tilePath(x,y,s,b){c.beginPath();c.moveTo(x,y);
+c.lineTo(x+s*.35,y);c.arc(x+s*.5,y,s*.15*b,Math.PI,0,false);c.lineTo(x+s,y);
+c.lineTo(x+s,y+s*.35);c.arc(x+s,y+s*.5,s*.15*b,-Math.PI/2,Math.PI/2,false);c.lineTo(x+s,y+s);
+c.lineTo(x+s*.65,y+s);c.arc(x+s*.5,y+s,s*.15*b,0,Math.PI,false);c.lineTo(x,y+s);
+c.lineTo(x,y+s*.65);c.arc(x,y+s*.5,s*.15*b,Math.PI/2,-Math.PI/2,false);c.closePath()}
+function draw(t){
+c.fillStyle='#f3ead6';c.fillRect(0,0,540,960);
+const b=Math.sin(t*.00025+ph);
+for(let j=-1;j<12;j++)for(let i=-1;i<7;i++){
+const x=i*S,y=j*S,odd=(i+j)&1;
+const dx=270-x-S/2,dy=480-y-S/2,d=Math.hypot(dx,dy);
+const fade=Math.max(0,Math.min(1,(d-140)/60))*Math.max(0,1-(d-300)/260);
+if(fade<=0)continue;
+const w=Math.sin(t*.0004-d*.012+ph)*.5+.5;
+c.globalAlpha=fade*.9;
+tilePath(x,y,S,odd?b:-b);
+c.fillStyle=odd?`hsl(${42+w*6},${70}%,${70-w*8}%)`:`hsl(${160+w*10},38%,${80-w*6}%)`;
+c.fill();c.lineWidth=2;c.strokeStyle='#9a6a22';c.stroke();
+c.beginPath();c.arc(x+S/2,y+S/2,S*.12,0,7);c.fillStyle=odd?'#c0392b':'#fff6dc';c.fill();
+}
+c.globalAlpha=1;
+// spilling gilded tiles
+sp.clearRect(0,0,540,960);
+for(let k=0;k<7;k++){
+const p=((t*.00003+k/7)%1);
+const a=k*0.9+ph,r=180+p*260;
+const x=270+Math.cos(a)*r*.75,y=480+Math.sin(a)*r;
+sp.save();sp.translate(x,y);sp.rotate(p*3+k);sp.globalAlpha=Math.sin(p*Math.PI);
+sp.fillStyle=k%2?'#d9a740':'#1f7a5a';sp.strokeStyle='#7a4f14';sp.lineWidth=1.5;
+const s=22;sp.beginPath();sp.moveTo(-s,-s);sp.arc(0,-s,s*.3,Math.PI,0);sp.lineTo(s,-s);sp.lineTo(s,s);sp.arc(0,s,s*.3,0,Math.PI);sp.lineTo(-s,s);sp.closePath();sp.fill();sp.stroke();
+sp.restore()}
+requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+</script></body></html>
