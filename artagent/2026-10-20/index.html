@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<style>
+html,body{margin:0;height:100%;background:#1a0f2e;overflow:hidden}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:radial-gradient(circle at 50% 46%,#3a1530 0%,#22123d 55%,#140c26 100%)}
+#rings{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#art-image{position:absolute;left:290px;top:580px;width:500px;height:500px;object-fit:cover;clip-path:circle(48% at 50% 50%);filter:hue-rotate(-15deg) saturate(1.35) contrast(1.15) brightness(.95);opacity:.95;box-shadow:0 0 80px #e63a1f}
+#fg{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+.spin{transform-origin:540px 830px;transform-box:view-box}
+#s1{animation:rot 120s linear infinite}
+#s2{animation:rot 80s linear infinite reverse}
+#pulse{animation:pul 14s ease-in-out infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes pul{0%,100%{transform:scale(.94)}50%{transform:scale(1.06)}}
+#date{position:absolute;right:34px;bottom:26px;font:22px monospace;color:#f2e6c8;opacity:.45;letter-spacing:3px}
+#guinea-pig{position:absolute;left:30px;top:1868px;width:16px;opacity:.55;filter:brightness(.7)}
+</style></head><body>
+<div id="stage">
+<canvas id="rings" width="540" height="960"></canvas>
+<img id="art-image" src="art.png" alt="">
+<svg id="fg" viewBox="0 0 1080 1920">
+<g id="pulse" class="spin">
+<circle cx="540" cy="830" r="262" fill="none" stroke="#f2e6c8" stroke-width="14" stroke-dasharray="40 22"/>
+</g>
+<g id="s1" class="spin"></g>
+<g id="s2" class="spin"></g>
+<path d="M300 700 q-40 120 10 260 l18 120 l14-120 q30-80 0-200z" fill="#e63a1f" opacity=".9"/>
+<path d="M780 980 q60-60 40-170 q-10 90-70 140 l-8 160z" fill="#f2c230" opacity=".9"/>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-10-20</div>
+</div>
+<script>
+let s=20261020;const R=()=>(s=(s*16807)%2147483647)/2147483647;
+const st=document.getElementById('stage');
+function fit(){const k=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${k})`;st.style.left=(innerWidth-1080*k)/2+'px';st.style.top=(innerHeight-1920*k)/2+'px'}
+addEventListener('resize',fit);fit();
+const pal=['#e63a1f','#f2c230','#f2e6c8','#2b8a6e','#d94f8a','#3a6fd9'];
+const words=['DA','DADA','O','ZIM','BOUM','!!','HOP','?','NON','ZAZA','OUI','TOAD'];
+const NS='http://www.w3.org/2000/svg';
+function ring(g,r,n,size){for(let i=0;i<n;i++){const a=i/n*360,t=document.createElementNS(NS,'text');
+t.setAttribute('x',540);t.setAttribute('y',830-r);t.setAttribute('text-anchor','middle');
+t.setAttribute('font-family',R()<.5?'Georgia,serif':'Impact,Arial Black,sans-serif');
+t.setAttribute('font-size',size*(.7+R()*.6));t.setAttribute('font-weight','900');
+t.setAttribute('fill',pal[i%pal.length]);t.setAttribute('transform',`rotate(${a} 540 830) rotate(${(R()-.5)*30} 540 ${830-r})`);
+t.textContent=words[Math.floor(R()*words.length)];g.appendChild(t)}}
+ring(document.getElementById('s1'),330,22,54);ring(document.getElementById('s1'),520,30,70);
+ring(document.getElementById('s2'),420,26,46);ring(document.getElementById('s2'),640,34,60);
+const c=document.getElementById('rings'),x=c.getContext('2d');
+const bands=[];for(let i=0;i<26;i++)bands.push({c:pal[Math.floor(R()*pal.length)],seg:3+Math.floor(R()*6),gap:R()*.5});
+function draw(t){x.fillStyle='#1d1035';x.fillRect(0,0,540,960);
+const ph=(t/9000)%1;
+for(let i=bands.length-1;i>=0;i--){const b=bands[i],r=(i+ph)*22;if(r<5)continue;
+const rot=t/40000*(i%2?1:-1)*(1+i*.05);
+for(let k=0;k<b.seg;k++){const a0=rot+k/b.seg*Math.PI*2,a1=a0+(Math.PI*2/b.seg)*(1-b.gap);
+x.beginPath();x.arc(270,415,r,a0,a1);x.arc(270,415,Math.max(0,r-14),a1,a0,true);x.closePath();
+x.globalAlpha=Math.max(0,1-r/560)*.85+.1;x.fillStyle=b.c;x.fill()}}
+x.globalAlpha=1;requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+if(window.self===window.top){try{const A=new AudioContext(),g=A.createGain();g.gain.value=.03;g.connect(A.destination);
+[110,164.8,220.5].forEach(f=>{const o=A.createOscillator();o.frequency.value=f;o.connect(g);o.start()});
+document.addEventListener('visibilitychange',()=>A.resume());}catch(e){}}
+</script>
+</body></html>
