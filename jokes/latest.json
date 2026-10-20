@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-19",
-  "joke": "At midnight, my AI sleep coach told me to go to bed. We had a lovely chat about it until three.",
+  "date": "2026-10-20",
+  "joke": "Lost in a new city, I asked the AI for the quickest way home. It found me a lovely flat two streets away.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup with a genuine reversal—the tool meant to get you to sleep is what keeps you up—safe, and fully graspable by anyone who has ever been nagged into a long conversation."
+    "reason": "A clean, accessible setup and turn: instead of finding a quicker route home, the AI finds a closer home."
   },
-  "attempts": 1,
-  "generated_at": "2026-10-19T08:36:47Z"
+  "attempts": 2,
+  "generated_at": "2026-10-20T08:31:03Z"
 }

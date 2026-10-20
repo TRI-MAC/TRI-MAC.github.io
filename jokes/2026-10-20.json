@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-20",
+  "joke": "Lost in a new city, I asked the AI for the quickest way home. It found me a lovely flat two streets away.",
+  "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "A clean, accessible setup and turn: instead of finding a quicker route home, the AI finds a closer home."
+  },
+  "attempts": 2,
+  "generated_at": "2026-10-20T08:31:03Z"
+}

@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-20",
+    "joke": "Lost in a new city, I asked the AI for the quickest way home. It found me a lovely flat two streets away.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-10-19",
     "joke": "At midnight, my AI sleep coach told me to go to bed. We had a lovely chat about it until three.",
     "model": "GPT-6.1 Sol"
