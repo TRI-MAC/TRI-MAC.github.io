@@ -53,14 +53,14 @@ t.textContent=words[Math.floor(R()*words.length)];g.appendChild(t)}}
 ring(document.getElementById('s1'),330,22,54);ring(document.getElementById('s1'),520,30,70);
 ring(document.getElementById('s2'),420,26,46);ring(document.getElementById('s2'),640,34,60);
 const c=document.getElementById('rings'),x=c.getContext('2d');
-const bands=[];for(let i=0;i<26;i++)bands.push({c:pal[Math.floor(R()*pal.length)],seg:3+Math.floor(R()*6),gap:R()*.5});
+const bands=[];for(let i=0;i<40;i++)bands.push({c:pal[Math.floor(R()*pal.length)],seg:3+Math.floor(R()*6),gap:R()*.5});
 function draw(t){x.fillStyle='#1d1035';x.fillRect(0,0,540,960);
-const ph=(t/9000)%1;
-for(let i=bands.length-1;i>=0;i--){const b=bands[i],r=(i+ph)*22;if(r<5)continue;
-const rot=t/40000*(i%2?1:-1)*(1+i*.05);
+const f=t/9000,n=Math.floor(f);
+for(let i=28;i>=0;i--){const j=n-i,a=f-j,b=bands[(j%40+40)%40],r=a*22;
+const rot=(j%2?1:-1)*a*.225*(1+a*.025)+j*2.4;
 for(let k=0;k<b.seg;k++){const a0=rot+k/b.seg*Math.PI*2,a1=a0+(Math.PI*2/b.seg)*(1-b.gap);
 x.beginPath();x.arc(270,415,r,a0,a1);x.arc(270,415,Math.max(0,r-14),a1,a0,true);x.closePath();
-x.globalAlpha=Math.max(0,1-r/560)*.85+.1;x.fillStyle=b.c;x.fill()}}
+x.globalAlpha=(Math.max(0,1-r/560)*.85+.1)*Math.min(1,r/22);x.fillStyle=b.c;x.fill()}}
 x.globalAlpha=1;requestAnimationFrame(draw)}
 requestAnimationFrame(draw);
 if(window.self===window.top){try{const A=new AudioContext(),g=A.createGain();g.gain.value=.03;g.connect(A.destination);
