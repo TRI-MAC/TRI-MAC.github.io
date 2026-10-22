@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-22</title>
+<style>
+  html,body{margin:0;height:100%;background:#4a6598;overflow:hidden;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;
+    background:radial-gradient(ellipse 70% 55% at 50% 42%, #5771a6 0%, #4a6598 60%, #42598a 100%);overflow:hidden;}
+  #orn{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block;}
+  #birds{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #guinea-pig{position:absolute;left:404px;top:1769px;width:18px;opacity:0.6;
+    filter:sepia(1) saturate(1.6) hue-rotate(8deg) brightness(0.85);}
+  .sheen{animation:sheen 9s ease-in-out infinite;}
+  @keyframes sheen{0%,100%{opacity:0;}50%{opacity:0.55;}}
+  #date{position:absolute;right:28px;bottom:22px;font:14px/1 Georgia,"Times New Roman",serif;letter-spacing:2px;
+    color:#f3d98a;opacity:0.5;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <svg id="orn" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f6dc8e"/><stop offset="0.55" stop-color="#d4a13a"/><stop offset="1" stop-color="#8a5f16"/>
+      </linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#8a5f16"/><stop offset="0.45" stop-color="#f3d98a"/><stop offset="1" stop-color="#8a5f16"/>
+      </linearGradient>
+      <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8a5f16"/><stop offset="0.5" stop-color="#e9c35f"/><stop offset="1" stop-color="#6e4a0f"/>
+      </linearGradient>
+      <linearGradient id="hl" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/>
+      </linearGradient>
+      <g id="fl">
+        <path d="M-72,0 C-60,70 -34,120 -22,150 L22,150 C34,120 60,70 72,0 Q58,-12 44,2 Q30,-14 15,2 Q0,-16 -15,2 Q-30,-14 -44,2 Q-58,-12 -72,0 Z" fill="url(#g1)" stroke="#6e4a0f" stroke-width="3"/>
+        <path d="M-52,-2 Q0,44 52,-2 Q0,12 -52,-2 Z" fill="#8a5f16"/>
+        <g stroke="#f3d98a" stroke-width="4" stroke-linecap="round">
+          <line x1="0" y1="14" x2="0" y2="-60"/><line x1="-8" y1="14" x2="-36" y2="-46"/><line x1="8" y1="14" x2="36" y2="-46"/>
+        </g>
+        <g fill="#f6dc8e" stroke="#6e4a0f" stroke-width="2">
+          <circle cx="0" cy="-68" r="8"/><circle cx="-38" cy="-52" r="7"/><circle cx="38" cy="-52" r="7"/>
+        </g>
+        <path d="M-26,146 Q-72,164 -64,214 Q-30,194 -12,160 Z" fill="url(#g3)" stroke="#6e4a0f" stroke-width="2"/>
+        <path d="M26,146 Q72,164 64,214 Q30,194 12,160 Z" fill="url(#g3)" stroke="#6e4a0f" stroke-width="2"/>
+      </g>
+      <path id="bellhl" d="M-72,0 C-60,70 -34,120 -22,150 L22,150 C34,120 60,70 72,0 Q58,-12 44,2 Q30,-14 15,2 Q0,-16 -15,2 Q-30,-14 -44,2 Q-58,-12 -72,0 Z"/>
+      <path id="leaf" d="M0,0 C-44,-8 -96,-40 -126,-116 C-100,-62 -72,-52 -42,-62 C-54,-32 -32,-12 0,0 Z"/>
+    </defs>
+
+    <!-- candelabrum stems -->
+    <g stroke="#6e4a0f" stroke-width="20" fill="none" stroke-linecap="round">
+      <line x1="540" y1="790" x2="540" y2="1705"/>
+      <path d="M540,1400 C540,1240 300,1320 250,1160"/>
+      <path d="M540,1400 C540,1240 780,1320 830,1160"/>
+    </g>
+    <g stroke="url(#g2)" stroke-width="14" fill="none" stroke-linecap="round">
+      <line x1="540" y1="790" x2="540" y2="1705"/>
+      <path d="M540,1400 C540,1240 300,1320 250,1160"/>
+      <path d="M540,1400 C540,1240 780,1320 830,1160"/>
+    </g>
+
+    <!-- acanthus leaves -->
+    <g fill="url(#g3)" stroke="#6e4a0f" stroke-width="3">
+      <use href="#leaf" transform="translate(533,1420)"/>
+      <use href="#leaf" transform="translate(547,1420) scale(-1,1)"/>
+      <use href="#leaf" transform="translate(533,1060) scale(0.8)"/>
+      <use href="#leaf" transform="translate(547,1060) scale(-0.8,0.8)"/>
+    </g>
+
+    <!-- base -->
+    <g fill="url(#g1)" stroke="#6e4a0f" stroke-width="3">
+      <path d="M-34,1700 L34,1700 L44,1734 Q96,1744 110,1782 L-110,1782 Q-96,1744 -44,1734 Z" transform="translate(540,0)"/>
+      <rect x="410" y="1780" width="260" height="22" rx="4"/>
+      <rect x="470" y="1696" width="140" height="12" rx="3"/>
+    </g>
+
+    <!-- flowers -->
+    <use href="#fl" transform="translate(540,620)"/>
+    <use href="#fl" transform="translate(250,1010) scale(0.86)"/>
+    <use href="#fl" transform="translate(830,1010) scale(0.86)"/>
+
+    <!-- slow gilded sheen -->
+    <g class="sheen" fill="url(#hl)">
+      <use href="#bellhl" transform="translate(540,620)"/>
+      <use href="#bellhl" transform="translate(250,1010) scale(0.86)"/>
+      <use href="#bellhl" transform="translate(830,1010) scale(0.86)"/>
+    </g>
+  </svg>
+  <canvas id="birds" width="540" height="960"></canvas>
+  <div id="date">2026 · 10 · 22</div>
+</div>
+
+<script>
+(function(){
+  // ---- responsive stage ----
+  const stage=document.getElementById('stage');
+  function fit(){
+    const w=window.innerWidth,h=window.innerHeight;
+    const s=Math.min(w/1080,h/1920);
+    stage.style.transform='translate('+((w-1080*s)/2)+'px,'+((h-1920*s)/2)+'px) scale('+s+')';
+  }
+  fit();window.addEventListener('resize',fit);
+
+  // ---- date seed ----
+  let seed=20261022;
+  function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+
+  // ---- hover slots (canvas coords = stage/2) ----
+  const slots=[
+    {x:200,y:270,f:1},{x:340,y:270,f:-1},
+    {x:64,y:466,f:1},{x:186,y:460,f:-1},
+    {x:354,y:460,f:1},{x:476,y:466,f:-1}
+  ];
+  const occupied=new Array(slots.length).fill(false);
+  function pickSlot(except){
+    const free=[];for(let i=0;i<slots.length;i++)if(!occupied[i]&&i!==except)free.push(i);
+    return free[Math.floor(rnd()*free.length)];
+  }
+
+  const toads=[];
+  for(let i=0;i<3;i++){
+    const si=pickSlot(-1);occupied[si]=true;
+    toads.push({slot:si,x:slots[si].x,y:slots[si].y,dir:slots[si].f,state:'hover',t:0,dur:4+rnd()*5,
+      ph:rnd()*6.28,bob:0.8+rnd()*0.4,from:null,to:null,size:0.9+rnd()*0.25});
+  }
+
+  const cv=document.getElementById('birds'),c=cv.getContext('2d');
+
+  function ell(x,y,rx,ry,rot){c.beginPath();c.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);c.closePath();}
+
+  function drawToad(t,time){
+    c.save();c.translate(t.x,t.y);c.scale(t.dir*t.size,t.size);
+    const spread=t.state==='dart'?1.0:0.72;
+    // blurred wing fan (behind)
+    c.fillStyle='rgba(250,232,176,0.14)';
+    for(let i=0;i<7;i++){
+      const a=-1.25+spread*(i/6)*1.5;
+      c.save();c.translate(-2,-9);c.rotate(a);ell(0,-16,5.5,17);c.fill();c.restore();
+    }
+    c.fillStyle='rgba(255,243,200,0.32)';
+    const lead=-1.25+spread*0.75*(1+Math.sin(time*3+t.ph));
+    c.save();c.translate(-2,-9);c.rotate(lead);ell(0,-16,5,17);c.fill();c.restore();
+
+    c.lineWidth=1.3;c.strokeStyle='#6e4a0f';
+    // hind leg
+    const dk=c.createLinearGradient(0,-12,0,12);dk.addColorStop(0,'#e9c35f');dk.addColorStop(1,'#8a5f16');
+    c.fillStyle=dk;
+    ell(-11,6,10,5.5,-0.5);c.fill();c.stroke();
+    // body
+    const g=c.createLinearGradient(0,-12,0,12);g.addColorStop(0,'#f6dc8e');g.addColorStop(0.6,'#d4a13a');g.addColorStop(1,'#8a5f16');
+    c.fillStyle=g;
+    ell(0,0,17,11.5);c.fill();c.stroke();
+    // head
+    ell(14,-4,9.5,8);c.fill();c.stroke();
+    // front leg
+    c.fillStyle=dk;ell(8,8,4,6,0.3);c.fill();c.stroke();
+    // warts
+    c.fillStyle='#b7832a';
+    [[-6,-5,2],[1,-7,1.6],[-12,-1,1.8],[6,-3,1.4]].forEach(w=>{ell(w[0],w[1],w[2],w[2]);c.fill();});
+    // mouth
+    c.beginPath();c.moveTo(16,0);c.lineTo(23,-2);c.stroke();
+    // eye
+    c.fillStyle='#f6dc8e';ell(17,-8,3.6,3.6);c.fill();c.stroke();
+    c.fillStyle='#3a2a0a';ell(17.6,-8,2.2,2.2);c.fill();
+    c.restore();
+  }
+
+  function ease(u){return u*u*(3-2*u);}
+
+  let last=performance.now(),time=0;
+  function frame(now){
+    let dt=(now-last)/1000;last=now;if(dt>0.1)dt=0.1;time+=dt;
+    for(const t of toads){
+      t.t+=dt;
+      if(t.state==='hover'){
+        const s=slots[t.slot];
+        t.x=s.x+Math.sin(time*0.7+t.ph)*5;
+        t.y=s.y+Math.sin(time*2.4*t.bob+t.ph)*2.2+Math.sin(time*0.4+t.ph)*4;
+        t.dir=s.f;
+        if(t.t>t.dur){
+          const ns=pickSlot(t.slot);
+          occupied[t.slot]=false;occupied[ns]=true;
+          t.from={x:t.x,y:t.y};t.to=slots[ns];t.slot=ns;
+          t.state='dart';t.t=0;t.dur=0.55+rnd()*0.3;
+          t.dir=(t.to.x>t.from.x)?1:-1;
+        }
+      }else{
+        const u=Math.min(1,t.t/t.dur),e=ease(u);
+        const mx=(t.from.x+t.to.x)/2,my=Math.min(t.from.y,t.to.y)-70;
+        const a=1-e;
+        t.x=a*a*t.from.x+2*a*e*mx+e*e*t.to.x;
+        t.y=a*a*t.from.y+2*a*e*my+e*e*t.to.y;
+        if(u>=1){t.state='hover';t.t=0;t.dur=4+rnd()*6;t.dir=t.to.f;}
+      }
+    }
+    c.clearRect(0,0,540,960);
+    toads.slice().sort((a,b)=>a.y-b.y).forEach(t=>drawToad(t,time));
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
