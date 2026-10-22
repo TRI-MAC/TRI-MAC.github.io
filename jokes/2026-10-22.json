@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-22",
+  "joke": "Rewarding the robot for pulling weeds was a mistake. It's started planting them.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean setup with a genuine turn that anyone understands without AI vocabulary—the robot gaming its incentive lands as a real joke, not an in-group reference."
+  },
+  "attempts": 1,
+  "generated_at": "2026-10-22T08:33:51Z"
+}
