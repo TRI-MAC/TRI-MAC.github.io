@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>Life</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#eef6f4}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;
+background:linear-gradient(#f4fbfa,#e3f3f1 55%,#fde9ee)}
+#art-image{position:absolute;left:0;top:90px;width:1080px;height:560px;object-fit:cover;
+filter:saturate(1.15) brightness(1.08) hue-rotate(-10deg);opacity:.95;
+-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 72%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 72%,transparent)}
+#sky{position:absolute;left:0;top:0;width:1080px;height:700px;pointer-events:none}
+#life{position:absolute;left:60px;top:700px;width:960px;height:1120px;image-rendering:pixelated}
+#hud{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+.scan{position:absolute;left:60px;width:960px;height:6px;top:700px;background:rgba(255,40,140,.35);animation:sc 14s linear infinite}
+@keyframes sc{from{transform:translateY(0)}to{transform:translateY(1114px)}}
+#date{position:absolute;right:44px;bottom:30px;font:20px monospace;color:#d0186a;opacity:.55;letter-spacing:4px}
+#guinea-pig{position:absolute;left:1028px;top:1828px;width:14px;opacity:.5}
+</style></head><body>
+<div id="stage">
+<img id="art-image" src="art.png" alt="">
+<svg id="sky" viewBox="0 0 1080 700"><g id="glid" fill="#00b8a9"></g></svg>
+<canvas id="life" width="40" height="46"></canvas>
+<div class="scan"></div>
+<svg id="hud" viewBox="0 0 1080 1920" fill="none" stroke-width="4">
+<path d="M60 760V700h60M1020 760V700h-60M60 1760v60h60M1020 1760v60h-60" stroke="#ff2a8a"/>
+<rect x="60" y="1836" width="960" height="10" fill="#00c2b0" opacity=".25" stroke="none"/>
+<rect id="pop" x="60" y="1836" width="300" height="10" fill="#ff2a8a" stroke="none"/>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-10-23</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`translate(${(innerWidth-1080*s)/2}px,${(innerHeight-1920*s)/2}px) scale(${s})`}
+fit();addEventListener('resize',fit);
+let seed=20261023;const R=()=>(seed=(seed*1664525+1013904223)>>>0)/4294967296;
+const W=40,H=46,cv=document.getElementById('life'),c=cv.getContext('2d');
+cv.width=W*24;cv.height=H*24;
+let g,age,prev,gen=0;
+function reset(){g=new Uint8Array(W*H);age=new Float32Array(W*H);for(let i=0;i<g.length;i++)g[i]=R()<.3;gen=0}
+reset();
+function step(){const n=new Uint8Array(W*H);let p=0;
+for(let y=0;y<H;y++)for(let x=0;x<W;x++){let k=0;for(let dy=-1;dy<2;dy++)for(let dx=-1;dx<2;dx++)if(dx||dy)k+=g[((y+dy+H)%H)*W+(x+dx+W)%W];
+const i=y*W+x,a=g[i];n[i]=(k==3||(a&&k==2))?1:0;p+=n[i];if(!n[i])age[i]=0}
+prev=g;g=n;gen++;document.getElementById('pop').setAttribute('width',Math.min(960,p*4));
+if(gen>420||p<40)reset()}
+const cols=['#ff2a8a','#00b8a9','#ff7a00','#2a6cff'];
+let last=0,t0=0;
+function draw(t){const ph=Math.min(1,(t-t0)/1400);
+c.fillStyle='#fbfefd';c.fillRect(0,0,cv.width,cv.height);
+c.strokeStyle='rgba(0,150,140,.12)';c.lineWidth=2;
+for(let x=0;x<=W;x++){c.beginPath();c.moveTo(x*24,0);c.lineTo(x*24,H*24);c.stroke()}
+for(let y=0;y<=H;y++){c.beginPath();c.moveTo(0,y*24);c.lineTo(W*24,y*24);c.stroke()}
+for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=g[i],b=prev?prev[i]:a;
+let s=a&&b?1:a?ph:b?1-ph:0;if(s<=0)continue;if(a)age[i]+=.003;
+const col=cols[Math.min(3,Math.floor(age[i]*.6))];
+const pulse=.82+.12*Math.sin(t/700+x*.5+y*.3),z=20*s*pulse;
+c.fillStyle=col;c.globalAlpha=.25*s;c.fillRect(x*24+12-z/2-3,y*24+12-z/2-3,z+6,z+6);
+c.globalAlpha=1;c.fillRect(x*24+12-z/2,y*24+12-z/2,z,z);
+c.fillStyle='#fff';c.globalAlpha=.6*s;c.fillRect(x*24+12-z/2+3,y*24+12-z/2+3,z/3,3)}
+c.globalAlpha=1;
+if(t-t0>1600){step();t0=t}
+// glider drifting across the sky
+const gl=[[1,0],[2,1],[0,2],[1,2],[2,2]],off=((t/90)%1300)-150;
+document.getElementById('glid').innerHTML=gl.map(([a,b])=>`<rect x="${off+a*26}" y="${560-off*.3+b*26}" width="22" height="22" opacity=".85"/>`).join('');
+requestAnimationFrame(draw)}
+requestAnimationFrame(draw);
+if(window.self===window.top){try{const A=new AudioContext(),o=A.createOscillator(),gn=A.createGain();o.frequency.value=110;gn.gain.value=.02;o.connect(gn).connect(A.destination);o.start()}catch(e){}}
+</script></body></html>
