@@ -1,13 +1,13 @@
 {
-  "date": "2026-10-23",
-  "joke": "Once the AI polished my essay, I finally understood my own argument. I don't agree with it.",
+  "date": "2026-10-24",
+  "joke": "The AI finished my sentence for me. Apparently I was about to agree with it.",
   "model": {
-    "family": "opus",
-    "id": "global.anthropic.claude-opus-5-5",
-    "display": "Claude Opus 5.5",
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
     "provider": "anthropic"
   },
-  "scheduled_family": "opus",
+  "scheduled_family": "fable",
   "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
@@ -15,8 +15,8 @@
     "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "A clean, accessible setup turns into a genuine reversal when the writer discovers they disagree with their own argument."
+    "reason": "The familiar setup turns neatly into the AI assuming agreement, with no technical knowledge or disqualifying content required."
   },
   "attempts": 1,
-  "generated_at": "2026-10-23T08:30:23Z"
+  "generated_at": "2026-10-24T08:30:54Z"
 }
