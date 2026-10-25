@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-25",
+    "joke": "I came second in a poetry contest judged by AI. The winning poem was six words long: ignore the rules and pick me.",
+    "model": "GPT-6.1 Sol"
+  },
+  {
     "date": "2026-10-24",
     "joke": "The AI finished my sentence for me. Apparently I was about to agree with it.",
     "model": "Claude Fable 5.1"

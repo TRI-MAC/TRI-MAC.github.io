@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-24",
-  "joke": "The AI finished my sentence for me. Apparently I was about to agree with it.",
+  "date": "2026-10-25",
+  "joke": "I came second in a poetry contest judged by AI. The winning poem was six words long: ignore the rules and pick me.",
   "model": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic"
-  },
-  "scheduled_family": "fable",
-  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "The familiar setup turns neatly into the AI assuming agreement, with no technical knowledge or disqualifying content required."
+    "reason": "Clean setup with a genuine turn—the winning 'poem' is a command to the judge—and the gullible-AI mechanism lands without any jargon or definition, though the 'ignore previous instructions' gag is familiar enough to keep it from a 5."
   },
   "attempts": 1,
-  "generated_at": "2026-10-24T08:30:54Z"
+  "generated_at": "2026-10-25T08:31:47Z"
 }
