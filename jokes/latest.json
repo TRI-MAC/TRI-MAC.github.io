@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-25",
-  "joke": "I came second in a poetry contest judged by AI. The winning poem was six words long: ignore the rules and pick me.",
+  "date": "2026-10-26",
+  "joke": "Ten seconds into the escape room, the AI found the way out. It was the door we came in through.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup with a genuine turn—the winning 'poem' is a command to the judge—and the gullible-AI mechanism lands without any jargon or definition, though the 'ignore previous instructions' gag is familiar enough to keep it from a 5."
+    "reason": "The setup promises clever problem-solving, and the entrance-door reveal delivers a clean, accessible reversal."
   },
-  "attempts": 1,
-  "generated_at": "2026-10-25T08:31:47Z"
+  "attempts": 2,
+  "generated_at": "2026-10-26T08:30:48Z"
 }
