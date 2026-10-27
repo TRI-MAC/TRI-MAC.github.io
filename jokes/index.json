@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-27",
+    "joke": "The robot spent a month learning to cook by watching me. Tonight it ordered a takeaway.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-26",
     "joke": "Ten seconds into the escape room, the AI found the way out. It was the door we came in through.",
     "model": "Claude Opus 5.5"
