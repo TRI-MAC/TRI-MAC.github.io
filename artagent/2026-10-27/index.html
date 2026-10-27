@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-27</title>
+<style>
+  html,body{margin:0;height:100%;background:#efece3;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#efece3;overflow:hidden}
+  #bg{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block}
+  #sun{transform-origin:300px 560px;animation:breathe 47s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  #sky{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #guinea-pig{position:absolute;left:1041px;top:1552px;width:18px;height:auto;opacity:.55;transform:scaleX(-1) rotate(4deg)}
+  #date{position:absolute;right:28px;bottom:22px;font:500 15px/1 Helvetica,Arial,sans-serif;letter-spacing:.14em;color:#1a1a1a;opacity:.5}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="bg" viewBox="0 0 1080 1920" aria-hidden="true">
+    <circle id="sun" cx="300" cy="560" r="270" fill="#f2c021"/>
+    <rect x="0" y="1540" width="1080" height="6" fill="#141414"/>
+    <rect x="0" y="1546" width="1080" height="110" fill="#d8261e"/>
+    <rect x="720" y="1656" width="360" height="264" fill="#1d4fb5"/>
+  </svg>
+  <canvas id="sky" width="540" height="960"></canvas>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-10-27</div>
+</div>
+<script>
+(function(){
+  // responsive shell
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    stage.style.transform='translate('+((window.innerWidth-1080*s)/2)+'px,'+((window.innerHeight-1920*s)/2)+'px) scale('+s+')';
+  }
+  window.addEventListener('resize',fit);fit();
+
+  // date seed
+  var seed=20261027;
+  function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+
+  var cv=document.getElementById('sky'),ctx=cv.getContext('2d');
+  var W=540,H=960;
+
+  // --- cranes ---
+  function drawCrane(x,y,s,f,col,beak){
+    ctx.save();ctx.translate(x,y);ctx.fillStyle=col;ctx.strokeStyle=col;
+    // body wedge
+    ctx.beginPath();ctx.moveTo(-0.9*s,0);ctx.lineTo(0.1*s,-0.1*s);ctx.lineTo(0.32*s,0);ctx.lineTo(0.1*s,0.1*s);ctx.closePath();ctx.fill();
+    // wing triangle
+    var tip=-0.8*s*f; if(Math.abs(tip)<0.05*s) tip=0.05*s*(f<0?-1:1);
+    ctx.beginPath();ctx.moveTo(-0.15*s,0);ctx.lineTo(0.22*s,0);ctx.lineTo(0.02*s,tip);ctx.closePath();ctx.fill();
+    // neck
+    ctx.lineWidth=Math.max(1,0.07*s);ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(0.28*s,0);ctx.lineTo(0.95*s,-0.2*s);ctx.stroke();
+    // legs
+    ctx.lineWidth=Math.max(0.6,0.035*s);
+    ctx.beginPath();ctx.moveTo(-0.3*s,0.04*s);ctx.lineTo(-0.85*s,0.14*s);ctx.stroke();
+    // head
+    ctx.beginPath();ctx.arc(0.95*s,-0.2*s,0.085*s,0,Math.PI*2);ctx.fill();
+    // beak accent
+    ctx.fillStyle=beak;
+    ctx.beginPath();ctx.moveTo(1.0*s,-0.26*s);ctx.lineTo(1.0*s,-0.14*s);ctx.lineTo(1.28*s,-0.19*s);ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+
+  // skein: a V formation that travels right, members shift slots
+  function makeSkein(cfg){
+    var n=cfg.n, birds=[];
+    for(var i=0;i<n;i++){
+      birds.push({slot:i,px:0,py:0,phase:rnd()*Math.PI*2,freq:cfg.freq*(0.82+rnd()*0.36),init:true});
+    }
+    return {
+      birds:birds,n:n,size:cfg.size,col:cfg.col,beak:cfg.beak,speed:cfg.speed,
+      spacing:cfg.spacing,x:cfg.x,y:cfg.y,yMin:cfg.yMin,yMax:cfg.yMax,
+      angA:0.5+rnd()*0.3,angB:0.5+rnd()*0.3,tA:rnd()*100,tB:rnd()*100,
+      wA:0.05+rnd()*0.03,wB:0.045+rnd()*0.03,swapTimer:2+rnd()*4,swapEvery:cfg.swapEvery,
+      lean:cfg.lean
+    };
+  }
+  // slot -> local position: slot 0 apex, odd slots left-arm (upper), even right-arm (lower)
+  function slotPos(sk,slot,aA,aB){
+    if(slot===0) return [0,0];
+    var k=Math.ceil(slot/2);
+    var upper=(slot%2===1);
+    var ang=upper?aA:aB;
+    var d=k*sk.spacing;
+    return [-d*Math.cos(ang), (upper?-1:1)*d*Math.sin(ang)];
+  }
+
+  var skeins=[
+    // far plane: small cobalt, two skeins
+    makeSkein({n:9,size:9,col:'#1d4fb5',beak:'#1d4fb5',speed:11,spacing:14,x:-180,y:230,yMin:170,yMax:330,freq:3.2,swapEvery:5,lean:0}),
+    makeSkein({n:7,size:11,col:'#1d4fb5',beak:'#1d4fb5',speed:13,spacing:17,x:260,y:300,yMin:200,yMax:380,freq:3.0,swapEvery:6,lean:0}),
+    // mid plane: black skein with red beaks
+    makeSkein({n:11,size:22,col:'#141414',beak:'#d8261e',speed:22,spacing:34,x:-420,y:520,yMin:430,yMax:640,freq:2.3,swapEvery:4,lean:0}),
+    // near plane: three big black cranes
+    makeSkein({n:3,size:62,col:'#141414',beak:'#d8261e',speed:38,spacing:120,x:100,y:850,yMin:780,yMax:960,freq:1.5,swapEvery:9,lean:0})
+  ];
+
+  function updateSkein(sk,dt,t){
+    sk.x+=sk.speed*dt;
+    sk.tA+=dt;sk.tB+=dt;
+    var aA=sk.angA+0.18*Math.sin(sk.tA*sk.wA*2*Math.PI);
+    var aB=sk.angB+0.18*Math.sin(sk.tB*sk.wB*2*Math.PI+1.3);
+    // slot shuffles
+    sk.swapTimer-=dt;
+    if(sk.swapTimer<=0){
+      sk.swapTimer=sk.swapEvery*(0.6+rnd()*0.9);
+      var i=Math.floor(rnd()*sk.n),j=Math.floor(rnd()*sk.n);
+      if(i!==j){var s=sk.birds[i].slot;sk.birds[i].slot=sk.birds[j].slot;sk.birds[j].slot=s;}
+    }
+    // extent for wrap
+    var maxBack=Math.ceil((sk.n-1)/2)*sk.spacing+sk.size*1.5;
+    if(sk.x-maxBack>W+40){
+      sk.x=-maxBack-40-rnd()*120;
+      sk.y=sk.yMin+rnd()*(sk.yMax-sk.yMin);
+      for(var b=0;b<sk.n;b++) sk.birds[b].init=true;
+    }
+    for(var k=0;k<sk.n;k++){
+      var bd=sk.birds[k],p=slotPos(sk,bd.slot,aA,aB);
+      if(bd.init){bd.px=p[0];bd.py=p[1];bd.init=false;}
+      else{var e=1-Math.exp(-dt*0.9);bd.px+=(p[0]-bd.px)*e;bd.py+=(p[1]-bd.py)*e;}
+    }
+  }
+  function drawSkein(sk,t){
+    var drift=Math.sin(t*0.11+sk.tA)*sk.size*0.25;
+    for(var k=0;k<sk.n;k++){
+      var bd=sk.birds[k];
+      var f=Math.sin(t*bd.freq+bd.phase);
+      drawCrane(sk.x+bd.px,sk.y+bd.py+drift,sk.size,f,sk.col,sk.beak);
+    }
+  }
+
+  var last=performance.now(),acc=0,STEP=1/60,T=0;
+  function frame(now){
+    var dt=Math.min((now-last)/1000,STEP*2);last=now;
+    acc+=dt;var steps=0;
+    while(acc>=STEP&&steps<2){
+      for(var i=0;i<skeins.length;i++) updateSkein(skeins[i],STEP,T);
+      T+=STEP;acc-=STEP;steps++;
+    }
+    acc=0;
+    ctx.clearRect(0,0,W,H);
+    for(var j=0;j<skeins.length;j++) drawSkein(skeins[j],T);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
