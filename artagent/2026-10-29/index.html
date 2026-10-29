@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-29</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:#141a3c;overflow:hidden;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#141a3c;}
+  #scene-image{position:absolute;left:-2%;top:-1%;width:104%;height:104%;object-fit:cover;object-position:50% 20%;display:block;
+    animation:drift 90s ease-in-out infinite alternate;}
+  @keyframes drift{from{transform:translate(0,0)}to{transform:translate(-14px,8px)}}
+  /* one feather layer: soft shapes from the palette dissolving the image rectangle */
+  #feather{position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 520px 380px at 0% 0%, rgba(20,26,60,.95) 0%, rgba(20,26,60,.6) 45%, rgba(20,26,60,0) 100%),
+      radial-gradient(ellipse 560px 300px at 100% 0%, rgba(20,26,60,.9) 0%, rgba(20,26,60,.5) 45%, rgba(20,26,60,0) 100%),
+      radial-gradient(ellipse 300px 900px at 0% 45%, rgba(20,26,60,.85) 0%, rgba(20,26,60,0) 100%),
+      radial-gradient(ellipse 300px 900px at 100% 45%, rgba(20,26,60,.85) 0%, rgba(20,26,60,0) 100%),
+      radial-gradient(ellipse 700px 260px at 50% 0%, rgba(20,26,60,.7) 0%, rgba(20,26,60,0) 100%),
+      radial-gradient(ellipse 460px 240px at 18% 62%, rgba(246,195,20,.55) 0%, rgba(246,195,20,0) 100%),
+      radial-gradient(ellipse 520px 220px at 84% 60%, rgba(200,30,30,.35) 0%, rgba(200,30,30,0) 100%),
+      linear-gradient(to bottom, rgba(20,26,60,0) 50%, rgba(20,26,60,.65) 60%, rgba(20,26,60,.95) 66%, #141a3c 70%);
+  }
+  #dunes{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #shimmer{position:absolute;left:0;top:1180px;width:1080px;height:60px;pointer-events:none;
+    background:repeating-linear-gradient(90deg, rgba(246,195,20,0) 0 44px, rgba(255,240,180,.22) 44px 52px, rgba(246,195,20,0) 52px 96px);
+    animation:heat 7s ease-in-out infinite alternate;transform-origin:50% 50%;}
+  @keyframes heat{from{transform:translateX(0) scaleY(.6);opacity:.35}to{transform:translateX(26px) scaleY(1.15);opacity:.7}}
+  #guinea-pig{position:absolute;left:36px;bottom:118px;width:18px;opacity:.55;transform:rotate(-6deg);}
+  #date{position:absolute;right:34px;bottom:26px;font:500 15px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.18em;color:#f6c314;opacity:.55;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="scene-image" src="scene.png" alt="">
+  <div id="feather"></div>
+  <canvas id="dunes" width="540" height="960"></canvas>
+  <div id="shimmer"></div>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-10-29</div>
+</div>
+<script>
+(function(){
+  // responsive shell
+  var st=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    st.style.transform='translate('+((window.innerWidth-1080*s)/2)+'px,'+((window.innerHeight-1920*s)/2)+'px) scale('+s+')';
+  }
+  fit(); window.addEventListener('resize',fit);
+
+  // date seed
+  var seed=2026*10000+10*100+29;
+  function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+
+  var cv=document.getElementById('dunes'), g=cv.getContext('2d');
+  var W=540,H=960, Y0=600, LINE=6;
+  var PAL=['#f6c314','#f6c314','#f6c314','#f6c314','#f6c314','#d8201e','#d8201e','#1c3fa8','#1c3fa8','#f4ead0','#f4ead0','#20285a'];
+  var INK='#140f16';
+
+  // dune bands: each band has a base height and column breakpoints with slow phases
+  var bands=[], y=Y0, n=0;
+  while(y<H+120 && n<9){
+    var h=38+rnd()*70+ n*8;
+    var cols=[], x=0;
+    while(x<W){
+      var w=30+rnd()*120;
+      cols.push({x:x, w:w, c:PAL[Math.floor(rnd()*PAL.length)], ph:rnd()*6.283, amp:4+rnd()*8, sp:0.03+rnd()*0.03});
+      x+=w;
+    }
+    bands.push({y:y, h:h, ph:rnd()*6.283, amp:3+rnd()*5, sp:0.02+rnd()*0.02, cols:cols});
+    y+=h; n++;
+  }
+  // grains carried by wind
+  var grains=[];
+  for(var i=0;i<220;i++){
+    var inSky=rnd()<0.18;
+    grains.push({
+      x:rnd()*W,
+      y:inSky? Y0-rnd()*60 : Y0+rnd()*(H-Y0),
+      v:18+rnd()*46, s:1.5+rnd()*2.5,
+      c: rnd()<0.6 ? '#f4ead0' : '#f6c314',
+      drift:(rnd()-0.5)*4
+    });
+  }
+
+  var last=performance.now();
+  function frame(now){
+    var dt=Math.min(0.05,(now-last)/1000); last=now;
+    var t=now/1000;
+    g.clearRect(0,0,W,H);
+
+    // horizon shimmer: top edge of the dune block wobbles per column strip
+    var yTop=[];
+    for(var sx=0; sx<W; sx+=6){
+      yTop.push(Y0 + 2.2*Math.sin(sx*0.045 + t*1.3) + 1.4*Math.sin(sx*0.11 - t*0.9));
+    }
+
+    // bands as rectangular planes
+    var by=Y0;
+    for(var b=0;b<bands.length;b++){
+      var B=bands[b];
+      var bh=B.h + B.amp*Math.sin(t*B.sp+B.ph);
+      var bottom=by+bh;
+      var prevX=0;
+      for(var c=0;c<B.cols.length;c++){
+        var C=B.cols[c];
+        var x0=prevX;
+        var x1=(c===B.cols.length-1)? W+10 : C.x+C.w + C.amp*Math.sin(t*C.sp+C.ph);
+        g.fillStyle=C.c;
+        if(b===0){
+          // first band follows shimmering horizon
+          for(var k=Math.floor(x0/6); k*6<x1 && k<yTop.length; k++){
+            var ys=yTop[k];
+            g.fillRect(Math.max(k*6,x0), ys, Math.min(6,x1-k*6), bottom-ys+1);
+          }
+        } else {
+          g.fillRect(x0, by, x1-x0, bh+1);
+        }
+        prevX=x1;
+      }
+      // vertical black lines between planes
+      g.fillStyle=INK;
+      prevX=0;
+      for(var c2=0;c2<B.cols.length-1;c2++){
+        var C2=B.cols[c2];
+        var xl=C2.x+C2.w + C2.amp*Math.sin(t*C2.sp+C2.ph);
+        var yl = (b===0)? yTop[Math.min(yTop.length-1,Math.floor(xl/6))] : by;
+        g.fillRect(xl-LINE/2, yl, LINE, bottom-yl+1);
+      }
+      // horizontal black line at bottom of band
+      g.fillRect(0, bottom-LINE/2, W, LINE);
+      by=bottom;
+    }
+    // horizon line following shimmer
+    g.fillStyle=INK;
+    for(var k2=0;k2<yTop.length;k2++){ g.fillRect(k2*6, yTop[k2]-LINE/2, 6, LINE); }
+
+    // grains travel with the wind (directional, left to right), wrapping
+    for(var i2=0;i2<grains.length;i2++){
+      var G=grains[i2];
+      G.x+=G.v*dt; G.y+=G.drift*dt*0.3;
+      if(G.x>W+4){ G.x=-4; }
+      if(G.y>H) G.y=Y0+10; if(G.y<Y0-70) G.y=Y0-10;
+      g.fillStyle=G.c;
+      g.fillRect(G.x, G.y, G.s, G.s);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
