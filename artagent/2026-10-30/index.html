@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f1e7}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f5f1e7}
+svg.structure{position:absolute;inset:0;width:1080px;height:1920px}
+.backing{position:absolute;left:149px;top:260px;width:762px;height:669px;background:#ded8ca;transform:rotate(7deg);clip-path:polygon(1% 0,99% 1%,100% 97%,96% 99%,2% 100%,0 95%)}
+.image-paper{position:absolute;left:172px;top:251px;width:730px;height:660px;transform:rotate(7deg);box-shadow:9px 16px 0 #29272319;background:#fffaf0;padding:12px}
+#art-image{display:block;width:100%;height:100%;object-fit:cover;opacity:1;filter:saturate(.78) contrast(1.08);clip-path:polygon(0 1%,12% 0,26% 1%,42% 0,57% 1%,75% 0,99% 1%,100% 22%,99% 44%,100% 70%,99% 99%,81% 100%,65% 99%,42% 100%,21% 99%,1% 100%,0 78%,1% 53%,0 29%)}
+.maze-paper{position:absolute;left:125px;top:688px;width:830px;height:1050px;transform:rotate(-8deg);background:#fffdf5;box-shadow:10px 17px 0 #29272318;clip-path:polygon(1% 0,18% .4%,31% 0,52% .3%,72% 0,99% .5%,100% 18%,99.6% 42%,100% 65%,99.5% 99%,81% 100%,60% 99.5%,38% 100%,17% 99.6%,0 100%,.5% 77%,0 55%,.5% 29%)}
+canvas{position:absolute;left:38px;top:36px;width:754px;height:978px}
+.tape{position:absolute;width:174px;height:47px;background:#e6d5a9dc;clip-path:polygon(2% 0,99% 3%,97% 18%,100% 40%,98% 65%,100% 94%,2% 100%,3% 79%,0 59%,2% 32%);transform:rotate(-24deg)}
+.tape.one{left:136px;top:295px}
+.tape.two{left:784px;top:817px;transform:rotate(31deg);width:143px}
+.red-tab{position:absolute;left:96px;top:1304px;width:104px;height:33px;background:#e53123;transform:rotate(-8deg)}
+#guinea-pig{position:absolute;left:827px;top:1650px;width:17px;height:17px;object-fit:contain;opacity:.58;transform:rotate(-8deg)}
+.cover{position:absolute;left:825px;top:1663px;width:25px;height:9px;background:#fffdf5;transform:rotate(-8deg)}
+time{position:absolute;left:83px;bottom:60px;font:18px/1 monospace;letter-spacing:3px;color:#524b43}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="A red, black and paper-white constructivist collage. A maze carves itself, then a vermilion route discovers the way through.">
+<svg class="structure" viewBox="0 0 1080 1920" aria-hidden="true">
+<path fill="#e53123" d="M94 572L833 184L859 234L120 622Z"/>
+<path fill="#22211e" d="M258 1726L894 1636L900 1672L264 1762Z"/>
+</svg>
+<div class="backing"></div>
+<div class="image-paper"><img id="art-image" src="art.png" alt=""></div>
+<div class="tape one"></div>
+<div class="maze-paper"><canvas id="maze" width="377" height="489" aria-hidden="true"></canvas></div>
+<div class="tape two"></div>
+<div class="red-tab"></div>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div class="cover"></div>
+<time datetime="2026-10-30">2026-10-30</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+ const w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ stage.style.transform=`scale(${s})`;
+ stage.style.left=(w-1080*s)/2+'px';
+ stage.style.top=(h-1920*s)/2+'px';
+}
+addEventListener('resize',fit);fit();
+const canvas=document.getElementById('maze'),ctx=canvas.getContext('2d');
+let seed=20261030;
+function random(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)/4294967296}
+const cols=11,rows=15,total=cols*rows;
+const cw=32,ch=30,ox=12,oy=19;
+let walls,operations,route,start=0;
+function prepare(){
+ walls=Array.from({length:total},()=>[true,true,true,true]);
+ const visited=new Uint8Array(total),stack=[0],links=Array.from({length:total},()=>[]);
+ operations=[];visited[0]=1;
+ while(stack.length){
+  const a=stack[stack.length-1],x=a%cols,y=Math.floor(a/cols),options=[];
+  if(y>0&&!visited[a-cols])options.push([a-cols,0,2]);
+  if(x<cols-1&&!visited[a+1])options.push([a+1,1,3]);
+  if(y<rows-1&&!visited[a+cols])options.push([a+cols,2,0]);
+  if(x>0&&!visited[a-1])options.push([a-1,3,1]);
+  if(!options.length){stack.pop();continue}
+  const [b,d,e]=options[Math.floor(random()*options.length)];
+  operations.push([a,b,d,e]);links[a].push(b);links[b].push(a);
+  visited[b]=1;stack.push(b);
+ }
+ const parent=new Int16Array(total).fill(-1),queue=[0];parent[0]=0;
+ for(let k=0;k<queue.length;k++)for(const n of links[queue[k]])if(parent[n]<0){parent[n]=queue[k];queue.push(n)}
+ route=[total-1];while(route[route.length-1]!==0)route.push(parent[route[route.length-1]]);
+ route.reverse();
+}
+prepare();
+const carving=22,solving=12,hold=5,fade=3,period=carving+solving+hold+fade;
+function point(n){return[ox+(n%cols+.5)*cw,oy+(Math.floor(n/cols)+.5)*ch]}
+function draw(ms){
+ if(!start)start=ms;
+ let elapsed=(ms-start)/1000;
+ if(elapsed>=period){start=ms;elapsed=0;prepare()}
+ const count=Math.min(operations.length,Math.floor(elapsed/carving*operations.length));
+ for(let i=0;i<total;i++)walls[i].fill(true);
+ for(let i=0;i<count;i++){const[a,b,d,e]=operations[i];walls[a][d]=false;walls[b][e]=false}
+ walls[0][0]=false;walls[total-1][2]=false;
+ ctx.clearRect(0,0,377,489);
+ ctx.globalAlpha=elapsed>carving+solving+hold?Math.max(0,1-(elapsed-carving-solving-hold)/fade):Math.min(1,elapsed/1.5);
+ ctx.strokeStyle='#25231f';ctx.lineWidth=2.25;ctx.lineCap='square';
+ ctx.beginPath();
+ for(let n=0;n<total;n++){
+  const x=ox+n%cols*cw,y=oy+Math.floor(n/cols)*ch,w=walls[n];
+  if(w[0]){ctx.moveTo(x,y);ctx.lineTo(x+cw,y)}
+  if(w[3]){ctx.moveTo(x,y);ctx.lineTo(x,y+ch)}
+  if(n%cols===cols-1&&w[1]){ctx.moveTo(x+cw,y);ctx.lineTo(x+cw,y+ch)}
+  if(n>=total-cols&&w[2]){ctx.moveTo(x,y+ch);ctx.lineTo(x+cw,y+ch)}
+ }ctx.stroke();
+ ctx.strokeStyle='#e53123';ctx.fillStyle='#e53123';ctx.lineWidth=9;ctx.lineJoin='miter';ctx.lineCap='butt';
+ if(elapsed<carving&&count){
+  const p=point(operations[count-1][1]);ctx.fillRect(p[0]-6,p[1]-6,12,12);
+ }
+ if(elapsed>=carving){
+  const progress=Math.min(route.length-1,(elapsed-carving)/solving*(route.length-1));
+  const whole=Math.floor(progress),fraction=progress-whole;
+  ctx.beginPath();const first=point(route[0]);ctx.moveTo(first[0],oy-10);ctx.lineTo(...first);
+  for(let i=1;i<=whole;i++)ctx.lineTo(...point(route[i]));
+  if(whole<route.length-1){const a=point(route[whole]),b=point(route[whole+1]);ctx.lineTo(a[0]+(b[0]-a[0])*fraction,a[1]+(b[1]-a[1])*fraction)}
+  else{const end=point(total-1);ctx.lineTo(end[0],oy+rows*ch+10)}
+  ctx.stroke();
+ }
+ requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
