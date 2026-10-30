@@ -1,13 +1,13 @@
 {
-  "date": "2026-10-29",
-  "joke": "I trained a chatbot on all my old texts so it would sound just like me. Three days later, it still hasn't replied.",
+  "date": "2026-10-30",
+  "joke": "I showed the robot how to fold the laundry once. Now it folds the laundry once.",
   "model": {
-    "family": "opus",
-    "id": "global.anthropic.claude-opus-5-5",
-    "display": "Claude Opus 5.5",
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
     "provider": "anthropic"
   },
-  "scheduled_family": "opus",
+  "scheduled_family": "fable",
   "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
@@ -15,8 +15,8 @@
     "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "The chatbot copying the narrator’s habit of not replying delivers a clean, relatable turn that works without technical knowledge."
+    "reason": "The repeated “once” delivers a clean, accessible turn about a robot learning the wrong lesson."
   },
-  "attempts": 2,
-  "generated_at": "2026-10-29T08:31:07Z"
+  "attempts": 4,
+  "generated_at": "2026-10-30T08:35:21Z"
 }

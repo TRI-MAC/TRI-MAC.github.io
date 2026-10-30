@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-10-30",
+    "joke": "I showed the robot how to fold the laundry once. Now it folds the laundry once.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-10-29",
     "joke": "I trained a chatbot on all my old texts so it would sound just like me. Three days later, it still hasn't replied.",
     "model": "Claude Opus 5.5"

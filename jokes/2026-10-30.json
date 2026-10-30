@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30",
+  "joke": "I showed the robot how to fold the laundry once. Now it folds the laundry once.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The repeated “once” delivers a clean, accessible turn about a robot learning the wrong lesson."
+  },
+  "attempts": 4,
+  "generated_at": "2026-10-30T08:35:21Z"
+}
