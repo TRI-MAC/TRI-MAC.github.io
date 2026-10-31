@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-10-31</title>
+<style>
+  html,body{margin:0;height:100%;background:#1a1b3a;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#1a1b3a;overflow:hidden}
+  #background-video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:.88}
+  #tiles{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #date{position:absolute;right:28px;bottom:22px;font:500 15px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.18em;color:#efe6d2;opacity:.42}
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+  <svg id="tiles" viewBox="0 0 1080 1920" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="cells"></g>
+    <g id="gp" opacity="0.28">
+      <!-- tiny guinea pig, colour-matched, tucked near a tile edge -->
+      <ellipse cx="9" cy="8" rx="8" ry="5" fill="#2a2420"/>
+      <ellipse cx="15" cy="7" rx="4" ry="3.4" fill="#2a2420"/>
+      <circle cx="13.5" cy="5" r="1.1" fill="#2a2420"/>
+      <circle cx="16" cy="6.6" r=".6" fill="#efe6d2" opacity=".6"/>
+      <rect x="4" y="12" width="1.6" height="2.2" fill="#2a2420"/>
+      <rect x="11" y="12" width="1.6" height="2.2" fill="#2a2420"/>
+    </g>
+  </svg>
+  <div id="date">2026 · 10 · 31</div>
+</div>
+<script>
+(function(){
+  // ---- responsive shell ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+    var w=1080*s,h=1920*s;
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((window.innerWidth-w)/2)+'px';
+    stage.style.top=((window.innerHeight-h)/2)+'px';
+  }
+  fit();window.addEventListener('resize',fit);
+
+  // ---- date seed ----
+  var seed=20261031;
+  function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+
+  // ---- vertex grid: 4 x 4 shared vertices => 9 interlocking quads ----
+  var W=1080,H=1920;
+  var bx=[0,0.34+rnd()*0.08,0.62+rnd()*0.08,1];
+  var by=[0,0.26+rnd()*0.08,0.56+rnd()*0.1,1];
+  var verts=[];
+  for(var r=0;r<4;r++)for(var c=0;c<4;c++){
+    verts.push({
+      x0:bx[c]*W,y0:by[r]*H,
+      ax:(c===0||c===3)?0:70+rnd()*60,
+      ay:(r===0||r===3)?0:70+rnd()*60,
+      sx:(c===0||c===3)?0:(r===0||r===3)?60:0, // boundary slides along its own edge
+      sy:(r===0||r===3)?0:(c===0||c===3)?60:0,
+      px:rnd()*Math.PI*2,py:rnd()*Math.PI*2,
+      fx:0.6+rnd()*0.5,fy:0.6+rnd()*0.5
+    });
+  }
+  // corners fixed
+  [0,3,12,15].forEach(function(i){verts[i].sx=verts[i].sy=0;});
+
+  // ---- palette (Suprematist, on indigo) ----
+  var pal=[[215,38,30],[21,18,15],[239,230,210],[227,180,34],[31,106,74]];
+  // choose 5 filled cells of 9; the rest open onto the video
+  var idx=[0,1,2,3,4,5,6,7,8];
+  for(var i=idx.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=idx[i];idx[i]=idx[j];idx[j]=t;}
+  var filled={};
+  for(var k=0;k<5;k++)filled[idx[k]]=k;
+
+  var cellsG=document.getElementById('cells');
+  var polys=[];
+  for(var cell=0;cell<9;cell++){
+    if(!(cell in filled))continue;
+    var p=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    cellsG.appendChild(p);
+    polys.push({el:p,cell:cell,col:filled[cell],phase:rnd()*60});
+  }
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function colAt(base,t){
+    // every 75s drift one palette step; 8s crossfade
+    var cyc=t/75, n=Math.floor(cyc), f=cyc-n;
+    var e=Math.min(1,f*75/8); e=e*e*(3-2*e);
+    var A=pal[(base+n)%5],B=pal[(base+n+1)%5];
+    return 'rgb('+Math.round(lerp(A[0],B[0],e))+','+Math.round(lerp(A[1],B[1],e))+','+Math.round(lerp(A[2],B[2],e))+')';
+  }
+
+  var pos=new Array(16);
+  var gp=document.getElementById('gp');
+  var start=performance.now();
+  function frame(now){
+    var t=(now-start)/1000;
+    for(var i=0;i<16;i++){
+      var v=verts[i];
+      var dx=v.ax*Math.sin(t*0.0157*v.fx+v.px)+v.sx*Math.sin(t*0.011*v.fx+v.px);
+      var dy=v.ay*Math.sin(t*0.0131*v.fy+v.py)+v.sy*Math.sin(t*0.0097*v.fy+v.py);
+      pos[i]=[v.x0+dx,v.y0+dy];
+    }
+    for(var q=0;q<polys.length;q++){
+      var P=polys[q],c=P.cell%3,r=Math.floor(P.cell/3);
+      var a=pos[r*4+c],b=pos[r*4+c+1],d=pos[(r+1)*4+c+1],e=pos[(r+1)*4+c];
+      P.el.setAttribute('points',a[0]+','+a[1]+' '+b[0]+','+b[1]+' '+d[0]+','+d[1]+' '+e[0]+','+e[1]);
+      P.el.setAttribute('fill',colAt(P.col,t+P.phase));
+    }
+    // guinea pig rides the bottom-left edge of the central vertex, half tucked under the seam
+    var vx=pos[10][0],vy=pos[10][1];
+    gp.setAttribute('transform','translate('+(vx-22)+','+(vy-8)+') rotate(-6)');
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
