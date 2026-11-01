@@ -1,22 +1,22 @@
 {
-  "date": "2026-10-31",
-  "joke": "My chatbot warned me not to share personal details online. Then it asked for a few examples.",
+  "date": "2026-11-01",
+  "joke": "Halfway through my driving test, the car offered to take over. The examiner passed it.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup and a quick, legible reversal that anyone who's used a chatbot would get, with no safety concerns."
+    "reason": "The examiner passing the car instead of the driver delivers a clean, accessible turn without relying on jargon or sensitive material."
   },
-  "attempts": 1,
-  "generated_at": "2026-10-31T08:32:51Z"
+  "attempts": 2,
+  "generated_at": "2026-11-01T08:30:45Z"
 }

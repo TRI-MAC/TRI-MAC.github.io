@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-01",
+    "joke": "Halfway through my driving test, the car offered to take over. The examiner passed it.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-10-31",
     "joke": "My chatbot warned me not to share personal details online. Then it asked for a few examples.",
     "model": "GPT-6.1 Sol"
