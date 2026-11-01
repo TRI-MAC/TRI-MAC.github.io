@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-01</title>
+<style>
+  html,body{margin:0;padding:0;background:#e9dcb8;overflow:hidden;width:100%;height:100%;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#efe3c3;overflow:hidden;}
+  #parch{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  #art{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block;}
+  .spin-cw{animation:cw var(--d) linear infinite;}
+  .spin-ccw{animation:ccw var(--d) linear infinite;}
+  @keyframes cw{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes ccw{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+  #breath{animation:breath 42s ease-in-out infinite;}
+  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(0.965)}}
+  .pulse{animation:pulse 36s cubic-bezier(.2,.5,.6,1) infinite;opacity:0;}
+  @keyframes pulse{0%{transform:scale(0.8);opacity:0}6%{opacity:.85}70%{opacity:.5}100%{transform:scale(17);opacity:0}}
+  #shine{animation:shine 11s ease-in-out infinite;}
+  @keyframes shine{0%,100%{opacity:.0}50%{opacity:.55}}
+  #date{position:absolute;right:48px;bottom:30px;font:13px/1 Georgia,"Times New Roman",serif;letter-spacing:.18em;color:#6b3a1f;opacity:.55;}
+  #guinea-pig{position:absolute;left:67px;bottom:1848px;width:17px;height:auto;opacity:.6;transform:rotate(-8deg);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="parch" width="540" height="960"></canvas>
+  <svg id="art" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f2d57a"/>
+        <stop offset=".45" stop-color="#c99a2e"/>
+        <stop offset=".7" stop-color="#e9c75c"/>
+        <stop offset="1" stop-color="#a97b1c"/>
+      </linearGradient>
+      <radialGradient id="goldc" cx=".4" cy=".35" r=".8">
+        <stop offset="0" stop-color="#fbe7a2"/>
+        <stop offset=".6" stop-color="#d4a63a"/>
+        <stop offset="1" stop-color="#9d6f12"/>
+      </radialGradient>
+    </defs>
+    <g id="border"></g>
+    <g transform="translate(540,960)">
+      <g id="breath">
+        <g id="pulses"></g>
+        <g id="rings"></g>
+        <circle id="shine" r="505" fill="none" stroke="#fff3c4" stroke-width="3"/>
+      </g>
+    </g>
+  </svg>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 11 · 01</div>
+</div>
+<script>
+(function(){
+  // ---- date seed ----
+  var DATE = '2026-11-01';
+  var seed = 0; for (var i=0;i<DATE.length;i++){ seed = (seed*31 + DATE.charCodeAt(i))>>>0; }
+  function rnd(){ seed ^= seed<<13; seed>>>=0; seed ^= seed>>>17; seed ^= seed<<5; seed>>>=0; return seed/4294967296; }
+  function pick(a){ return a[Math.floor(rnd()*a.length)]; }
+
+  // ---- palette (jewel pigments on parchment) ----
+  var VERM='#c9381f', LAPIS='#2d4fa6', EMER='#2a8a55', INK='#4a2a12', PARCH='#efe3c3', PARCH2='#f6ecd0';
+  var bands=[VERM,LAPIS,EMER]; // permute by date
+  for (var k=bands.length-1;k>0;k--){ var j=Math.floor(rnd()*(k+1)); var t=bands[k]; bands[k]=bands[j]; bands[j]=t; }
+
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a,p){ var e=document.createElementNS(NS,n); for (var q in a) e.setAttribute(q,a[q]); if(p) p.appendChild(e); return e; }
+  function px(r,a){ return (r*Math.cos(a)).toFixed(2)+','+(r*Math.sin(a)).toFixed(2); }
+
+  // ---- parchment texture (drawn once, scaled by CSS) ----
+  var c=document.getElementById('parch'), ctx=c.getContext('2d');
+  var g=ctx.createRadialGradient(270,470,80,270,480,700);
+  g.addColorStop(0,'#f4e9cc'); g.addColorStop(1,'#e4d3a6');
+  ctx.fillStyle=g; ctx.fillRect(0,0,540,960);
+  for (var s=0;s<9000;s++){
+    var x=rnd()*540,y=rnd()*960,a=rnd();
+    ctx.fillStyle = a<0.5 ? 'rgba(140,100,50,0.07)' : 'rgba(255,250,235,0.12)';
+    ctx.fillRect(x,y,rnd()*2+0.5,rnd()*2+0.5);
+  }
+  // faint ruling lines of the scribe
+  ctx.strokeStyle='rgba(150,80,40,0.10)'; ctx.lineWidth=0.6;
+  for (var ly=70;ly<920;ly+=24){ ctx.beginPath(); ctx.moveTo(40,ly); ctx.lineTo(500,ly); ctx.stroke(); }
+
+  // ---- manuscript border: double gold fillet with corner roundels ----
+  var B=document.getElementById('border');
+  function frame(inset,w,col){ el('rect',{x:inset,y:inset,width:1080-2*inset,height:1920-2*inset,fill:'none',stroke:col,'stroke-width':w},B); }
+  frame(56,12,INK); frame(56,8,'url(#gold)');
+  frame(84,6,INK); frame(84,3,'url(#gold)');
+  frame(70,2,bands[0]);
+  [[56,56],[1024,56],[56,1864],[1024,1864]].forEach(function(p){
+    el('circle',{cx:p[0],cy:p[1],r:30,fill:bands[1],stroke:INK,'stroke-width':3},B);
+    el('circle',{cx:p[0],cy:p[1],r:20,fill:'url(#goldc)',stroke:INK,'stroke-width':2},B);
+    el('circle',{cx:p[0],cy:p[1],r:7,fill:bands[0]},B);
+  });
+
+  // ---- rosette rings ----
+  var R=document.getElementById('rings');
+  var ringIndex=0;
+  function ring(dur){ var gr=el('g',{},R); gr.setAttribute('class', (ringIndex++%2 ? 'spin-ccw':'spin-cw')); gr.style.setProperty('--d',dur+'s'); return gr; }
+  function band(gr,r0,r1,fill){
+    el('circle',{r:(r0+r1)/2,fill:'none',stroke:fill,'stroke-width':r1-r0},gr);
+    el('circle',{r:r0,fill:'none',stroke:INK,'stroke-width':4},gr);
+    el('circle',{r:r0,fill:'none',stroke:'url(#gold)','stroke-width':2.5},gr);
+    el('circle',{r:r1,fill:'none',stroke:INK,'stroke-width':4},gr);
+    el('circle',{r:r1,fill:'none',stroke:'url(#gold)','stroke-width':2.5},gr);
+  }
+  // interlaced lozenge chain: thick gold links with ink outline
+  function chain(gr,rm,h,N,col,ink){
+    var step=Math.PI*2/N, aw=step*0.62;
+    var pts=[], outline=el('g',{fill:'none',stroke:ink,'stroke-width':13,'stroke-linejoin':'round'},gr);
+    var inner=el('g',{fill:'none',stroke:col,'stroke-width':8,'stroke-linejoin':'round'},gr);
+    for (var i=0;i<N;i++){
+      var th=i*step;
+      var d='M'+px(rm+h,th)+' L'+px(rm,th+aw)+' L'+px(rm-h,th)+' L'+px(rm,th-aw)+' Z';
+      pts.push(d);
+    }
+    pts.forEach(function(d){ el('path',{d:d},outline); });
+    pts.forEach(function(d){ el('path',{d:d},inner); });
+    // over-under knots: small dots at crossings
+    for (var i=0;i<N;i++){ var th=i*step+step/2; var p=px(rm,th).split(','); el('circle',{cx:p[0],cy:p[1],r:5,fill:ink},gr); }
+  }
+  function dots(gr,rm,N,rad,col,ink){
+    var step=Math.PI*2/N;
+    for (var i=0;i<N;i++){ var p=px(rm,i*step).split(',');
+      el('circle',{cx:p[0],cy:p[1],r:rad+2.5,fill:ink},gr);
+      el('circle',{cx:p[0],cy:p[1],r:rad,fill:col},gr); }
+  }
+  function rays(gr,r0,r1,N,col,ink){
+    var step=Math.PI*2/N, w=step*0.28;
+    for (var i=0;i<N;i++){ var th=i*step;
+      var d='M'+px(r0,th-w)+' L'+px(r1,th)+' L'+px(r0,th+w)+' Z';
+      el('path',{d:d,fill:col,stroke:ink,'stroke-width':2.5,'stroke-linejoin':'round'},gr); }
+  }
+
+  var N1=pick([20,24,28]), N2=pick([30,36,42]), N3=pick([24,28,32]), N4=pick([14,16,18]), N5=pick([12,16,20]);
+
+  // 1 outer lapis band with gold fillets
+  var g1=ring(170); band(g1,468,506,bands[1]); dots(g1,487,N2*2,4,'#f2d57a',INK);
+  // 2 parchment ring with gold knotwork chain
+  var g2=ring(120); el('circle',{r:430,fill:'none',stroke:PARCH2,'stroke-width':70},g2); chain(g2,430,28,N1,'#d9ad3c',INK);
+  // 3 vermilion band with gold roundels
+  var g3=ring(95); band(g3,336,392,bands[0]); dots(g3,364,N2,10,'url(#goldc)',INK);
+  // 4 emerald band with parchment lozenges
+  var g4=ring(80); band(g4,262,326,bands[2]); chain(g4,294,24,N3,PARCH2,INK); dots(g4,294,N3,4,'#f2d57a',INK);
+  // 5 gold leaf band with vermilion chain
+  var g5=ring(66); band(g5,190,252,'url(#gold)'); chain(g5,221,22,N4,bands[0],INK);
+  // 6 lapis band with gold starburst rays
+  var g6=ring(54); band(g6,100,186,bands[1]); rays(g6,106,180,N5,'#e9c75c',INK); dots(g6,100,N5*2,3,'#f2d57a',INK);
+  // 7 centre: fine concentric pigment rings to a gold disc
+  var g7=ring(40);
+  var cols=[bands[0],'#d9ad3c',bands[2],'#d9ad3c',bands[1],'#d9ad3c',bands[0]];
+  for (var i=0;i<cols.length;i++){ var rr=92-i*10; el('circle',{r:rr,fill:'none',stroke:INK,'stroke-width':8},g7); el('circle',{r:rr,fill:'none',stroke:cols[i],'stroke-width':5},g7); }
+  el('circle',{r:22,fill:INK},g7); el('circle',{r:19,fill:'url(#goldc)'},g7); el('circle',{r:6,fill:bands[0]},g7);
+
+  // ---- expanding pulses from the centre ----
+  var P=document.getElementById('pulses');
+  for (var i=0;i<3;i++){
+    var pc=el('circle',{r:30,fill:'none',stroke:'#d9ad3c','stroke-width':1.2,'class':'pulse'},P);
+    pc.style.animationDelay=(-i*12)+'s';
+  }
+
+  // ---- responsive shell ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var W=window.innerWidth,H=window.innerHeight, s=Math.min(W/1080,H/1920);
+    stage.style.transform='scale('+s+')';
+    stage.style.left=((W-1080*s)/2)+'px';
+    stage.style.top=((H-1920*s)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>
