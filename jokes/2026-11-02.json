@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-02",
+  "joke": "To prove I wasn't a robot, I had to click every picture of a bus. The AI found two I'd missed.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The familiar image-check setup lands a clean, accessible reversal when AI does a better job proving the narrator is human."
+  },
+  "attempts": 2,
+  "generated_at": "2026-11-02T09:32:16Z"
+}

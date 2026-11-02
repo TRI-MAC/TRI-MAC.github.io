@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-02",
+    "joke": "To prove I wasn't a robot, I had to click every picture of a bus. The AI found two I'd missed.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-11-01",
     "joke": "Halfway through my driving test, the car offered to take over. The examiner passed it.",
     "model": "Claude Opus 5.5"

@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-01",
-  "joke": "Halfway through my driving test, the car offered to take over. The examiner passed it.",
+  "date": "2026-11-02",
+  "joke": "To prove I wasn't a robot, I had to click every picture of a bus. The AI found two I'd missed.",
   "model": {
-    "family": "opus",
-    "id": "global.anthropic.claude-opus-5-5",
-    "display": "Claude Opus 5.5",
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
     "provider": "anthropic"
   },
-  "scheduled_family": "opus",
+  "scheduled_family": "fable",
   "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
@@ -15,8 +15,8 @@
     "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "The examiner passing the car instead of the driver delivers a clean, accessible turn without relying on jargon or sensitive material."
+    "reason": "The familiar image-check setup lands a clean, accessible reversal when AI does a better job proving the narrator is human."
   },
   "attempts": 2,
-  "generated_at": "2026-11-01T08:30:45Z"
+  "generated_at": "2026-11-02T09:32:16Z"
 }
