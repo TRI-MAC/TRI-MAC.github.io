@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-11-03</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#140b2a}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#1a0f3a}
+#scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:drift 60s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1.02)}to{transform:scale(1.05)}}
+#field{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.feather{position:absolute;left:-10%;width:120%;height:22%;pointer-events:none}
+#ft{top:-4%;background:linear-gradient(#1a0f3a,rgba(26,15,58,0))}
+#fb{bottom:-4%;background:linear-gradient(rgba(42,10,40,0),#2a0a28)}
+#date{position:absolute;right:28px;bottom:22px;font:16px monospace;color:#e8c9ff;opacity:.4}
+#guinea-pig{position:absolute;left:14px;bottom:30px;width:16px;opacity:.5}
+</style></head><body>
+<div id="stage">
+<img id="scene-image" src="scene.png" alt="">
+<canvas id="field" width="270" height="480"></canvas>
+<div class="feather" id="ft"></div><div class="feather" id="fb"></div>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026-11-03</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${s})`;st.style.left=(innerWidth-1080*s)/2+'px';st.style.top=(innerHeight-1920*s)/2+'px'}
+addEventListener('resize',fit);fit();
+const seed=20261103%360;
+const c=document.getElementById('field'),x=c.getContext('2d');
+function frame(t){t*=0.00004;
+ const h=(seed+t*360)%360;
+ const g=x.createLinearGradient(0,0,270,480);
+ g.addColorStop(0,`hsla(${h},70%,22%,0)`);
+ g.addColorStop(.35,`hsla(${(h+40)%360},80%,40%,.55)`);
+ g.addColorStop(.65,`hsla(${(h+180)%360},75%,45%,.35)`);
+ g.addColorStop(1,`hsla(${(h+220)%360},70%,18%,.9)`);
+ x.clearRect(0,0,270,480);x.fillStyle=g;x.fillRect(0,0,270,480);
+ // op-art vibration: fine concentric bands, moiré against the image
+ x.globalCompositeOperation='source-atop';
+ const cx=135+30*Math.sin(t*20),cy=240+40*Math.cos(t*14);
+ for(let r=8;r<560;r+=8){x.beginPath();x.arc(cx,cy,r,0,7);x.lineWidth=3;x.strokeStyle=`hsla(${(h+180+r*.2)%360},90%,55%,.18)`;x.stroke()}
+ x.globalCompositeOperation='source-over';
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+if(window.self===window.top){try{const a=new AudioContext(),o=a.createOscillator(),o2=a.createOscillator(),gn=a.createGain();o.frequency.value=110;o2.frequency.value=110.6;gn.gain.value=.03;o.connect(gn);o2.connect(gn);gn.connect(a.destination);o.start();o2.start();addEventListener('click',()=>a.resume(),{once:true})}catch(e){}}
+</script></body></html>
