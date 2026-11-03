@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-03",
+  "joke": "Someone sent me a love letter. My AI assistant filed it under no action needed.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean setup and a real turn—the assistant's bureaucratic triage of a love letter lands for anyone who has ever sorted an inbox, with no insider vocabulary or safety concerns."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-03T09:32:41Z"
+}
