@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-03",
-  "joke": "Someone sent me a love letter. My AI assistant filed it under no action needed.",
+  "date": "2026-11-04",
+  "joke": "My partner and I each asked the chatbot who was right about our argument. It's the first one we've both won.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean setup and a real turn—the assistant's bureaucratic triage of a love letter lands for anyone who has ever sorted an inbox, with no insider vocabulary or safety concerns."
+    "reason": "A relatable setup lands a clean turn when the chatbot lets both partners win the same argument, with no technical knowledge required."
   },
   "attempts": 1,
-  "generated_at": "2026-11-03T09:32:41Z"
+  "generated_at": "2026-11-04T09:30:26Z"
 }
