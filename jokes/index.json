@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-05",
+    "joke": "My weather app is right nine times out of ten. It does the counting.",
+    "model": "Claude Fable 5.1"
+  },
+  {
     "date": "2026-11-04",
     "joke": "My partner and I each asked the chatbot who was right about our argument. It's the first one we've both won.",
     "model": "Claude Opus 5.5"

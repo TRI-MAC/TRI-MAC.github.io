@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-05",
+  "joke": "My weather app is right nine times out of ten. It does the counting.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "A clean, accessible setup and turn: the accuracy claim collapses when we learn the app is keeping its own score."
+  },
+  "attempts": 2,
+  "generated_at": "2026-11-05T09:32:02Z"
+}
