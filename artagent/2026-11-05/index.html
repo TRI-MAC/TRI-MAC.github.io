@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-05</title>
+<style>
+  html,body{margin:0;padding:0;background:#F4E7C8;overflow:hidden;width:100%;height:100%;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#F4E7C8;overflow:hidden;}
+  #alley{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block;}
+  #play{position:absolute;left:0;top:0;width:1080px;height:1920px;display:block;}
+  #guinea-pig{position:absolute;left:1046px;top:1583px;width:18px;height:auto;opacity:0.55;transform:rotate(-8deg);}
+  #date{position:absolute;right:14px;bottom:8px;font:11px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:0.18em;color:#5A3E2B;opacity:0.5;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="alley" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+  <canvas id="play" width="540" height="960"></canvas>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 11 · 05</div>
+</div>
+<script>
+(function(){
+  // ---- date seed ----
+  var DATE = "2026-11-05";
+  var seed = 0; for (var i=0;i<DATE.length;i++){ seed = (seed*31 + DATE.charCodeAt(i))>>>0; }
+  function hash(a,b,c){
+    var h = seed ^ (a*0x9E3779B1) ^ (b*0x85EBCA77) ^ (c*0xC2B2AE3D);
+    h = Math.imul(h ^ (h>>>15), 0x2C1B3C6D); h = Math.imul(h ^ (h>>>12), 0x297A2D39);
+    h ^= h>>>15; return (h>>>0)/4294967296;
+  }
+
+  // ---- geometry ----
+  var W=1080, H=1920, LANES=12, LH=H/LANES, GUT=18;
+  var FOUL=260, PIT=1000, HEADX=880, ROWDX=25, PINDY=26, PINR=9, BALLR=16;
+  var T=12, HIT=3.5;
+  var BALLCOL=["#E2492F","#1E6F68","#E07A2F","#8A8F3A","#C9A227","#2A9D8F"];
+
+  // ---- static alley (SVG) ----
+  var svg=document.getElementById('alley'), s='';
+  for (var l=0;l<LANES;l++){
+    var y=l*LH, flip=(l%2===1);
+    var tr = flip ? ' transform="translate(1080 '+y+') scale(-1 1)"' : ' transform="translate(0 '+y+')"';
+    s+='<g'+tr+'>';
+    // gutters
+    s+='<rect x="0" y="0" width="1080" height="'+GUT+'" fill="#3BA99C"/>';
+    s+='<rect x="0" y="'+(LH-GUT)+'" width="1080" height="'+GUT+'" fill="#3BA99C"/>';
+    // divider
+    s+='<rect x="0" y="0" width="1080" height="3" fill="#F4E7C8"/>';
+    s+='<rect x="0" y="'+(LH-3)+'" width="1080" height="3" fill="#F4E7C8"/>';
+    // approach
+    s+='<rect x="0" y="'+GUT+'" width="'+FOUL+'" height="'+(LH-2*GUT)+'" fill="#D9B46F"/>';
+    // lane boards
+    var bh=(LH-2*GUT)/10;
+    for (var b=0;b<10;b++){
+      s+='<rect x="'+FOUL+'" y="'+(GUT+b*bh)+'" width="'+(PIT-FOUL)+'" height="'+(bh+0.5)+'" fill="'+(b%2?'#F3DFA8':'#EDD291')+'"/>';
+    }
+    // arrows
+    for (var a=0;a<7;a++){
+      var ay=GUT+bh*1.5+a*bh, ax=FOUL+170 - Math.abs(a-3)*34;
+      s+='<polygon points="'+ax+','+ay+' '+(ax-14)+','+(ay-5)+' '+(ax-14)+','+(ay+5)+'" fill="#5A3E2B" opacity="0.75"/>';
+    }
+    // foul line
+    s+='<rect x="'+(FOUL-2)+'" y="'+GUT+'" width="4" height="'+(LH-2*GUT)+'" fill="#5A3E2B" opacity="0.7"/>';
+    // pit
+    s+='<rect x="'+PIT+'" y="'+GUT+'" width="'+(1080-PIT)+'" height="'+(LH-2*GUT)+'" fill="#5A3E2B"/>';
+    s+='<rect x="'+PIT+'" y="'+GUT+'" width="8" height="'+(LH-2*GUT)+'" fill="#3B271A"/>';
+    s+='</g>';
+  }
+  svg.innerHTML=s;
+
+  // ---- pins layout ----
+  var PINS=[]; for (var r=0;r<4;r++) for (var k=0;k<=r;k++) PINS.push({x:HEADX+r*ROWDX, dy:(k-r/2)*PINDY});
+
+  // ---- audio (strike knock) ----
+  var audio=null;
+  if (window.self===window.top){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      var ctxA=new AC(); var master=ctxA.createGain(); master.gain.value=0.5; master.connect(ctxA.destination);
+      var nbuf=ctxA.createBuffer(1,ctxA.sampleRate*0.4,ctxA.sampleRate), d=nbuf.getChannelData(0);
+      for (var n=0;n<d.length;n++) d[n]=(Math.random()*2-1)*Math.pow(1-n/d.length,3);
+      audio={knock:function(){
+        if (ctxA.state!=='running'){ ctxA.resume(); return; }
+        var src=ctxA.createBufferSource(); src.buffer=nbuf;
+        var bp=ctxA.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=260+Math.random()*120; bp.Q.value=1.4;
+        var g=ctxA.createGain(); var t0=ctxA.currentTime; g.gain.setValueAtTime(0.11,t0); g.gain.exponentialRampToValueAtTime(0.001,t0+0.3);
+        src.connect(bp); bp.connect(g); g.connect(master); src.start(t0); src.stop(t0+0.35);
+      }};
+      document.addEventListener('visibilitychange',function(){ if(!document.hidden) ctxA.resume(); });
+      setInterval(function(){ if(ctxA.state!=='running') ctxA.resume(); },3000);
+    }catch(e){ audio=null; }
+  }
+
+  // ---- canvas ----
+  var cv=document.getElementById('play'), ctx=cv.getContext('2d');
+  var lastCycle=new Array(LANES).fill(-1), lastHit=new Array(LANES).fill(false);
+
+  function lanePhase(l){ return hash(l,7,0)*T; }
+
+  function drawLane(l, now){
+    var t=(now+lanePhase(l))%T, cyc=Math.floor((now+lanePhase(l))/T);
+    var cy=LH/2, flip=(l%2===1);
+    ctx.save();
+    ctx.translate(0,l*LH);
+    if (flip){ ctx.translate(W,0); ctx.scale(-1,1); }
+    ctx.beginPath(); ctx.rect(0,0,W,LH); ctx.clip();
+
+    var ballIdx=Math.floor(hash(l,cyc,99)*BALLCOL.length), hook=(hash(l,cyc,5)-0.5)*70;
+    var dt=t-HIT;
+
+    // pins
+    for (var p=0;p<PINS.length;p++){
+      var pin=PINS[p], px=pin.x, py=cy+pin.dy, alpha=1, sc=1;
+      if (dt>0){
+        var stands = hash(l,cyc,100+p)<0.14 && !(p===0);
+        if (!stands){
+          var ang=Math.atan2(pin.dy - hook*0.3, 60)+(hash(l,cyc,200+p)-0.5)*1.6;
+          var spd=170+hash(l,cyc,300+p)*260;
+          var tt=Math.min(dt,2.6);
+          var dist=spd*(1-Math.exp(-1.6*tt))/1.6;
+          px+=Math.cos(ang)*dist; py+=Math.sin(ang)*dist;
+          if (px>PIT+10 || py<GUT-4 || py>LH-GUT+4) alpha=0;
+        }
+        // sweep
+        if (dt>3.0){
+          var sx=820+(dt-3.0)/1.5*260;
+          if (px<sx) alpha=0;
+        }
+        if (dt>3.2) alpha=0;
+        // reset
+        if (dt>5){ px=pin.x; py=cy+pin.dy; sc=Math.min(1,(dt-5)/0.9); alpha=sc; }
+      }
+      if (alpha>0){
+        ctx.globalAlpha=alpha;
+        ctx.beginPath(); ctx.arc(px,py,PINR*sc,0,6.2832); ctx.fillStyle="#FFF6E3"; ctx.fill();
+        ctx.lineWidth=1.5; ctx.strokeStyle="rgba(90,62,43,0.7)"; ctx.stroke();
+        ctx.beginPath(); ctx.arc(px,py,PINR*sc*0.6,0,6.2832); ctx.lineWidth=2.2*sc; ctx.strokeStyle="#E2492F"; ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    }
+
+    // sweeper bar
+    if (dt>3.0 && dt<4.5){
+      var sx2=820+(dt-3.0)/1.5*260;
+      ctx.fillStyle="rgba(90,62,43,0.55)";
+      ctx.fillRect(sx2-6,GUT+4,12,LH-2*GUT-8);
+    }
+
+    // ball
+    var bx=null, by=cy, balpha=1;
+    if (t<HIT){
+      var u=t/HIT; bx=80+(HEADX-40-80)*u; by=cy+hook*(u-u*u)*4*0.6+hook*0.3*u;
+    } else if (t<HIT+0.7){
+      var u2=(t-HIT)/0.7; bx=HEADX-40+(PIT+30-(HEADX-40))*u2; by=cy+hook*0.3; balpha=1-Math.max(0,(u2-0.7)/0.3);
+    } else if (t>T-2){
+      bx=80; balpha=Math.min(1,(t-(T-2))/0.8);
+    }
+    if (bx!==null && balpha>0){
+      ctx.globalAlpha=balpha;
+      ctx.beginPath(); ctx.arc(bx+3,by+4,BALLR,0,6.2832); ctx.fillStyle="rgba(90,62,43,0.25)"; ctx.fill();
+      ctx.beginPath(); ctx.arc(bx,by,BALLR,0,6.2832); ctx.fillStyle=BALLCOL[ballIdx]; ctx.fill();
+      var rot=bx/BALLR;
+      for (var h=0;h<3;h++){
+        var a2=rot+h*2.094; var hx=bx+Math.cos(a2)*6, hy=by+Math.sin(a2)*6;
+        ctx.beginPath(); ctx.arc(hx,hy,2.2,0,6.2832); ctx.fillStyle="rgba(60,30,20,0.6)"; ctx.fill();
+      }
+      ctx.globalAlpha=1;
+    }
+
+    // audio trigger
+    if (audio){
+      var hitNow = t>=HIT;
+      if (cyc!==lastCycle[l]){ lastCycle[l]=cyc; lastHit[l]=false; }
+      if (hitNow && !lastHit[l]){ lastHit[l]=true; if (t<HIT+0.3) audio.knock(); }
+    }
+    ctx.restore();
+  }
+
+  var start=performance.now();
+  function frame(){
+    var now=(performance.now()-start)/1000;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,540,960);
+    ctx.scale(0.5,0.5);
+    for (var l=0;l<LANES;l++) drawLane(l,now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---- responsive stage ----
+  var stage=document.getElementById('stage');
+  function fit(){
+    var vw=window.innerWidth, vh=window.innerHeight, sc=Math.min(vw/1080, vh/1920);
+    var ox=(vw-1080*sc)/2, oy=(vh-1920*sc)/2;
+    stage.style.transform='translate('+ox+'px,'+oy+'px) scale('+sc+')';
+  }
+  window.addEventListener('resize',fit); fit();
+})();
+</script>
+</body>
+</html>
