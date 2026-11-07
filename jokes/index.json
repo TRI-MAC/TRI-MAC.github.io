@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-07",
+    "joke": "Two of my students handed in the same essay on honesty. To be fair, they used different chatbots.",
+    "model": "Claude Opus 5.5"
+  },
+  {
     "date": "2026-11-06",
     "joke": "My robot says please and thank you now. I miss when it just did the dishes.",
     "model": "GPT-6.1 Sol"

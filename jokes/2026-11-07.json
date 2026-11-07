@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-07",
+  "joke": "Two of my students handed in the same essay on honesty. To be fair, they used different chatbots.",
+  "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The essay on honesty sets up a clear irony, and the different-chatbots punchline adds an accessible, clean turn."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-07T09:30:40Z"
+}

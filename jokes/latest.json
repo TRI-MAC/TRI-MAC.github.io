@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-06",
-  "joke": "My robot says please and thank you now. I miss when it just did the dishes.",
+  "date": "2026-11-07",
+  "joke": "Two of my students handed in the same essay on honesty. To be fair, they used different chatbots.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
     "display": "GPT-6.1 Sol",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-1",
-    "display": "Claude Fable 5.1",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean two-beat structure where 'now' sets up an upgrade and the punchline reveals the manners came at the cost of the chores, a turn anyone with a chatty gadget will get without any AI vocabulary."
+    "reason": "The essay on honesty sets up a clear irony, and the different-chatbots punchline adds an accessible, clean turn."
   },
   "attempts": 1,
-  "generated_at": "2026-11-06T09:32:53Z"
+  "generated_at": "2026-11-07T09:30:40Z"
 }
