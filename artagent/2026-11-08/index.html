@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title></title>
+<style>
+  html,body{margin:0;padding:0;background:#efe9db;overflow:hidden;width:100%;height:100%;}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:#f4efe3;overflow:hidden;}
+  .plane{position:absolute;}
+  .yellow{background:#f2c200;}
+  .red{background:#d62a1a;}
+  .blue{background:#1f49b8;}
+  #art-image{position:absolute;left:160px;top:400px;width:760px;height:1020px;object-fit:cover;filter:saturate(1.15) contrast(1.05) sepia(0.18) brightness(1.04);box-shadow:inset 0 0 0 0 transparent;z-index:2;opacity:0.96;}
+  .bar{position:absolute;background:#111;z-index:5;}
+  #herons{position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:6;overflow:visible;}
+  .mist{position:absolute;height:90px;width:2200px;z-index:4;
+    background:linear-gradient(90deg,rgba(244,239,227,0) 0%,rgba(244,239,227,.85) 18%,rgba(244,239,227,.85) 82%,rgba(244,239,227,0) 100%);
+    will-change:transform;}
+  #m1{top:560px;left:-1200px;animation:drift 58s ease-in-out infinite alternate;}
+  #m2{top:900px;left:-600px;height:60px;animation:drift 74s ease-in-out infinite alternate-reverse;}
+  #m3{top:1250px;left:-1300px;height:110px;animation:drift 66s ease-in-out infinite alternate;animation-delay:-20s;}
+  @keyframes drift{from{transform:translateX(0)}to{transform:translateX(560px)}}
+  .walk{will-change:transform;}
+  .leg{transform-box:fill-box;transform-origin:50% 0%;}
+  .legA{animation:step 6s cubic-bezier(.6,0,.3,1) infinite;}
+  .legB{animation:step 6s cubic-bezier(.6,0,.3,1) infinite;animation-delay:-3s;}
+  @keyframes step{0%{transform:rotate(0deg)}30%{transform:rotate(0deg)}50%{transform:rotate(-16deg)}70%{transform:rotate(0deg)}100%{transform:rotate(0deg)}}
+  .neck{transform-box:fill-box;transform-origin:50% 100%;}
+  .graze{animation:graze 26s ease-in-out infinite;}
+  @keyframes graze{0%,55%{transform:rotate(0deg)}68%,82%{transform:rotate(-62deg)}95%,100%{transform:rotate(0deg)}}
+  .graze2{animation:graze 34s ease-in-out infinite;animation-delay:-17s;}
+  #w1{animation:walk1 150s linear infinite;}
+  #w2{animation:walk2 210s linear infinite;}
+  #w3{animation:walk3 180s linear infinite;}
+  @keyframes walk1{from{transform:translateX(-280px)}to{transform:translateX(900px)}}
+  @keyframes walk2{from{transform:translateX(-400px)}to{transform:translateX(1300px)}}
+  @keyframes walk3{from{transform:translateX(-600px)}to{transform:translateX(1800px)}}
+  #date{position:absolute;left:28px;bottom:22px;font:14px/1 Helvetica,Arial,sans-serif;letter-spacing:.2em;color:#111;opacity:.45;z-index:9;}
+  #guinea-pig{position:absolute;width:16px;left:921px;top:1690px;opacity:.55;z-index:5;filter:sepia(.6) brightness(.9);transform:scaleX(-1);}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- planes behind -->
+  <div class="plane red" style="left:160px;top:160px;width:240px;height:240px;"></div>
+  <div class="plane yellow" style="left:920px;top:400px;width:160px;height:600px;"></div>
+  <div class="plane yellow" style="left:160px;top:1420px;width:920px;height:280px;"></div>
+  <div class="plane blue" style="left:0;top:1700px;width:160px;height:220px;"></div>
+
+  <img id="art-image" src="art.png" alt="">
+
+  <!-- mist bands -->
+  <div class="mist" id="m1"></div>
+  <div class="mist" id="m2"></div>
+  <div class="mist" id="m3"></div>
+
+  <!-- grid bars -->
+  <div class="bar" style="left:152px;top:0;width:16px;height:1920px;"></div>
+  <div class="bar" style="left:912px;top:0;width:16px;height:1420px;"></div>
+  <div class="bar" style="left:0;top:392px;width:1080px;height:16px;"></div>
+  <div class="bar" style="left:0;top:1412px;width:1080px;height:16px;"></div>
+  <div class="bar" style="left:0;top:1692px;width:1080px;height:16px;"></div>
+  <div class="bar" style="left:0;top:152px;width:400px;height:16px;"></div>
+  <div class="bar" style="left:920px;top:992px;width:160px;height:16px;"></div>
+
+  <svg id="herons" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <g id="heron">
+        <!-- legs -->
+        <g class="leg legA"><rect x="26" y="150" width="8" height="128" fill="#111"/></g>
+        <g class="leg legB"><rect x="60" y="150" width="8" height="128" fill="#111"/></g>
+        <!-- body -->
+        <rect x="0" y="100" width="100" height="56" fill="#111"/>
+        <rect x="100" y="112" width="30" height="20" fill="#1f49b8"/>
+        <!-- neck + head -->
+        <g class="neck">
+          <rect x="6" y="10" width="14" height="96" fill="#111"/>
+          <rect x="-8" y="-18" width="32" height="30" fill="#111"/>
+          <rect x="-66" y="-10" width="60" height="9" fill="#d62a1a"/>
+        </g>
+      </g>
+    </defs>
+    <g id="grass"></g>
+    <g transform="translate(120,1270) scale(0.75)"><g class="walk" id="w3"><use href="#heron" class="g2"/></g></g>
+    <g transform="translate(300,1240) scale(1)"><g class="walk" id="w2"><use href="#heron"/></g></g>
+    <g transform="translate(480,1180) scale(1.45)"><g class="walk" id="w1"><use href="#heron"/></g></g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026 · 11 · 08</div>
+</div>
+<script>
+(function(){
+  // date seed
+  var d="2026-11-08", h=0;
+  for(var i=0;i<d.length;i++){h=(h*31+d.charCodeAt(i))>>>0;}
+  function rnd(){h=(h*1664525+1013904223)>>>0;return h/4294967296;}
+  // tall grass: thin black uprights, seeded
+  var g=document.getElementById('grass'), ns='http://www.w3.org/2000/svg';
+  for(var k=0;k<7;k++){
+    var x=190+Math.floor(rnd()*860), ht=120+Math.floor(rnd()*300), w=6+Math.floor(rnd()*6);
+    var r=document.createElementNS(ns,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',1700-ht);r.setAttribute('width',w);r.setAttribute('height',ht);
+    r.setAttribute('fill','#111');g.appendChild(r);
+  }
+  // graze behaviour per heron neck
+  var walks=document.querySelectorAll('.walk');
+  // give neck animations via style on <use> is impossible; clone heron into each walk instead
+  walks.forEach(function(wk,i){
+    var proto=document.getElementById('heron').cloneNode(true);
+    proto.removeAttribute('id');
+    var neck=proto.querySelector('.neck');
+    if(i===1)neck.classList.add('graze'); else if(i===2)neck.classList.add('graze2');
+    var legs=proto.querySelectorAll('.leg');
+    legs.forEach(function(l){l.style.animationDelay=(-(rnd()*6)).toFixed(2)+'s';});
+    wk.innerHTML='';wk.appendChild(proto);
+    wk.style.animationDelay=(-(rnd()*120)).toFixed(1)+'s';
+  });
+  // responsive shell
+  var st=document.getElementById('stage');
+  function fit(){
+    var s=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    st.style.transform='scale('+s+')';
+    st.style.left=((window.innerWidth-1080*s)/2)+'px';
+    st.style.top=((window.innerHeight-1920*s)/2)+'px';
+  }
+  fit();window.addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>
