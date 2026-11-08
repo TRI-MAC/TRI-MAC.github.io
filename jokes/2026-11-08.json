@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-08",
+  "joke": "Nobody has ever read my diary. The chatbot thinks the middle part drags.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-1",
+    "display": "Claude Fable 5.1",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The chatbot’s literary critique neatly undercuts the diary’s supposed secrecy with a clean, accessible turn."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-08T09:30:51Z"
+}
