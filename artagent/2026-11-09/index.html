@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-09</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a27642}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#a27642}
+svg{position:absolute;inset:0;width:1080px;height:1920px}
+#art-image{position:absolute;left:148px;top:263px;width:326px;height:483px;object-fit:cover;opacity:1;filter:sepia(1) saturate(.58) brightness(.72) contrast(1.16);clip-path:polygon(24% 0,67% 5%,88% 19%,96% 47%,85% 74%,60% 96%,40% 100%,21% 83%,4% 55%,10% 22%)}
+#image-breath{position:absolute;inset:0;transform-origin:310px 510px;animation:breath 26s ease-in-out infinite}
+#foreground{animation:settle 26s ease-in-out infinite;transform-origin:310px 510px}
+#lower-mark{animation:ink 32s ease-in-out infinite}
+#guinea-pig{position:absolute;width:17px;height:auto;left:862px;top:1479px;opacity:.55}
+#conceal{position:absolute;left:871px;top:1480px;width:11px;height:20px;background:#343b30;transform:rotate(-17deg)}
+time{position:absolute;bottom:39px;left:49px;font:17px Georgia,serif;letter-spacing:2px;color:#403d2e;opacity:.65}
+@keyframes breath{0%,100%{transform:scale(1) rotate(-.3deg)}50%{transform:scale(.982,1.018) rotate(.4deg)}}
+@keyframes settle{0%,100%{transform:translate(0,0)}50%{transform:translate(2px,7px)}}
+@keyframes ink{0%,100%{opacity:.92}50%{opacity:.76}}
+@media(prefers-reduced-motion:reduce){#image-breath,#foreground,#lower-mark{animation:none}}
+</style>
+</head>
+<body>
+<main id="stage" role="img" aria-label="Four widely separated freehand ink impressions on an unbroken ochre field. The long intervals of untouched colour carry the composition.">
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<defs>
+<filter id="edge" x="-12%" y="-12%" width="124%" height="124%">
+<feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="3" seed="20261109" result="grain"/>
+<feDisplacementMap in="SourceGraphic" in2="grain" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+</filter>
+<linearGradient id="wash" x1="0" y1="0" x2="1" y2=".4">
+<stop stop-color="#303b32"/><stop offset=".65" stop-color="#53513a"/><stop offset="1" stop-color="#777047"/>
+</linearGradient>
+<linearGradient id="pale" x1="0" y1="0" x2=".8" y2="1">
+<stop stop-color="#d4b679"/><stop offset="1" stop-color="#bd9659"/>
+</linearGradient>
+</defs>
+<!-- The washes belong to the same impression as the inset image. -->
+<g filter="url(#edge)">
+<path fill="url(#wash)" opacity=".7" d="M239 243 Q341 249 401 322 L481 514 440 664 353 782 283 727 184 572 146 430 175 313Z"/>
+<path fill="#6e673f" opacity=".55" d="M199 280 L260 250 225 389 220 530 294 727 246 682 166 518 155 390Z"/>
+</g>
+<!-- A second, small impression balances the first across a great interval. -->
+<path filter="url(#edge)" fill="url(#pale)" d="M827 240 Q881 244 898 286 L885 332 857 322 830 287 820 256Z"/>
+</svg>
+
+<div id="image-breath">
+<img id="art-image" src="art.png" alt="">
+</div>
+
+<svg viewBox="0 0 1080 1920" aria-hidden="true">
+<g id="foreground" filter="url(#edge)">
+<path fill="#313a31" d="M220 274 L248 256 236 356 225 465 243 564 286 656 324 727 291 704 252 651 208 550 190 448 197 349Z" opacity=".92"/>
+<path fill="#65603c" d="M407 366 L448 427 466 525 446 621 406 690 355 746 383 673 416 570 423 469Z" opacity=".92"/>
+</g>
+<!-- One substantial dry-brush pressure mark, held far below the first. -->
+<g id="lower-mark" filter="url(#edge)">
+<path fill="url(#wash)" d="M756 1273 L793 1289 826 1325 848 1397 884 1510 888 1581 869 1612 831 1579 795 1500 777 1419 750 1334Z"/>
+<path fill="#343b30" d="M770 1316 L799 1350 822 1439 854 1531 870 1584 847 1562 812 1490 792 1421Z"/>
+<path fill="#a27642" opacity=".65" d="M772 1358 L789 1390 807 1465 826 1538 808 1512 787 1439Z"/>
+</g>
+<!-- The last impression is small enough to make the untouched field immense. -->
+<path filter="url(#edge)" fill="#394235" d="M186 1579 L204 1584 225 1603 231 1636 218 1653 196 1638 181 1605Z"/>
+</svg>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="conceal" aria-hidden="true"></div>
+<time datetime="2026-11-09">2026-11-09</time>
+</main>
+<script>
+(()=>{
+const stage=document.getElementById('stage');
+function fit(){
+const w=window.innerWidth,h=window.innerHeight;
+const s=Math.min(w/1080,h/1920);
+stage.style.transform=`scale(${s})`;
+stage.style.left=`${(w-1080*s)/2}px`;
+stage.style.top=`${(h-1920*s)/2}px`;
+}
+addEventListener('resize',fit,{passive:true});
+fit();
+})();
+</script>
+</body>
+</html>
