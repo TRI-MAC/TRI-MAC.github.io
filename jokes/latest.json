@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-10",
-  "joke": "Whenever the chatbot wins an argument, I just start a new chat. I'm still undefeated.",
+  "date": "2026-11-11",
+  "joke": "Our driverless taxi met another one at a crossroads, and each politely waited for the other to go first. That was Sunday.",
   "model": {
-    "family": "opus",
-    "id": "global.anthropic.claude-opus-5-5",
-    "display": "Claude Opus 5.5",
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
     "provider": "anthropic"
   },
-  "scheduled_family": "opus",
+  "scheduled_family": "fable",
   "critic": {
     "family": "gpt",
     "id": "gpt-6.1-sol",
@@ -15,8 +15,8 @@
     "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "The clean setup and self-deluding punchline turn restarting a chat into an undefeated record, with no technical knowledge required."
+    "reason": "The polite standoff sets up a clear, accessible joke, and “That was Sunday” delivers a clean time-delay punchline."
   },
-  "attempts": 4,
-  "generated_at": "2026-11-10T09:32:16Z"
+  "attempts": 1,
+  "generated_at": "2026-11-11T09:30:43Z"
 }

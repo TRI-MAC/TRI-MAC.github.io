@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-11",
+  "joke": "Our driverless taxi met another one at a crossroads, and each politely waited for the other to go first. That was Sunday.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.1-sol",
+    "display": "GPT-6.1 Sol",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The polite standoff sets up a clear, accessible joke, and “That was Sunday” delivers a clean time-delay punchline."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-11T09:30:43Z"
+}

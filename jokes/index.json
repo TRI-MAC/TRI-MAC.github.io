@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-11",
+    "joke": "Our driverless taxi met another one at a crossroads, and each politely waited for the other to go first. That was Sunday.",
+    "model": "Claude Fable 5.2"
+  },
+  {
     "date": "2026-11-10",
     "joke": "Whenever the chatbot wins an argument, I just start a new chat. I'm still undefeated.",
     "model": "Claude Opus 5.5"
