@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-12",
+  "generator_provider": "google",
+  "generator_model": "gemini-4-carbon",
+  "critic_provider": "anthropic",
+  "critic_model": "global.anthropic.claude-opus-5-5",
+  "saw_assets": 1,
+  "critique": "The generated scene answers both halves of the brief: on a genuinely high-key, sun-bleached limestone wall, the ochre-and-charcoal diamond lattice reads as painted woven bands, the deer silhouettes and red hand stencils sit between its strands, and the barefoot woman reaching up with a stick makes the weave something being made rather than merely displayed. Above the image, though, the procedural canvas loom is a separate register: its 27-column grid of bevelled, highlight-crested yarn segments looks like tufted rug pixels, not dry pigment on stone. Its cicada emblem is neither an animal silhouette nor a pattern drawn from the mural below, and its two SVG hand stencils duplicate the ones in the photo, so the code should either extend the photo's diamond lattice upward or leave that crown as open, pale rock."
+}

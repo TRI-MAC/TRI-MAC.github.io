@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-12</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #ece0cc; /* High-key sunlit limestone & unprimed raw linen */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #stage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    transform-origin: top left;
+    overflow: hidden;
+    background: linear-gradient(
+      180deg,
+      #f5ecdc 0%,
+      #f0e2c9 24%,
+      #ead6b5 48%,
+      #e4cba4 100%
+    );
+  }
+
+  /* Layer 1: Static high-resolution limestone grain & woven stone ground */
+  #stone-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Layer 2: Scene image anchored full-bleed to bottom two-thirds, top dissolved seamlessly */
+  #scene-wrap {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1080px;
+    height: 1380px; /* Overlaps slightly past 1280px (two-thirds) so feathered top sits smoothly */
+    z-index: 2;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.18) 6%,
+      rgba(0, 0, 0, 0.58) 13%,
+      rgba(0, 0, 0, 0.90) 20%,
+      rgba(0, 0, 0, 1) 27%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.18) 6%,
+      rgba(0, 0, 0, 0.58) 13%,
+      rgba(0, 0, 0, 0.90) 20%,
+      rgba(0, 0, 0, 1) 27%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+
+  #scene-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+    transform-origin: center bottom;
+    animation: gentleBreath 42s ease-in-out infinite;
+  }
+
+  @keyframes gentleBreath {
+    0%, 100% { transform: scale(1.0); }
+    50% { transform: scale(1.016); }
+  }
+
+  /* Layer 3: Animated Cave-Pigment Loom Canvas (540x960 scaled up for silky 60fps) */
+  #loom-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Layer 4: Prehistoric SVG Overlays — Hand Stencils, Ochre Seam-Strokes, Woven Heddle Marks & Hidden Guinea Pig */
+  #cave-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .heddle-group-a {
+    animation: shedShiftA 16s ease-in-out infinite;
+  }
+
+  .heddle-group-b {
+    animation: shedShiftB 16s ease-in-out infinite;
+  }
+
+  @keyframes shedShiftA {
+    0%, 100% { transform: translateY(-7px); }
+    50% { transform: translateY(7px); }
+  }
+
+  @keyframes shedShiftB {
+    0%, 100% { transform: translateY(7px); }
+    50% { transform: translateY(-7px); }
+  }
+
+  .stencil-pulse {
+    animation: pigmentBreathe 24s ease-in-out infinite;
+  }
+
+  @keyframes pigmentBreathe {
+    0%, 100% { opacity: 0.88; }
+    50% { opacity: 0.98; }
+  }
+
+  /* Layer 5: Single subtle sun-baked mineral vignette / chalk dust pass (normal blend, zero GPU cost) */
+  #sun-chalk-pass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 5;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 88% 60% at 50% 18%, rgba(255, 249, 235, 0.28) 0%, rgba(255, 249, 235, 0) 70%),
+      radial-gradient(ellipse 110% 95% at 50% 52%, rgba(236, 222, 196, 0) 68%, rgba(182, 138, 92, 0.22) 100%);
+  }
+
+  /* Unobtrusive Date Stamp */
+  #date-stamp {
+    position: absolute;
+    right: 28px;
+    bottom: 22px;
+    z-index: 6;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: #5b3b24;
+    opacity: 0.44;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="stone-bg" width="1080" height="1920"></canvas>
+
+    <div id="scene-wrap">
+      <img id="scene-image" src="scene.png" alt="">
+    </div>
+
+    <canvas id="loom-canvas" width="540" height="960"></canvas>
+
+    <svg id="cave-svg" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Blown red-ochre stencil halo gradient (feathers to 0 well inside edges) -->
+        <radialGradient id="ochreStencilLeft" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#b84220" stop-opacity="0.62"/>
+          <stop offset="46%" stop-color="#c65329" stop-opacity="0.45"/>
+          <stop offset="78%" stop-color="#d88743" stop-opacity="0.16"/>
+          <stop offset="100%" stop-color="#ead6b5" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="ochreStencilRight" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#9e361b" stop-opacity="0.58"/>
+          <stop offset="48%" stop-color="#c96b2b" stop-opacity="0.38"/>
+          <stop offset="80%" stop-color="#dfb06a" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#f0e2c9" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Feathered dry-chalk & yellow-ochre band gradients for dissolving the sky/scene horizon -->
+        <linearGradient id="chalkWashBand" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f2e5ce" stop-opacity="0"/>
+          <stop offset="14%" stop-color="#f2e5ce" stop-opacity="0.82"/>
+          <stop offset="50%" stop-color="#ebd5b3" stop-opacity="0.92"/>
+          <stop offset="86%" stop-color="#e5c79c" stop-opacity="0.78"/>
+          <stop offset="100%" stop-color="#e5c79c" stop-opacity="0"/>
+        </linearGradient>
+
+        <linearGradient id="siennaWeftBand" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#c55427" stop-opacity="0"/>
+          <stop offset="12%" stop-color="#c55427" stop-opacity="0.74"/>
+          <stop offset="52%" stop-color="#d88a34" stop-opacity="0.80"/>
+          <stop offset="88%" stop-color="#b64220" stop-opacity="0.68"/>
+          <stop offset="100%" stop-color="#b64220" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Broad dry-pigment weft slabs bridging the scene's top edge (y ~ 540..790) -->
+      <!-- Left and right sides clear the central figure axis while uniting upper DOM sky & scene -->
+      <g opacity="0.92">
+        <path d="M 30 578 L 430 568 L 465 604 L 420 634 L 36 626 Z" fill="url(#chalkWashBand)"/>
+        <path d="M 615 562 L 1044 574 L 1052 622 L 642 630 L 598 596 Z" fill="url(#chalkWashBand)"/>
+        <path d="M 48 648 L 365 642 L 392 672 L 352 696 L 54 690 Z" fill="url(#siennaWeftBand)"/>
+        <path d="M 688 646 L 1030 638 L 1042 682 L 706 692 L 672 668 Z" fill="url(#siennaWeftBand)"/>
+      </g>
+
+      <!-- Prehistoric Hand Stencil 1: Upper-left weaver's handprint blown with red iron-oxide over warp -->
+      <g transform="translate(178, 246) rotate(-11)" class="stencil-pulse">
+        <ellipse cx="0" cy="0" rx="142" ry="148" fill="url(#ochreStencilLeft)"/>
+        <!-- Negative-space pale limestone hand silhouette -->
+        <path d="M -26 68
+                 C -34 42, -44 18, -56 -4
+                 C -64 -18, -76 -26, -82 -18
+                 C -88 -10, -74 12, -62 32
+                 C -56 14, -56 -28, -56 -58
+                 C -56 -72, -43 -74, -40 -58
+                 C -38 -32, -35 -6, -33 12
+                 C -30 -18, -26 -62, -22 -84
+                 C -19 -98, -5 -97, -4 -82
+                 C -3 -56, -6 -18, -8 10
+                 C -2 -18, 8 -58, 16 -76
+                 C 22 -89, 35 -84, 32 -70
+                 C 26 -44, 16 -12, 11 16
+                 C 20 -6, 36 -36, 46 -48
+                 C 55 -58, 66 -50, 59 -38
+                 C 48 -18, 34 12, 26 36
+                 C 22 52, 16 68, 8 78
+                 C -6 84, -20 80, -26 68 Z"
+              fill="#f1e4cd" opacity="0.88"/>
+        <!-- Fine blown charcoal speckles inside stencil aura -->
+        <circle cx="-68" cy="-54" r="3.2" fill="#3a291e" opacity="0.45"/>
+        <circle cx="-42" cy="-92" r="2.5" fill="#7c2916" opacity="0.55"/>
+        <circle cx="14" cy="-98" r="3.6" fill="#3a291e" opacity="0.40"/>
+        <circle cx="58" cy="-66" r="2.8" fill="#8f2f19" opacity="0.55"/>
+        <circle cx="74" cy="-16" r="3.1" fill="#3a291e" opacity="0.35"/>
+        <circle cx="-88" cy="14" r="2.6" fill="#8f2f19" opacity="0.48"/>
+      </g>
+
+      <!-- Prehistoric Hand Stencil 2: Upper-right ochre stencil anchoring the loom beam -->
+      <g transform="translate(896, 312) rotate(14) scale(-0.92, 0.92)" class="stencil-pulse">
+        <ellipse cx="0" cy="0" rx="138" ry="144" fill="url(#ochreStencilRight)"/>
+        <path d="M -26 68
+                 C -34 42, -44 18, -56 -4
+                 C -64 -18, -76 -26, -82 -18
+                 C -88 -10, -74 12, -62 32
+                 C -56 14, -56 -28, -56 -58
+                 C -56 -72, -43 -74, -40 -58
+                 C -38 -32, -35 -6, -33 12
+                 C -30 -18, -26 -62, -22 -84
+                 C -19 -98, -5 -97, -4 -82
+                 C -3 -56, -6 -18, -8 10
+                 C -2 -18, 8 -58, 16 -76
+                 C 22 -89, 35 -84, 32 -70
+                 C 26 -44, 16 -12, 11 16
+                 C 20 -6, 36 -36, 46 -48
+                 C 55 -58, 66 -50, 59 -38
+                 C 48 -18, 34 12, 26 36
+                 C 22 52, 16 68, 8 78
+                 C -6 84, -20 80, -26 68 Z"
+              fill="#efe0c6" opacity="0.85"/>
+        <circle cx="-54" cy="-86" r="3.0" fill="#3a291e" opacity="0.42"/>
+        <circle cx="26" cy="-94" r="2.8" fill="#9e361b" opacity="0.52"/>
+        <circle cx="66" cy="-52" r="3.4" fill="#3a291e" opacity="0.36"/>
+      </g>
+
+      <!-- Carved Bone & Charcoal Loom Heddle Notches at Upper Crown (Alternating Warp Shed Motion) -->
+      <g id="svg-heddles-odd" class="heddle-group-a" opacity="0.82"></g>
+      <g id="svg-heddles-even" class="heddle-group-b" opacity="0.82"></g>
+
+      <!-- Secret Easter Egg: Tiny prehistoric ochre-and-charcoal guinea pig (15px wide)
+           tucked quietly behind a warp-stone weight notch near bottom-left margin -->
+      <g transform="translate(64, 1848)" opacity="0.46">
+        <!-- Small stone pebble shadow it nestles against -->
+        <polygon points="-6,11 18,11 15,7 -3,8" fill="#8b5c34" opacity="0.45"/>
+        <!-- Plump tailless cavy silhouette in muted raw umber & red ochre -->
+        <path d="M 0 8
+                 C -1 4, 2 1, 6 1
+                 C 9 0, 13 1, 15 4
+                 C 16 6, 16 8, 14 9
+                 L 2 9
+                 Z"
+              fill="#7a4424"/>
+        <!-- Warm ochre saddle patch woven into its coat -->
+        <path d="M 5 1.4 C 7.5 1.2, 10 2, 10.5 5.5 C 8 6, 5.5 5.5, 4.8 3 Z"
+              fill="#c57933" opacity="0.75"/>
+        <!-- Tiny rounded ear & charcoal eye -->
+        <ellipse cx="11.8" cy="2.3" rx="1.4" ry="1.1" fill="#4a2b18"/>
+        <circle cx="13.6" cy="4.3" r="0.65" fill="#28180e"/>
+        <!-- Tiny feet -->
+        <rect x="2.5" y="8.6" width="1.6" height="1.4" fill="#4a2b18"/>
+        <rect x="11.2" y="8.6" width="1.6" height="1.4" fill="#4a2b18"/>
+      </g>
+    </svg>
+
+    <div id="sun-chalk-pass"></div>
+    <div id="date-stamp">2026-11-12</div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================================
+     1. RESPONSIVE 9:16 PORTRAIT SHELL (top-left origin, verified centering)
+     ========================================================================= */
+  const stage = document.getElementById('stage');
+  function fitStage() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scale = Math.min(vw / 1080, vh / 1920);
+    const ox = Math.round((vw - 1080 * scale) * 0.5);
+    const oy = Math.round((vh - 1920 * scale) * 0.5);
+    stage.style.transform = 'translate(' + ox + 'px, ' + oy + 'px) scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fitStage);
+  fitStage();
+
+  /* =========================================================================
+     2. DETERMINISTIC SEED FROM DATE 2026-11-12
+     ========================================================================= */
+  function hashSeed(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a) {
+    return function () {
+      let t = (a += 0x6D2B79F5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const DATE_STR = '2026-11-12';
+  const rand = mulberry32(hashSeed(DATE_STR));
+
+  /* =========================================================================
+     3. HIGH-KEY PREHISTORIC PIGMENT PALETTE
+        Sunlit limestone, chalk, yellow ochre, burnt red haematite, umber, charcoal
+     ========================================================================= */
+  const PALETTE = {
+    chalk:       '#f6efe0',
+    limestone:   '#eadbc2',
+    warmSand:    '#dfc59d',
+    yellowOchre: '#d89128',
+    goldOchre:   '#e2a83b',
+    redOchre:    '#b63f1e',
+    terracotta:  '#cc5a2b',
+    rawUmber:    '#73492a',
+    charcoal:    '#2d2119'
+  };
+
+  /* =========================================================================
+     4. POPULATE SVG HEDDLE PINS & LOOM WEIGHT MARKS
+     ========================================================================= */
+  const heddlesOdd = document.getElementById('svg-heddles-odd');
+  const heddlesEven = document.getElementById('svg-heddles-even');
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  const NUM_WARP = 27; // 27 vertical warp threads across 540px canvas (20px pitch -> 40px on 1080 stage)
+  const STAGE_PITCH = 1080 / NUM_WARP; // 40px
+
+  for (let c = 1; c < NUM_WARP - 1; c++) {
+    const cx = (c + 0.5) * STAGE_PITCH;
+    const gTarget = (c % 2 === 1) ? heddlesOdd : heddlesEven;
+
+    // Carved bone/charcoal loom suspension tally at y ~ 56..98
+    const pin = document.createElementNS(SVG_NS, 'polygon');
+    const w = 5.5 + (c % 3) * 1.2;
+    const topY = 44 + (c % 2) * 8;
+    const botY = topY + 38;
+    pin.setAttribute('points',
+      (cx - w) + ',' + topY + ' ' +
+      (cx + w) + ',' + (topY + 3) + ' ' +
+      (cx + w * 0.65) + ',' + botY + ' ' +
+      (cx - w * 0.75) + ',' + (botY - 2)
+    );
+    pin.setAttribute('fill', (c % 4 === 0) ? PALETTE.charcoal : (c % 2 === 0 ? PALETTE.redOchre : PALETTE.rawUmber));
+    pin.setAttribute('opacity', '0.72');
+    gTarget.appendChild(pin);
+  }
+
+  /* =========================================================================
+     5. STATIC LIMESTONE & WOVEN CAVE WALL TEXTURE (DRAWN ONCE AT 1080x1920)
+     ========================================================================= */
+  const stoneCanvas = document.getElementById('stone-bg');
+  const sctx = stoneCanvas.getContext('2d');
+
+  function buildLimestoneWall() {
+    // Base warm sunlit travertine gradient
+    const bgGrad = sctx.createLinearGradient(0, 0, 0, 1920);
+    bgGrad.addColorStop(0.0, '#f6eedf');
+    bgGrad.addColorStop(0.32, '#f0e2c8');
+    bgGrad.addColorStop(0.62, '#e8d3b0');
+    bgGrad.addColorStop(1.0, '#dfc49a');
+    sctx.fillStyle = bgGrad;
+    sctx.fillRect(0, 0, 1080, 1920);
+
+    // Broad mineral colour washes (warm ochre & chalk pockets on limestone)
+    const mineralPatches = [
+      { x: 220, y: 260, r: 390, col: 'rgba(226, 168, 59, 0.14)' },
+      { x: 860, y: 190, r: 420, col: 'rgba(198, 92, 45, 0.11)' },
+      { x: 540, y: 460, r: 480, col: 'rgba(248, 241, 226, 0.36)' },
+      { x: 160, y: 740, r: 340, col: 'rgba(216, 145, 40, 0.13)' },
+      { x: 930, y: 710, r: 360, col: 'rgba(182, 63, 30, 0.10)' }
+    ];
+    for (let i = 0; i < mineralPatches.length; i++) {
+      const p = mineralPatches[i];
+      const rg = sctx.createRadialGradient(p.x, p.y, 10, p.x, p.y, p.r);
+      rg.addColorStop(0, p.col);
+      rg.addColorStop(1, 'rgba(240, 226, 200, 0)');
+      sctx.fillStyle = rg;
+      sctx.fillRect(0, 0, 1080, 1920);
+    }
+
+    // Subtle chisel / sandstone strata horizontal grain
+    for (let y = 0; y < 1920; y += 6) {
+      const alpha = 0.025 + rand() * 0.04;
+      sctx.fillStyle = (rand() > 0.45)
+        ? 'rgba(255, 250, 240, ' + alpha.toFixed(3) + ')'
+        : 'rgba(166, 118, 68, ' + (alpha * 0.85).toFixed(3) + ')';
+      const segW = 180 + rand() * 520;
+      const segX = rand() * (1080 - segW);
+      sctx.fillRect(segX, y, segW, 2 + (rand() * 2.5));
+    }
+
+    // Fine mineral grit & iron-oxide flecks (drawn once)
+    for (let i = 0; i < 3800; i++) {
+      const gx = rand() * 1080;
+      const gy = rand() * 1250; // Focused in sky & transition zone
+      const gr = 0.8 + rand() * 2.4;
+      const pick = rand();
+      if (pick < 0.48) {
+        sctx.fillStyle = 'rgba(252, 246, 234, 0.48)';
+      } else if (pick < 0.78) {
+        sctx.fillStyle = 'rgba(196, 134, 62, 0.24)';
+      } else if (pick < 0.94) {
+        sctx.fillStyle = 'rgba(178, 66, 32, 0.20)';
+      } else {
+        sctx.fillStyle = 'rgba(54, 38, 26, 0.18)';
+      }
+      sctx.beginPath();
+      sctx.arc(gx, gy, gr, 0, Math.PI * 2);
+      sctx.fill();
+    }
+  }
+  buildLimestoneWall();
+
+  /* =========================================================================
+     6. WOVEN CAVE-PAINTING LOOM ENGINE (540x960 CANVAS FOR 60FPS)
+        Idea: Warp and weft threads interlace with colour patterns emerging
+              from the weave — cicada & geometric prehistoric motifs emerging
+               directly out of over/under interlacing threads!
+        Style: Ochre, red haematite, chalk & charcoal tapered dry-pigment bands
+        Integration: Full density in top sky (y: 0..320), bridges the scene boundary
+                     (y: 270..430), parts gracefully around the central figure/face
+                     in the lower two-thirds while framing margins subtly.
+     ========================================================================= */
+  const loomCanvas = document.getElementById('loom-canvas');
+  const ctx = loomCanvas.getContext('2d');
+  const CW = 540;
+  const CH = 960;
+
+  const COLS = 27;               // 20px column spacing
+  const ROWS = 44;               // Woven weft rows spanning upper tapestry & dissolving down margins
+  const COL_STEP = CW / COLS;    // 20px
+  const ROW_START_Y = 26;
+  const ROW_STEP = 19.5;         // Covers y = 26 .. 884 (out of 960)
+
+  /* Prehistoric Woven Pattern Bitmap:
+     Rows 3..15 (y ~ 84..318 in 540x960, i.e., 168..636 on 1080x1920):
+     A bold symmetrical prehistoric CICADA emblem + flanked chevron border
+     emerging strictly from the woven weft/warp colour interlacing!
+     Codes:
+       0 = Sunlit Chalk / Raw Linen (#f5ecdb)
+       1 = Yellow Ochre (#d89128)
+       2 = Burnt Red Haematite (#b63f1e)
+       3 = Cave Charcoal (#2d2119) — used sparingly (<18%) for crisp high-key authority
+       4 = Warm Terracotta (#cf622d)
+  */
+  const CICADA_TAPESTRY_MAP = [
+    // 27 columns (index 13 is exact centre)
+    // Row 0..1: Uppermost Loom Selvedge Header
+    '012101210121030121012101210',
+    '101010101010313010101010101',
+    // Row 2..3: Stepped Ochre & Red-Earth Diamond Border
+    '020010020013101310020010020',
+    '242001242031020130242010024',
+    // Row 4..16: CENTRAL PREHISTORIC WOVEN CICADA MOTIF flanked by cave chevrons
+    // Antennae & broad-set cicada eyes
+    '020100000300000003000001020',
+    '100010000030030030000010001',
+    '002001000323131323000100200',
+    // Pronotum shield (ochre & red haematite collar)
+    '024200100312232213001002420',
+    '203020003124131421300020302',
+    // Veined wings spreading outward in woven twill steps + segmented thorax
+    '020200031201323102130002020',
+    '100010312014232410213010001',
+    '012103140120313021041301210',
+    '201023201401232104102320102',
+    '020203120012030210021302020',
+    // Wing tips & tapered cicada abdomen
+    '100010314000323000413010001',
+    '010100031000030000130001010',
+    '002001003000000000300100200',
+    // Row 17..20: Horizon Bridge Bands (dissolving into scene.png top third!)
+    '024200120124202421021002420',
+    '102012401002010200104210201',
+    '010120010000101000010021010',
+    '201000200000000000002000102'
+  ];
+
+  const COLOR_TABLE = {
+    '0': '#f4ead6', // Chalk linen
+    '1': '#d89128', // Yellow ochre
+    '2': '#b63f1e', // Red haematite
+    '3': '#2d2119', // Charcoal mark
+    '4': '#ce612b'  // Terracotta ochre
+  };
+
+  const SHADOW_TABLE = {
+    '0': '#cbb692',
+    '1': '#9f6414',
+    '2': '#7d2610',
+    '3': '#160f0b',
+    '4': '#943e18'
+  };
+
+  const HIGHLIGHT_TABLE = {
+    '0': '#fffaf0',
+    '1': '#ecc062',
+    '2': '#d86643',
+    '3': '#594436',
+    '4': '#e68c56'
+  };
+
+  /* Spatial Visibility Mask so threads NEVER crowd or obstruct the figure/face in scene.png,
+     and NEVER clip hard at any canvas boundary!
+     - Full woven sky above y = 300 (600px on 1080x1920)
+     - Overlapping irregular warp/weft fringe across y = 280..420 (560..840px) hiding image top seam
+     - Clean open sanctuary in the middle/lower centre (x: 110..430, y > 355) protecting face & figure
+     - Subtle woven selvedge threads continuing down left/right flanks, feathering before edges.
+  */
+  function threadAlphaAt(x, y, colIdx) {
+    // Feather outer canvas margins smoothly (no hard cutoffs at edges)
+    let edgeFade = 1.0;
+    if (x < 26) edgeFade *= Math.max(0, (x - 6) / 20);
+    if (x > CW - 26) edgeFade *= Math.max(0, (CW - 6 - x) / 20);
+    if (y < 24) edgeFade *= Math.max(0, (y - 6) / 18);
+    if (y > CH - 42) edgeFade *= Math.max(0, (CH - 10 - y) / 32);
+    if (edgeFade <= 0.001) return 0;
+
+    // Staggered organic fringe length per column so the transition into scene.png is painterly, never rectangular
+    const colWave = Math.sin(colIdx * 1.7 + 0.8) * 34 + Math.cos(colIdx * 0.65) * 24;
+
+    // Distance from horizontal centre (270 in 540px space)
+    const distFromCenter = Math.abs(x - CW * 0.5);
+
+    // Central sanctuary oval protecting the figure & face in scene.png (y > 320, center x)
+    // Near centre (distFromCenter < 165), threads taper off cleanly between y = 305..385
+    const centerWeight = Math.max(0, 1 - Math.pow(distFromCenter / 205, 1.85));
+    const maxCenterY = 328 + colWave * 0.7;
+    const maxFlankY = 790 + colWave * 1.4;
+    const localMaxY = maxCenterY * centerWeight + maxFlankY * (1 - centerWeight);
+
+    let verticalFade = 1.0;
+    const fadeSpan = 88;
+    if (y > localMaxY - fadeSpan) {
+      verticalFade = Math.max(0, (localMaxY - y) / fadeSpan);
+      // Smoothstep
+      verticalFade = verticalFade * verticalFade * (3 - 2 * verticalFade);
+    }
+
+    return edgeFade * verticalFade;
+  }
+
+  // Precompute per-warp-column attributes
+  const warpThreads = [];
+  for (let c = 0; c < COLS; c++) {
+    // Warp palette alternates raw linen chalk, warm yellow ochre, and occasional red-earth & charcoal accent cords
+    let code = '0';
+    if (c === 2 || c === COLS - 3 || c === 13) code = '2';
+    else if (c === 5 || c === COLS - 6) code = '3';
+    else if (c % 2 === 1) code = '1';
+    else if (c % 4 === 0) code = '4';
+
+    warpThreads.push({
+      col: c,
+      baseX: (c + 0.5) * COL_STEP,
+      code: code,
+      width: 8.2 + (rand() * 2.2),
+      jitterPhase: rand() * Math.PI * 2,
+      roughSeed: rand() * 100
+    });
+  }
+
+  // Precompute per-weft-row attributes
+  const weftRows = [];
+  for (let r = 0; r < ROWS; r++) {
+    const baseY = ROW_START_Y + r * ROW_STEP;
+    const patternRow = (r < CICADA_TAPESTRY_MAP.length)
+      ? CICADA_TAPESTRY_MAP[r]
+      : ((r % 3 === 0) ? '102010000000000000001020101' : '010401000000000000010401010');
+
+    weftRows.push({
+      row: r,
+      baseY: baseY,
+      pattern: patternRow,
+      thickness: 8.6 + (rand() * 2.4),
+      phaseOffset: r * 0.23,
+      weaveParity: r % 2 // Plain weave / twill alternation
+    });
+  }
+
+  /* Helper: Draw a loaded prehistoric dry-pigment woven yarn segment (tapered/organic edges, no thin spaghetti) */
+  function drawPigmentSegment(x1, y1, x2, y2, thick, code, alpha, isOver) {
+    if (alpha <= 0.02) return;
+
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+
+    const halfT = thick * (isOver ? 0.54 : 0.44);
+    const mx = (x1 + x2) * 0.5 + nx * (isOver ? -0.7 : 0.5);
+    const my = (y1 + y2) * 0.5 + ny * (isOver ? -0.7 : 0.5);
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Underneath shadow notch at crossing when this thread rides OVER the perpendicular thread
+    if (isOver) {
+      ctx.fillStyle = 'rgba(58, 36, 20, 0.24)';
+      ctx.beginPath();
+      ctx.moveTo(x1 - nx * (halfT + 1.6), y1 - ny * (halfT + 1.6));
+      ctx.lineTo(x2 - nx * (halfT + 1.6), y2 - ny * (halfT + 1.6));
+      ctx.lineTo(x2 + nx * (halfT + 1.8), y2 + ny * (halfT + 1.8));
+      ctx.lineTo(x1 + nx * (halfT + 1.8), y1 + ny * (halfT + 1.8));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Main loaded ochre/chalk fiber body (tapered convex polygon)
+    const midSwelling = isOver ? 1.16 : 0.90;
+    ctx.fillStyle = isOver ? COLOR_TABLE[code] : SHADOW_TABLE[code];
+    ctx.beginPath();
+    ctx.moveTo(x1 + nx * halfT * 0.88, y1 + ny * halfT * 0.88);
+    ctx.lineTo(mx + nx * halfT * midSwelling, my + ny * halfT * midSwelling);
+    ctx.lineTo(x2 + nx * halfT * 0.88, y2 + ny * halfT * 0.88);
+    ctx.lineTo(x2 - nx * halfT * 0.88, y2 - ny * halfT * 0.88);
+    ctx.lineTo(mx - nx * halfT * midSwelling, my - ny * halfT * midSwelling);
+    ctx.lineTo(x1 - nx * halfT * 0.88, y1 - ny * halfT * 0.88);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dry chalk / mineral highlight crest along the crown of an OVER-riding thread
+    if (isOver) {
+      ctx.fillStyle = HIGHLIGHT_TABLE[code];
+      ctx.globalAlpha = alpha * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(x1 + nx * halfT * 0.15, y1 + ny * halfT * 0.15);
+      ctx.lineTo(mx + nx * halfT * 0.55, my + ny * halfT * 0.55);
+      ctx.lineTo(x2 + nx * halfT * 0.15, y2 + ny * halfT * 0.15);
+      ctx.lineTo(mx - nx * halfT * 0.08, my - ny * halfT * 0.08);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  /* =========================================================================
+     7. SEAMLESS LOOPING LOOM CYCLE
+        Motion enacts the concept:
+        - A living loom wave passes methodically through the weave:
+          1) Alternating warp sheds breathe apart (odd vs even warp tension).
+          2) An active bone-and-ochre shuttle weaves progressively across the
+             active frontier row, laying fresh pigment weft threads over & under
+             the taut warp, building & renewing the prehistoric cicada tapestry
+             in a continuous, seamless gallery cycle (period = 36 seconds).
+     ========================================================================= */
+  const LOOP_SECONDS = 36.0;
+
+  function renderLoom(nowMs) {
+    const tSec = (nowMs * 0.001) % LOOP_SECONDS;
+    const cyclePhase = tSec / LOOP_SECONDS; // 0..1 seamless loop
+    const tau = cyclePhase * Math.PI * 2;
+
+    ctx.clearRect(0, 0, CW, CH);
+
+    // Shed breathing: odd and even warp threads gently tension & counter-shift
+    const shedOsc = Math.sin(tau * 3); // 3 full shed exchanges per 36s loop (= 12s each, calm & architectural)
+
+    // Active weaving ripple: sweeps smoothly down through rows 2..20 and wraps seamlessly via cosine wave
+    // Rather than hard erasure, a travelling wave of heightened loom tension + shuttle pass animates the weave
+    const activeRowFloat = 3 + ((cyclePhase * 18) % 18); // Rows 3..21
+    const activeRowIdx = Math.floor(activeRowFloat);
+    const rowFrac = activeRowFloat - activeRowIdx;
+    // Shuttle alternates left-to-right on even rows, right-to-left on odd rows
+    const shuttleDir = (activeRowIdx % 2 === 0) ? 1 : -1;
+    const shuttleColFloat = (shuttleDir === 1)
+      ? (rowFrac * (COLS - 1))
+      : ((1 - rowFrac) * (COLS - 1));
+
+    // PASS 1: Draw UNDER-layer segments (both warp-under and weft-under)
+    // PASS 2: Draw OVER-layer segments (both warp-over and weft-over) so true interlacing lock is unmistakable!
+
+    for (let pass = 0; pass < 2; pass++) {
+      const drawingOver = (pass === 1);
+
+      // --- A. Vertical Warp Segments per Grid Cell ---
+      for (let c = 0; c < COLS; c++) {
+        const wt = warpThreads[c];
+        const shedShiftX = ((c % 2 === 0) ? 1 : -1) * shedOsc * 1.35;
+
+        for (let r = 0; r < ROWS; r++) {
+          const wr = weftRows[r];
+          const wy = wr.baseY;
+          const alpha = threadAlphaAt(wt.baseX, wy, c);
+          if (alpha <= 0.02) continue;
+
+          // Determine over/under rule:
+          // Where pattern cell is a motif colour ('2', '3', '4', '1') in the cicada emblem rows,
+          // weft floats OVER on matching cells so the woven cicada & border emerge clearly from the weave,
+          // while still maintaining rhythmic warp binders!
+          const patCode = wr.pattern.charAt(c) || '0';
+          let weftOverWarp;
+          if (r >= 4 && r <= 16 && (patCode === '2' || patCode === '3' || patCode === '4')) {
+            // Twill binder: weft rides over 3 out of 4 crossings so bold colour emerges cleanly yet visibly woven
+            weftOverWarp = ((c + r) % 4 !== 0);
+          } else {
+            // Classic plain-weave over-under interlacing, flipping subtly when active shed wave passes
+            weftOverWarp = ((c + r) % 2 === 0);
+          }
+
+          const warpIsOver = !weftOverWarp;
+          if (warpIsOver !== drawingOver) continue;
+
+          // Subtle wave deflection near the active weaving row
+          const distRow = r - activeRowFloat;
+          const beatPull = Math.exp(-(distRow * distRow) * 0.35) * Math.sin(tau * 6 + c * 0.5) * 1.2;
+
+          const xTop = wt.baseX + shedShiftX + Math.sin(r * 0.7 + wt.jitterPhase) * 0.55;
+          const xBot = wt.baseX + shedShiftX + Math.sin((r + 1) * 0.7 + wt.jitterPhase) * 0.55;
+          const yTop = wy - ROW_STEP * 0.52 + beatPull * 0.3;
+          const yBot = wy + ROW_STEP * 0.52 + beatPull * 0.3;
+
+          drawPigmentSegment(xTop, yTop, xBot, yBot, wt.width, wt.code, alpha, warpIsOver);
+        }
+      }
+
+      // --- B. Horizontal Weft Segments per Grid Cell ---
+      for (let r = 0; r < ROWS; r++) {
+        const wr = weftRows[r];
+        const distRow = r - activeRowFloat;
+        const rowPulse = Math.exp(-(distRow * distRow) * 0.45);
+
+        for (let c = 0; c < COLS; c++) {
+          const wt = warpThreads[c];
+          const wx = wt.baseX;
+          const wy = wr.baseY;
+          let alpha = threadAlphaAt(wx, wy, c);
+          if (alpha <= 0.02) continue;
+
+          const patCode = wr.pattern.charAt(c) || '0';
+          let weftIsOver;
+          if (r >= 4 && r <= 16 && (patCode === '2' || patCode === '3' || patCode === '4')) {
+            weftIsOver = ((c + r) % 4 !== 0);
+          } else {
+            weftIsOver = ((c + r) % 2 === 0);
+          }
+
+          if (weftIsOver !== drawingOver) continue;
+
+          // On the active shuttle row, threads behind the shuttle glow freshly laid, ahead are taut under-tension
+          let thickScale = 1.0;
+          if (r === activeRowIdx) {
+            const passed = (shuttleDir === 1) ? (c <= shuttleColFloat) : (c >= shuttleColFloat);
+            thickScale = passed ? 1.16 : 0.78;
+            if (!passed) alpha *= 0.62;
+          } else {
+            thickScale = 1.0 + rowPulse * 0.08;
+          }
+
+          const archY = weftIsOver ? -0.9 : 0.8;
+          const xLeft = wx - COL_STEP * 0.54;
+          const xRight = wx + COL_STEP * 0.54;
+          const yLeft = wy + Math.sin(c * 0.9 + wr.phaseOffset) * 0.5;
+          const yRight = wy + Math.sin((c + 1) * 0.9 + wr.phaseOffset) * 0.5;
+
+          drawPigmentSegment(
+            xLeft,
+            yLeft + archY * 0.4,
+            xRight,
+            yRight + archY * 0.4,
+            wr.thickness * thickScale,
+            patCode,
+            alpha,
+            weftIsOver
+          );
+        }
+      }
+    }
+
+    // --- C. Carved Bone & Red-Ochre Shuttle Gliding Through the Shed ---
+    const activeWr = weftRows[activeRowIdx];
+    if (activeWr) {
+      const sx = (shuttleColFloat + 0.5) * COL_STEP;
+      const sy = activeWr.baseY;
+      const sAlpha = threadAlphaAt(sx, sy, Math.round(shuttleColFloat));
+      if (sAlpha > 0.08) {
+        ctx.save();
+        ctx.globalAlpha = sAlpha * 0.92;
+        ctx.translate(sx, sy);
+        if (shuttleDir < 0) ctx.scale(-1, 1);
+
+        // Soft warm shadow beneath carved bone shuttle
+        ctx.fillStyle = 'rgba(45, 33, 25, 0.28)';
+        ctx.beginPath();
+        ctx.moveTo(-22, 3);
+        ctx.lineTo(0, -5);
+        ctx.lineTo(24, 2);
+        ctx.lineTo(0, 9);
+        ctx.closePath();
+        ctx.fill();
+
+        // Carved pale bone shuttle body
+        ctx.fillStyle = '#f8f0df';
+        ctx.beginPath();
+        ctx.moveTo(-23, 0);
+        ctx.lineTo(-4, -6.2);
+        ctx.lineTo(10, -5.6);
+        ctx.lineTo(25, 0);
+        ctx.lineTo(10, 5.6);
+        ctx.lineTo(-4, 6.2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Charcoal incised notch & wound red-ochre yarn bobbin at shuttle core
+        ctx.fillStyle = PALETTE.redOchre;
+        ctx.fillRect(-7, -3.4, 14, 6.8);
+        ctx.fillStyle = PALETTE.charcoal;
+        ctx.fillRect(-13, -1.3, 3.5, 2.6);
+        ctx.fillRect(10.5, -1.3, 3.5, 2.6);
+
+        ctx.restore();
+      }
+    }
+
+    requestAnimationFrame(renderLoom);
+  }
+
+  requestAnimationFrame(renderLoom);
+
+  /* =========================================================================
+     8. PROCEDURAL AMBIENT LOOM PULSE AUDIO (strictly guarded for direct view)
+     ========================================================================= */
+  if (window.self === window.top) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const actx = new AudioCtx();
+        const resumeIfAllowed = function () {
+          if (actx.state === 'suspended') {
+            actx.resume().catch(function () {});
+          }
+        };
+        resumeIfAllowed();
+
+        // Warm acoustic earth-resonance drone (very quiet, non-intrusive)
+        const master = actx.createGain();
+        master.gain.value = 0.025;
+        master.connect(actx.destination);
+
+        const osc1 = actx.createOscillator();
+        const osc2 = actx.createOscillator();
+        const lfo = actx.createOscillator();
+        const lfoGain = actx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.value = 110.0; // Warm A2 cave resonance
+        osc2.type = 'triangle';
+        osc2.frequency.value = 164.81; // Fifth E3 harmonic
+
+        const filter = actx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 260;
+
+        lfo.type = 'sine';
+        lfo.frequency.value = 1 / 12; // Matches 12s loom shed breathing
+        lfoGain.gain.value = 65;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(master);
+
+        osc1.start();
+        osc2.start();
+        lfo.start();
+      }
+    } catch (_) {
+      // Ignore autoplay restrictions silently on unattended kiosk
+    }
+  }
+})();
+</script>
+</body>
+</html>
