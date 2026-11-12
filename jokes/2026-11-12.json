@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-12",
+  "joke": "The chatbot planned a relaxing weekend for me. I have to get up at five to fit it all in.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, safe setup and turn with an irony anyone would get—an over-scheduled 'relaxing' weekend—requiring no AI knowledge and gently self-deprecating for the lab."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-12T09:34:21Z"
+}

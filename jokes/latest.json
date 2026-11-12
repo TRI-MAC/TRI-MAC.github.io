@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-11",
-  "joke": "Our driverless taxi met another one at a crossroads, and each politely waited for the other to go first. That was Sunday.",
+  "date": "2026-11-12",
+  "joke": "The chatbot planned a relaxing weekend for me. I have to get up at five to fit it all in.",
   "model": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
     "family": "fable",
     "id": "global.anthropic.claude-fable-5-2",
     "display": "Claude Fable 5.2",
-    "provider": "anthropic"
-  },
-  "scheduled_family": "fable",
-  "critic": {
-    "family": "gpt",
-    "id": "gpt-6.1-sol",
-    "display": "GPT-6.1 Sol",
-    "provider": "openai",
+    "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "The polite standoff sets up a clear, accessible joke, and “That was Sunday” delivers a clean time-delay punchline."
+    "reason": "Clean, safe setup and turn with an irony anyone would get—an over-scheduled 'relaxing' weekend—requiring no AI knowledge and gently self-deprecating for the lab."
   },
   "attempts": 1,
-  "generated_at": "2026-11-11T09:30:43Z"
+  "generated_at": "2026-11-12T09:34:21Z"
 }
