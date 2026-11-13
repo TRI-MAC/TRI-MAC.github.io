@@ -1,0 +1,209 @@
+@font-face { font-family: "Bangers"; src: url("fonts/Bangers-Regular.ttf") format("truetype"); font-display: block; }
+
+:root {
+  --ink: #111014;
+  --paper: #fbf3df;
+  --pink: #ff3d8b;
+  --cyan: #17c8d8;
+  --lemon: #ffe23b;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); }
+
+/* A fixed 1080 x 1920 frame, scaled to fit the window and centered. */
+#frame {
+  position: absolute;
+  left: 0; top: 0;
+  width: 1080px; height: 1920px;
+  transform-origin: top left;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ink);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.screen {
+  position: absolute;
+  left: 0; top: 0;
+  width: 1080px; height: 1800px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.screen.on { opacity: 1; }
+
+/* The comic page fills the screen; the motion loop sits exactly on top of it. */
+.page {
+  position: absolute; inset: 0;
+  margin: 0;
+  background: var(--paper);
+}
+.page img, .page video {
+  position: absolute; left: 0; top: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.page video { object-fit: fill; }
+.page video { opacity: 0; transition: opacity 300ms linear; }
+.page video.playing { opacity: 1; }
+
+/* Title card: full 9:16 frame. */
+.title-screen { height: 1920px; }
+.title-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.recap-tag, .recap-caption {
+  position: absolute;
+  margin: 0;
+  font-family: "Bangers", Impact, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 6px solid var(--ink);
+}
+.recap-tag {
+  left: 50%; bottom: 210px;
+  transform: translateX(-50%) rotate(-3deg);
+  padding: 14px 34px 8px;
+  background: var(--pink);
+  color: #fff;
+  font-size: 76px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 8px 8px 0 var(--ink);
+  text-shadow: 4px 4px 0 var(--cyan);
+}
+.recap-caption {
+  left: 60px; right: 60px; bottom: 60px;
+  max-height: 420px;
+  overflow: hidden;
+  padding: 26px 36px 18px;
+  background: var(--lemon);
+  font-size: 58px;
+  line-height: 1.12;
+  box-shadow: 10px 10px 0 var(--ink);
+}
+
+/* The 120 px bar under the page: arrows and counter, or the countdown. */
+.bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 120px;
+  background: var(--ink);
+  z-index: 5;
+}
+.pager {
+  height: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 36px;
+}
+.pager button {
+  width: 84px; height: 84px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid; place-items: center;
+  padding: 0;
+}
+.pager button:focus-visible { outline: 6px solid var(--cyan); outline-offset: 5px; }
+.pager button:active { transform: scale(0.94); }
+.pager button[aria-disabled="true"] { opacity: 0.25; cursor: default; }
+.pager svg { width: 40px; height: 40px; }
+.count {
+  min-width: 190px;
+  text-align: center;
+  color: var(--paper);
+  font-family: "Bangers", Impact, sans-serif;
+  font-size: 72px;
+  letter-spacing: 0.05em;
+}
+
+.countdown {
+  position: absolute;
+  left: 48px; right: 48px; top: 50%;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 8px;
+  background: #3a3740;
+  overflow: hidden;
+}
+/* Kiosk: a tag such as "The latest episode" on the left of the bar; the
+   countdown then takes the rest of the width, however wide the tag is. */
+.bar-tag {
+  display: none;
+  margin: 0;
+  padding: 10px 26px 4px;
+  transform: rotate(-2deg);
+  background: var(--pink);
+  color: #fff;
+  border: 5px solid var(--paper);
+  font-family: "Bangers", Impact, sans-serif;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 3px 3px 0 var(--ink);
+}
+.bar.tagged { display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; }
+.bar.tagged .bar-tag { display: block; flex: none; }
+.bar.tagged .countdown { position: static; flex: 1; min-width: 0; margin-top: 0; }
+
+.countdown-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--pink), var(--lemon), var(--cyan));
+  transform-origin: left center;
+}
+
+/* effect: timeshift. Red and cyan copies of the page, blended with screen over
+   black, recombine to full color as their offsets close. */
+.page.fx-on { background: #000; }
+.page.fx-on > img:not(.fx), .page.fx-on > video { opacity: 0 !important; }
+.page .fx { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; pointer-events: none; }
+.page .fx-red { filter: url(#fx-red); animation: fx-red 1.6s cubic-bezier(.2,.8,.2,1) both; }
+.page .fx-cyan { filter: url(#fx-cyan); animation: fx-cyan 1.6s cubic-bezier(.2,.8,.2,1) both; }
+.page .fx-dots {
+  mix-blend-mode: multiply;
+  background: radial-gradient(circle, rgba(17,16,20,.85) 30%, transparent 32%) 0 0 / 18px 18px;
+  animation: fx-dots 1.6s ease-out both;
+}
+@keyframes fx-red {
+  0% { transform: translate(-46px, 6px) scale(1.04); }
+  12% { transform: translate(30px, -10px) scale(1.03); }
+  24% { transform: translate(-22px, 4px); }
+  40% { transform: translate(12px, 0); }
+  100% { transform: none; }
+}
+@keyframes fx-cyan {
+  0% { transform: translate(46px, -6px) scale(1.04); }
+  12% { transform: translate(-30px, 10px) scale(1.03); }
+  24% { transform: translate(22px, -4px); }
+  40% { transform: translate(-12px, 0); }
+  100% { transform: none; }
+}
+@keyframes fx-dots {
+  0% { opacity: .9; transform: scale(1.6); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.empty {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: var(--paper);
+  font-family: "Bangers", Impact, sans-serif; font-size: 80px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen { transition: none; }
+}
