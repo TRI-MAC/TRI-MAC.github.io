@@ -12,6 +12,7 @@
   var RECAP_SECONDS = 30;
   var BEAT_MIN = 4.5, BEAT_MAX = 7, MAX_BEATS = 6;
   var FETCH_TIMEOUT_MS = 10000;
+  var BROWSE_TIMEOUT_MS = 60000;
   var FADE_MS = 600;
   var RELOAD_RETRY_MS = 10 * 60 * 1000;
   var FALLBACK_CHAPTERS = 3;
@@ -200,8 +201,8 @@
     }).catch(function () { return null; });
   }
 
-  // Resolves true when the image loads and decodes within the fetch timeout.
-  function decodes(src) {
+  // Resolves true when the image loads and decodes within timeoutMs.
+  function decodes(src, timeoutMs) {
     var img = new Image();
     var ready = new Promise(function (resolve) {
       img.onload = function () {
@@ -211,9 +212,10 @@
       img.onerror = function () { resolve(false); };
     });
     img.src = src;
-    var late = wait(FETCH_TIMEOUT_MS / 1000).then(function () { return false; });
+    var late = wait(timeoutMs / 1000).then(function () { return false; });
     return Promise.race([ready, late]).then(function (ok) {
       img.onload = img.onerror = null;
+      if (!ok) img.removeAttribute("src");  // stop a download that timed out
       return ok;
     });
   }
@@ -368,19 +370,17 @@
     [first, prev, count, next, latest, live].forEach(function (e) { nav.appendChild(e); });
     bar().appendChild(nav);
 
-    var i = -1;
-    function go(k) {
-      k = Math.max(0, Math.min(last, k));
-      if (k === i) return;
-      i = k;
+    // The counter, the hash, and the buttons follow the position the reader
+    // asked for at once. The screen changes when that page has decoded; if it
+    // does not load, the screen that is up stays and the counter goes back.
+    var shown = -1, wanted = -1, ticket = 0;
+    function mark(k) {
       if (k === 0) {
-        show(titleScreen(false));
         count.textContent = "";
         live.textContent = "Title card";
         history.replaceState(null, "", location.pathname + location.search);
       } else {
         var ch = chapters[k - 1];
-        show(chapterScreen(ch));
         count.textContent = k + "/" + last;
         live.textContent = chapterName(ch) + ". " + k + " of " + last + ".";
         history.replaceState(null, "", "#" + ch.n);
@@ -390,14 +390,32 @@
       next.setAttribute("aria-disabled", String(k === last));
       latest.setAttribute("aria-disabled", String(k === last));
     }
+    function go(k) {
+      k = Math.max(0, Math.min(last, k));
+      if (k === wanted) return;
+      wanted = k;
+      mark(k);
+      var my = ++ticket;
+      if (k === shown) return;  // already up; a load still pending is dropped
+      var screen = k === 0 ? titleScreen(false) : chapterScreen(chapters[k - 1]);
+      decodes(screen.querySelector("img").src, BROWSE_TIMEOUT_MS).then(function (ok) {
+        if (my !== ticket) { releaseVideos(screen); return; }  // the reader has moved on
+        if (ok) { shown = k; show(screen); return; }
+        releaseVideos(screen);
+        if (shown < 0 && k !== 0) { go(0); return; }  // the first page failed: open on the title card
+        wanted = shown;
+        if (shown >= 0) mark(shown); else fail();
+        live.textContent = (k === 0 ? "The title card" : chapterName(chapters[k - 1])) + " did not load.";
+      });
+    }
     first.addEventListener("click", function () { go(0); });
-    prev.addEventListener("click", function () { go(i - 1); });
-    next.addEventListener("click", function () { go(i + 1); });
+    prev.addEventListener("click", function () { go(wanted - 1); });
+    next.addEventListener("click", function () { go(wanted + 1); });
     latest.addEventListener("click", function () { go(last); });
     document.addEventListener("keydown", function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
-      if (e.key === "ArrowLeft") go(i - 1);
-      else if (e.key === "ArrowRight") go(i + 1);
+      if (e.key === "ArrowLeft") go(wanted - 1);
+      else if (e.key === "ArrowRight") go(wanted + 1);
       else if (e.key === "Home") go(0);
       else if (e.key === "End") go(last);
     });
@@ -462,7 +480,7 @@
       var zoom = Math.min(1.6, Math.max(1.08, 0.85 / Math.max(f[2] - f[0], f[3] - f[1])));
       fig.style.transformOrigin = (cx * 100) + "% " + (cy * 100) + "%";
       fig.style.transition = "transform " + seconds + "s ease-in-out";
-      setTimeout(function () { fig.style.transform = "scale(" + zoom + ")"; }, 50);
+      setTimeout(function () { if (!reduceMotion) fig.style.transform = "scale(" + zoom + ")"; }, 50);
     }
     return s;
   }
@@ -492,12 +510,12 @@
     var floor = Math.max(0, chapters.length - FALLBACK_CHAPTERS);
     function newest(k) {
       if (k < floor) return Promise.resolve(null);
-      return decodes(chapters[k].page).then(function (ok) { return ok ? chapters[k] : newest(k - 1); });
+      return decodes(chapters[k].page, FETCH_TIMEOUT_MS).then(function (ok) { return ok ? chapters[k] : newest(k - 1); });
     }
     return newest(chapters.length - 1).then(function (latest) {
       if (!latest) return null;
       var beats = recap.filter(function (b) { return byN[b.n] && b.n < latest.n; }).slice(-MAX_BEATS);
-      return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page); })).then(function (ok) {
+      return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page, FETCH_TIMEOUT_MS); })).then(function (ok) {
         return {
           latest: latest,
           beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; })
@@ -536,8 +554,14 @@
 
     function cycle() {
       if (newer) {
-        location.replace(location.pathname + "?v=" + encodeURIComponent(newer) + "&t=" + Date.now() + location.hash);
-        return new Promise(function () {});  // the page is leaving
+        // Reload only when the page answers, so a dropped network never leaves
+        // the kiosk on a browser error page. Otherwise the cycle runs as before.
+        var target = location.pathname + "?v=" + encodeURIComponent(newer) + "&t=" + Date.now();
+        newer = null;
+        return fetchText(target).then(function () {
+          location.replace(target + location.hash);
+          return new Promise(function () {});  // the page is leaving
+        }, function () { return cycle(); });
       }
       if (!next) {
         return refresh().then(function () {
