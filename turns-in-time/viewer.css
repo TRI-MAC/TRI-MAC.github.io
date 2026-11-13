@@ -138,14 +138,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
   overflow: hidden;
 }
 /* Kiosk: a tag such as "The latest episode" on the left of the bar; the
-   countdown then takes the rest of the width. */
+   countdown then takes the rest of the width, however wide the tag is. */
 .bar-tag {
   display: none;
-  position: absolute;
-  left: 40px; top: 50%;
   margin: 0;
   padding: 10px 26px 4px;
-  transform: translateY(-50%) rotate(-2deg);
+  transform: rotate(-2deg);
   background: var(--pink);
   color: #fff;
   border: 5px solid var(--paper);
@@ -157,8 +155,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
   white-space: nowrap;
   text-shadow: 3px 3px 0 var(--ink);
 }
-.bar.tagged .bar-tag { display: block; }
-.bar.tagged .countdown { left: 590px; }
+.bar.tagged { display: flex; align-items: center; gap: 36px; padding: 0 48px 0 40px; }
+.bar.tagged .bar-tag { display: block; flex: none; }
+.bar.tagged .countdown { position: static; flex: 1; min-width: 0; margin-top: 0; }
 
 .countdown-fill {
   height: 100%;

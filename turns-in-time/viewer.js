@@ -1,8 +1,8 @@
 // Turns in Time viewer.
 // index.html = browse: the title card, then the chapters, with arrows and an m/n counter.
-// kiosk.html = the story so far (at most 30 s), then the latest chapter for 60 s
-// with a countdown bar, then again. Both draw a fixed 1080 x 1920 frame: the
-// comic page (1080 x 1800) on top and a 120 px bar below.
+// kiosk.html = the title card and the story so far (at most 30 s), then the latest
+// chapter for 60 s with a countdown bar, then again. Both draw a fixed 1080 x 1920
+// frame: the comic page (1080 x 1800) on top and a 120 px bar below.
 (function () {
   "use strict";
 
@@ -13,15 +13,42 @@
   var BEAT_MIN = 4.5, BEAT_MAX = 7, MAX_BEATS = 6;
   var FETCH_TIMEOUT_MS = 10000;
   var FADE_MS = 600;
+  var RELOAD_RETRY_MS = 10 * 60 * 1000;
+  var FALLBACK_CHAPTERS = 3;
 
+  // The build this page runs: the ?v= of the script tag. Pages, clips, and the
+  // title card carry it too, so a new build never shows a cached old image.
   var RUNNING = (function () {
     var me = document.currentScript;
     try { return me ? new URL(me.src, location.href).searchParams.get("v") : null; } catch (e) { return null; }
   })();
+  function asset(path) { return RUNNING ? path + "?v=" + encodeURIComponent(RUNNING) : path; }
 
   var frame = document.getElementById("frame");
   var mode = document.body.dataset.mode;
-  var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  // Reduced motion is read live. When it turns on, clips stop, the timeshift
+  // effect ends, and a recap drift holds where it is.
+  var motionQuery = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+  var reduceMotion = !!(motionQuery && motionQuery.matches);
+  function onMotionChange() {
+    reduceMotion = !!motionQuery.matches;
+    if (!reduceMotion) return;
+    releaseVideos(frame);
+    frame.querySelectorAll("video, .fx").forEach(function (e) { e.remove(); });
+    frame.querySelectorAll(".page").forEach(function (f) {
+      f.classList.remove("fx-on");
+      if (f.style.transition) {
+        var held = getComputedStyle(f).transform;
+        f.style.transition = "none";
+        f.style.transform = held;
+      }
+    });
+  }
+  if (motionQuery) {
+    if (motionQuery.addEventListener) motionQuery.addEventListener("change", onMotionChange);
+    else if (motionQuery.addListener) motionQuery.addListener(onMotionChange);
+  }
 
   function fit() {
     var s = Math.min(window.innerWidth / W, window.innerHeight / H);
@@ -118,12 +145,14 @@
       title: plain(doc.meta.title || ""),
       alt: plain(doc.meta.alt || ""),
       effect: (doc.meta.effect || "").toLowerCase(),
-      page: "chapters/" + id + "/page.jpg",
-      motion: doc.meta.motion ? "chapters/" + id + "/" + doc.meta.motion : null,
+      page: asset("chapters/" + id + "/page.jpg"),
+      motion: doc.meta.motion ? asset("chapters/" + id + "/" + doc.meta.motion) : null,
       motionBox: box(doc.meta["motion-box"]),
       panels: lettering(doc.sections)
     };
   }
+
+  function chapterName(ch) { return "Chapter " + ch.n + (ch.title ? ": " + ch.title : ""); }
 
   // A chapter that fails to load is dropped, unless an earlier load of it is
   // in the cache (the kiosk keeps one); the rest still show.
@@ -171,6 +200,24 @@
     }).catch(function () { return null; });
   }
 
+  // Resolves true when the image loads and decodes within the fetch timeout.
+  function decodes(src) {
+    var img = new Image();
+    var ready = new Promise(function (resolve) {
+      img.onload = function () {
+        if (img.decode) img.decode().then(function () { resolve(true); }, function () { resolve(false); });
+        else resolve(true);
+      };
+      img.onerror = function () { resolve(false); };
+    });
+    img.src = src;
+    var late = wait(FETCH_TIMEOUT_MS / 1000).then(function () { return false; });
+    return Promise.race([ready, late]).then(function (ok) {
+      img.onload = img.onerror = null;
+      return ok;
+    });
+  }
+
   // ── drawing ───────────────────────────────────────────────────────
 
   function el(tag, cls, text) {
@@ -194,7 +241,7 @@
     var fig = el("figure", "page");
     var img = el("img");
     img.src = ch.page;
-    img.alt = ch.alt || ("Chapter " + ch.n + ": " + ch.title);
+    img.alt = ch.alt || chapterName(ch);
     img.decoding = "async";
     fig.appendChild(img);
     if (withMotion && ch.motion && ch.motionBox && !reduceMotion) {
@@ -218,7 +265,7 @@
   // The lettering is drawn into the page; this copy is for screen readers.
   function letteringText(ch) {
     var box = el("div", "sr-only");
-    box.appendChild(el("p", null, "Chapter " + ch.n + ": " + ch.title));
+    box.appendChild(el("p", null, chapterName(ch)));
     ch.panels.forEach(function (lines) {
       lines.forEach(function (l) {
         if (l.who.toLowerCase() === "title") return;
@@ -231,7 +278,7 @@
 
   function chapterScreen(ch) {
     var s = el("section", "screen chapter");
-    s.setAttribute("aria-label", "Chapter " + ch.n + ": " + ch.title);
+    s.setAttribute("aria-label", chapterName(ch));
     s.appendChild(pageFigure(ch, true));
     s.appendChild(letteringText(ch));
     if (ch.effect) s.dataset.effect = ch.effect;
@@ -335,7 +382,7 @@
         var ch = chapters[k - 1];
         show(chapterScreen(ch));
         count.textContent = k + "/" + last;
-        live.textContent = "Chapter " + ch.n + ": " + ch.title + ". " + k + " of " + last + ".";
+        live.textContent = chapterName(ch) + ". " + k + " of " + last + ".";
         history.replaceState(null, "", "#" + ch.n);
       }
       first.setAttribute("aria-disabled", String(k === 0));
@@ -376,12 +423,13 @@
     fill.style.transform = "scaleX(0)";
   }
 
-  // A tag in the bar beside the countdown, so it never covers the page.
+  // A tag at the left of the bar, before the countdown, so it never covers the page.
   var barTag = null;
   function tag(text) {
-    if (!barTag) { barTag = el("p", "bar-tag"); bar().appendChild(barTag); }
+    var b = bar();
+    if (!barTag) { barTag = el("p", "bar-tag"); b.insertBefore(barTag, b.firstChild); }
     barTag.textContent = text || "";
-    bar().classList.toggle("tagged", !!text);
+    b.classList.toggle("tagged", !!text);
   }
 
   function wait(seconds) { return new Promise(function (r) { setTimeout(r, seconds * 1000); }); }
@@ -390,12 +438,12 @@
     "a dirt road with a horse and wagon, a glowing road over the bay, and today's corner, " +
     "where a lavender car waits with a furball inside.";
 
-  // The title card. The kiosk adds "The story so far" over it.
+  // The title card. The kiosk adds "The story so far" over it when recap beats follow.
   function titleScreen(storySoFar) {
     var s = el("section", "screen title-screen");
     s.setAttribute("aria-label", storySoFar ? "Turns in Time: the story so far" : "Turns in Time: title card");
     var img = el("img");
-    img.src = "title/title.jpg";
+    img.src = asset("title/title.jpg");
     img.alt = TITLE_ALT;
     s.appendChild(img);
     if (storySoFar) s.appendChild(el("p", "recap-tag", "The story so far"));
@@ -420,62 +468,110 @@
   }
 
   // A deploy writes one value into version.txt and into the ?v= of the script
-  // and stylesheet links. When version.txt differs from the value this page was
-  // loaded with, the kiosk reloads once with ?v=<new value>, which also gets
-  // past a cached copy of the HTML.
-  function checkVersion() {
+  // and stylesheet links. When version.txt names another build, the kiosk
+  // reloads with ?v=<value>&t=<time>, which gets past a cached copy of the HTML.
+  // If that reload still brings the old build (a deploy in progress), it tries
+  // again 10 minutes after the reload. Resolves to the new value, or null.
+  function newBuild() {
     return fetchText("version.txt").then(function (v) {
       v = v.trim();
-      var tried = new URLSearchParams(location.search).get("v");
-      if (v && RUNNING && v !== RUNNING && v !== tried) {
-        location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
-      }
-    }).catch(function () {});
+      if (!v || !RUNNING || v === RUNNING) return null;
+      var q = new URLSearchParams(location.search);
+      var t = parseInt(q.get("t"), 10);
+      if (q.get("v") === v && Math.abs(Date.now() - t) < RELOAD_RETRY_MS) return null;
+      return v;
+    }).catch(function () { return null; });
+  }
+
+  // What one cycle shows. The latest chapter is the newest one whose page
+  // decodes, so a new chapter with a broken page waits and the one before it
+  // stays up. Recap beats show only chapters whose pages decode.
+  function plan(chapters, recap) {
+    var byN = {};
+    chapters.forEach(function (c) { byN[c.n] = c; });
+    var floor = Math.max(0, chapters.length - FALLBACK_CHAPTERS);
+    function newest(k) {
+      if (k < floor) return Promise.resolve(null);
+      return decodes(chapters[k].page).then(function (ok) { return ok ? chapters[k] : newest(k - 1); });
+    }
+    return newest(chapters.length - 1).then(function (latest) {
+      if (!latest) return null;
+      var beats = recap.filter(function (b) { return byN[b.n] && b.n < latest.n; }).slice(-MAX_BEATS);
+      return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page); })).then(function (ok) {
+        return {
+          latest: latest,
+          beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; })
+        };
+      });
+    });
   }
 
   function kiosk() {
-    var lastGood = null, lastRecap = null;
-    function cycle() {
-      return checkVersion()
-        .then(function () {
-          return Promise.all([load().catch(function () { return null; }), loadRecap()]);
-        })
-        .then(function (r) {
-          var chapters = r[0] && r[0].length ? r[0] : lastGood;
-          if (!chapters || !chapters.length) throw new Error("no chapters");
-          lastGood = chapters;
-          var recap = r[1] || lastRecap || [];
-          lastRecap = recap;
-          var latest = chapters[chapters.length - 1];
-          var byN = {};
-          chapters.forEach(function (c) { byN[c.n] = c; });
-          var beats = recap.filter(function (b) { return byN[b.n] && b.n !== latest.n; }).slice(-MAX_BEATS);
-          var steps = [];
-          if (beats.length) {
-            var per = Math.min(BEAT_MAX, Math.max(BEAT_MIN, (RECAP_SECONDS - INTRO_SECONDS) / beats.length));
-            var total = INTRO_SECONDS + per * beats.length;
-            steps.push(function () {
-              show(titleScreen(true));
-              tag(null);
-              countdown(total);
-              return wait(INTRO_SECONDS);
-            });
-            beats.forEach(function (b) {
-              steps.push(function () {
-                show(recapScreen(byN[b.n], b, per));
-                return wait(per);
-              });
-            });
-          }
-          steps.push(function () {
-            show(chapterScreen(latest));
-            tag("The latest episode");
-            countdown(CHAPTER_SECONDS);
-            return wait(CHAPTER_SECONDS);
-          });
-          return steps.reduce(function (p, step) { return p.then(step); }, Promise.resolve());
-        });
+    var chapters = null, recap = null;  // the last good copies
+    var next = null;                    // what the next cycle shows
+    var newer = null;                   // set when version.txt names another build
+    var pending = null;
+
+    // Fetches what the next cycle needs. The latest-chapter step starts it, so
+    // the next cycle begins on time; a slow or failed fetch leaves the last
+    // good copies in place.
+    function refresh() {
+      if (!pending) {
+        pending = newBuild()
+          .then(function (v) {
+            newer = v;
+            return Promise.all([load().catch(function () { return null; }), loadRecap()]);
+          })
+          .then(function (r) {
+            if (r[0] && r[0].length) chapters = r[0];
+            if (r[1]) recap = r[1];
+            return chapters ? plan(chapters, recap || []) : null;
+          })
+          .then(function (p) { if (p) next = p; })
+          .catch(function (e) { console.warn("Turns in Time:", e); })
+          .then(function () { pending = null; });
+      }
+      return pending;
     }
+
+    function cycle() {
+      if (newer) {
+        location.replace(location.pathname + "?v=" + encodeURIComponent(newer) + "&t=" + Date.now() + location.hash);
+        return new Promise(function () {});  // the page is leaving
+      }
+      if (!next) {
+        return refresh().then(function () {
+          if (!next) throw new Error("no chapters");
+          return cycle();
+        });
+      }
+      var p = next;
+      var per = p.beats.length
+        ? Math.min(BEAT_MAX, Math.max(BEAT_MIN, (RECAP_SECONDS - INTRO_SECONDS) / p.beats.length))
+        : 0;
+      // The title card opens every cycle; "The story so far" shows only when beats follow.
+      var steps = [function () {
+        show(titleScreen(p.beats.length > 0));
+        tag(null);
+        countdown(INTRO_SECONDS + per * p.beats.length);
+        return wait(INTRO_SECONDS);
+      }];
+      p.beats.forEach(function (b) {
+        steps.push(function () {
+          show(recapScreen(b.ch, b.beat, per));
+          return wait(per);
+        });
+      });
+      steps.push(function () {
+        show(chapterScreen(p.latest));
+        tag("The latest episode");
+        countdown(CHAPTER_SECONDS);
+        refresh();
+        return wait(CHAPTER_SECONDS);
+      });
+      return steps.reduce(function (q, step) { return q.then(step); }, Promise.resolve());
+    }
+
     function loop() {
       cycle().then(loop, function (e) {
         console.warn("Turns in Time:", e);

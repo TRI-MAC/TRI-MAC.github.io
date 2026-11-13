@@ -21,7 +21,7 @@ Caption: On Mondays she drives it mostly asleep.
 ## Panel 2
 Art: Middle left. A hilltop campus parking lot; a sign reads LOT C; the Tercel, with its rust and dented bumper, sits alone in the far corner, shaded by a huge eucalyptus.
 Caption: Lot C. Her corner.
-Caption: The walk up takes forty minutes. She did it once.
+Caption: The walk up takes forty minutes. She did it *once*.
 
 ## Panel 3
 Art: Middle right. A classroom. Professor Ruiz (a short, energetic woman in her sixties with a silver bob, big round glasses, and a cardigan with pens in the pocket) holds up a large print with both hands. The print is a real sepia photograph: a dirt track along the coast with a horse standing in the middle of it, facing the camera, ears pinned back, glaring.
