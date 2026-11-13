@@ -201,7 +201,8 @@
     }).catch(function () { return null; });
   }
 
-  // Resolves true when the image loads and decodes within timeoutMs.
+  // Resolves true when the image loads and decodes within timeoutMs. A
+  // download that times out keeps going, so a later try can find it cached.
   function decodes(src, timeoutMs) {
     var img = new Image();
     var ready = new Promise(function (resolve) {
@@ -215,7 +216,6 @@
     var late = wait(timeoutMs / 1000).then(function () { return false; });
     return Promise.race([ready, late]).then(function (ok) {
       img.onload = img.onerror = null;
-      if (!ok) img.removeAttribute("src");  // stop a download that timed out
       return ok;
     });
   }
@@ -397,14 +397,17 @@
       mark(k);
       var my = ++ticket;
       if (k === shown) return;  // already up; a load still pending is dropped
-      var screen = k === 0 ? titleScreen(false) : chapterScreen(chapters[k - 1]);
-      decodes(screen.querySelector("img").src, BROWSE_TIMEOUT_MS).then(function (ok) {
-        if (my !== ticket) { releaseVideos(screen); return; }  // the reader has moved on
-        if (ok) { shown = k; show(screen); return; }
-        releaseVideos(screen);
+      decodes(k === 0 ? asset("title/title.jpg") : chapters[k - 1].page, BROWSE_TIMEOUT_MS).then(function (ok) {
+        if (my !== ticket) return;  // the reader has moved on
+        if (ok) {
+          shown = k;
+          show(k === 0 ? titleScreen(false) : chapterScreen(chapters[k - 1]));
+          return;
+        }
         if (shown < 0 && k !== 0) { go(0); return; }  // the first page failed: open on the title card
-        wanted = shown;
-        if (shown >= 0) mark(shown); else fail();
+        wanted = Math.max(shown, 0);
+        mark(wanted);
+        if (shown < 0) fail();
         live.textContent = (k === 0 ? "The title card" : chapterName(chapters[k - 1])) + " did not load.";
       });
     }
