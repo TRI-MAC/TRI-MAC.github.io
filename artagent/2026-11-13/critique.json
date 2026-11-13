@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-13",
+  "generator_provider": "openai",
+  "generator_model": "gpt-6-astra",
+  "critic_provider": "anthropic",
+  "critic_model": "global.anthropic.claude-opus-5-5",
+  "saw_assets": 2,
+  "critique": "The woven photograph is the real achievement: two concentric-square panels in clay, ochre and turquoise, pinned to a sunlit cream linen ground and joined by a twisted ribbon of the same stripes. That fold turns the brief's sacred symmetry into a quiet rupture, and the high-key ground lets the darks of the shadows read only as marks. The flat SVG framing fights the photograph rather than extending it: the stepped clay and teal \"thread\" bands that slide ±19px are drawn over its top and bottom edges, and the cover-crop plus ragged clip-path cut away the pinned borders that gave the textile its scale. The 18px guinea pig half-hidden under a terracotta patch at lower right is a stray, unexplained mark that should be removed or given a real role."
+}
