@@ -103,7 +103,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 }
 .pager {
   height: 100%;
-  display: flex; align-items: center; justify-content: center; gap: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 36px;
 }
 .pager button {
   width: 84px; height: 84px;
@@ -137,6 +137,29 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
   background: #3a3740;
   overflow: hidden;
 }
+/* Kiosk: a tag such as "The latest episode" on the left of the bar; the
+   countdown then takes the rest of the width. */
+.bar-tag {
+  display: none;
+  position: absolute;
+  left: 40px; top: 50%;
+  margin: 0;
+  padding: 10px 26px 4px;
+  transform: translateY(-50%) rotate(-2deg);
+  background: var(--pink);
+  color: #fff;
+  border: 5px solid var(--paper);
+  font-family: "Bangers", Impact, sans-serif;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 3px 3px 0 var(--ink);
+}
+.bar.tagged .bar-tag { display: block; }
+.bar.tagged .countdown { left: 590px; }
+
 .countdown-fill {
   height: 100%;
   width: 100%;

@@ -14,6 +14,11 @@
   var FETCH_TIMEOUT_MS = 10000;
   var FADE_MS = 600;
 
+  var RUNNING = (function () {
+    var me = document.currentScript;
+    try { return me ? new URL(me.src, location.href).searchParams.get("v") : null; } catch (e) { return null; }
+  })();
+
   var frame = document.getElementById("frame");
   var mode = document.body.dataset.mode;
   var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -45,7 +50,7 @@
   // Tolerates a BOM, CRLF, blank lines before the fence, trailing spaces, quoted
   // values, and headings in any case.
   function parseMarkdown(src) {
-    var text = String(src).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+    var text = String(src).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
     var meta = {};
     var m = text.match(/^\s*---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n|$)/);
     if (m) {
@@ -120,7 +125,9 @@
     };
   }
 
-  // One unreadable chapter is dropped; the rest still show.
+  // A chapter that fails to load is dropped, unless an earlier load of it is
+  // in the cache (the kiosk keeps one); the rest still show.
+  var chapterCache = {};
   function load() {
     return fetchText("chapters/index.json").then(function (src) {
       var ids = JSON.parse(src).chapters;
@@ -128,8 +135,11 @@
       return Promise.all(ids.map(function (id) {
         id = String(id);
         return fetchText("chapters/" + id + "/chapter.md")
-          .then(function (md) { return chapterFrom(id, md); })
-          .catch(function (e) { console.warn("Turns in Time: skipping chapter", id, e); return null; });
+          .then(function (md) { return (chapterCache[id] = chapterFrom(id, md)); })
+          .catch(function (e) {
+            console.warn("Turns in Time: chapter " + id + " did not load", e);
+            return chapterCache[id] || null;
+          });
       }));
     }).then(function (list) {
       var seen = {};
@@ -158,7 +168,7 @@
         var text = plain(words.join(" "));
         return text ? { n: parseInt(m[2] || m[1], 10), text: text, focus: focus } : null;
       }).filter(Boolean);
-    }).catch(function () { return []; });
+    }).catch(function () { return null; });
   }
 
   // ── drawing ───────────────────────────────────────────────────────
@@ -178,26 +188,26 @@
     });
   }
 
-  function pageFigure(ch) {
+  // withMotion: the chapter's loop plays over its region of the page. Recap
+  // beats pass false.
+  function pageFigure(ch, withMotion) {
     var fig = el("figure", "page");
     var img = el("img");
     img.src = ch.page;
     img.alt = ch.alt || ("Chapter " + ch.n + ": " + ch.title);
     img.decoding = "async";
     fig.appendChild(img);
-    if (ch.motion && !reduceMotion) {
+    if (withMotion && ch.motion && ch.motionBox && !reduceMotion) {
       var v = el("video");
       v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
       v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
       v.src = ch.motion;
-      if (ch.motionBox) {
-        // The clip covers only the moving region; it sits on the page there.
-        var mb = ch.motionBox;
-        v.style.left = (mb[0] * 100) + "%";
-        v.style.top = (mb[1] * 100) + "%";
-        v.style.width = ((mb[2] - mb[0]) * 100) + "%";
-        v.style.height = ((mb[3] - mb[1]) * 100) + "%";
-      }
+      // The clip covers only the moving region; it sits on the page there.
+      var mb = ch.motionBox;
+      v.style.left = (mb[0] * 100) + "%";
+      v.style.top = (mb[1] * 100) + "%";
+      v.style.width = ((mb[2] - mb[0]) * 100) + "%";
+      v.style.height = ((mb[3] - mb[1]) * 100) + "%";
       v.addEventListener("playing", function () { v.classList.add("playing"); });
       v.addEventListener("error", function () { v.remove(); });
       fig.appendChild(v);
@@ -222,7 +232,7 @@
   function chapterScreen(ch) {
     var s = el("section", "screen chapter");
     s.setAttribute("aria-label", "Chapter " + ch.n + ": " + ch.title);
-    s.appendChild(pageFigure(ch));
+    s.appendChild(pageFigure(ch, true));
     s.appendChild(letteringText(ch));
     if (ch.effect) s.dataset.effect = ch.effect;
     return s;
@@ -300,13 +310,15 @@
       b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
       return b;
     }
+    var first = arrow("Beginning", "M6 4v16M18 4l-8 8 8 8");
     var prev = arrow("Previous", "M15 4 7 12l8 8");
     var next = arrow("Next", "M9 4l8 8-8 8");
+    var latest = arrow("Latest chapter", "M18 4v16M6 4l8 8-8 8");
     var count = el("span", "count");
     count.setAttribute("aria-hidden", "true");
     var live = el("span", "sr-only");
     live.setAttribute("aria-live", "polite");
-    nav.appendChild(prev); nav.appendChild(count); nav.appendChild(next); nav.appendChild(live);
+    [first, prev, count, next, latest, live].forEach(function (e) { nav.appendChild(e); });
     bar().appendChild(nav);
 
     var i = -1;
@@ -320,17 +332,23 @@
         live.textContent = "Title card";
         history.replaceState(null, "", location.pathname + location.search);
       } else {
-        show(chapterScreen(chapters[k - 1]));
+        var ch = chapters[k - 1];
+        show(chapterScreen(ch));
         count.textContent = k + "/" + last;
-        live.textContent = "Chapter " + k + " of " + last;
-        history.replaceState(null, "", "#" + chapters[k - 1].n);
+        live.textContent = "Chapter " + ch.n + ": " + ch.title + ". " + k + " of " + last + ".";
+        history.replaceState(null, "", "#" + ch.n);
       }
+      first.setAttribute("aria-disabled", String(k === 0));
       prev.setAttribute("aria-disabled", String(k === 0));
       next.setAttribute("aria-disabled", String(k === last));
+      latest.setAttribute("aria-disabled", String(k === last));
     }
+    first.addEventListener("click", function () { go(0); });
     prev.addEventListener("click", function () { go(i - 1); });
     next.addEventListener("click", function () { go(i + 1); });
+    latest.addEventListener("click", function () { go(last); });
     document.addEventListener("keydown", function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === "ArrowLeft") go(i - 1);
       else if (e.key === "ArrowRight") go(i + 1);
       else if (e.key === "Home") go(0);
@@ -358,6 +376,14 @@
     fill.style.transform = "scaleX(0)";
   }
 
+  // A tag in the bar beside the countdown, so it never covers the page.
+  var barTag = null;
+  function tag(text) {
+    if (!barTag) { barTag = el("p", "bar-tag"); bar().appendChild(barTag); }
+    barTag.textContent = text || "";
+    bar().classList.toggle("tagged", !!text);
+  }
+
   function wait(seconds) { return new Promise(function (r) { setTimeout(r, seconds * 1000); }); }
 
   var TITLE_ALT = "Turns in Time. Nami holds up her keys beside a stop sign where three eras meet: " +
@@ -379,13 +405,13 @@
   function recapScreen(ch, beat, seconds) {
     var s = el("section", "screen chapter recap");
     s.setAttribute("aria-label", "The story so far: chapter " + ch.n);
-    var fig = pageFigure(ch);
+    var fig = pageFigure(ch, false);
     s.appendChild(fig);
     s.appendChild(el("p", "recap-caption", beat.text));
     if (beat.focus && !reduceMotion) {
       var f = beat.focus;
       var cx = (f[0] + f[2]) / 2, cy = (f[1] + f[3]) / 2;
-      var zoom = Math.min(1.6, Math.max(1, 0.85 / Math.max(f[2] - f[0], f[3] - f[1])));
+      var zoom = Math.min(1.6, Math.max(1.08, 0.85 / Math.max(f[2] - f[0], f[3] - f[1])));
       fig.style.transformOrigin = (cx * 100) + "% " + (cy * 100) + "%";
       fig.style.transition = "transform " + seconds + "s ease-in-out";
       setTimeout(function () { fig.style.transform = "scale(" + zoom + ")"; }, 50);
@@ -393,37 +419,44 @@
     return s;
   }
 
-  // A deploy changes version.txt; the kiosk reloads itself to pick up new code.
-  var version = null;
+  // A deploy writes one value into version.txt and into the ?v= of the script
+  // and stylesheet links. When version.txt differs from the value this page was
+  // loaded with, the kiosk reloads once with ?v=<new value>, which also gets
+  // past a cached copy of the HTML.
   function checkVersion() {
     return fetchText("version.txt").then(function (v) {
       v = v.trim();
-      if (version === null) version = v;
-      else if (v && v !== version) location.reload();
+      var tried = new URLSearchParams(location.search).get("v");
+      if (v && RUNNING && v !== RUNNING && v !== tried) {
+        location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
+      }
     }).catch(function () {});
   }
 
   function kiosk() {
-    var lastGood = null;
+    var lastGood = null, lastRecap = null;
     function cycle() {
       return checkVersion()
         .then(function () {
-          return Promise.all([load().catch(function () { return lastGood; }), loadRecap()]);
+          return Promise.all([load().catch(function () { return null; }), loadRecap()]);
         })
         .then(function (r) {
-          var chapters = r[0];
+          var chapters = r[0] && r[0].length ? r[0] : lastGood;
           if (!chapters || !chapters.length) throw new Error("no chapters");
           lastGood = chapters;
+          var recap = r[1] || lastRecap || [];
+          lastRecap = recap;
           var latest = chapters[chapters.length - 1];
           var byN = {};
           chapters.forEach(function (c) { byN[c.n] = c; });
-          var beats = r[1].filter(function (b) { return byN[b.n] && b.n !== latest.n; }).slice(-MAX_BEATS);
+          var beats = recap.filter(function (b) { return byN[b.n] && b.n !== latest.n; }).slice(-MAX_BEATS);
           var steps = [];
           if (beats.length) {
             var per = Math.min(BEAT_MAX, Math.max(BEAT_MIN, (RECAP_SECONDS - INTRO_SECONDS) / beats.length));
             var total = INTRO_SECONDS + per * beats.length;
             steps.push(function () {
               show(titleScreen(true));
+              tag(null);
               countdown(total);
               return wait(INTRO_SECONDS);
             });
@@ -436,6 +469,7 @@
           }
           steps.push(function () {
             show(chapterScreen(latest));
+            tag("The latest episode");
             countdown(CHAPTER_SECONDS);
             return wait(CHAPTER_SECONDS);
           });
@@ -458,7 +492,7 @@
   var fontsReady = (document.fonts && document.fonts.load)
     ? document.fonts.load('64px "Bangers"').catch(function () {})
     : Promise.resolve();
-  fontsReady.then(function () {
+  Promise.race([fontsReady, new Promise(function (r) { setTimeout(r, 3000); })]).then(function () {
     if (mode === "kiosk") {
       kiosk();
     } else {
