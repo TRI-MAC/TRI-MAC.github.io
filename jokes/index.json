@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-14",
+    "joke": "My new assistant hunted down and cancelled every subscription I'd forgotten I was paying for. Somehow it missed its own.",
+    "model": "Claude Fable 5.2"
+  },
+  {
     "date": "2026-11-12",
     "joke": "The chatbot planned a relaxing weekend for me. I have to get up at five to fit it all in.",
     "model": "GPT-6 Astra"

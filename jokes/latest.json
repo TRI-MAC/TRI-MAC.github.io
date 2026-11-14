@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-12",
-  "joke": "The chatbot planned a relaxing weekend for me. I have to get up at five to fit it all in.",
+  "date": "2026-11-14",
+  "joke": "My new assistant hunted down and cancelled every subscription I'd forgotten I was paying for. Somehow it missed its own.",
   "model": {
-    "family": "gpt",
-    "id": "gpt-6-astra",
-    "display": "GPT-6 Astra",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
     "family": "fable",
     "id": "global.anthropic.claude-fable-5-2",
     "display": "Claude Fable 5.2",
-    "provider": "anthropic",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean, safe setup and turn with an irony anyone would get—an over-scheduled 'relaxing' weekend—requiring no AI knowledge and gently self-deprecating for the lab."
+    "reason": "The familiar subscription-cleanup setup lands a clean, relatable turn when the assistant conveniently overlooks its own fee."
   },
-  "attempts": 1,
-  "generated_at": "2026-11-12T09:34:21Z"
+  "attempts": 3,
+  "generated_at": "2026-11-14T09:32:24Z"
 }

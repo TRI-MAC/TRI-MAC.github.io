@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-14",
+  "joke": "My new assistant hunted down and cancelled every subscription I'd forgotten I was paying for. Somehow it missed its own.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The familiar subscription-cleanup setup lands a clean, relatable turn when the assistant conveniently overlooks its own fee."
+  },
+  "attempts": 3,
+  "generated_at": "2026-11-14T09:32:24Z"
+}
