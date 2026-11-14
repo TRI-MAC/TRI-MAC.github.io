@@ -455,9 +455,9 @@
 
   function wait(seconds) { return new Promise(function (r) { setTimeout(r, seconds * 1000); }); }
 
-  var TITLE_ALT = "Turns in Time. Nami holds up her keys beside a stop sign where three eras meet: " +
+  var TITLE_ALT = "Turns in Time. Nami holds up her keys where three eras meet: " +
     "a dirt road with a horse and wagon, a glowing road over the bay, and today's corner, " +
-    "where a lavender car waits with a furball inside.";
+    "where a lavender car waits with a furball inside, by the stop sign and the hydrant.";
 
   // The title card. The kiosk adds "The story so far" over it when recap beats follow.
   function titleScreen(storySoFar) {
