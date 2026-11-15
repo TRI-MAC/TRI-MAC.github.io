@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-11-15</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#f3e6d2}
+#stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#f1dcc4}
+#scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:drift 60s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1.02)}to{transform:scale(1.05) translate(-6px,-4px)}}
+#fx{position:absolute;inset:0;width:100%;height:100%}
+#edge{position:absolute;inset:0;pointer-events:none;background:
+radial-gradient(ellipse 120% 90% at 50% 50%,rgba(241,220,196,0) 70%,rgba(241,220,196,.55) 100%)}
+#guinea-pig{position:absolute;left:968px;top:1838px;width:16px;opacity:.5}
+#date{position:absolute;right:28px;bottom:22px;font:14px Georgia,serif;color:#5a3a4a;opacity:.45;letter-spacing:2px}
+</style></head><body>
+<div id="stage">
+<img id="scene-image" src="scene.png" alt="">
+<canvas id="fx" width="540" height="960"></canvas>
+<div id="edge"></div>
+<img id="guinea-pig" src="guineapig.png" alt="">
+<div id="date">2026·11·15</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${s})`;st.style.left=(innerWidth-1080*s)/2+'px';st.style.top=(innerHeight-1920*s)/2+'px'}
+addEventListener('resize',fit);fit();
+let seed=20261115;const R=()=>(seed=(seed*1664525+1013904223)>>>0)/4294967296;
+const c=document.getElementById('fx'),x=c.getContext('2d');
+const F=[];for(let i=0;i<34;i++)F.push({x:40+R()*460,y:420+R()*500,ph:R()*6.28,sp:.25+R()*.5,bl:3+R()*5,bo:R()*10,r:3+R()*4,ax:20+R()*40,ay:10+R()*30,hue:R()<.3?'#ff5a3c':'#d8ff3a'});
+function f(t){t/=1000;x.clearRect(0,0,540,960);
+for(const p of F){const ph=((t+p.bo)%p.bl)/p.bl;const on=ph<.4?Math.sin(ph/.4*Math.PI):0;
+const px=p.x+Math.sin(t*p.sp*.3+p.ph)*p.ax,py=p.y+Math.cos(t*p.sp*.2+p.ph)*p.ay-on*6;
+x.globalAlpha=.25+on*.75;
+x.fillStyle=p.hue;x.beginPath();
+// melting droplet light
+x.ellipse(px,py,p.r,p.r*(1+on*1.2),0,0,6.28);x.fill();
+x.globalAlpha=on*.35;x.beginPath();x.arc(px,py,p.r*4,0,6.28);x.fill();}
+x.globalAlpha=1;requestAnimationFrame(f)}
+requestAnimationFrame(f);
+</script></body></html>
