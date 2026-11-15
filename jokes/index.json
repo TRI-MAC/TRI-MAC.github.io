@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-15",
+    "joke": "According to the birdwatching AI, a rare warbler lives in our garden. We haven't heard it since I oiled the gate.",
+    "model": "Gemini 4 Carbon"
+  },
+  {
     "date": "2026-11-14",
     "joke": "My new assistant hunted down and cancelled every subscription I'd forgotten I was paying for. Somehow it missed its own.",
     "model": "Claude Fable 5.2"

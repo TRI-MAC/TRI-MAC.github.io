@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-15",
+  "joke": "According to the birdwatching AI, a rare warbler lives in our garden. We haven't heard it since I oiled the gate.",
+  "model": {
+    "family": "gemini",
+    "id": "gemini-4-carbon",
+    "display": "Gemini 4 Carbon",
+    "provider": "google"
+  },
+  "scheduled_family": "gemini",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, safe setup with a real turn that lets the reader work out the squeaky gate was the 'warbler,' and anyone outside AI would get it."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-15T09:31:36Z"
+}
