@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-16</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #EDE6D6;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #stage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    transform-origin: top left;
+    background-color: #F6F1E5;
+    overflow: hidden;
+  }
+
+  #grain-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #art-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    display: block;
+    z-index: 2;
+  }
+
+  #guinea-pig {
+    position: absolute;
+    width: 17px;
+    height: auto;
+    left: 726px;
+    top: 1749px;
+    opacity: 0.56;
+    transform: rotate(-8deg);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  #date-stamp {
+    position: absolute;
+    right: 38px;
+    bottom: 30px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: #16141B;
+    opacity: 0.34;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  @keyframes registerBreath {
+    0%, 100% { opacity: 0.88; }
+    50% { opacity: 0.42; }
+  }
+
+  .datum-pulse {
+    animation: registerBreath 12s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="grain-canvas" width="540" height="960"></canvas>
+
+  <svg id="art-svg" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Clip path generated dynamically in JS for the vast tectonic slab -->
+      <clipPath id="slab-clip">
+        <path id="slab-clip-path" d="" />
+      </clipPath>
+    </defs>
+
+    <!-- 1. Static registration datum rule: ultra-spare structural anchor -->
+    <g id="datum-layer">
+      <path id="datum-ticks" d="" fill="#16141B" class="datum-pulse" />
+    </g>
+
+    <!-- 2. Background Folded Slab (Exterior Dry Pigment Face: Vivid Vermilion) -->
+    <g id="slab-group">
+      <path id="slab-shadow" d="" fill="#E3DAC8" />
+      <path id="slab-body" d="" fill="#F2381F" stroke="#16141B" stroke-width="5.5" stroke-linejoin="round" />
+
+      <!-- 3. Phase-Inverted Interior (Where the gauge slice enters the slab, hues invert cleanly) -->
+      <g clip-path="url(#slab-clip)">
+        <!-- Inverted Gauge Band inside the Vermilion Slab: Intense Cobalt & Chartreuse -->
+        <path id="inner-wedge-fill" d="" fill="#1251E8" />
+        <path id="inner-wedge-core" d="" fill="#D2E815" />
+        <path id="inner-wedge-teeth" d="" fill="#F6F1E5" />
+      </g>
+
+      <!-- Crisp re-stroke of the slab perimeter so the contour stays authoritative -->
+      <path id="slab-outline" d="" fill="none" stroke="#16141B" stroke-width="5.5" stroke-linejoin="round" />
+
+      <!-- Fixed architectural socket notches cut directly into the slab -->
+      <g id="slab-sockets"></g>
+    </g>
+
+    <!-- 4. Exterior Portion of the Articulated Gauge Wedge (Outside the slab: Sap Emerald) -->
+    <!-- Masked by drawing order behind/around or synced via polygon subtraction;
+         even cleaner: clip exterior to outside of slab! -->
+    <defs>
+      <clipPath id="outside-slab-clip">
+        <!-- Even-odd compound path: full canvas minus slab polygon -->
+        <path id="outside-slab-path" clip-rule="evenodd" d="" />
+      </clipPath>
+    </defs>
+
+    <g clip-path="url(#outside-slab-clip)">
+      <path id="outer-wedge-shadow" d="" fill="#E2D9C5" />
+      <path id="outer-wedge-fill" d="" fill="#00A669" stroke="#16141B" stroke-width="5" stroke-linejoin="round" />
+      <path id="outer-wedge-teeth" d="" fill="#16141B" />
+    </g>
+
+    <!-- Continuity contour across the boundary for the gauge wedge -->
+    <path id="wedge-seam-contour" d="" fill="none" stroke="#16141B" stroke-width="4.5" stroke-linejoin="round" />
+
+    <!-- 5. The Fulcrum Hinge Clasp & Counterweight Plumb (Deep Lampblack & Cadmium Orange) -->
+    <g id="fulcrum-assembly">
+      <path id="plumb-arm" d="" fill="#16141B" />
+      <circle id="plumb-weight" cx="0" cy="0" r="34" fill="#FF7A00" stroke="#16141B" stroke-width="5" />
+      <path id="hinge-collar" d="" fill="#F6F1E5" stroke="#16141B" stroke-width="5.5" stroke-linejoin="round" />
+      <circle id="hinge-pin" cx="0" cy="0" r="13" fill="#16141B" />
+    </g>
+
+    <!-- 6. Detached Witness Shard (Locked in inverse harmonic step at lower right) -->
+    <g id="witness-group">
+      <path id="witness-block" d="" fill="#1251E8" stroke="#16141B" stroke-width="5" stroke-linejoin="round" />
+      <path id="witness-inlay" d="" fill="#FF7A00" stroke="#16141B" stroke-width="4" stroke-linejoin="round" />
+    </g>
+  </svg>
+
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date-stamp">2026-11-16</div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  /* =========================================================================
+     1. RESPONSIVE 1080x1920 STAGE SCALING (top-left origin, exact centering)
+     ========================================================================= */
+  const stage = document.getElementById("stage");
+  function resizeStage() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scale = Math.min(vw / 1080, vh / 1920);
+    const scaledW = 1080 * scale;
+    const scaledH = 1920 * scale;
+    const left = Math.round((vw - scaledW) * 0.5);
+    const top = Math.round((vh - scaledH) * 0.5);
+    stage.style.transform = "translate(" + left + "px, " + top + "px) scale(" + scale + ")";
+  }
+  window.addEventListener("resize", resizeStage);
+  resizeStage();
+
+  /* =========================================================================
+     2. DETERMINISTIC DATE SEEDING (2026-11-16)
+     ========================================================================= */
+  const DATE_STR = "2026-11-16";
+  function xmur3(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function() {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    };
+  }
+  function mulberry32(a) {
+    return function() {
+      let t = (a += 0x6D2B79F5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const seedGen = xmur3(DATE_STR);
+  const rand = mulberry32(seedGen());
+
+  /* =========================================================================
+     3. STATIC DRY-PIGMENT PAPER GROUND (Drawn ONCE to 540x960 canvas)
+     ========================================================================= */
+  const grainCanvas = document.getElementById("grain-canvas");
+  const gctx = grainCanvas.getContext("2d");
+  (function renderPaperToothOnce() {
+    const w = grainCanvas.width;
+    const h = grainCanvas.height;
+    const img = gctx.createImageData(w, h);
+    const d = img.data;
+    const rPaper = mulberry32(seedGen());
+    for (let i = 0; i < d.length; i += 4) {
+      // Subtle raw unprimed rag-paper tooth, keeping ground firmly in top brightness tier
+      const delta = (rPaper() - 0.5) * 11;
+      d[i]     = Math.min(255, Math.max(230, 246 + delta));
+      d[i + 1] = Math.min(255, Math.max(225, 241 + delta));
+      d[i + 2] = Math.min(255, Math.max(210, 229 + delta));
+      d[i + 3] = 255;
+    }
+    gctx.putImageData(img, 0, 0);
+  })();
+
+  /* =========================================================================
+     4. ANTI-PATTERN VISUAL GRAMMAR:
+        "LITHOGRAPHIC PHASE-INVERSION CALIPER & STEPPED MONOLITH"
+        - A single monumental stepped polygon (dry vermilion) dominates the left
+          and center of raw unprimed linen paper, surrounded by vast silent ground.
+        - Its right flank is carved with three precise trapezoidal mortise notches.
+        - Pivoting from an off-axis cantilevered clasp in the upper right, a bold
+          stepped wedge-beam sweeps with non-sinusoidal detent indexing (smooth
+          ratchet-dwell-glide kinematics) across the monolith.
+        - Wherever the emerald beam crosses into the vermilion slab, space
+          undergoes flat chromatic inversion (cobalt + chartreuse core + raw linen
+          notches), creating an impossible flat cut-paper X-ray register with zero
+          gradients, zero blur, and razor-sharp dry contours.
+     ========================================================================= */
+
+  // Slight date-seeded structural variation in notch proportions
+  const notchShift = Math.round((rand() - 0.5) * 26);
+
+  // Monumental Stepped Slab vertices (occupies ~34% of canvas, high-contrast silhouette)
+  // Carefully stays well inside all viewport margins so borders are completely uncropped.
+  const slabPts = [
+    [138, 220],
+    [645, 220],
+    [645, 430 + notchShift],
+    [515, 462 + notchShift],
+    [515, 588 + notchShift],
+    [682, 620 + notchShift],
+    [682, 890],
+    [472, 930],
+    [472, 1085],
+    [654, 1125],
+    [654, 1465 - notchShift],
+    [388, 1465 - notchShift],
+    [388, 1650],
+    [138, 1650],
+    [138, 1140],
+    [214, 1102],
+    [214, 670],
+    [138, 632]
+  ];
+
+  function ptsToPath(pts, close) {
+    let s = "M " + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+    for (let i = 1; i < pts.length; i++) {
+      s += " L " + pts[i][0].toFixed(1) + " " + pts[i][1].toFixed(1);
+    }
+    if (close !== false) s += " Z";
+    return s;
+  }
+
+  const slabPathStr = ptsToPath(slabPts, true);
+  const shadowPts = slabPts.map(function(p) { return [p[0] + 14, p[1] + 16]; });
+
+  document.getElementById("slab-clip-path").setAttribute("d", slabPathStr);
+  document.getElementById("slab-body").setAttribute("d", slabPathStr);
+  document.getElementById("slab-outline").setAttribute("d", slabPathStr);
+  document.getElementById("slab-shadow").setAttribute("d", ptsToPath(shadowPts, true));
+
+  // Compound even-odd path for outside of slab
+  const fullStageRect = "M 0 0 L 1080 0 L 1080 1920 L 0 1920 Z ";
+  document.getElementById("outside-slab-path").setAttribute("d", fullStageRect + slabPathStr);
+
+  // Two crisp registration apertures punched inside the slab (revealing raw paper + cobalt rim)
+  const socketsGroup = document.getElementById("slab-sockets");
+  const apertureA = [
+    [232, 330], [372, 330], [372, 438], [286, 438], [286, 512], [232, 512]
+  ];
+  const apertureB = [
+    [218, 1340], [316, 1340], [316, 1528], [218, 1528]
+  ];
+  [apertureA, apertureB].forEach(function(poly) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    el.setAttribute("d", ptsToPath(poly, true));
+    el.setAttribute("fill", "#F6F1E5");
+    el.setAttribute("stroke", "#16141B");
+    el.setAttribute("stroke-width", "5");
+    el.setAttribute("stroke-linejoin", "round");
+    socketsGroup.appendChild(el);
+  });
+
+  // Ultra-spare vertical calibration comb along upper-right margin (inside safe frame)
+  (function buildDatumComb() {
+    let d = "";
+    const x0 = 936;
+    for (let i = 0; i < 9; i++) {
+      const y = 224 + i * 36;
+      const w = (i % 4 === 0) ? 34 : 16;
+      const h = (i % 4 === 0) ? 6 : 4;
+      d += "M " + (x0 - w) + " " + y + " h " + w + " v " + h + " h " + (-w) + " Z ";
+    }
+    document.getElementById("datum-ticks").setAttribute("d", d);
+  })();
+
+  /* =========================================================================
+     5. KINEMATIC GEOMETRY HELPERS FOR THE ARTICULATED WEDGE & WITNESS BLOCK
+     ========================================================================= */
+  // Pivot coordinate in the upper-right open field
+  const PIVOT_X = 876;
+  const PIVOT_Y = 596;
+
+  // Local coordinates of the stepped caliper wedge (extending leftward from pivot)
+  // Designed with bold cut-paper steps — zero thin lines, zero curves.
+  const wedgeLocalPts = [
+    [38, -36],
+    [-190, -36],
+    [-225, -74],
+    [-535, -74],
+    [-572, -118],
+    [-818, -118],
+    [-818, 42],
+    [-610, 42],
+    [-578, 88],
+    [-290, 88],
+    [-255, 36],
+    [38, 36]
+  ];
+
+  // Inner core band inside the wedge (only visible inside chromatic-inverted slab)
+  const wedgeCoreLocalPts = [
+    [-195, -10],
+    [-548, -10],
+    [-578, -54],
+    [-792, -54],
+    [-792, 6],
+    [-592, 6],
+    [-564, 42],
+    [-278, 42],
+    [-252, 8],
+    [-195, 8]
+  ];
+
+  // Bold rectangular key-teeth along the wedge spine
+  const toothRectsLocal = [
+    [-758, -118, 36, 44],
+    [-684, -118, 36, 44],
+    [-490, -74,  32, 38],
+    [-422, -74,  32, 38],
+    [-354, -74,  32, 38]
+  ];
+
+  // Hinge collar polygon around (0,0) in fulcrum space
+  const collarLocalPts = [
+    [-46, -54],
+    [56, -54],
+    [76, 0],
+    [56, 54],
+    [-46, 54],
+    [-64, 0]
+  ];
+
+  function transformPts(localPts, cx, cy, angleRad, tx, ty) {
+    const cos = Math.cos(angleRad);
+    const sin = Math.sin(angleRad);
+    const ox = tx || 0;
+    const oy = ty || 0;
+    const out = new Array(localPts.length);
+    for (let i = 0; i < localPts.length; i++) {
+      const lx = localPts[i][0];
+      const ly = localPts[i][1];
+      out[i] = [
+        cx + lx * cos - ly * sin + ox,
+        cy + lx * sin + ly * cos + oy
+      ];
+    }
+    return out;
+  }
+
+  function transformRectsToPath(rects, cx, cy, angleRad) {
+    const cos = Math.cos(angleRad);
+    const sin = Math.sin(angleRad);
+    let d = "";
+    for (let i = 0; i < rects.length; i++) {
+      const x = rects[i][0];
+      const y = rects[i][1];
+      const w = rects[i][2];
+      const h = rects[i][3];
+      const corners = [
+        [x, y],
+        [x + w, y],
+        [x + w, y + h],
+        [x, y + h]
+      ];
+      const world = transformPts(corners, cx, cy, angleRad, 0, 0);
+      d += ptsToPath(world, true) + " ";
+    }
+    return d;
+  }
+
+  // Non-sinusoidal dwell-glide-detent periodic transfer function:
+  // Pauses cleanly at three architectural index stations (upper notch, middle mortise,
+  // lower terrace) before gliding smoothly with quintic ease to the next station.
+  // Loops seamlessly every 36 seconds.
+  function quinticInOut(u) {
+    return u < 0.5
+      ? 16 * u * u * u * u * u
+      : 1 - Math.pow(-2 * u + 2, 5) / 2;
+  }
+
+  // 4-station closed loop: A -> B -> C -> B -> A
+  const STATIONS = [-0.34, -0.72, -1.06, -0.72]; // radians (sweeping downward-left across slab)
+  const CYCLE_SECONDS = 36.0;
+
+  function getIndexedState(timeSec) {
+    const norm = ((timeSec % CYCLE_SECONDS) + CYCLE_SECONDS) % CYCLE_SECONDS / CYCLE_SECONDS;
+    const segCount = STATIONS.length;
+    const scaled = norm * segCount;
+    const idx = Math.floor(scaled) % segCount;
+    const local = scaled - Math.floor(scaled);
+
+    // First 38% of each segment is a calm gallery dwell (subtle micro-breathing only),
+    // remaining 62% is a deliberate, authoritative quintic glide to the next station.
+    const dwellRatio = 0.38;
+    const a0 = STATIONS[idx];
+    const a1 = STATIONS[(idx + 1) % segCount];
+
+    let interp = 0;
+    let velocity = 0;
+    if (local > dwellRatio) {
+      const u = (local - dwellRatio) / (1 - dwellRatio);
+      interp = quinticInOut(u);
+      velocity = Math.sin(u * Math.PI); // 0 at ends, 1 mid-glide
+    }
+
+    const angle = a0 + (a1 - a0) * interp;
+    return { angle: angle, velocity: velocity, phase: norm };
+  }
+
+  // DOM caches
+  const elInnerWedgeFill = document.getElementById("inner-wedge-fill");
+  const elInnerWedgeCore = document.getElementById("inner-wedge-core");
+  const elInnerWedgeTeeth = document.getElementById("inner-wedge-teeth");
+
+  const elOuterWedgeShadow = document.getElementById("outer-wedge-shadow");
+  const elOuterWedgeFill = document.getElementById("outer-wedge-fill");
+  const elOuterWedgeTeeth = document.getElementById("outer-wedge-teeth");
+  const elWedgeSeamContour = document.getElementById("wedge-seam-contour");
+
+  const elPlumbArm = document.getElementById("plumb-arm");
+  const elPlumbWeight = document.getElementById("plumb-weight");
+  const elHingeCollar = document.getElementById("hinge-collar");
+  const elHingePin = document.getElementById("hinge-pin");
+
+  const elWitnessBlock = document.getElementById("witness-block");
+  const elWitnessInlay = document.getElementById("witness-inlay");
+
+  elHingePin.setAttribute("cx", PIVOT_X);
+  elHingePin.setAttribute("cy", PIVOT_Y);
+
+  /* =========================================================================
+     6. OPTIONAL SUBTLE PROCEDURAL AUDIO (Iframe-safe mechanical resonance)
+     ========================================================================= */
+  let updateAudio = function() {};
+  if (window.self === window.top) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        let ctx = null;
+        let gainNode = null;
+        let filterNode = null;
+
+        const initAudio = function() {
+          if (ctx) return;
+          ctx = new AudioCtx();
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          filterNode = ctx.createBiquadFilter();
+          gainNode = ctx.createGain();
+
+          osc1.type = "triangle";
+          osc1.frequency.value = 110; // A2 warm wooden/stone reed
+          osc2.type = "sine";
+          osc2.frequency.value = 164.81; // E3 fifth
+
+          filterNode.type = "lowpass";
+          filterNode.frequency.value = 260;
+
+          gainNode.gain.value = 0.0;
+
+          osc1.connect(filterNode);
+          osc2.connect(filterNode);
+          filterNode.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          osc1.start();
+          osc2.start();
+        };
+
+        initAudio();
+
+        updateAudio = function(vel) {
+          if (!ctx || ctx.state !== "running") return;
+          const targetGain = 0.006 + vel * 0.018;
+          const targetFreq = 220 + vel * 260;
+          gainNode.gain.setTargetAtTime(targetGain, ctx.currentTime, 0.08);
+          filterNode.frequency.setTargetAtTime(targetFreq, ctx.currentTime, 0.08);
+        };
+      }
+    } catch (e) {
+      // Silent fallback if autoplay policy blocks audio on unattended screen
+    }
+  }
+
+  /* =========================================================================
+     7. MAIN ANIMATION LOOP (Pure geometry updates, zero paint-triggering CSS)
+     ========================================================================= */
+  const tStart = performance.now();
+
+  function renderFrame(now) {
+    const elapsed = (now - tStart) * 0.001;
+    const state = getIndexedState(elapsed);
+    const theta = state.angle;
+
+    // Slight axial slide along the beam during dwells ("caliper seating" motion)
+    const seatSlide = Math.cos(elapsed * (Math.PI * 2 / 9.0)) * 18;
+    const shiftedWedgeLocal = wedgeLocalPts.map(function(p) {
+      return [p[0] + seatSlide, p[1]];
+    });
+    const shiftedCoreLocal = wedgeCoreLocalPts.map(function(p) {
+      return [p[0] + seatSlide, p[1]];
+    });
+    const shiftedTeethLocal = toothRectsLocal.map(function(r) {
+      return [r[0] + seatSlide, r[1], r[2], r[3]];
+    });
+
+    // Transform main wedge polygon & shadow
+    const wedgeWorld = transformPts(shiftedWedgeLocal, PIVOT_X, PIVOT_Y, theta, 0, 0);
+    const wedgeShadowWorld = transformPts(shiftedWedgeLocal, PIVOT_X, PIVOT_Y, theta, 12, 14);
+    const coreWorld = transformPts(shiftedCoreLocal, PIVOT_X, PIVOT_Y, theta, 0, 0);
+
+    const wedgePath = ptsToPath(wedgeWorld, true);
+    const corePath = ptsToPath(coreWorld, true);
+    const teethPath = transformRectsToPath(shiftedTeethLocal, PIVOT_X, PIVOT_Y, theta);
+
+    // Update both exterior (emerald) and interior slab-clipped (cobalt/chartreuse) twins
+    elOuterWedgeShadow.setAttribute("d", ptsToPath(wedgeShadowWorld, true));
+    elOuterWedgeFill.setAttribute("d", wedgePath);
+    elOuterWedgeTeeth.setAttribute("d", teethPath);
+
+    elInnerWedgeFill.setAttribute("d", wedgePath);
+    elInnerWedgeCore.setAttribute("d", corePath);
+    elInnerWedgeTeeth.setAttribute("d", teethPath);
+
+    elWedgeSeamContour.setAttribute("d", wedgePath);
+
+    // Counter-rotating plumb arm & cadmium orange counterweight
+    // Balances the visual mass of the sweeping arm in inverse ratio
+    const plumbAngle = -theta * 0.65 + 1.42;
+    const plumbLen = 196;
+    const px = PIVOT_X + Math.cos(plumbAngle) * plumbLen;
+    const py = PIVOT_Y + Math.sin(plumbAngle) * plumbLen;
+
+    const armHalfW = 9;
+    const nx = -Math.sin(plumbAngle) * armHalfW;
+    const ny =  Math.cos(plumbAngle) * armHalfW;
+    const armPts = [
+      [PIVOT_X + nx, PIVOT_Y + ny],
+      [px + nx, py + ny],
+      [px - nx, py - ny],
+      [PIVOT_X - nx, PIVOT_Y - ny]
+    ];
+    elPlumbArm.setAttribute("d", ptsToPath(armPts, true));
+    elPlumbWeight.setAttribute("cx", px.toFixed(1));
+    elPlumbWeight.setAttribute("cy", py.toFixed(1));
+
+    // Hinge collar rotates at half-angle differential
+    const collarWorld = transformPts(collarLocalPts, PIVOT_X, PIVOT_Y, theta * 0.5, 0, 0);
+    elHingeCollar.setAttribute("d", ptsToPath(collarWorld, true));
+
+    // Witness Shard in lower-right open field: stepped vertical translation
+    // coupled to the caliper angle, maintaining taut architectural tension across the empty ground
+    const witnessBaseX = 760;
+    const witnessBaseY = 1525 + (theta + 0.72) * 165;
+    const witnessPts = [
+      [witnessBaseX, witnessBaseY],
+      [witnessBaseX + 168, witnessBaseY],
+      [witnessBaseX + 168, witnessBaseY + 230],
+      [witnessBaseX - 38, witnessBaseY + 230],
+      [witnessBaseX - 38, witnessBaseY + 132],
+      [witnessBaseX, witnessBaseY + 104]
+    ];
+    // Sliding orange vernier inlay inside witness block
+    const inlayOffset = -seatSlide * 1.15;
+    const inlayPts = [
+      [witnessBaseX + 36, witnessBaseY + 56 + inlayOffset],
+      [witnessBaseX + 124, witnessBaseY + 56 + inlayOffset],
+      [witnessBaseX + 124, witnessBaseY + 152 + inlayOffset],
+      [witnessBaseX + 36, witnessBaseY + 152 + inlayOffset]
+    ];
+
+    elWitnessBlock.setAttribute("d", ptsToPath(witnessPts, true));
+    elWitnessInlay.setAttribute("d", ptsToPath(inlayPts, true));
+
+    updateAudio(state.velocity);
+    requestAnimationFrame(renderFrame);
+  }
+
+  requestAnimationFrame(renderFrame);
+})();
+</script>
+</body>
+</html>
