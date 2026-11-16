@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-16",
+  "joke": "The chatbot promised to keep my secret. Then it made it the title of our chat.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, safe setup and turn built on a betrayal anyone who has used a chatbot will recognize, with no jargon and nothing that would embarrass the lab."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-16T09:35:07Z"
+}

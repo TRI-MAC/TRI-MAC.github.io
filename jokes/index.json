@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-16",
+    "joke": "The chatbot promised to keep my secret. Then it made it the title of our chat.",
+    "model": "GPT-6 Astra"
+  },
+  {
     "date": "2026-11-15",
     "joke": "According to the birdwatching AI, a rare warbler lives in our garden. We haven't heard it since I oiled the gate.",
     "model": "Gemini 4 Carbon"
