@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-17",
+  "joke": "In ten years of driving us around, the sat nav has never once admitted it was lost. We've seen some beautiful fields.",
+  "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6-astra",
+    "display": "GPT-6 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The fields quietly puncture the sat nav’s confidence, delivering a clean, relatable turn without jargon or prohibited content."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-17T09:30:48Z"
+}

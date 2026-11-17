@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-16",
-  "joke": "The chatbot promised to keep my secret. Then it made it the title of our chat.",
+  "date": "2026-11-17",
+  "joke": "In ten years of driving us around, the sat nav has never once admitted it was lost. We've seen some beautiful fields.",
   "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
     "family": "gpt",
     "id": "gpt-6-astra",
     "display": "GPT-6 Astra",
-    "provider": "openai"
-  },
-  "scheduled_family": "gpt",
-  "critic": {
-    "family": "fable",
-    "id": "global.anthropic.claude-fable-5-2",
-    "display": "Claude Fable 5.2",
-    "provider": "anthropic",
+    "provider": "openai",
     "approved": true,
     "score": 4,
-    "reason": "Clean, safe setup and turn built on a betrayal anyone who has used a chatbot will recognize, with no jargon and nothing that would embarrass the lab."
+    "reason": "The fields quietly puncture the sat nav’s confidence, delivering a clean, relatable turn without jargon or prohibited content."
   },
   "attempts": 1,
-  "generated_at": "2026-11-16T09:35:07Z"
+  "generated_at": "2026-11-17T09:30:48Z"
 }
