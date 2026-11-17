@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="UTF-8">
+<title>2026-11-17</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f4ece0; /* High-key warm raw linen */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  #stage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    transform-origin: top left;
+    overflow: hidden;
+    background: #f6efe2;
+  }
+
+  #static-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 1;
+  }
+
+  #anim-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 2;
+  }
+
+  #svg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Slow surreal pendulum sway on the ceiling plumb line */
+  #plumb-bob-group {
+    transform-origin: 540px 0px;
+    animation: pendulumSway 24s ease-in-out infinite;
+  }
+
+  @keyframes pendulumSway {
+    0%, 100% { transform: rotate(-1.6deg); }
+    50% { transform: rotate(1.6deg); }
+  }
+
+  /* Subtle atmospheric vignette & warm paper grain - normal blend mode for 60fps budget */
+  #paper-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 4;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 68% 68% at 50% 48%, rgba(246, 239, 226, 0) 64%, rgba(212, 186, 148, 0.38) 100%);
+  }
+
+  #date-stamp {
+    position: absolute;
+    bottom: 26px;
+    right: 34px;
+    z-index: 5;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    color: rgba(45, 38, 56, 0.36);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="static-bg" width="1080" height="1920"></canvas>
+    <canvas id="anim-canvas" width="540" height="960"></canvas>
+
+    <!-- SVG Architectural Frame & Surreal Plumb Line + Tiny Hidden Guinea Pig -->
+    <svg id="svg-layer" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="archOuterGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f7f0e4" />
+          <stop offset="55%" stop-color="#efe3ce" />
+          <stop offset="100%" stop-color="#e3cfa9" />
+        </linearGradient>
+        <linearGradient id="archRimGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fffaf0" />
+          <stop offset="50%" stop-color="#d8be98" />
+          <stop offset="100%" stop-color="#b99267" />
+        </linearGradient>
+        <linearGradient id="brassGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#c9822b" />
+          <stop offset="45%" stop-color="#ffd573" />
+          <stop offset="100%" stop-color="#8c4f19" />
+        </linearGradient>
+      </defs>
+
+      <!-- Outer Surreal Loggia Arch Matting framing the dense cellular vault -->
+      <path fill="url(#archOuterGrad)" fill-rule="evenodd" d="
+        M 0,0 L 1080,0 L 1080,1920 L 0,1920 Z
+        M 48,1872
+        L 48,530
+        A 492,492 0 0 1 1032,530
+        L 1032,1872
+        Z
+      " />
+
+      <!-- Crisp inner architectural bevel around the arch -->
+      <path fill="none" stroke="url(#archRimGrad)" stroke-width="8" d="
+        M 48,1872
+        L 48,530
+        A 492,492 0 0 1 1032,530
+        L 1032,1872
+        Z
+      " />
+      <path fill="none" stroke="#2d2638" stroke-width="2.5" stroke-opacity="0.7" d="
+        M 52,1868
+        L 52,530
+        A 488,488 0 0 1 1028,530
+        L 1028,1868
+        Z
+      " />
+
+      <!-- Corner Surveyor Marks (strictly pure shapes, no text) -->
+      <g stroke="#2d2638" stroke-width="2" stroke-opacity="0.35" fill="none">
+        <circle cx="96" cy="96" r="18" />
+        <line x1="70" y1="96" x2="122" y2="96" />
+        <line x1="96" y1="70" x2="96" y2="122" />
+
+        <circle cx="984" cy="96" r="18" />
+        <line x1="958" y1="96" x2="1010" y2="96" />
+        <line x1="984" y1="70" x2="984" y2="122" />
+      </g>
+
+      <!-- Suspended Brass Surveyor Plumb-Bob measuring the melting gravity wave -->
+      <g id="plumb-bob-group">
+        <line x1="540" y1="38" x2="540" y2="275" stroke="#2d2638" stroke-width="2" stroke-opacity="0.65" />
+        <polygon points="528,275 552,275 546,290 534,290" fill="url(#brassGrad)" stroke="#2d2638" stroke-width="1.8" />
+        <polygon points="523,290 557,290 540,336" fill="url(#brassGrad)" stroke="#2d2638" stroke-width="1.8" />
+        <circle cx="540" cy="268" r="4.5" fill="#ffd573" stroke="#2d2638" stroke-width="1.6" />
+      </g>
+
+      <!-- SECRET EASTER EGG: Tiny (<16px) colour-matched guinea pig tucked into the bottom-left arch plinth shadow -->
+      <g transform="translate(56, 1855) scale(0.72)" opacity="0.46">
+        <!-- Warm plaster/terracotta shadow-matched body -->
+        <ellipse cx="10" cy="11" rx="9.5" ry="6" fill="#bfa07a" />
+        <ellipse cx="16.5" cy="9.5" rx="5.2" ry="4.6" fill="#b3926c" />
+        <!-- Tiny rounded ear -->
+        <ellipse cx="14.5" cy="5.8" rx="2.1" ry="1.7" fill="#9c7b56" />
+        <!-- Subtle rump patch -->
+        <path d="M 2,10.5 Q 6,6 9,11 Q 6,15 2,12 Z" fill="#cbb08c" />
+        <!-- Minute dark eye dot & nose -->
+        <circle cx="18.8" cy="8.8" r="0.85" fill="#4a3b31" />
+        <circle cx="21.4" cy="10.2" r="0.65" fill="#7d5846" />
+        <!-- Tiny feet tucked under -->
+        <ellipse cx="6.5" cy="16.5" rx="1.8" ry="0.9" fill="#8f6f4d" />
+        <ellipse cx="14.5" cy="16.5" rx="1.8" ry="0.9" fill="#8f6f4d" />
+      </g>
+    </svg>
+
+    <div id="paper-vignette"></div>
+    <div id="date-stamp">2026-11-17</div>
+  </div>
+
+<script>
+(function() {
+  "use strict";
+
+  /* =========================================================================
+     1. RESPONSIVE PORTRAIT SHELL (1080 x 1920, top-left origin centering)
+     ========================================================================= */
+  const stage = document.getElementById("stage");
+  function resizeStage() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scale = Math.min(vw / 1080, vh / 1920);
+    const scaledW = 1080 * scale;
+    const scaledH = 1920 * scale;
+    const left = (vw - scaledW) * 0.5;
+    const top = (vh - scaledH) * 0.5;
+    stage.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
+  }
+  window.addEventListener("resize", resizeStage);
+  resizeStage();
+
+  /* =========================================================================
+     2. DETERMINISTIC SEED FROM TODAY'S DATE (2026-11-17)
+     ========================================================================= */
+  const DATE_STR = "2026-11-17";
+  function hashDate(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function() {
+      let t = (a += 0x6D2B79F5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rng = mulberry32(hashDate(DATE_STR));
+
+  /* =========================================================================
+     3. GOVERNING IDEA & HIGH-KEY SURREALIST PALETTE
+     "The Softening Chronometer-Alcoves"
+     A dense honeycomb tessellation of sunlit surrealist plaster alcoves, each
+     housing a rigid geometric sundial-gnomon and brass dial that periodically
+     succumbs to a travelling wave of softening gravity: the rigid hexagonal
+     architecture sags into Dalí-esque melting drapery while every dial's
+     shadow stretches into an impossible liquid tongue and its colour inverts
+     into a luminous high-key dream hue, while a lone small surveyor figure stands
+     at the lowest balcony sill observing the vast softening vault.
+     ========================================================================= */
+  const PALETTE = {
+    linenLight: "#fbf6ec",
+    plasterSun: "#f7ecd8",
+    plasterWarm: "#f2dfc1",
+    chromeYellow: "#ffca3a",
+    cadmiumOrange: "#ff7832",
+    vermilion: "#e84838",
+    paleTurquoise: "#7be0d6",
+    ceruleanSky: "#3eb5e6",
+    cobaltBright: "#2d6cdf",
+    emeraldLight: "#2bb88a",
+    warmRose: "#f48fb1",
+    violetMark: "#2b2238", // Crisp dark drawing contour (kept well under 20% area)
+    deepShadow: "#3d2e4f"
+  };
+
+  // High-key hue pairs for chromatic contrast (hue against hue at bright value)
+  const DIAL_THEMES = [
+    { wall: "#ffca3a", floor: "#ff9248", sky: "#7be0d6", melt: "#e84838", inv: "#2d6cdf" },
+    { wall: "#7be0d6", floor: "#f48fb1", sky: "#fff2cc", melt: "#ff7832", inv: "#e84838" },
+    { wall: "#f48fb1", floor: "#ffca3a", sky: "#68d8d6", melt: "#2d6cdf", inv: "#2bb88a" },
+    { wall: "#ffe082", floor: "#56cfe1", sky: "#ffd6e0", melt: "#e84838", inv: "#ff7832" },
+    { wall: "#9BF6FF", floor: "#ffca3a", sky: "#ffc6ff", melt: "#2bb88a", inv: "#2d6cdf" }
+  ];
+
+  /* =========================================================================
+     4. STATIC HIGH-KEY BACKGROUND LAYER (1080 x 1920 drawn ONCE)
+     Sunlit metaphysical sky & subtle raw linen grain behind the tessellation
+     ========================================================================= */
+  const staticCanvas = document.getElementById("static-bg");
+  const sCtx = staticCanvas.getContext("2d");
+
+  function renderStaticBackground() {
+    // Luminous high-key surrealist horizon gradient (pale turquoise to chrome yellow & rose)
+    const skyGrad = sCtx.createLinearGradient(0, 0, 0, 1920);
+    skyGrad.addColorStop(0.0, "#b8f2e6");
+    skyGrad.addColorStop(0.38, "#fbf6ec");
+    skyGrad.addColorStop(0.74, "#ffe8a3");
+    skyGrad.addColorStop(1.0, "#f9c6b0");
+    sCtx.fillStyle = skyGrad;
+    sCtx.fillRect(0, 0, 1080, 1920);
+
+    // Subtle linen weave stipple drawn once onto static canvas
+    sCtx.fillStyle = "rgba(180, 148, 105, 0.08)";
+    for (let y = 0; y < 1920; y += 6) {
+      for (let x = (y % 12 === 0 ? 0 : 3); x < 1080; x += 6) {
+        if (rng() > 0.45) {
+          sCtx.fillRect(x, y, 2, 2);
+        }
+      }
+    }
+  }
+  renderStaticBackground();
+
+  /* =========================================================================
+     5. DENSE ELASTIC TESSELLATION GRID (540 x 960 animated canvas)
+     Every vertex is shared between adjacent hexagonal/rhombic alcoves so the
+     tessellation tiles seamlessly with zero gaps even while melting!
+     ========================================================================= */
+  const animCanvas = document.getElementById("anim-canvas");
+  const ctx = animCanvas.getContext("2d");
+  const W = 540;
+  const H = 960;
+
+  // Build a staggered hexagonal lattice covering 540x960 cleanly
+  const COLS = 9;
+  const ROWS = 15;
+  const dx = 62;
+  const dy = 60;
+  const originX = 22;
+  const originY = 58;
+
+  // Shared vertex lattice so adjacent cells deform together as a watertight elastic mesh
+  // Using pointy-top hexagonal topology stored in an axial-offset vertex table
+  // For row r, col c, we compute exact shared corner vertices
+  const cellR = dx / Math.sqrt(3); // ~35.8px radius
+
+  // Deduplicated shared vertex map
+  const vertices = [];
+  const vertMap = new Map();
+
+  function getOrCreateVertex(x, y) {
+    const key = `${Math.round(x * 10)},${Math.round(y * 10)}`;
+    if (vertMap.has(key)) return vertMap.get(key);
+    const v = {
+      bx: x,
+      by: y,
+      x: x,
+      y: y,
+      melt: 0,
+      seed: rng() * Math.PI * 2,
+      stiffness: 0.75 + rng() * 0.5
+    };
+    const idx = vertices.length;
+    vertices.push(v);
+    vertMap.set(key, idx);
+    return idx;
+  }
+
+  const cells = [];
+  for (let r = -1; r <= ROWS; r++) {
+    for (let c = -1; c <= COLS; c++) {
+      const cx = originX + c * dx + ((r & 1) ? dx * 0.5 : 0);
+      const cy = originY + r * (cellR * 1.5);
+
+      // Skip cells wholly outside the arch aperture with generous margin
+      if (cx < -45 || cx > W + 45 || cy < -45 || cy > H + 45) continue;
+
+      // 6 corners of pointy-top hexagon (shared identically across neighbours!)
+      const cornerIndices = [];
+      for (let k = 0; k < 6; k++) {
+        const angle = (Math.PI / 180) * (60 * k - 90);
+        const vx = cx + cellR * Math.cos(angle);
+        const vy = cy + cellR * Math.sin(angle);
+        cornerIndices.push(getOrCreateVertex(vx, vy));
+      }
+      // Center vertex of the alcove (where the 3 rhombic planes meet)
+      const centerIdx = getOrCreateVertex(cx, cy);
+
+      const themeIdx = Math.floor(
+        (Math.abs(r * 3 + c * 5 + Math.floor(rng() * 2))) % DIAL_THEMES.length
+      );
+      const hasClockFace = ((r + c * 2) % 3 !== 0);
+      const handPhase = rng() * Math.PI * 2;
+      const gnomonAngle = -Math.PI * 0.35 + (rng() - 0.5) * 0.5;
+
+      cells.push({
+        r,
+        c,
+        bx: cx,
+        by: cy,
+        corners: cornerIndices, // [top, topRight, botRight, bot, botLeft, topLeft]
+        center: centerIdx,
+        theme: DIAL_THEMES[themeIdx],
+        hasClockFace,
+        handPhase,
+        gnomonAngle,
+        phaseOffset: (cx * 0.008) + (cy * 0.006)
+      });
+    }
+  }
+
+  // Sort cells top-to-bottom so sagging upper drips overlap lower cells naturally
+  cells.sort((a, b) => a.by - b.by);
+
+  /* =========================================================================
+     6. COLOUR INTERPOLATION HELPERS (Fast LUT-free RGB mix)
+     ========================================================================= */
+  function hexToRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  // Pre-parse theme RGBs for zero-allocation frame rendering
+  for (let i = 0; i < DIAL_THEMES.length; i++) {
+    const t = DIAL_THEMES[i];
+    t.wallRgb = hexToRgb(t.wall);
+    t.floorRgb = hexToRgb(t.floor);
+    t.skyRgb = hexToRgb(t.sky);
+    t.meltRgb = hexToRgb(t.melt);
+    t.invRgb = hexToRgb(t.inv);
+  }
+  const PLASTER_LIGHT_RGB = hexToRgb("#fbf5e8");
+  const PLASTER_WARM_RGB = hexToRgb("#f2dec0");
+  const COBALT_RGB = hexToRgb("#2d6cdf");
+  const VERMILION_RGB = hexToRgb("#e84838");
+  const TURQUOISE_RGB = hexToRgb("#64dfdf");
+  const CHROME_RGB = hexToRgb("#ffca3a");
+
+  function mixRgb(a, b, t) {
+    const r = (a[0] + (b[0] - a[0]) * t) | 0;
+    const g = (a[1] + (b[1] - a[1]) * t) | 0;
+    const bl = (a[2] + (b[2] - a[2]) * t) | 0;
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  /* =========================================================================
+     7. SURREAL SOFTENING FIELD & DEFORMATION LOGIC
+     Two slow, hypnotic softening lenses drift seamlessly across the vault on
+     Lissajous orbits (48s loop). Inside a softening lens:
+       1. Architectural vertices sag downward like warm wax / soft Dalí watches
+       2. Plaster hues shift into vibrant high-key chromatic inversions
+       3. Sundial gnomons droop into heavy liquid pendulums with stretched
+          cobalt/vermilion shadows
+     ========================================================================= */
+  const LOOP_SECONDS = 48; // Exact seamless harmonic loop
+
+  function updateVertices(timeSec) {
+    const tau = (timeSec % LOOP_SECONDS) / LOOP_SECONDS * Math.PI * 2;
+
+    // Primary and secondary "Softening Sun" focal zones (Lissajous harmonic loop)
+    const lens1X = W * 0.5 + Math.sin(tau) * (W * 0.31);
+    const lens1Y = H * 0.46 + Math.cos(tau * 2) * (H * 0.27);
+
+    const lens2X = W * 0.5 - Math.cos(tau) * (W * 0.26);
+    const lens2Y = H * 0.58 + Math.sin(tau) * (H * 0.25);
+
+    const radius1Sq = 185 * 185;
+    const radius2Sq = 145 * 145;
+
+    for (let i = 0; i < vertices.length; i++) {
+      const v = vertices[i];
+
+      // Keep the bottom sill anchored near the lone surveyor figure so the floor holds firm
+      const floorAnchor = Math.max(0, Math.min(1, (905 - v.by) / 95));
+
+      const dx1 = v.bx - lens1X;
+      const dy1 = v.by - lens1Y;
+      const d1Sq = dx1 * dx1 + dy1 * dy1;
+      const w1 = Math.exp(-d1Sq / radius1Sq);
+
+      const dx2 = v.bx - lens2X;
+      const dy2 = v.by - lens2Y;
+      const d2Sq = dx2 * dx2 + dy2 * dy2;
+      const w2 = Math.exp(-d2Sq / radius2Sq);
+
+      const melt = Math.min(1, (w1 * 0.95 + w2 * 0.72)) * floorAnchor;
+      v.melt = melt;
+
+      // Gravitational sag + gentle lateral surreal pinch
+      const waveSag =
+        melt * melt * 36 * v.stiffness +
+        melt * 7 * Math.sin(tau * 2 + v.bx * 0.04 + v.seed);
+
+      const pinchX =
+        (dx1 * w1 * -0.14 + dx2 * w2 * -0.11) * floorAnchor +
+        melt * 4.5 * Math.cos(tau + v.by * 0.03 + v.seed);
+
+      v.x = v.bx + pinchX;
+      v.y = v.by + waveSag;
+    }
+
+    return { tau, lens1X, lens1Y, lens2X, lens2Y };
+  }
+
+  /* =========================================================================
+     8. RENDERING THE SURREALIST HONEYCOMB ALCOVES & MELTING CHRONOMETERS
+     ========================================================================= */
+  function drawPoly4(v0, v1, v2, v3, fillStyle, strokeStyle) {
+    ctx.beginPath();
+    ctx.moveTo(v0.x, v0.y);
+    ctx.lineTo(v1.x, v1.y);
+    ctx.lineTo(v2.x, v2.y);
+    ctx.lineTo(v3.x, v3.y);
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+    if (strokeStyle) {
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = 1.15;
+      ctx.stroke();
+    }
+  }
+
+  function drawMeltingChronometer(cVert, botVert, leftVert, rightVert, cell, tau) {
+    const m = cVert.melt;
+    if (!cell.hasClockFace && m < 0.18) {
+      // Minimalist brass surveyor pin & crisp angular shadow in quiet cells
+      const shadowLen = 9 + m * 16;
+      const sAng = 0.65 + Math.sin(tau + cell.phaseOffset) * 0.25;
+      ctx.beginPath();
+      ctx.moveTo(cVert.x, cVert.y);
+      ctx.lineTo(cVert.x + Math.cos(sAng) * shadowLen, cVert.y + Math.sin(sAng) * shadowLen + m * 10);
+      ctx.lineTo(cVert.x + Math.cos(sAng + 0.32) * (shadowLen * 0.7), cVert.y + Math.sin(sAng + 0.32) * (shadowLen * 0.7));
+      ctx.closePath();
+      ctx.fillStyle = m > 0.4 ? "#2d6cdf" : "rgba(43, 34, 56, 0.42)";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(cVert.x, cVert.y, 2.4, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffca3a";
+      ctx.fill();
+      ctx.strokeStyle = "#2b2238";
+      ctx.lineWidth = 0.9;
+      ctx.stroke();
+      return;
+    }
+
+    // Surrealist Dalí-style softening chronometer draped over the alcove's lower ledge!
+    // When m == 0: crisp circular porcelain & gold sundial plate.
+    // When m -> 1: stretches downward over the lip into an elongated, heavy liquid tongue,
+    // and its colour inverts from ivory/gold to radiant cobalt/vermilion!
+    const rx = 11.5 + m * 3.5;
+    const ryTop = 11.5 * (1 - m * 0.35);
+    const sagDrop = m * m * 30 + m * 6; // Drips over the alcove's bottom edge!
+    const swayX = Math.sin(tau * 2 + cell.handPhase) * (m * 6.5);
+
+    const cx = cVert.x;
+    const cy = cVert.y + m * 4;
+
+    // Cast surreal shadow beneath the melting dial (bright cobalt or deep violet)
+    ctx.beginPath();
+    ctx.moveTo(cx - rx * 0.85, cy + 2);
+    ctx.quadraticCurveTo(
+      cx + swayX + 4,
+      cy + ryTop + sagDrop + 11,
+      cx + rx * 0.85,
+      cy + 3
+    );
+    ctx.closePath();
+    ctx.fillStyle = mixRgb(COBALT_RGB, VERMILION_RGB, m * 0.65);
+    ctx.fill();
+
+    // Outer brass/vermilion rim of the softening dial (thick filled organic blob, never thin spaghetti)
+    const rimRadiusX = rx + 2.4;
+    const tipX = cx + swayX;
+    const tipY = cy + ryTop + sagDrop;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - ryTop - 2);
+    ctx.bezierCurveTo(
+      cx + rimRadiusX * 1.25, cy - ryTop,
+      cx + rimRadiusX * (1.0 - m * 0.25) + swayX * 0.5, cy + sagDrop * 0.55,
+      tipX, tipY + 3.2
+    );
+    ctx.bezierCurveTo(
+      cx - rimRadiusX * (1.0 - m * 0.25) + swayX * 0.5, cy + sagDrop * 0.55,
+      cx - rimRadiusX * 1.25, cy - ryTop,
+      cx, cy - ryTop - 2
+    );
+    ctx.closePath();
+    ctx.fillStyle = mixRgb(CHROME_RGB, VERMILION_RGB, m);
+    ctx.fill();
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+
+    // Inner dial face: rule-based colour inversion when softened!
+    // Unmelted = chalk ivory (#fbf6ec); Melted = vibrant turquoise/cobalt (#64dfdf -> #2d6cdf)
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - ryTop + 0.6);
+    ctx.bezierCurveTo(
+      cx + rx * 1.05, cy - ryTop + 1.5,
+      cx + rx * (0.85 - m * 0.2) + swayX * 0.5, cy + sagDrop * 0.52,
+      tipX, tipY
+    );
+    ctx.bezierCurveTo(
+      cx - rx * (0.85 - m * 0.2) + swayX * 0.5, cy + sagDrop * 0.52,
+      cx - rx * 1.05, cy - ryTop + 1.5,
+      cx, cy - ryTop + 0.6
+    );
+    ctx.closePath();
+    ctx.fillStyle = m > 0.52
+      ? mixRgb(TURQUOISE_RGB, COBALT_RGB, (m - 0.52) * 2.0)
+      : mixRgb(PLASTER_LIGHT_RGB, TURQUOISE_RGB, m * 1.6);
+    ctx.fill();
+
+    // 4 crisp cardinal hour ticks around the dial perimeter
+    const tickColor = m > 0.6 ? "#ffca3a" : "#2b2238";
+    ctx.fillStyle = tickColor;
+    ctx.fillRect(cx - 0.8, cy - ryTop + 2, 1.6, 2.5);
+    ctx.fillRect(cx - 0.8 + swayX * 0.8, tipY - 4.5, 1.6, 2.8);
+    ctx.fillRect(cx - rx * 0.72, cy - 0.8, 2.5, 1.6);
+    ctx.fillRect(cx + rx * 0.72 - 2.5, cy - 0.8, 2.5, 1.6);
+
+    // Clock hands that bend downward as m increases
+    const handAng1 = tau + cell.handPhase;
+    const handAng2 = -tau * 2 + cell.handPhase * 1.7;
+    const h1x = cx + Math.cos(handAng1) * (rx * 0.62) + swayX * 0.45;
+    const h1y = cy + Math.sin(handAng1) * (ryTop * 0.62) + sagDrop * 0.58;
+    const h2x = cx + Math.cos(handAng2) * (rx * 0.48) + swayX * 0.25;
+    const h2y = cy + Math.sin(handAng2) * (ryTop * 0.48) + sagDrop * 0.35;
+
+    ctx.strokeStyle = tickColor;
+    ctx.lineWidth = 1.35;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + sagDrop * 0.18);
+    ctx.lineTo(h1x, h1y);
+    ctx.moveTo(cx, cy + sagDrop * 0.18);
+    ctx.lineTo(h2x, h2y);
+    ctx.stroke();
+
+    // Hanging droplet bead forming at the bottom tip only at peak softening
+    if (m > 0.68) {
+      const dropPhase = (m - 0.68) / 0.32;
+      const dropR = 2.0 * dropPhase;
+      ctx.beginPath();
+      ctx.arc(tipX, tipY + 5.5 + dropPhase * 3.5, dropR, 0, Math.PI * 2);
+      ctx.fillStyle = "#e84838";
+      ctx.fill();
+      ctx.strokeStyle = "#2b2238";
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+  }
+
+  /* =========================================================================
+     9. LONE SMALL FIGURE ON THE SUNLIT PARAPET SILL (Surreal Scale Tension)
+     A tiny invented surveyor in an ochre coat casting a long cobalt De Chirico
+     shadow across the sunlit plaza sill at the base of the towering vault.
+     ========================================================================= */
+  function drawParapetAndLoneFigure(tau) {
+    const sillY = 894;
+
+    // Sunlit travertine parapet floor slab at the base of the arch
+    const floorGrad = ctx.createLinearGradient(0, sillY, 0, H);
+    floorGrad.addColorStop(0, "#ffe49e");
+    floorGrad.addColorStop(0.35, "#f7d58b");
+    floorGrad.addColorStop(1, "#eaba74");
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, sillY, W, H - sillY);
+
+    // Crisp parapet cornice line & sunlit vermilion/turquoise geometric inlay tiles
+    ctx.fillStyle = "#fbf6ec";
+    ctx.fillRect(0, sillY - 5, W, 6);
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(0, sillY - 5);
+    ctx.lineTo(W, sillY - 5);
+    ctx.moveTo(0, sillY + 1);
+    ctx.lineTo(W, sillY + 1);
+    ctx.stroke();
+
+    // Perspective perspective-grid lines converging toward the center of the vault
+    ctx.strokeStyle = "rgba(45, 108, 223, 0.28)";
+    ctx.lineWidth = 1;
+    for (let i = -5; i <= 5; i++) {
+      const topX = W * 0.5 + i * 38;
+      const botX = W * 0.5 + i * 68;
+      ctx.beginPath();
+      ctx.moveTo(topX, sillY + 1);
+      ctx.lineTo(botX, H);
+      ctx.stroke();
+    }
+
+    // Lone small figure standing off-center right, looking up at the melting chronometers
+    const fx = 348;
+    const fy = sillY + 18;
+
+    // Long metaphysical De Chirico shadow in luminous cobalt blue (not black!)
+    const shadowSway = Math.sin(tau) * 8;
+    ctx.beginPath();
+    ctx.moveTo(fx - 3, fy);
+    ctx.lineTo(fx + 3, fy);
+    ctx.lineTo(fx - 76 + shadowSway, fy + 24);
+    ctx.lineTo(fx - 84 + shadowSway, fy + 19);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(45, 108, 223, 0.62)";
+    ctx.fill();
+
+    // Small figure silhouette & vermilion surveyor coat (clean geometric cut-paper poise)
+    // Legs
+    ctx.fillStyle = "#2b2238";
+    ctx.fillRect(fx - 2.6, fy - 11, 2, 11);
+    ctx.fillRect(fx + 0.6, fy - 11, 2, 11);
+
+    // Coat (bright vermilion against chrome-yellow terrace)
+    ctx.beginPath();
+    ctx.moveTo(fx - 5, fy - 9);
+    ctx.lineTo(fx - 3.2, fy - 23);
+    ctx.lineTo(fx + 3.2, fy - 23);
+    ctx.lineTo(fx + 5.2, fy - 9);
+    ctx.closePath();
+    ctx.fillStyle = "#e84838";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    // Raised arm holding a tiny brass sighting ring toward the vault
+    const armLift = Math.sin(tau * 2) * 1.2;
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(fx - 2.5, fy - 21);
+    ctx.lineTo(fx - 8.5, fy - 27 + armLift);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(fx - 10, fy - 28.5 + armLift, 2.2, 0, Math.PI * 2);
+    ctx.strokeStyle = "#2d6cdf";
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+
+    // Invented faceless surrealist head & wide sun-brim hat (tilted upward)
+    ctx.beginPath();
+    ctx.arc(fx, fy - 26.5, 2.7, 0, Math.PI * 2);
+    ctx.fillStyle = "#fbf6ec";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    // Tilted straw-gold surveyor hat
+    ctx.beginPath();
+    ctx.ellipse(fx + 1.2, fy - 28.2, 5.5, 1.6, 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffca3a";
+    ctx.fill();
+    ctx.strokeStyle = "#2b2238";
+    ctx.lineWidth = 0.85;
+    ctx.stroke();
+  }
+
+  /* =========================================================================
+     10. SUBTLE PROCEDURAL AMBIENT AUDIO (Iframe-guarded Web Audio API)
+     Gentle crystalline harmonic chord resonating with the 48s softening wave
+     ========================================================================= */
+  if (window.self === window.top) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const audioCtx = new AudioCtx();
+        const masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.025; // Very quiet gallery-appropriate shimmer
+        masterGain.connect(audioCtx.destination);
+
+        // Lydian sunlit chord frequencies (F4, A4, C5, B4, G5)
+        const freqs = [349.23, 440.0, 523.25, 493.88, 783.99];
+        freqs.forEach((f, idx) => {
+          const osc = audioCtx.createOscillator();
+          const oscGain = audioCtx.createGain();
+          const lfo = audioCtx.createOscillator();
+          const lfoGain = audioCtx.createGain();
+
+          osc.type = "sine";
+          osc.frequency.value = f;
+
+          oscGain.gain.value = 0.14 / (idx + 1);
+
+          lfo.type = "sine";
+          lfo.frequency.value = 1 / 24 + idx * 0.012;
+          lfoGain.gain.value = 0.05 / (idx + 1);
+
+          lfo.connect(lfoGain);
+          lfoGain.connect(oscGain.gain);
+          osc.connect(oscGain);
+          oscGain.connect(masterGain);
+
+          osc.start();
+          lfo.start();
+        });
+      }
+    } catch (e) {
+      // Autoplay blocked silently on browsers requiring gesture; safe on unattended kiosks
+    }
+  }
+
+  /* =========================================================================
+     11. MAIN ANIMATION LOOP (Fixed-resolution 540x960 for locked 60 fps)
+     ========================================================================= */
+  const startTime = performance.now();
+
+  function render(now) {
+    const elapsedSec = (now - startTime) * 0.001;
+    const state = updateVertices(elapsedSec);
+    const tau = state.tau;
+
+    ctx.clearRect(0, 0, W, H);
+
+    const strokeCol = "rgba(43, 34, 56, 0.72)";
+
+    // 1. Render all watertight hexagonal isometric alcoves (3 rhombic planes each)
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      const cIdx = cell.corners;
+      const vTop = vertices[cIdx[0]];
+      const vTR  = vertices[cIdx[1]];
+      const vBR  = vertices[cIdx[2]];
+      const vBot = vertices[cIdx[3]];
+      const vBL  = vertices[cIdx[4]];
+      const vTL  = vertices[cIdx[5]];
+      const vCen = vertices[cell.center];
+
+      const m = vCen.melt;
+      const theme = cell.theme;
+
+      // High-key sunlit plaster walls that bloom into luminous chromatic hues as they soften:
+      // Top-left sunlit recess plane (chalk ivory -> sky turquoise/yellow)
+      const planeTopColor = mixRgb(PLASTER_LIGHT_RGB, theme.skyRgb, 0.35 + m * 0.65);
+      // Right sunlit plaster wall (warm linen -> chrome yellow / rose / turquoise)
+      const planeRightColor = mixRgb(PLASTER_WARM_RGB, theme.wallRgb, 0.42 + m * 0.58);
+      // Bottom floor shelf of the alcove (hue-against-hue contrast: vermilion / cobalt / orange)
+      const planeFloorColor = m > 0.45
+        ? mixRgb(theme.floorRgb, theme.invRgb, (m - 0.45) * 1.5)
+        : mixRgb(PLASTER_WARM_RGB, theme.floorRgb, 0.55 + m * 0.45);
+
+      // Rhombus 1: Upper-Left ceiling facet (vTop, vCen, vBL, vTL)
+      drawPoly4(vTop, vCen, vBL, vTL, planeTopColor, strokeCol);
+
+      // Rhombus 2: Upper-Right sunlit wall facet (vTop, vTR, vBR, vCen)
+      drawPoly4(vTop, vTR, vBR, vCen, planeRightColor, strokeCol);
+
+      // Rhombus 3: Lower floor ledge facet (vCen, vBR, vBot, vBL)
+      drawPoly4(vCen, vBR, vBot, vBL, planeFloorColor, strokeCol);
+
+      // Metaphysical arched sky window cut into the right wall of select alcoves
+      if ((cell.r + cell.c) % 4 === 0) {
+        const wx = (vTop.x + vTR.x + vBR.x + vCen.x) * 0.25;
+        const wy = (vTop.y + vTR.y + vBR.y + vCen.y) * 0.25;
+        ctx.beginPath();
+        ctx.arc(wx, wy - 2, 4.8 + m * 1.5, Math.PI, 0);
+        ctx.lineTo(wx + 4.8 + m * 1.5, wy + 5.5 + m * 4);
+        ctx.lineTo(wx - 4.8 - m * 1.5, wy + 5.5 + m * 4);
+        ctx.closePath();
+        ctx.fillStyle = m > 0.5 ? "#ffca3a" : "#3eb5e6";
+        ctx.fill();
+        ctx.strokeStyle = "#2b2238";
+        ctx.lineWidth = 0.9;
+        ctx.stroke();
+      }
+    }
+
+    // 2. Second pass: Draw the melting chronometers & liquid shadows on top so sagging
+    // dials drape cleanly over the lip of the alcove directly beneath them!
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      if (cell.by > 868) continue; // Keep parapet sill clear
+      const cIdx = cell.corners;
+      drawMeltingChronometer(
+        vertices[cell.center],
+        vertices[cIdx[3]],
+        vertices[cIdx[4]],
+        vertices[cIdx[2]],
+        cell,
+        tau
+      );
+    }
+
+    // 3. Draw the sunlit ground parapet & lone small surveyor figure at the base
+    drawParapetAndLoneFigure(tau);
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
