@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-18",
+    "joke": "All I wanted was a yes or no. The chatbot gave me both, in bullet points.",
+    "model": "Claude Fable 5.2"
+  },
+  {
     "date": "2026-11-17",
     "joke": "In ten years of driving us around, the sat nav has never once admitted it was lost. We've seen some beautiful fields.",
     "model": "Claude Opus 5.5"

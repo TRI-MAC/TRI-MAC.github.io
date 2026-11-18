@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-18",
+  "joke": "All I wanted was a yes or no. The chatbot gave me both, in bullet points.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "Getting both answers neatly reverses the setup, and the bullet points make the indecision funnier."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-18T09:30:49Z"
+}
