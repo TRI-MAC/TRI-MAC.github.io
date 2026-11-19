@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-11-19</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#8a5a3a}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#c07a3e}
+#background-video{position:absolute;left:90px;top:300px;width:900px;height:1100px;object-fit:cover;opacity:.85;border-radius:450px 450px 60px 60px}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#date{position:absolute;right:40px;bottom:30px;font:22px Futura,Helvetica,sans-serif;color:#3b2a1e;opacity:.55;letter-spacing:3px}
+</style></head><body>
+<div id="stage">
+<video id="background-video" src="background.mp4" autoplay loop muted playsinline></video>
+<canvas id="c" width="540" height="960"></canvas>
+<svg width="1080" height="1920" style="position:absolute;left:0;top:0" viewBox="0 0 1080 1920">
+<g transform="translate(1012,1828)" opacity=".55"><ellipse cx="0" cy="0" rx="9" ry="6" fill="#6e4628"/><circle cx="7" cy="-2" r="4" fill="#6e4628"/><circle cx="9" cy="-3" r="1" fill="#2a1a10"/></g>
+</svg>
+<div id="date">2026·11·19</div>
+</div>
+<script>
+const st=document.getElementById('stage');
+function fit(){const s=Math.min(innerWidth/1080,innerHeight/1920);st.style.transform=`scale(${s})`;st.style.left=(innerWidth-1080*s)/2+'px';st.style.top=(innerHeight-1920*s)/2+'px'}
+addEventListener('resize',fit);fit();
+// Idea: a mid-century "kidney" table seen from above — its shadow pools slide as the sun crosses; where shadow and table overlap, colour inverts to teal.
+let seed=20261119;function r(){seed=(seed*16807)%2147483647;return seed/2147483647}
+const c=document.getElementById('c'),x=c.getContext('2d');
+const blobs=[];for(let i=0;i<3;i++)blobs.push({cx:120+r()*300,cy:200+i*260+r()*80,a:90+r()*60,b:50+r()*40,p:r()*6});
+function kidney(b,dx,dy){x.beginPath();for(let t=0;t<=6.3;t+=.1){const k=1-.35*Math.cos(t*2+b.p);x.lineTo(b.cx+dx+Math.cos(t)*b.a*k,b.cy+dy+Math.sin(t)*b.b*k)}x.closePath()}
+function f(ms){const t=ms/1000,sun=Math.sin(t*2*Math.PI/40);
+x.clearRect(0,0,540,960);
+x.fillStyle='#d4a22c';x.fillRect(0,0,540,140);x.fillRect(0,820,540,140);
+x.fillStyle='#4a7d78';x.fillRect(0,140,30,680);x.fillRect(510,140,30,680);
+blobs.forEach((b,i)=>{const dx=sun*60,dy=30+Math.cos(t*.15+i)*10;
+x.fillStyle='rgba(59,42,30,.45)';kidney(b,dx,dy);x.fill();
+x.fillStyle=['#d4a22c','#a8432a','#e8d6b0'][i];kidney(b,0,0);x.fill();
+x.save();kidney(b,0,0);x.clip();x.fillStyle='#2f6f6a';kidney(b,dx,dy);x.fill();x.restore();
+x.strokeStyle='#3b2a1e';x.lineWidth=5;for(const s of[-1,1]){x.beginPath();x.moveTo(b.cx+s*b.a*.5,b.cy+b.b*.6);x.lineTo(b.cx+s*b.a*.7+dx*.3,b.cy+b.b+40);x.stroke()}});
+x.fillStyle='#3b2a1e';for(let i=0;i<9;i++){x.beginPath();x.arc(60+i*52,70,10+5*Math.sin(t*.3+i),0,7);x.fill()}
+requestAnimationFrame(f)}requestAnimationFrame(f);
+if(window.self===window.top){addEventListener('load',()=>{try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.frequency.value=110;g.gain.value=.02;o.connect(g).connect(a.destination);o.start()}catch(e){}})}
+</script></body></html>
