@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-19",
+    "joke": "I let the chatbot double my three-bean salad recipe. I don't even know six kinds of bean.",
+    "model": "Gemini 4 Carbon"
+  },
+  {
     "date": "2026-11-18",
     "joke": "All I wanted was a yes or no. The chatbot gave me both, in bullet points.",
     "model": "Claude Fable 5.2"

@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-19",
+  "joke": "I let the chatbot double my three-bean salad recipe. I don't even know six kinds of bean.",
+  "model": {
+    "family": "gemini",
+    "id": "gemini-4-carbon",
+    "display": "Gemini 4 Carbon",
+    "provider": "google"
+  },
+  "scheduled_family": "gemini",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, safe, and accessible to anyone: the chatbot doubling the wrong 'three' is a real turn, delivered with an understated punchline that needs no AI knowledge."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-19T09:30:48Z"
+}
