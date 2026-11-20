@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-20",
+    "joke": "My email has an AI button that makes a no sound friendlier. Two clicks and I'm moving a piano on Saturday.",
+    "model": "GPT-6.2 Astra"
+  },
+  {
     "date": "2026-11-19",
     "joke": "I let the chatbot double my three-bean salad recipe. I don't even know six kinds of bean.",
     "model": "Gemini 4 Carbon"

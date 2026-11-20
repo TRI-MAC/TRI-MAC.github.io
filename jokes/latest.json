@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-19",
-  "joke": "I let the chatbot double my three-bean salad recipe. I don't even know six kinds of bean.",
+  "date": "2026-11-20",
+  "joke": "My email has an AI button that makes a no sound friendlier. Two clicks and I'm moving a piano on Saturday.",
   "model": {
-    "family": "gemini",
-    "id": "gemini-4-carbon",
-    "display": "Gemini 4 Carbon",
-    "provider": "google"
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai"
   },
-  "scheduled_family": "gemini",
+  "scheduled_family": "gpt",
   "critic": {
     "family": "fable",
     "id": "global.anthropic.claude-fable-5-2",
@@ -15,8 +15,8 @@
     "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "Clean, safe, and accessible to anyone: the chatbot doubling the wrong 'three' is a real turn, delivered with an understated punchline that needs no AI knowledge."
+    "reason": "Clean and safe, with a clear setup and a real turn (the \"no\" gets so friendly it becomes a yes) that anyone outside AI would get, landing on a concrete, funny image."
   },
   "attempts": 1,
-  "generated_at": "2026-11-19T09:30:48Z"
+  "generated_at": "2026-11-20T09:31:05Z"
 }

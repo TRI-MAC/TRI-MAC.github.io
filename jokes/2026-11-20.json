@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-20",
+  "joke": "My email has an AI button that makes a no sound friendlier. Two clicks and I'm moving a piano on Saturday.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean and safe, with a clear setup and a real turn (the \"no\" gets so friendly it becomes a yes) that anyone outside AI would get, landing on a concrete, funny image."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-20T09:31:05Z"
+}
