@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-20",
+  "generator_provider": "anthropic",
+  "generator_model": "global.anthropic.claude-fable-5-2",
+  "critic_provider": "openai",
+  "critic_model": "gpt-5.6-sol",
+  "saw_assets": 2,
+  "critique": "The monumental pale-wood domino arc, turquoise shadows, and tiny orange-clad elder create a joyful high-key scale surprise, while the three-tier animated chain adds genuinely elaborate slow-motion choreography. The dominant wooden tiles read as conventional pip dominoes with loose reddish swashes rather than bold black, symmetrical whakairo panels, so their markings should carry the same committed koru-and-pākati language as the stronger black-and-red animated pieces."
+}
