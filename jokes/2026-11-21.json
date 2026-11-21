@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-21",
+  "joke": "There are no stupid questions, the AI tutor told me. Then it answered mine using very small words.",
+  "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The tutor’s choice of very small words quietly undercuts its reassurance, and the turn lands without any AI knowledge."
+  },
+  "attempts": 2,
+  "generated_at": "2026-11-21T09:30:43Z"
+}
