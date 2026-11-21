@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-21",
+  "generator_provider": "anthropic",
+  "generator_model": "global.anthropic.claude-fable-5-2",
+  "critic_provider": "openai",
+  "critic_model": "gpt-5.6-sol",
+  "saw_assets": 2,
+  "critique": "The sunlit yellow-to-rose-to-turquoise field creates a buoyant, high-key chromatic immersion, with the fine paper texture giving the extreme reduction quiet tactility. Remove the tiny guinea pig, date, masked image, and overlapping radial veils: these extraneous layers contradict the brief’s commitment to one uninterrupted, slowly shifting gradient."
+}
