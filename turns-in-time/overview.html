@@ -62,10 +62,10 @@
         if (watch) watch.disconnect();
       }
       function look() {
-        var img = frame.querySelector(".screen img");
+        var img = frame.querySelector(".screen.on img") || frame.querySelector(".screen img");
         if (!img) return;
         if (img.complete && img.naturalWidth) done();
-        else img.addEventListener("load", done, { once: true });
+        else img.addEventListener("load", look, { once: true });  // looks again: the screen may have changed
       }
       if (window.MutationObserver) {
         watch = new MutationObserver(look);

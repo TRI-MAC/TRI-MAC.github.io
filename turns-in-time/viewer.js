@@ -20,6 +20,7 @@
   var FALLBACK_CHAPTERS = 3;
   var OVERVIEW_RETRY_MS = 15000;
   var MARGIN_WAIT_MS = 3000;
+  var SECOND_TRY_MS = 2000;
   var RECAP_TRIES = 3;
   var TAB_FONT_PX = 52, TAB_FONT_MIN_PX = 22;
 
@@ -195,7 +196,9 @@
 
   // A chapter that fails to load is dropped, unless an earlier load of it is
   // in the cache (the kiosk keeps one); the rest still show.
+  // loadWhole: true when the last load() got every chapter the index names.
   var chapterCache = {};
+  var loadWhole = false;
   function load() {
     return fetchText("chapters/index.json").then(function (src) {
       var ids = JSON.parse(src).chapters;
@@ -211,6 +214,7 @@
       }));
     }).then(function (list) {
       var seen = {};
+      loadWhole = list.every(Boolean);
       return list.filter(function (c) {
         if (!c || seen[c.n]) return false;
         seen[c.n] = true;
@@ -549,7 +553,7 @@
   // What one cycle shows. The latest chapter is the newest one whose page
   // decodes, so a new chapter with a broken page waits and the one before it
   // stays up. Recap beats show only chapters whose pages decode. Each page
-  // gets timeoutMs to load.
+  // gets timeoutMs to load. whole: true when no page had to be left out.
   function plan(chapters, recap, timeoutMs) {
     var byN = {};
     chapters.forEach(function (c) { byN[c.n] = c; });
@@ -564,7 +568,8 @@
       return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page, timeoutMs); })).then(function (ok) {
         return {
           latest: latest,
-          beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; })
+          beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; }),
+          whole: latest === chapters[chapters.length - 1] && ok.every(Boolean)
         };
       });
     });
@@ -674,20 +679,21 @@
             c.width = w; c.height = h;
             var g = c.getContext("2d");
             g.drawImage(img, 0, 0);
-            var D = Math.max(8, Math.round(w * 0.045)), N = 15, M = 160;
-            // strip: the D pixels next to one edge. at(f, d): the pixel offset at
-            // fraction f along the edge and depth d from it.
-            function side(strip, at) {
+            var D = Math.max(8, Math.round(w * 0.045)), N = 15;
+            // strip: the D pixels next to one edge, which is len pixels long.
+            // at(i, d): the pixel offset at position i along the edge and
+            // depth d from it.
+            function side(strip, len, at) {
               var q = strip.data;
-              function sum(f, d) { var k = at(f, d) * 4; return q[k] + q[k + 1] + q[k + 2]; }
+              function sum(i, d) { var k = at(i, d) * 4; return q[k] + q[k + 1] + q[k + 2]; }
               // On N lines across the middle of the edge: the depth at which
               // paper, at least two pixels of it, gives way to ink at once.
               var found = [];
-              for (var i = 0; i < N; i++) {
-                var f = 0.15 + 0.7 * (i + 0.5) / N;
+              for (var n = 0; n < N; n++) {
+                var i = Math.round((0.15 + 0.7 * (n + 0.5) / N) * len);
                 for (var d = 0; d < D - 4; d++) {
-                  if (sum(f, d) >= 600) continue;  // paper
-                  if (d >= 2 && Math.min(sum(f, d), sum(f, d + 1), sum(f, d + 2), sum(f, d + 3)) < 260) found.push(d);
+                  if (sum(i, d) >= 600) continue;  // paper
+                  if (d >= 2 && Math.min(sum(i, d), sum(i, d + 1), sum(i, d + 2), sum(i, d + 3)) < 260) found.push(d);
                   break;
                 }
               }
@@ -696,16 +702,14 @@
               var mid = found[found.length >> 1];
               var near = found.filter(function (d) { return Math.abs(d - mid) <= 3; }).length;
               if (near < N * 0.6) return 0;
-              // The strip up to that depth must be paper along the whole edge,
-              // so art that reaches the edge anywhere is never cut.
-              var marks = 0, all = 0;
-              for (var j = 0; j < M; j++) {
-                for (var e = 0; e < mid - 1; e++) {
-                  all++;
-                  if (sum(0.01 + 0.98 * (j + 0.5) / M, e) < 600) marks++;
+              // Every pixel of the strip up to that depth, corner to corner,
+              // must be paper: a mark of any size there (lettering, a stroke
+              // that reaches the edge) means the edge is not trimmed.
+              for (var e = 0; e < mid - 1; e++) {
+                for (var j = 0; j < len; j++) {
+                  if (sum(j, e) < 600) return 0;
                 }
               }
-              if (marks > all * 0.01) return 0;
               // Two pixels into the border's ink, so no soft paper edge is left.
               return mid + 2;
             }
@@ -713,10 +717,10 @@
             var left = g.getImageData(0, 0, D, h), right = g.getImageData(w - D, 0, D, h);
             resolve({
               w: w, h: h,
-              t: side(top, function (f, d) { return d * w + Math.min(w - 1, Math.round(f * w)); }),
-              b: side(bottom, function (f, d) { return (D - 1 - d) * w + Math.min(w - 1, Math.round(f * w)); }),
-              l: side(left, function (f, d) { return Math.min(h - 1, Math.round(f * h)) * D + d; }),
-              r: side(right, function (f, d) { return Math.min(h - 1, Math.round(f * h)) * D + (D - 1 - d); })
+              t: side(top, w, function (i, d) { return d * w + i; }),
+              b: side(bottom, w, function (i, d) { return (D - 1 - d) * w + i; }),
+              l: side(left, h, function (i, d) { return i * D + d; }),
+              r: side(right, h, function (i, d) { return i * D + (D - 1 - d); })
             });
           } catch (e) {
             resolve(null);
@@ -734,7 +738,7 @@
   function trim(screen, m) {
     var fig = screen.querySelector(".page");
     if (!fig || !m || !(m.l || m.t || m.r || m.b)) return screen;
-    if (Math.abs(m.w / m.h - W / (H - 120)) > 0.005) return screen;
+    if (Math.abs((m.w / m.h) / (W / (H - 120)) - 1) > 0.005) return screen;
     var kx = m.w / (m.w - m.l - m.r), ky = m.h / (m.h - m.t - m.b);
     fig.style.inset = "auto";
     fig.style.left = (-m.l / m.w * kx * 100) + "%";
@@ -762,7 +766,7 @@
     var ticket = 0;      // a newer choice drops the steps an older one still has
     var auto = false;    // true while the first, automatic play runs
     var recapTries = 0;
-    var newestTried = false;
+    var secondTry = false;
     var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
 
     // One step timer, which counts only the time that is not paused.
@@ -885,8 +889,18 @@
       live.textContent = which === "story" ? "The story so far" : "The latest episode. " + chapterName(p.latest) + ".";
     }
 
+    // Resolves when the screen's picture can be drawn (or cannot load at
+    // all), so a screen never comes up empty. The pages were decoded by
+    // plan(), so this is at once unless the browser dropped its copy.
+    function ready(screen) {
+      var img = screen.querySelector("img");
+      if (!img || (img.complete && img.naturalWidth)) return Promise.resolve(screen);
+      var done = function () { return screen; };
+      return (img.decode ? img.decode() : new Promise(function (r) { img.onload = img.onerror = r; })).then(done, done);
+    }
+
     function latest() {
-      ++ticket;
+      var my = ++ticket;
       dropStep();
       auto = false;
       playing = false;
@@ -895,7 +909,9 @@
       tag(null);
       controls();
       mark("latest");
-      show(trim(chapterScreen(p.latest), trims[p.latest.page]));
+      ready(trim(chapterScreen(p.latest), trims[p.latest.page])).then(function (screen) {
+        if (my === ticket) show(screen);
+      });
     }
 
     // The title card, then the recap beats, then the latest chapter. With
@@ -914,8 +930,11 @@
       (function next(i) {
         if (my !== ticket) return;
         if (i === steps.length) { latest(); return; }
-        show(steps[i].screen());
-        hold(steps[i].seconds, function () { next(i + 1); });
+        ready(steps[i].screen()).then(function (screen) {
+          if (my !== ticket) return;
+          show(screen);
+          hold(steps[i].seconds, function () { next(i + 1); });
+        });
       })(0);
     }
 
@@ -931,19 +950,35 @@
 
     // Pages get the browse view's long timeout: the title card is already up,
     // so a slow link costs the reader nothing but the wait.
-    function start() {
-      var newest = null;
-      Promise.all([load(), recap()]).then(function (r) {
+    // One load of the chapters and the recap, and the plan made from them.
+    // whole: nothing the index and the recap name had to be left out.
+    function attempt() {
+      return Promise.all([load(), recap()]).then(function (r) {
         if (!r[0].length) throw new Error("no chapters");
-        newest = r[0][r[0].length - 1];
-        return plan(r[0], r[1], BROWSE_TIMEOUT_MS);
+        var all = loadWhole;
+        return plan(r[0], r[1], BROWSE_TIMEOUT_MS).then(function (found) {
+          if (!found) throw new Error("no chapter page loaded");
+          return { found: found, whole: all && found.whole };
+        });
+      });
+    }
+    // The later chapter wins; then the longer recap.
+    function better(a, b) {
+      if (b.latest.n !== a.latest.n) return b.latest.n > a.latest.n ? b : a;
+      return b.beats.length > a.beats.length ? b : a;
+    }
+
+    // The limits, by design: when something did not load, there is one second
+    // try, and then the overview shows what it has for the rest of the visit.
+    // With nothing to show, it tries again every OVERVIEW_RETRY_MS.
+    function start() {
+      attempt().then(function (a) {
+        if (a.whole || secondTry) return a.found;
+        secondTry = true;
+        return wait(SECOND_TRY_MS / 1000).then(attempt).then(
+          function (b) { return better(a.found, b.found); },
+          function () { return a.found; });
       }).then(function (found) {
-        if (!found) throw new Error("no chapter page loaded");
-        // The newest page did not load: one more try before an older chapter stands in.
-        if (found.latest !== newest && !newestTried) {
-          newestTried = true;
-          throw new Error("the newest page did not load");
-        }
         var pages = [found.latest.page].concat(found.beats.map(function (b) { return b.ch.page; }));
         return Promise.all(pages.map(paperMargin)).then(function (found2) {
           pages.forEach(function (src, i) { trims[src] = found2[i]; });
