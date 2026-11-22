@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-22",
+  "joke": "I slept through the whole meeting. According to the AI summary, I made some excellent points.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The first sentence sets up silence, so the summary’s praise lands as a clean surprise that needs no AI expertise."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-22T09:30:27Z"
+}

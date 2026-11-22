@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-22",
+    "joke": "I slept through the whole meeting. According to the AI summary, I made some excellent points.",
+    "model": "Claude Fable 5.2"
+  },
+  {
     "date": "2026-11-21",
     "joke": "There are no stupid questions, the AI tutor told me. Then it answered mine using very small words.",
     "model": "Claude Opus 5.5"
