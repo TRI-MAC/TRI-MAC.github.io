@@ -52,18 +52,24 @@
     }
     css.onload = function () {
       clearTimeout(late);
-      clear();
       var frame = document.getElementById("frame");
-      var slow = setTimeout(function () {
-        if (!frame.querySelector(".screen")) fallback();
-      }, SCREEN_WAIT_MS);
+      var slow = setTimeout(function () { fallback(); }, SCREEN_WAIT_MS);
+      // The link goes when a screen is up with its picture loaded.
+      var watch = null;
+      function done() {
+        clearTimeout(slow);
+        clear();
+        if (watch) watch.disconnect();
+      }
+      function look() {
+        var img = frame.querySelector(".screen img");
+        if (!img) return;
+        if (img.complete && img.naturalWidth) done();
+        else img.addEventListener("load", done, { once: true });
+      }
       if (window.MutationObserver) {
-        new MutationObserver(function (list, watch) {
-          if (!frame.querySelector(".screen")) return;
-          clearTimeout(slow);
-          clear();
-          watch.disconnect();
-        }).observe(frame, { childList: true });
+        watch = new MutationObserver(look);
+        watch.observe(frame, { childList: true });
       }
       var js = document.createElement("script");
       js.src = "viewer.js" + q;

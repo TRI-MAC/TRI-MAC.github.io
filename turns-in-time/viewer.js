@@ -19,6 +19,7 @@
   var RELOAD_RETRY_MS = 10 * 60 * 1000;
   var FALLBACK_CHAPTERS = 3;
   var OVERVIEW_RETRY_MS = 15000;
+  var MARGIN_WAIT_MS = 3000;
   var RECAP_TRIES = 3;
   var TAB_FONT_PX = 52, TAB_FONT_MIN_PX = 22;
 
@@ -34,21 +35,31 @@
   var mode = document.body.dataset.mode;
 
   // A camera start or a screen cleanup that is due goes through later().
-  // While the overview is paused it waits, and it runs after the pause ends,
-  // once the fades that were held have finished. Only the overview pauses.
-  var held = false, waiting = [];
+  // While the overview is paused, the time left on each one is kept, and it
+  // runs out after the pause ends. Only the overview pauses.
+  var held = false, jobs = [];
   function later(fn, ms) {
-    setTimeout(function () {
-      if (held) waiting.push(fn);
-      else fn();
-    }, ms);
+    var job = { left: ms, since: 0, timer: null };
+    job.run = function () {
+      job.since = Date.now();
+      job.timer = setTimeout(function () {
+        jobs.splice(jobs.indexOf(job), 1);
+        fn();
+      }, job.left);
+    };
+    jobs.push(job);
+    if (!held) job.run();
   }
   function setHeld(on) {
+    if (on === held) return;
     held = on;
-    if (on) return;
-    var due = waiting;
-    waiting = [];
-    due.forEach(function (fn) { later(fn, FADE_MS + 100); });
+    jobs.forEach(function (job) {
+      if (!on) { job.run(); return; }
+      if (job.timer === null) return;  // made during a pause: not started yet
+      clearTimeout(job.timer);
+      job.timer = null;
+      job.left = Math.max(0, job.left - (Date.now() - job.since));
+    });
   }
 
   // Reduced motion is read live. When it turns on, clips stop, the timeshift
@@ -645,34 +656,38 @@
 
   // A chapter page is drawn with a paper margin around its panels. This finds
   // it: for each edge, the distance in image pixels to the ink of the panel
-  // border, or 0 when the page has no even margin there. Resolves to
-  // { w, h, l, t, r, b }, or null when the page cannot be read.
+  // border, or 0 when that edge has no margin of plain paper. Resolves to
+  // { w, h, l, t, r, b }, or to null when the page cannot be read in time;
+  // the page then shows untrimmed.
   var margins = {};
   function paperMargin(src) {
     if (!margins[src]) {
       margins[src] = new Promise(function (resolve) {
         var img = new Image();
-        img.onerror = function () { resolve(null); };
+        var late = setTimeout(function () { resolve(null); }, MARGIN_WAIT_MS);
+        img.onerror = function () { clearTimeout(late); resolve(null); };
         img.onload = function () {
+          clearTimeout(late);
           try {
             var w = img.naturalWidth, h = img.naturalHeight;
             var c = document.createElement("canvas");
             c.width = w; c.height = h;
             var g = c.getContext("2d");
             g.drawImage(img, 0, 0);
-            var D = Math.max(8, Math.round(w * 0.045)), N = 15;
+            var D = Math.max(8, Math.round(w * 0.045)), N = 15, M = 160;
             // strip: the D pixels next to one edge. at(f, d): the pixel offset at
-            // fraction f along the edge and depth d from it. The margin is the
-            // median depth at which a line of paper reaches ink, when most lines agree.
+            // fraction f along the edge and depth d from it.
             function side(strip, at) {
-              var q = strip.data, found = [];
+              var q = strip.data;
+              function sum(f, d) { var k = at(f, d) * 4; return q[k] + q[k + 1] + q[k + 2]; }
+              // On N lines across the middle of the edge: the depth at which
+              // paper, at least two pixels of it, gives way to ink at once.
+              var found = [];
               for (var i = 0; i < N; i++) {
                 var f = 0.15 + 0.7 * (i + 0.5) / N;
-                var sum = function (d) { var k = at(f, d) * 4; return q[k] + q[k + 1] + q[k + 2]; };
                 for (var d = 0; d < D - 4; d++) {
-                  if (sum(d) >= 600) continue;  // paper
-                  // The paper ends here. It is the margin when ink follows at once.
-                  if (Math.min(sum(d), sum(d + 1), sum(d + 2), sum(d + 3)) < 260) found.push(d);
+                  if (sum(f, d) >= 600) continue;  // paper
+                  if (d >= 2 && Math.min(sum(f, d), sum(f, d + 1), sum(f, d + 2), sum(f, d + 3)) < 260) found.push(d);
                   break;
                 }
               }
@@ -680,17 +695,28 @@
               found.sort(function (a, b) { return a - b; });
               var mid = found[found.length >> 1];
               var near = found.filter(function (d) { return Math.abs(d - mid) <= 3; }).length;
+              if (near < N * 0.6) return 0;
+              // The strip up to that depth must be paper along the whole edge,
+              // so art that reaches the edge anywhere is never cut.
+              var marks = 0, all = 0;
+              for (var j = 0; j < M; j++) {
+                for (var e = 0; e < mid - 1; e++) {
+                  all++;
+                  if (sum(0.01 + 0.98 * (j + 0.5) / M, e) < 600) marks++;
+                }
+              }
+              if (marks > all * 0.01) return 0;
               // Two pixels into the border's ink, so no soft paper edge is left.
-              return near >= N * 0.6 ? mid + 2 : 0;
+              return mid + 2;
             }
             var top = g.getImageData(0, 0, w, D), bottom = g.getImageData(0, h - D, w, D);
             var left = g.getImageData(0, 0, D, h), right = g.getImageData(w - D, 0, D, h);
             resolve({
               w: w, h: h,
-              t: side(top, function (f, d) { return d * w + Math.round(f * w); }),
-              b: side(bottom, function (f, d) { return (D - 1 - d) * w + Math.round(f * w); }),
-              l: side(left, function (f, d) { return Math.round(f * h) * D + d; }),
-              r: side(right, function (f, d) { return Math.round(f * h) * D + (D - 1 - d); })
+              t: side(top, function (f, d) { return d * w + Math.min(w - 1, Math.round(f * w)); }),
+              b: side(bottom, function (f, d) { return (D - 1 - d) * w + Math.min(w - 1, Math.round(f * w)); }),
+              l: side(left, function (f, d) { return Math.min(h - 1, Math.round(f * h)) * D + d; }),
+              r: side(right, function (f, d) { return Math.min(h - 1, Math.round(f * h)) * D + (D - 1 - d); })
             });
           } catch (e) {
             resolve(null);
@@ -703,10 +729,12 @@
   }
 
   // Sizes the page so its paper margin falls outside the screen: the panel
-  // border then meets the screen's edges. m is what paperMargin() found.
+  // border then meets the screen's edges. m is what paperMargin() found. A
+  // page that is not the screen's shape stays as it is.
   function trim(screen, m) {
     var fig = screen.querySelector(".page");
     if (!fig || !m || !(m.l || m.t || m.r || m.b)) return screen;
+    if (Math.abs(m.w / m.h - W / (H - 120)) > 0.005) return screen;
     var kx = m.w / (m.w - m.l - m.r), ky = m.h / (m.h - m.t - m.b);
     fig.style.inset = "auto";
     fig.style.left = (-m.l / m.w * kx * 100) + "%";
@@ -734,6 +762,7 @@
     var ticket = 0;      // a newer choice drops the steps an older one still has
     var auto = false;    // true while the first, automatic play runs
     var recapTries = 0;
+    var newestTried = false;
     var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
 
     // One step timer, which counts only the time that is not paused.
@@ -903,11 +932,18 @@
     // Pages get the browse view's long timeout: the title card is already up,
     // so a slow link costs the reader nothing but the wait.
     function start() {
+      var newest = null;
       Promise.all([load(), recap()]).then(function (r) {
         if (!r[0].length) throw new Error("no chapters");
+        newest = r[0][r[0].length - 1];
         return plan(r[0], r[1], BROWSE_TIMEOUT_MS);
       }).then(function (found) {
         if (!found) throw new Error("no chapter page loaded");
+        // The newest page did not load: one more try before an older chapter stands in.
+        if (found.latest !== newest && !newestTried) {
+          newestTried = true;
+          throw new Error("the newest page did not load");
+        }
         var pages = [found.latest.page].concat(found.beats.map(function (b) { return b.ch.page; }));
         return Promise.all(pages.map(paperMargin)).then(function (found2) {
           pages.forEach(function (src, i) { trims[src] = found2[i]; });
