@@ -249,6 +249,7 @@
   // download that times out keeps going, so a later try can find it cached.
   // With keep, the decoded image is stored there under its URL.
   function decodes(src, timeoutMs, keep) {
+    if (keep && keep[src]) return Promise.resolve(true);
     var img = new Image();
     var ready = new Promise(function (resolve) {
       img.onload = function () {
@@ -359,6 +360,7 @@
     frame.querySelectorAll(".screen").forEach(function (o) {
       if (o === screen) return;
       o.classList.remove("on");
+      o.setAttribute("aria-hidden", "true");  // it is on its way out
       releaseVideos(o);
       later(function () { o.remove(); }, FADE_MS + 100);
     });
@@ -507,12 +509,13 @@
     "where a lavender car waits with a furball inside, by the stop sign and the hydrant.";
 
   // The title card. The kiosk adds "The story so far" over it when recap beats follow;
-  // the overview shows that tag in its bar instead (tagInBar).
-  function titleScreen(storySoFar, tagInBar) {
+  // the overview shows that tag in its bar instead (tagInBar). picture: an image
+  // already loaded, to use in place of a new one.
+  function titleScreen(storySoFar, tagInBar, picture) {
     var s = el("section", "screen title-screen");
     s.setAttribute("aria-label", storySoFar ? "Turns in Time: the story so far" : "Turns in Time: title card");
-    var img = el("img");
-    img.src = asset("title/title.jpg");
+    var img = picture || el("img");
+    if (!picture) img.src = asset("title/title.jpg");
     img.alt = TITLE_ALT;
     s.appendChild(img);
     if (storySoFar && !tagInBar) s.appendChild(el("p", "recap-tag", "The story so far"));
@@ -575,7 +578,7 @@
           latest: latest,
           beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; }),
           whole: latest === chapters[chapters.length - 1] && ok.every(Boolean) &&
-            named.every(function (b) { return byN[b.n]; })
+            recap.every(function (b) { return byN[b.n]; })
         };
       });
     });
@@ -759,7 +762,7 @@
     var playing = false; // true while the story so far plays
     var ticket = 0;      // a newer choice drops the steps an older one still has
     var auto = false;    // true while the first, automatic play runs
-    var recapTries = 0;
+    var recapTries = 0, recapGot = null;  // the recap, once it has loaded (or is known to be missing)
     var secondTry = false;
     var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
 
@@ -910,7 +913,7 @@
     function story() {
       var my = ++ticket;
       var per = Math.min(BEAT_MAX, Math.max(BEAT_MIN, (RECAP_SECONDS - INTRO_SECONDS) / p.beats.length));
-      var steps = [{ screen: function () { return titleScreen(true, true); }, seconds: INTRO_SECONDS }];
+      var steps = [{ screen: function () { return titleScreen(true, true, titleCopy()); }, seconds: INTRO_SECONDS }];
       p.beats.forEach(function (b) {
         steps.push({ screen: function () { return trim(recapScreen(b.ch, b.beat, per, picture(b.ch.page)), trims[b.ch.page]); }, seconds: per });
       });
@@ -930,9 +933,14 @@
     // tried again with the rest of the start; after RECAP_TRIES the overview
     // goes on without a recap.
     function recap() {
+      if (recapGot) return Promise.resolve(recapGot);
       if (recapTries >= RECAP_TRIES) return Promise.resolve([]);
-      return fetchText("story-so-far.md").then(parseRecap, function (e) {
-        if ((e && e.status === 404) || ++recapTries >= RECAP_TRIES) return [];
+      recapTries++;
+      return fetchText("story-so-far.md").then(function (md) {
+        return (recapGot = parseRecap(md));
+      }, function (e) {
+        if (e && e.status === 404) return (recapGot = []);
+        if (recapTries >= RECAP_TRIES) return [];
         throw e;
       });
     }
@@ -1007,6 +1015,11 @@
     // Held for the visit, so the title card's picture is there for a replay.
     var titlePicture = new Image();
     titlePicture.src = asset("title/title.jpg");
+    function titleCopy() {
+      if (!(titlePicture.complete && titlePicture.naturalWidth)) return null;
+      var copy = titlePicture.cloneNode(false);
+      return copy.complete && copy.naturalWidth ? copy : null;
+    }
 
     show(titleScreen(false));
     start();
