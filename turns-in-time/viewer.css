@@ -221,7 +221,6 @@ body[data-mode="overview"] .bar-tag,
   display: grid; place-items: center;
   padding: 0;
 }
-.pause[hidden] { display: none; }
 .pause[aria-disabled="true"] { background: #3a3740; color: #77747d; cursor: default; }
 .pause[aria-disabled="true"]:active { transform: none; }
 .pause svg { width: 36px; height: 36px; }

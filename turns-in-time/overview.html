@@ -19,10 +19,11 @@
 // instead, so a deploy need not touch it, and it asks for the same files as
 // index.html (one download serves both when a page embeds the two).
 (function () {
-  var VERSION_WAIT_MS = 4000, STYLE_WAIT_MS = 8000;
+  var VERSION_WAIT_MS = 4000, STYLE_WAIT_MS = 8000, SCREEN_WAIT_MS = 8000;
   var started = false;
-  // viewer.js draws at once, so it waits for the stylesheet. While the
-  // stylesheet is late, or when it fails, a plain link to the reader shows.
+  // viewer.js draws at once, so it waits for the stylesheet. A plain link to
+  // the reader shows while the stylesheet or the first screen is late, and
+  // when the stylesheet or the script fails. The first screen removes it.
   function start(v) {
     if (started) return;
     started = true;
@@ -31,7 +32,7 @@
     function fallback() {
       if (note) return;
       note = document.createElement("p");
-      note.style.cssText = "margin:0;padding:24px;color:#fbf3df;font:20px/1.4 sans-serif";
+      note.style.cssText = "position:relative;z-index:10;margin:0;padding:24px;color:#fbf3df;font:20px/1.4 sans-serif";
       var a = document.createElement("a");
       a.href = "./";
       a.target = "_blank";
@@ -45,11 +46,31 @@
     var css = document.createElement("link");
     css.rel = "stylesheet";
     css.href = "viewer.css" + q;
+    function clear() {
+      if (note) note.remove();
+      note = null;
+    }
     css.onload = function () {
       clearTimeout(late);
-      if (note) note.remove();
+      clear();
+      var frame = document.getElementById("frame");
+      var slow = setTimeout(function () {
+        if (!frame.querySelector(".screen")) fallback();
+      }, SCREEN_WAIT_MS);
+      if (window.MutationObserver) {
+        new MutationObserver(function (list, watch) {
+          if (!frame.querySelector(".screen")) return;
+          clearTimeout(slow);
+          clear();
+          watch.disconnect();
+        }).observe(frame, { childList: true });
+      }
       var js = document.createElement("script");
       js.src = "viewer.js" + q;
+      js.onerror = function () {
+        clearTimeout(slow);
+        fallback();
+      };
       document.body.appendChild(js);
     };
     css.onerror = function () {

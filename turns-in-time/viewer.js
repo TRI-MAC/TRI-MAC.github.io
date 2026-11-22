@@ -33,6 +33,24 @@
   var frame = document.getElementById("frame");
   var mode = document.body.dataset.mode;
 
+  // A camera start or a screen cleanup that is due goes through later().
+  // While the overview is paused it waits, and it runs after the pause ends,
+  // once the fades that were held have finished. Only the overview pauses.
+  var held = false, waiting = [];
+  function later(fn, ms) {
+    setTimeout(function () {
+      if (held) waiting.push(fn);
+      else fn();
+    }, ms);
+  }
+  function setHeld(on) {
+    held = on;
+    if (on) return;
+    var due = waiting;
+    waiting = [];
+    due.forEach(function (fn) { later(fn, FADE_MS + 100); });
+  }
+
   // Reduced motion is read live. When it turns on, clips stop, the timeshift
   // effect ends, and a recap drift holds where it is.
   var motionQuery = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -313,7 +331,7 @@
     });
     fig.appendChild(el("div", "fx fx-dots"));
     fig.classList.add("fx-on");
-    setTimeout(function () {
+    later(function () {
       fig.classList.remove("fx-on");
       fig.querySelectorAll(".fx").forEach(function (e) { e.remove(); });
     }, 1800);
@@ -325,7 +343,7 @@
       if (o === screen) return;
       o.classList.remove("on");
       releaseVideos(o);
-      setTimeout(function () { o.remove(); }, FADE_MS + 100);
+      later(function () { o.remove(); }, FADE_MS + 100);
     });
     frame.insertBefore(screen, frame.firstChild);
     void screen.offsetWidth;  // commit the start state so the fade runs
@@ -496,7 +514,7 @@
       var zoom = Math.min(1.6, Math.max(1.08, 0.85 / Math.max(f[2] - f[0], f[3] - f[1])));
       fig.style.transformOrigin = (cx * 100) + "% " + (cy * 100) + "%";
       fig.style.transition = "transform " + seconds + "s ease-in-out";
-      setTimeout(function () { if (!reduceMotion) fig.style.transform = "scale(" + zoom + ")"; }, 50);
+      later(function () { if (!reduceMotion) fig.style.transform = "scale(" + zoom + ")"; }, 50);
     }
     return s;
   }
@@ -749,12 +767,12 @@
       pauseBtn.title = label;
       pauseBtn.setAttribute("aria-disabled", String(!playing));
       pauseBtn.querySelector("path").setAttribute("d", paused ? ICON_PLAY : ICON_PAUSE);
-      pauseBtn.hidden = reduceMotion;  // with reduced motion nothing moves
     }
     // Transitions and animations stop where they are and go on from there.
     function setPaused(on) {
       if (on === paused) return;
       paused = on;
+      setHeld(on);
       if (stepDone) {
         if (on) {
           clearTimeout(stepTimer);
@@ -791,9 +809,8 @@
       b.type = "button";
       b.setAttribute("aria-pressed", "false");
       b.addEventListener("click", function () {
-        if (b.getAttribute("aria-pressed") === "true") return;
         setPaused(false);
-        act();
+        if (b.getAttribute("aria-pressed") !== "true") act();
       });
       return b;
     }
@@ -805,8 +822,7 @@
       var cs = getComputedStyle(b);
       var room = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       function need() {
-        var shown = pauseBtn && !pauseBtn.hidden;
-        return tabs.offsetWidth + (shown ? pauseBtn.offsetWidth + parseFloat(cs.columnGap || 0) : 0);
+        return tabs.offsetWidth + (pauseBtn ? pauseBtn.offsetWidth + parseFloat(cs.columnGap || 0) : 0);
       }
       tabs.style.fontSize = size + "px";
       while (size > TAB_FONT_MIN_PX && need() > room) {
@@ -913,14 +929,16 @@
       });
     }
 
-    // Reduced motion turned on: a pause ends, and the automatic play stops
-    // on the latest chapter. A play the reader asked for goes on, still.
+    // Reduced motion turned on: the automatic play stops on the latest
+    // chapter. A play the reader asked for goes on with still frames, and a
+    // pause in it stays. Turned off on the latest chapter: its clip comes back.
     function onReduce() {
       if (!p) return;
       if (reduceMotion) {
-        setPaused(false);
         if (auto) latest();
         else bar().classList.remove("playing");
+      } else if (!playing) {
+        latest();
       }
       drawPause();
     }
