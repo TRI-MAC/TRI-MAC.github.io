@@ -159,6 +159,96 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .bar.tagged .bar-tag { display: block; flex: none; }
 .bar.tagged .countdown { position: static; flex: 1; min-width: 0; margin-top: 0; }
 
+/* Overview: the bar is above the page. During the first play it holds the
+   tag, the countdown, and the pause button; after it, two buttons and the
+   pause button. The button for the screen that is up is filled, and its
+   white letters carry an ink outline. */
+body[data-mode="overview"] .bar {
+  top: 0; bottom: auto;
+  display: flex; align-items: center; gap: 28px;
+  padding: 0 28px 0 40px;
+}
+body[data-mode="overview"] .bar.tabbed { justify-content: center; padding: 0 24px; }
+body[data-mode="overview"] .screen { top: 120px; }
+body[data-mode="overview"] .title-screen { height: 1800px; }
+body[data-mode="overview"] .title-screen img { object-position: top; }
+body[data-mode="overview"] .bar-tag,
+.tabs button[aria-pressed="true"] {
+  -webkit-text-stroke: 0.135em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: none;
+}
+/* A page whose paper margin is trimmed away fills its box exactly. */
+.page.trimmed img { object-fit: fill; }
+.tabs {
+  flex: none;
+  display: flex; align-items: center; gap: 28px;
+  font-size: 52px;
+}
+.tabs button {
+  flex: none;
+  margin: 0;
+  padding: 0.23em 0.42em 0.12em;
+  border: 5px solid var(--paper);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  font-family: "Bangers", Impact, sans-serif;
+  font-size: inherit;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tabs button[aria-pressed="true"] {
+  background: var(--pink);
+  color: #fff;
+  transform: rotate(-2deg);
+  cursor: default;
+}
+/* The touch area of each control reaches the bar's full height, so it is
+   large enough on a phone, where the frame is drawn small. Nothing shows. */
+.tabs button, .pause { position: relative; }
+.tabs button::after, .pause::after {
+  content: "";
+  position: absolute;
+  left: -12px; right: -12px;
+  top: 50%;
+  height: 116px;
+  transform: translateY(-50%);
+}
+.tabs button:focus-visible, .pause:focus-visible { outline: 6px solid var(--cyan); outline-offset: 5px; }
+.tabs button:active { transform: scale(0.96); }
+.pause {
+  order: 9;
+  flex: none;
+  margin-left: auto;
+  width: 76px; height: 76px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid; place-items: center;
+  padding: 0;
+}
+.pause[aria-disabled="true"] { background: #3a3740; color: #77747d; cursor: default; }
+.pause[aria-disabled="true"]:active { transform: none; }
+.pause svg { width: 36px; height: 36px; }
+.pause:active { transform: scale(0.94); }
+.bar.tabbed .pause { margin-left: 0; }
+/* With the buttons up, the countdown is a line along the bar's lower edge,
+   shown only while the story so far plays again. */
+.bar.tabbed .countdown {
+  position: absolute;
+  left: 0; right: 0; top: auto; bottom: 0;
+  height: 10px;
+  margin-top: 0;
+  border-radius: 0;
+  visibility: hidden;
+}
+.bar.tabbed.playing .countdown { visibility: visible; }
+
 .countdown-fill {
   height: 100%;
   width: 100%;
