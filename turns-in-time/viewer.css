@@ -312,6 +312,14 @@ body[data-mode="overview"] .bar-tag,
   .tabs button { padding: 0.4em 0.42em 0.29em; }
   .pause { width: 96px; height: 96px; }
   .pause svg { width: 44px; height: 44px; }
+  /* The larger controls leave less room in the bar, so their focus rings
+     sit closer in and stay inside the frame. */
+  .pager button:focus-visible { outline-offset: 0; }
+  .tabs button:focus-visible { outline-offset: -4px; }
+  /* The taller tabs reach the countdown line along the bar's lower edge.
+     They are drawn above it, and the line takes no presses. */
+  .bar.tabbed .tabs { position: relative; z-index: 1; }
+  .bar.tabbed .countdown { pointer-events: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
