@@ -20,6 +20,7 @@
   var FALLBACK_CHAPTERS = 3;
   var OVERVIEW_RETRY_MS = 15000;
   var SECOND_TRY_MS = 2000;
+  var OVERVIEW_PAGE_WAIT_MS = 10 * 60 * 1000;
   var RECAP_TRIES = 3;
   var TAB_FONT_PX = 52, TAB_FONT_MIN_PX = 22;
 
@@ -945,15 +946,16 @@
       });
     }
 
-    // Pages get the browse view's long timeout: the title card is already up,
-    // so a slow link costs the reader nothing but the wait.
+    // A page gets OVERVIEW_PAGE_WAIT_MS to load: the title card is already
+    // up, so on a slow link the overview waits for the newest page. Only a
+    // page that fails makes an older chapter stand in.
     // One load of the chapters and the recap, and the plan made from them.
     // whole: nothing the index and the recap name had to be left out.
     function attempt() {
       return Promise.all([load(), recap()]).then(function (r) {
         if (!r[0].length) throw new Error("no chapters");
         var all = loadWhole;
-        return plan(r[0], r[1], BROWSE_TIMEOUT_MS, kept, r[0].length).then(function (found) {
+        return plan(r[0], r[1], OVERVIEW_PAGE_WAIT_MS, kept, r[0].length).then(function (found) {
           if (!found) throw new Error("no chapter page loaded");
           return { found: found, whole: all && found.whole };
         });
@@ -1018,7 +1020,7 @@
     function titleCopy() {
       if (!(titlePicture.complete && titlePicture.naturalWidth)) return null;
       var copy = titlePicture.cloneNode(false);
-      return copy.complete && copy.naturalWidth ? copy : null;
+      return copy.complete && copy.naturalWidth ? copy : titlePicture;
     }
 
     show(titleScreen(false));
