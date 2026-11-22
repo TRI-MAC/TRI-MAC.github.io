@@ -206,6 +206,17 @@ body[data-mode="overview"] .bar-tag,
   transform: rotate(-2deg);
   cursor: default;
 }
+/* The touch area of each control reaches the bar's full height, so it is
+   large enough on a phone, where the frame is drawn small. Nothing shows. */
+.tabs button, .pause { position: relative; }
+.tabs button::after, .pause::after {
+  content: "";
+  position: absolute;
+  left: -12px; right: -12px;
+  top: 50%;
+  height: 116px;
+  transform: translateY(-50%);
+}
 .tabs button:focus-visible, .pause:focus-visible { outline: 6px solid var(--cyan); outline-offset: 5px; }
 .tabs button:active { transform: scale(0.96); }
 .pause {
