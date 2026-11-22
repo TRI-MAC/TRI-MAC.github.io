@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turns in Time</title>
+<link rel="preload" href="fonts/Bangers-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<style>html, body { margin: 0; background: #111014; }</style>
+</head>
+<body data-mode="overview">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="fx-red" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="fx-cyan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+</svg>
+<main id="frame"></main>
+<script>
+// index.html and kiosk.html carry the build in their ?v= links, and a deploy
+// rewrites those two pages. This page reads the build from version.txt
+// instead, so a deploy need not touch it, and it asks for the same files as
+// index.html (one download serves both when a page embeds the two).
+(function () {
+  var VERSION_WAIT_MS = 4000, STYLE_WAIT_MS = 8000;
+  var started = false;
+  // viewer.js draws at once, so it waits for the stylesheet. While the
+  // stylesheet is late, or when it fails, a plain link to the reader shows.
+  function start(v) {
+    if (started) return;
+    started = true;
+    var q = v ? "?v=" + encodeURIComponent(v) : "";
+    var note = null;
+    function fallback() {
+      if (note) return;
+      note = document.createElement("p");
+      note.style.cssText = "margin:0;padding:24px;color:#fbf3df;font:20px/1.4 sans-serif";
+      var a = document.createElement("a");
+      a.href = "./";
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.style.color = "inherit";
+      a.textContent = "Open the Turns in Time reader";
+      note.appendChild(a);
+      document.body.appendChild(note);
+    }
+    var late = setTimeout(fallback, STYLE_WAIT_MS);
+    var css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "viewer.css" + q;
+    css.onload = function () {
+      clearTimeout(late);
+      if (note) note.remove();
+      var js = document.createElement("script");
+      js.src = "viewer.js" + q;
+      document.body.appendChild(js);
+    };
+    css.onerror = function () {
+      clearTimeout(late);
+      fallback();
+    };
+    document.head.appendChild(css);
+  }
+  // A version.txt that does not answer in time starts the page without ?v=.
+  var ctl = window.AbortController ? new AbortController() : null;
+  var wait = setTimeout(function () {
+    if (ctl) ctl.abort();
+    start("");
+  }, VERSION_WAIT_MS);
+  fetch("version.txt?t=" + Date.now(), { cache: "no-store", signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { return r.ok ? r.text() : ""; })
+    .then(function (t) {
+      clearTimeout(wait);
+      t = t.trim();
+      start(/^[0-9A-Za-z._-]{1,40}$/.test(t) ? t : "");
+    }, function () {
+      clearTimeout(wait);
+      start("");
+    });
+})();
+</script>
+</body>
+</html>

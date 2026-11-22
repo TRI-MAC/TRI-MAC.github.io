@@ -1,8 +1,10 @@
 // Turns in Time viewer.
 // index.html = browse: the title card, then the chapters, with arrows and an m/n counter.
 // kiosk.html = the title card and the story so far (at most 30 s), then the latest
-// chapter for 60 s with a countdown bar, then again. Both draw a fixed 1080 x 1920
-// frame: the comic page (1080 x 1800) on top and a 120 px bar below.
+// chapter for 60 s with a countdown bar, then again.
+// overview.html = the story so far one time, then the latest chapter; after that the
+// reader switches between the two with buttons. Its bar is above the page.
+// All three draw a fixed 1080 x 1920 frame: the comic page (1080 x 1800) and a 120 px bar.
 (function () {
   "use strict";
 
@@ -16,6 +18,9 @@
   var FADE_MS = 600;
   var RELOAD_RETRY_MS = 10 * 60 * 1000;
   var FALLBACK_CHAPTERS = 3;
+  var OVERVIEW_RETRY_MS = 15000;
+  var RECAP_TRIES = 3;
+  var TAB_FONT_PX = 52, TAB_FONT_MIN_PX = 22;
 
   // The build this page runs: the ?v= of the script tag. Pages, clips, and the
   // title card carry it too, so a new build never shows a cached old image.
@@ -68,7 +73,11 @@
     var busted = url + (url.indexOf("?") < 0 ? "?" : "&") + "v=" + Date.now();
     return fetch(busted, { cache: "no-store", signal: ctl ? ctl.signal : undefined })
       .then(function (r) {
-        if (!r.ok) throw new Error(url + " " + r.status);
+        if (!r.ok) {
+          var e = new Error(url + " " + r.status);
+          e.status = r.status;
+          throw e;
+        }
         return r.text();
       })
       .finally(function () { if (timer) clearTimeout(timer); });
@@ -184,21 +193,24 @@
   // "## 3" or "## 1-5" (the beat shows the last chapter of the range), then
   // the caption. An optional "Focus: x0 y0 x1 y1" line (fractions of the page)
   // names the panel the camera drifts toward.
+  function parseRecap(md) {
+    return parseMarkdown(md).sections.map(function (sec) {
+      var m = sec.name.match(/^(\d+)(?:\s*[-–]\s*(\d+))?$/);
+      if (!m) return null;
+      var focus = null, words = [];
+      sec.body.split("\n").forEach(function (line) {
+        var f = line.match(/^\s*focus\s*:\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$/i);
+        if (f) focus = f.slice(1).map(Number);
+        else words.push(line);
+      });
+      var text = plain(words.join(" "));
+      return text ? { n: parseInt(m[2] || m[1], 10), text: text, focus: focus } : null;
+    }).filter(Boolean);
+  }
+
+  // The kiosk's copy: null when the file does not load, so the last good copy stays.
   function loadRecap() {
-    return fetchText("story-so-far.md").then(function (md) {
-      return parseMarkdown(md).sections.map(function (sec) {
-        var m = sec.name.match(/^(\d+)(?:\s*[-–]\s*(\d+))?$/);
-        if (!m) return null;
-        var focus = null, words = [];
-        sec.body.split("\n").forEach(function (line) {
-          var f = line.match(/^\s*focus\s*:\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*$/i);
-          if (f) focus = f.slice(1).map(Number);
-          else words.push(line);
-        });
-        var text = plain(words.join(" "));
-        return text ? { n: parseInt(m[2] || m[1], 10), text: text, focus: focus } : null;
-      }).filter(Boolean);
-    }).catch(function () { return null; });
+    return fetchText("story-so-far.md").then(parseRecap).catch(function () { return null; });
   }
 
   // Resolves true when the image loads and decodes within timeoutMs. A
@@ -459,15 +471,16 @@
     "a dirt road with a horse and wagon, a glowing road over the bay, and today's corner, " +
     "where a lavender car waits with a furball inside, by the stop sign and the hydrant.";
 
-  // The title card. The kiosk adds "The story so far" over it when recap beats follow.
-  function titleScreen(storySoFar) {
+  // The title card. The kiosk adds "The story so far" over it when recap beats follow;
+  // the overview shows that tag in its bar instead (tagInBar).
+  function titleScreen(storySoFar, tagInBar) {
     var s = el("section", "screen title-screen");
     s.setAttribute("aria-label", storySoFar ? "Turns in Time: the story so far" : "Turns in Time: title card");
     var img = el("img");
     img.src = asset("title/title.jpg");
     img.alt = TITLE_ALT;
     s.appendChild(img);
-    if (storySoFar) s.appendChild(el("p", "recap-tag", "The story so far"));
+    if (storySoFar && !tagInBar) s.appendChild(el("p", "recap-tag", "The story so far"));
     return s;
   }
 
@@ -506,19 +519,20 @@
 
   // What one cycle shows. The latest chapter is the newest one whose page
   // decodes, so a new chapter with a broken page waits and the one before it
-  // stays up. Recap beats show only chapters whose pages decode.
-  function plan(chapters, recap) {
+  // stays up. Recap beats show only chapters whose pages decode. Each page
+  // gets timeoutMs to load.
+  function plan(chapters, recap, timeoutMs) {
     var byN = {};
     chapters.forEach(function (c) { byN[c.n] = c; });
     var floor = Math.max(0, chapters.length - FALLBACK_CHAPTERS);
     function newest(k) {
       if (k < floor) return Promise.resolve(null);
-      return decodes(chapters[k].page, FETCH_TIMEOUT_MS).then(function (ok) { return ok ? chapters[k] : newest(k - 1); });
+      return decodes(chapters[k].page, timeoutMs).then(function (ok) { return ok ? chapters[k] : newest(k - 1); });
     }
     return newest(chapters.length - 1).then(function (latest) {
       if (!latest) return null;
       var beats = recap.filter(function (b) { return byN[b.n] && b.n < latest.n; }).slice(-MAX_BEATS);
-      return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page, FETCH_TIMEOUT_MS); })).then(function (ok) {
+      return Promise.all(beats.map(function (b) { return decodes(byN[b.n].page, timeoutMs); })).then(function (ok) {
         return {
           latest: latest,
           beats: beats.filter(function (b, i) { return ok[i]; }).map(function (b) { return { ch: byN[b.n], beat: b }; })
@@ -546,7 +560,7 @@
           .then(function (r) {
             if (r[0] && r[0].length) chapters = r[0];
             if (r[1]) recap = r[1];
-            return chapters ? plan(chapters, recap || []) : null;
+            return chapters ? plan(chapters, recap || [], FETCH_TIMEOUT_MS) : null;
           })
           .then(function (p) { if (p) next = p; })
           .catch(function (e) { console.warn("Turns in Time:", e); })
@@ -609,6 +623,316 @@
     loop();
   }
 
+  // ── paper margin ──────────────────────────────────────────────────
+
+  // A chapter page is drawn with a paper margin around its panels. This finds
+  // it: for each edge, the distance in image pixels to the ink of the panel
+  // border, or 0 when the page has no even margin there. Resolves to
+  // { w, h, l, t, r, b }, or null when the page cannot be read.
+  var margins = {};
+  function paperMargin(src) {
+    if (!margins[src]) {
+      margins[src] = new Promise(function (resolve) {
+        var img = new Image();
+        img.onerror = function () { resolve(null); };
+        img.onload = function () {
+          try {
+            var w = img.naturalWidth, h = img.naturalHeight;
+            var c = document.createElement("canvas");
+            c.width = w; c.height = h;
+            var g = c.getContext("2d");
+            g.drawImage(img, 0, 0);
+            var D = Math.max(8, Math.round(w * 0.045)), N = 15;
+            // strip: the D pixels next to one edge. at(f, d): the pixel offset at
+            // fraction f along the edge and depth d from it. The margin is the
+            // median depth at which a line of paper reaches ink, when most lines agree.
+            function side(strip, at) {
+              var q = strip.data, found = [];
+              for (var i = 0; i < N; i++) {
+                var f = 0.15 + 0.7 * (i + 0.5) / N;
+                var sum = function (d) { var k = at(f, d) * 4; return q[k] + q[k + 1] + q[k + 2]; };
+                for (var d = 0; d < D - 4; d++) {
+                  if (sum(d) >= 600) continue;  // paper
+                  // The paper ends here. It is the margin when ink follows at once.
+                  if (Math.min(sum(d), sum(d + 1), sum(d + 2), sum(d + 3)) < 260) found.push(d);
+                  break;
+                }
+              }
+              if (found.length < N * 0.6) return 0;
+              found.sort(function (a, b) { return a - b; });
+              var mid = found[found.length >> 1];
+              var near = found.filter(function (d) { return Math.abs(d - mid) <= 3; }).length;
+              // Two pixels into the border's ink, so no soft paper edge is left.
+              return near >= N * 0.6 ? mid + 2 : 0;
+            }
+            var top = g.getImageData(0, 0, w, D), bottom = g.getImageData(0, h - D, w, D);
+            var left = g.getImageData(0, 0, D, h), right = g.getImageData(w - D, 0, D, h);
+            resolve({
+              w: w, h: h,
+              t: side(top, function (f, d) { return d * w + Math.round(f * w); }),
+              b: side(bottom, function (f, d) { return (D - 1 - d) * w + Math.round(f * w); }),
+              l: side(left, function (f, d) { return Math.round(f * h) * D + d; }),
+              r: side(right, function (f, d) { return Math.round(f * h) * D + (D - 1 - d); })
+            });
+          } catch (e) {
+            resolve(null);
+          }
+        };
+        img.src = src;
+      });
+    }
+    return margins[src];
+  }
+
+  // Sizes the page so its paper margin falls outside the screen: the panel
+  // border then meets the screen's edges. m is what paperMargin() found.
+  function trim(screen, m) {
+    var fig = screen.querySelector(".page");
+    if (!fig || !m || !(m.l || m.t || m.r || m.b)) return screen;
+    var kx = m.w / (m.w - m.l - m.r), ky = m.h / (m.h - m.t - m.b);
+    fig.style.inset = "auto";
+    fig.style.left = (-m.l / m.w * kx * 100) + "%";
+    fig.style.top = (-m.t / m.h * ky * 100) + "%";
+    fig.style.width = (kx * 100) + "%";
+    fig.style.height = (ky * 100) + "%";
+    fig.classList.add("trimmed");
+    return screen;
+  }
+
+  // ── overview view ─────────────────────────────────────────────────
+
+  // The title card comes up at once, before the chapters load. Then the story
+  // so far plays one time, with its tag and the countdown in the bar, and ends
+  // on the latest chapter. From then on the bar holds two buttons, and the
+  // reader switches between the story so far and the latest chapter; nothing
+  // advances unless the reader asks. A pause button holds whatever moves: the
+  // steps, the countdown, the camera, and the chapter's clip. With reduced
+  // motion, or with no recap beats, the first play is skipped. The page never
+  // reloads itself.
+  function overview() {
+    var p = null;        // what plan() found: the latest chapter and the recap beats
+    var trims = {};      // page URL -> its paper margin
+    var playing = false; // true while the story so far plays
+    var ticket = 0;      // a newer choice drops the steps an older one still has
+    var auto = false;    // true while the first, automatic play runs
+    var recapTries = 0;
+    var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
+
+    // One step timer, which counts only the time that is not paused.
+    var paused = false, stepLeft = 0, stepSince = 0, stepTimer = null, stepDone = null;
+    function runStep() {
+      stepSince = Date.now();
+      stepTimer = setTimeout(function () {
+        var done = stepDone;
+        stepDone = null;
+        done();
+      }, stepLeft);
+    }
+    function hold(seconds, done) {
+      clearTimeout(stepTimer);
+      stepLeft = seconds * 1000;
+      stepDone = done;
+      if (!paused) runStep();
+    }
+    function dropStep() {
+      clearTimeout(stepTimer);
+      stepDone = null;
+    }
+
+    var ICON_PAUSE = "M8 5v14M16 5v14", ICON_PLAY = "M8 5v14l11-7z";
+    // The button is for the story so far. On the latest chapter it is gray
+    // and does nothing.
+    function drawPause() {
+      if (!pauseBtn) return;
+      var label = paused ? "Resume" : "Pause";
+      pauseBtn.setAttribute("aria-label", label);
+      pauseBtn.title = label;
+      pauseBtn.setAttribute("aria-disabled", String(!playing));
+      pauseBtn.querySelector("path").setAttribute("d", paused ? ICON_PLAY : ICON_PAUSE);
+      pauseBtn.hidden = reduceMotion;  // with reduced motion nothing moves
+    }
+    // Transitions and animations stop where they are and go on from there.
+    function setPaused(on) {
+      if (on === paused) return;
+      paused = on;
+      if (stepDone) {
+        if (on) {
+          clearTimeout(stepTimer);
+          stepLeft = Math.max(0, stepLeft - (Date.now() - stepSince));
+        } else {
+          runStep();
+        }
+      }
+      if (frame.getAnimations) {
+        frame.getAnimations({ subtree: true }).forEach(function (a) {
+          if (on && a.playState === "running") a.pause();
+          else if (!on && a.playState === "paused") a.play();
+        });
+      }
+      frame.querySelectorAll(".screen.on video").forEach(function (v) {
+        if (on) { v.pause(); return; }
+        var q = v.play();
+        if (q && q.catch) q.catch(function () {});
+      });
+      drawPause();
+    }
+    function pauseButton() {
+      pauseBtn = el("button", "pause");
+      pauseBtn.type = "button";
+      pauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=""/></svg>';
+      pauseBtn.addEventListener("click", function () { if (playing) setPaused(!paused); });
+      bar().appendChild(pauseBtn);
+      drawPause();
+    }
+
+    // A choice by the reader ends a pause.
+    function tab(label, act) {
+      var b = el("button", null, label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        if (b.getAttribute("aria-pressed") === "true") return;
+        setPaused(false);
+        act();
+      });
+      return b;
+    }
+
+    // The labels shrink until the bar holds them, for a font wider than Bangers.
+    function fitTabs() {
+      if (!tabs) return;
+      var size = TAB_FONT_PX, b = bar();
+      var cs = getComputedStyle(b);
+      var room = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      function need() {
+        var shown = pauseBtn && !pauseBtn.hidden;
+        return tabs.offsetWidth + (shown ? pauseBtn.offsetWidth + parseFloat(cs.columnGap || 0) : 0);
+      }
+      tabs.style.fontSize = size + "px";
+      while (size > TAB_FONT_MIN_PX && need() > room) {
+        size -= 2;
+        tabs.style.fontSize = size + "px";
+      }
+    }
+
+    // The two buttons take the place of the tag once the first play is over.
+    function controls() {
+      if (tabs || !p.beats.length) return;
+      tabs = el("nav", "tabs");
+      tabs.setAttribute("aria-label", "Overview");
+      storyTab = tab("The story so far", story);
+      latestTab = tab("The latest episode", latest);
+      live = el("span", "sr-only");
+      live.setAttribute("aria-live", "polite");
+      [storyTab, latestTab, live].forEach(function (e) { tabs.appendChild(e); });
+      var b = bar();
+      b.insertBefore(tabs, b.firstChild);
+      b.classList.add("tabbed");
+      fitTabs();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTabs);
+    }
+
+    function mark(which) {
+      if (!tabs) return;
+      storyTab.setAttribute("aria-pressed", String(which === "story"));
+      latestTab.setAttribute("aria-pressed", String(which === "latest"));
+      bar().classList.toggle("playing", which === "story" && !reduceMotion);
+      live.textContent = which === "story" ? "The story so far" : "The latest episode. " + chapterName(p.latest) + ".";
+    }
+
+    function latest() {
+      ++ticket;
+      dropStep();
+      auto = false;
+      playing = false;
+      setPaused(false);
+      drawPause();
+      tag(null);
+      controls();
+      mark("latest");
+      show(trim(chapterScreen(p.latest), trims[p.latest.page]));
+    }
+
+    // The title card, then the recap beats, then the latest chapter. With
+    // reduced motion the frames are still and the countdown stays off.
+    function story() {
+      var my = ++ticket;
+      var per = Math.min(BEAT_MAX, Math.max(BEAT_MIN, (RECAP_SECONDS - INTRO_SECONDS) / p.beats.length));
+      var steps = [{ screen: function () { return titleScreen(true, true); }, seconds: INTRO_SECONDS }];
+      p.beats.forEach(function (b) {
+        steps.push({ screen: function () { return trim(recapScreen(b.ch, b.beat, per), trims[b.ch.page]); }, seconds: per });
+      });
+      playing = true;
+      drawPause();
+      mark("story");
+      if (!reduceMotion) countdown(INTRO_SECONDS + per * p.beats.length);
+      (function next(i) {
+        if (my !== ticket) return;
+        if (i === steps.length) { latest(); return; }
+        show(steps[i].screen());
+        hold(steps[i].seconds, function () { next(i + 1); });
+      })(0);
+    }
+
+    // [] when there is no recap file. Another failure may pass, so it is
+    // tried again with the rest of the start; after RECAP_TRIES the overview
+    // goes on without a recap.
+    function recap() {
+      return fetchText("story-so-far.md").then(parseRecap, function (e) {
+        if ((e && e.status === 404) || ++recapTries >= RECAP_TRIES) return [];
+        throw e;
+      });
+    }
+
+    // Pages get the browse view's long timeout: the title card is already up,
+    // so a slow link costs the reader nothing but the wait.
+    function start() {
+      Promise.all([load(), recap()]).then(function (r) {
+        if (!r[0].length) throw new Error("no chapters");
+        return plan(r[0], r[1], BROWSE_TIMEOUT_MS);
+      }).then(function (found) {
+        if (!found) throw new Error("no chapter page loaded");
+        var pages = [found.latest.page].concat(found.beats.map(function (b) { return b.ch.page; }));
+        return Promise.all(pages.map(paperMargin)).then(function (found2) {
+          pages.forEach(function (src, i) { trims[src] = found2[i]; });
+          return found;
+        });
+      }).then(function (found) {
+        p = found;
+        if (p.beats.length) pauseButton();
+        if (reduceMotion || !p.beats.length) {
+          latest();
+        } else {
+          auto = true;
+          tag("The story so far");
+          story();
+        }
+      }).catch(function (e) {
+        console.warn("Turns in Time:", e);
+        setTimeout(start, OVERVIEW_RETRY_MS);
+      });
+    }
+
+    // Reduced motion turned on: a pause ends, and the automatic play stops
+    // on the latest chapter. A play the reader asked for goes on, still.
+    function onReduce() {
+      if (!p) return;
+      if (reduceMotion) {
+        setPaused(false);
+        if (auto) latest();
+        else bar().classList.remove("playing");
+      }
+      drawPause();
+    }
+    if (motionQuery) {
+      if (motionQuery.addEventListener) motionQuery.addEventListener("change", onReduce);
+      else if (motionQuery.addListener) motionQuery.addListener(onReduce);
+    }
+
+    show(titleScreen(false));
+    start();
+  }
+
   // ── start ─────────────────────────────────────────────────────────
 
   // The counter and the recap captions use Bangers; load it before drawing.
@@ -618,6 +942,8 @@
   Promise.race([fontsReady, new Promise(function (r) { setTimeout(r, 3000); })]).then(function () {
     if (mode === "kiosk") {
       kiosk();
+    } else if (mode === "overview") {
+      overview();
     } else {
       load().then(function (c) { if (c.length) browse(c); else fail(); }, fail);
     }
