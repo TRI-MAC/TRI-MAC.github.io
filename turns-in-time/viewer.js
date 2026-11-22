@@ -197,12 +197,18 @@
   // A chapter that fails to load is dropped, unless an earlier load of it is
   // in the cache (the kiosk keeps one); the rest still show.
   // loadWhole: true when the last load() got every chapter the index names.
+  // loadNewest: the highest chapter number the last index names.
   var chapterCache = {};
   var loadWhole = false;
+  var loadNewest = 0;
   function load() {
     return fetchText("chapters/index.json").then(function (src) {
       var ids = JSON.parse(src).chapters;
       if (!Array.isArray(ids)) throw new Error("chapters/index.json has no chapters list");
+      loadNewest = ids.reduce(function (m, id) {
+        var n = parseInt(id, 10);
+        return n > m ? n : m;
+      }, 0);
       return Promise.all(ids.map(function (id) {
         id = String(id);
         return fetchText("chapters/" + id + "/chapter.md")
@@ -239,6 +245,13 @@
       var text = plain(words.join(" "));
       return text ? { n: parseInt(m[2] || m[1], 10), text: text, focus: focus } : null;
     }).filter(Boolean);
+  }
+
+  // "through: N" in the recap's front matter: the last chapter the recap
+  // covers, or null. The publisher writes "through: N - 1" with chapter N.
+  function recapThrough(md) {
+    var n = parseInt(parseMarkdown(md).meta.through, 10);
+    return n >= 0 ? n : null;
   }
 
   // The kiosk's copy: null when the file does not load, so the last good copy stays.
@@ -764,6 +777,7 @@
     var ticket = 0;      // a newer choice drops the steps an older one still has
     var auto = false;    // true while the first, automatic play runs
     var recapTries = 0, recapGot = null;  // the recap, once it has loaded (or is known to be missing)
+    var through = null;  // the loaded recap's "through" value, or null when it has none
     var secondTry = false;
     var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
 
@@ -938,9 +952,13 @@
       if (recapTries >= RECAP_TRIES) return Promise.resolve([]);
       recapTries++;
       return fetchText("story-so-far.md").then(function (md) {
+        through = recapThrough(md);
         return (recapGot = parseRecap(md));
       }, function (e) {
-        if (e && e.status === 404) return (recapGot = []);
+        if (e && e.status === 404) {
+          through = null;
+          return (recapGot = []);
+        }
         if (recapTries >= RECAP_TRIES) return [];
         throw e;
       });
@@ -950,14 +968,21 @@
     // up, so on a slow link the overview waits for the newest page. Only a
     // page that fails makes an older chapter stand in.
     // One load of the chapters and the recap, and the plan made from them.
-    // whole: nothing the index and the recap name had to be left out.
+    // whole: nothing the index and the recap name had to be left out, and the
+    // two files are from one release. Just after a new chapter deploys, one
+    // file can be a release older than the other: the recap's "through" is
+    // then not the index's newest chapter less one. The next try fetches the
+    // index again in any case, and an older recap is dropped so it is fetched
+    // again too.
     function attempt() {
       return Promise.all([load(), recap()]).then(function (r) {
         if (!r[0].length) throw new Error("no chapters");
         var all = loadWhole;
+        var behind = through === null ? 0 : loadNewest - 1 - through;  // > 0: the recap is older; < 0: the index is
+        if (behind > 0) recapGot = null;
         return plan(r[0], r[1], OVERVIEW_PAGE_WAIT_MS, kept, r[0].length).then(function (found) {
           if (!found) throw new Error("no chapter page loaded");
-          return { found: found, whole: all && found.whole };
+          return { found: found, whole: all && found.whole && behind === 0 };
         });
       });
     }
