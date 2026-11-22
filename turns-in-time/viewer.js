@@ -196,16 +196,16 @@
 
   // A chapter that fails to load is dropped, unless an earlier load of it is
   // in the cache (the kiosk keeps one); the rest still show.
-  // loadWhole: true when the last load() got every chapter the index names.
-  // loadNewest: the highest chapter number the last index names.
+  // The list carries two facts about its own load. whole: true when it got
+  // every chapter the index names. newest: the highest chapter number the
+  // index names.
   var chapterCache = {};
-  var loadWhole = false;
-  var loadNewest = 0;
   function load() {
+    var newest = 0;
     return fetchText("chapters/index.json").then(function (src) {
       var ids = JSON.parse(src).chapters;
       if (!Array.isArray(ids)) throw new Error("chapters/index.json has no chapters list");
-      loadNewest = ids.reduce(function (m, id) {
+      newest = ids.reduce(function (m, id) {
         var n = parseInt(id, 10);
         return n > m ? n : m;
       }, 0);
@@ -220,12 +220,14 @@
       }));
     }).then(function (list) {
       var seen = {};
-      loadWhole = list.every(Boolean);
-      return list.filter(function (c) {
+      var got = list.filter(function (c) {
         if (!c || seen[c.n]) return false;
         seen[c.n] = true;
         return true;
       }).sort(function (a, b) { return a.n - b.n; });
+      got.whole = list.every(Boolean);
+      got.newest = newest;
+      return got;
     });
   }
 
@@ -781,6 +783,7 @@
     var recapOld = false;     // true when an index names a later release than the loaded recap
     var recapMissed = false;  // true after one 404 for the recap; a second one is believed
     var lastChapters = null;  // the last chapters that loaded, with their index's newest number
+    var plannedRecap = null;  // the recap the last plan was made from
     var secondTry = false;
     var tabs = null, storyTab = null, latestTab = null, live = null, pauseBtn = null;
 
@@ -974,15 +977,15 @@
 
     // The chapters that loaded, with their index's newest number. When a
     // later load fails, or its index is from an earlier release, the last
-    // one that worked stands in, never as whole.
+    // one that worked stands in (kept), never as whole.
     function chapters() {
       return load().then(function (list) {
         if (!list.length) throw new Error("no chapters");
-        if (lastChapters && lastChapters.newest > loadNewest) throw new Error("an older index");
-        return (lastChapters = { list: list, newest: loadNewest, whole: loadWhole });
+        if (lastChapters && lastChapters.newest > list.newest) throw new Error("an older index");
+        return (lastChapters = { list: list, newest: list.newest, whole: list.whole });
       }).catch(function (e) {
         if (!lastChapters) throw e;
-        return { list: lastChapters.list, newest: lastChapters.newest, whole: false };
+        return { list: lastChapters.list, newest: lastChapters.newest, whole: false, kept: true };
       });
     }
 
@@ -1012,6 +1015,10 @@
         return recap().then(function (again) { return [r[0], again]; });
       }).then(function (r) {
         var c = r[0], apart = behind(c);
+        // Nothing new came: the chapters are the kept ones and the recap is
+        // the one the last plan used. That plan stands.
+        if (c.kept && r[1] === plannedRecap) throw new Error("nothing new to plan");
+        plannedRecap = r[1];
         return plan(c.list, r[1], OVERVIEW_PAGE_WAIT_MS, kept, c.list.length).then(function (found) {
           if (!found) throw new Error("no chapter page loaded");
           var unsure = recapMissed && !recapGot && c.newest > 1;
