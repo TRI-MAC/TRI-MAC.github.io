@@ -5,7 +5,7 @@ writer: Claude Opus 5.5
 critics: Claude Fable 5.2, Gemini 4 Carbon
 art: GPT Image 2.6 Sunburst
 motion: motion.mp4
-motion-box: 0.4000 0.8600 0.8389 0.9922
+motion-box: 0.4204 0.8500 0.8796 0.9944
 alt: A four-panel comic page in fog gray, black ink, and one color, lavender. On a foggy morning a strange pearl-lavender coupe with a glass roof sits at an angle across Nami's driveway, one wheel on the curb, blocking her old Toyota. Nami clutches her hair in panic while Omar sleeps inside. She peers through the glass roof and knocks; the seats are empty. In a close-up, her palm rests on the hood, which is still warm and ticking. It was not Omar.
 ---
 
@@ -29,12 +29,12 @@ Caption: The walk takes forty minutes. She has thirty-five.
 Art: Middle right. Nami leans over the strange car with one hand cupped at her eyes against its wraparound glass roof, peering in with her nose almost on the glass. With the knuckles of her other hand she knocks on the glass. The glass shows the fog's milky reflection. Through it the two front seats are just visible and empty, with the steering wheel on the right side as on the Sera sheet. The small rear seats are lost in the reflection. Lettering: the narration is lettered in black capitals onto the fog above the roof. The SFX sits beside her knocking hand. Her balloon is small and polite.
 Caption: It is the color of the inside of a shell.
 Nami: Hello? You're in my driveway.
-SFX: tok tok
+SFX: knock knock
 
 ## Panel 4
 Art: Bottom strip, full width. A tight close-up along the lavender hood. Nami is at the far left edge in profile, bending close with her ear toward the hood and her eyes sliding sideways, and a small hoop earring shows in black line. Her palm rests flat on the near end of the hood. The hood fills the center, with only fog behind it. At the far right, the edge of a butterfly door is lifted a finger-width off its seal, with a sliver of solid black interior showing. Draw it plainly and leave it uncaptioned. Lettering: the ticking SFX rises off the middle of the hood in black capitals, the same as at the end of chapter 2. The caption sits at the top right in a paper-tone box with a thin black rule. Nami's balloon is small and sits near her mouth.
 SFX: TIK... TIK... TIK...
-Caption: The hood is still warm.
+Caption: Still warm. The engine ticks.
 Nami: ...Not Omar.
 
 ## Motion
