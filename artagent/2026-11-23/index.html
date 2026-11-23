@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-23</title>
+<style>
+html,body{margin:0;height:100%;background:#d9d0bc;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;
+  background:linear-gradient(#27406b 0%,#5f7f9a 38%,#c9c3a8 62%,#7d8f8a 78%,#22365c 100%)}
+#art-image{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:block}
+canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.mist{position:absolute;left:0;width:1080px;height:260px;pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(ellipse 46% 42% at 50% 50%,rgba(226,228,222,.42),rgba(226,228,222,.16) 60%,rgba(226,228,222,0) 100%)}
+#m1{top:1010px;animation:d1 46s ease-in-out infinite alternate}
+#m2{top:1180px;height:200px;animation:d2 62s ease-in-out infinite alternate}
+@keyframes d1{from{transform:translateX(-90px);opacity:.55}to{transform:translateX(90px);opacity:.9}}
+@keyframes d2{from{transform:translateX(110px);opacity:.8}to{transform:translateX(-110px);opacity:.45}}
+#date{position:absolute;right:26px;bottom:20px;font:15px/1 Georgia,serif;letter-spacing:2px;color:#1c2333;opacity:.5;
+  text-shadow:0 0 3px rgba(236,228,208,.7)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="art-image" src="art.png" alt="Shin-hanga style colour woodblock print of a late autumn landscape in Japan at dusk">
+  <div class="mist" id="m1"></div>
+  <div class="mist" id="m2"></div>
+  <canvas id="fx" width="540" height="960"></canvas>
+  <canvas id="grain" width="540" height="960"></canvas>
+  <div id="date">2026-11-23</div>
+</div>
+<script>
+(function(){
+var stage=document.getElementById('stage');
+function fit(){
+  var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/1080,h/1920);
+  stage.style.transform='scale('+s+')';
+  stage.style.left=((w-1080*s)/2)+'px';
+  stage.style.top=((h-1920*s)/2)+'px';
+}
+fit();window.addEventListener('resize',fit);
+
+// date-seeded PRNG
+var seed=20261123;
+function R(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+
+// washi fibre + woodgrain, drawn once
+(function(){
+  var g=document.getElementById('grain').getContext('2d');
+  for(var y=0;y<960;y+=3){
+    g.fillStyle='rgba(60,50,35,'+(0.012+R()*0.03).toFixed(3)+')';
+    g.fillRect(0,y+R()*2,540,1);
+  }
+  for(var i=0;i<900;i++){
+    g.fillStyle=R()<.5?'rgba(250,244,226,.10)':'rgba(40,36,30,.07)';
+    g.fillRect(R()*540,R()*960,1+R()*5,1);
+  }
+})();
+
+var c=document.getElementById('fx'),x=c.getContext('2d');
+var W=540,H=960;
+
+// maple leaf outline (unit shape)
+var leafPts=[];
+(function(){
+  var lobes=[1,.42,.86,.38,.62,.3,.34,.3,.62,.38,.86,.42];
+  for(var i=0;i<lobes.length;i++){
+    var a=-Math.PI/2+i/lobes.length*Math.PI*2;
+    leafPts.push([Math.cos(a)*lobes[i],Math.sin(a)*lobes[i]]);
+  }
+})();
+var cols=['#c8361f','#d9531e','#e07a22','#d9a22b','#b82a1c'];
+var leaves=[];
+function newLeaf(l,start){
+  l.x=R()*W; l.y=start?R()*H:-20-R()*120;
+  l.s=5+R()*4.5; l.vy=16+R()*14; l.sw=14+R()*22; l.f=.25+R()*.35;
+  l.p=R()*6.28; l.rot=R()*6.28; l.vr=(R()-.5)*.7; l.c=cols[(R()*cols.length)|0];
+  return l;
+}
+for(var i=0;i<7;i++)leaves.push(newLeaf({},true));
+
+var rain=[];
+for(i=0;i<70;i++)rain.push({x:R()*(W+80),y:R()*H,l:28+R()*46,v:520+R()*220,k:R()});
+
+var last=0;
+function frame(t){
+  var dt=Math.min((t-last)/1000,.034);last=t;
+  var T=t/1000;
+  x.clearRect(0,0,W,H);
+
+  // thin rain, slowly swelling and easing
+  var amt=.55+.45*Math.sin(T*.05);
+  x.lineWidth=.7;
+  x.beginPath();
+  for(var i=0;i<rain.length;i++){
+    var r=rain[i];
+    r.y+=r.v*dt; r.x-=r.v*dt*.07;
+    if(r.y>H+r.l){r.y=-r.l-R()*200;r.x=R()*(W+80)}
+    if(r.k>amt)continue;
+    x.moveTo(r.x,r.y);x.lineTo(r.x+r.l*.07,r.y-r.l);
+  }
+  x.strokeStyle='rgba(232,234,228,.38)';
+  x.stroke();
+
+  // drifting maple leaves, flat colour with keyblock outline
+  for(i=0;i<leaves.length;i++){
+    var l=leaves[i];
+    l.y+=l.vy*dt; l.p+=l.f*dt; l.rot+=l.vr*dt;
+    var lx=l.x+Math.sin(l.p)*l.sw;
+    if(l.y>H+20)newLeaf(l,false);
+    x.save();
+    x.translate(lx,l.y);
+    x.rotate(l.rot+Math.sin(l.p)*.5);
+    x.scale(l.s*(.45+.55*Math.abs(Math.cos(l.p*.8))),l.s);
+    x.beginPath();
+    for(var j=0;j<leafPts.length;j++){
+      if(j)x.lineTo(leafPts[j][0],leafPts[j][1]);else x.moveTo(leafPts[j][0],leafPts[j][1]);
+    }
+    x.closePath();
+    x.fillStyle=l.c;x.fill();
+    x.lineWidth=1/l.s;x.strokeStyle='#1c2333';x.stroke();
+    x.beginPath();x.moveTo(0,-.7);x.lineTo(0,1.25);x.stroke();
+    x.restore();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
