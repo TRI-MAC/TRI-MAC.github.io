@@ -294,6 +294,34 @@ body[data-mode="overview"] .bar-tag,
   font-family: "Bangers", Impact, sans-serif; font-size: 80px;
 }
 
+/* On a touch screen the frame is drawn small, so the controls are larger
+   inside the same 120 px bar, and the touch area of each one is as tall as
+   the bar. */
+@media (pointer: coarse) {
+  .pager { gap: 44px; }
+  .pager button { position: relative; width: 108px; height: 108px; }
+  .pager button::after {
+    content: "";
+    position: absolute;
+    left: -22px; right: -22px;
+    top: 50%;
+    height: 120px;
+    transform: translateY(-50%);
+  }
+  .pager svg { width: 52px; height: 52px; }
+  .tabs button { padding: 0.4em 0.42em 0.29em; }
+  .pause { width: 96px; height: 96px; }
+  .pause svg { width: 44px; height: 44px; }
+  /* The larger controls leave less room in the bar, so their focus rings
+     sit closer in and stay inside the frame. */
+  .pager button:focus-visible { outline-offset: 0; }
+  .tabs button:focus-visible { outline-offset: -4px; }
+  /* The taller tabs reach the countdown line along the bar's lower edge.
+     They are drawn above it, and the line takes no presses. */
+  .bar.tabbed .tabs { position: relative; z-index: 1; }
+  .bar.tabbed .countdown { pointer-events: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .screen { transition: none; }
 }
