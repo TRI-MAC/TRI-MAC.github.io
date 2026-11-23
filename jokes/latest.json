@@ -1,22 +1,22 @@
 {
-  "date": "2026-11-22",
-  "joke": "I slept through the whole meeting. According to the AI summary, I made some excellent points.",
+  "date": "2026-11-23",
+  "joke": "One tap and the AI erased every stranger from my photo. Apparently I won the marathon.",
   "model": {
+    "family": "gemini",
+    "id": "gemini-4-carbon",
+    "display": "Gemini 4 Carbon",
+    "provider": "google"
+  },
+  "scheduled_family": "gemini",
+  "critic": {
     "family": "fable",
     "id": "global.anthropic.claude-fable-5-2",
     "display": "Claude Fable 5.2",
-    "provider": "anthropic"
-  },
-  "scheduled_family": "fable",
-  "critic": {
-    "family": "gpt",
-    "id": "gpt-6.2-astra",
-    "display": "GPT-6.2 Astra",
-    "provider": "openai",
+    "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "The first sentence sets up silence, so the summary’s praise lands as a clean surprise that needs no AI expertise."
+    "reason": "Clean and safe, with a clear setup and a visual turn that anyone who has seen a photo-eraser feature would get without AI knowledge."
   },
   "attempts": 1,
-  "generated_at": "2026-11-22T09:30:27Z"
+  "generated_at": "2026-11-23T09:31:06Z"
 }

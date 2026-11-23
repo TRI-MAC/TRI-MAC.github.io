@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-23",
+  "joke": "One tap and the AI erased every stranger from my photo. Apparently I won the marathon.",
+  "model": {
+    "family": "gemini",
+    "id": "gemini-4-carbon",
+    "display": "Gemini 4 Carbon",
+    "provider": "google"
+  },
+  "scheduled_family": "gemini",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean and safe, with a clear setup and a visual turn that anyone who has seen a photo-eraser feature would get without AI knowledge."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-23T09:31:06Z"
+}

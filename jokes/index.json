@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-23",
+    "joke": "One tap and the AI erased every stranger from my photo. Apparently I won the marathon.",
+    "model": "Gemini 4 Carbon"
+  },
+  {
     "date": "2026-11-22",
     "joke": "I slept through the whole meeting. According to the AI summary, I made some excellent points.",
     "model": "Claude Fable 5.2"
