@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<title>2026-11-24</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#efe4cc}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;background:linear-gradient(#f6eedb,#ecdcb9);overflow:hidden}
+#panel{position:absolute;left:90px;top:1380px;width:900px;height:430px;overflow:hidden}
+#art-image{width:100%;height:100%;object-fit:cover;filter:sepia(.35) saturate(1.1) brightness(1.05);opacity:.95}
+svg{position:absolute;left:0;top:0}
+#spin{transform-origin:540px 680px;animation:rot 120s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#breath{transform-origin:540px 680px;animation:br 24s ease-in-out infinite}
+@keyframes br{50%{transform:scale(.94)}}
+#date{position:absolute;right:40px;bottom:30px;font:18px Georgia,serif;color:#8a6a35;opacity:.5;letter-spacing:3px}
+</style></head><body>
+<div id="stage">
+<svg width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+<radialGradient id="gold" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".55" stop-color="#d9a441"/><stop offset="1" stop-color="#a8721e"/></radialGradient>
+<radialGradient id="ver" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#f0603a"/><stop offset="1" stop-color="#c2361f"/></radialGradient>
+</defs>
+<line x1="90" y1="1320" x2="990" y2="1320" stroke="#a8721e" stroke-width="6"/>
+<line x1="90" y1="1340" x2="990" y2="1340" stroke="#2f7a5c" stroke-width="10"/>
+<g id="breath">
+<circle cx="540" cy="680" r="470" fill="url(#gold)"/>
+<g id="spin"></g>
+<circle cx="540" cy="680" r="300" fill="#2f7a5c"/>
+<circle cx="540" cy="680" r="280" fill="none" stroke="#e8c06a" stroke-width="10"/>
+<circle cx="540" cy="680" r="150" fill="url(#ver)"/>
+<circle cx="540" cy="680" r="60" fill="url(#gold)"/>
+</g>
+<g opacity=".55" transform="translate(965,1302)"><ellipse cx="0" cy="0" rx="9" ry="5" fill="#b88a3e"/><circle cx="7" cy="-2" r="3.5" fill="#b88a3e"/><circle cx="9" cy="-3" r=".8" fill="#5a3a12"/></g>
+</svg>
+<div id="panel"><img id="art-image" src="art.png" alt=""></div>
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" style="pointer-events:none">
+<rect x="90" y="1380" width="900" height="430" fill="none" stroke="#a8721e" stroke-width="0"/>
+<path d="M80 1395 L1000 1395" stroke="#c2361f" stroke-width="8"/>
+<path d="M80 1800 L1000 1800" stroke="#c2361f" stroke-width="8"/>
+<circle cx="540" cy="1395" r="22" fill="#d9a441" stroke="#2f7a5c" stroke-width="6"/>
+</svg>
+<div id="date">2026 · 11 · 24</div>
+</div>
+<script>
+let s=20261124;const r=()=>(s=(s*16807)%2147483647)/2147483647;
+const g=document.getElementById('spin'),n=12+Math.floor(r()*12),ns='http://www.w3.org/2000/svg';
+for(let i=0;i<n;i++){const a=i/n*360;
+const p=document.createElementNS(ns,'path');
+p.setAttribute('d','M540 '+(680-460)+' L'+(540+28)+' '+(680-330)+' L540 '+(680-300)+' L'+(540-28)+' '+(680-330)+'Z');
+p.setAttribute('fill',i%2?'#c2361f':'#2f7a5c');p.setAttribute('transform','rotate('+a+' 540 680)');g.appendChild(p);
+const c=document.createElementNS(ns,'circle');c.setAttribute('cx',540);c.setAttribute('cy',680-395);c.setAttribute('r',10);
+c.setAttribute('fill','#fff3cf');c.setAttribute('transform','rotate('+(a+180/n)+' 540 680)');g.appendChild(c);}
+function fit(){const st=document.getElementById('stage'),k=Math.min(innerWidth/1080,innerHeight/1920);
+st.style.transform='scale('+k+')';st.style.left=(innerWidth-1080*k)/2+'px';st.style.top=(innerHeight-1920*k)/2+'px';}
+addEventListener('resize',fit);fit();
+</script>
+</body></html>
