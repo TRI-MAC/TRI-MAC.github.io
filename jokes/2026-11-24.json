@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-24",
+  "joke": "It took the AI three tries to draw me a blank sign. It kept spelling BLANK wrong.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean and safe, with a real setup and turn: the double failure (taking \"blank\" literally, then misspelling it) lands without any AI knowledge and is gently self-deprecating for an AI lab."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-24T09:31:36Z"
+}

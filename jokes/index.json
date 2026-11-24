@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-24",
+    "joke": "It took the AI three tries to draw me a blank sign. It kept spelling BLANK wrong.",
+    "model": "GPT-6.2 Astra"
+  },
+  {
     "date": "2026-11-23",
     "joke": "One tap and the AI erased every stranger from my photo. Apparently I won the marathon.",
     "model": "Gemini 4 Carbon"
