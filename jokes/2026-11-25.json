@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-25",
+  "joke": "My AI assistant answered my whole inbox in four seconds. Several friends have since asked if I'm all right.",
+  "model": {
+    "family": "opus",
+    "id": "global.anthropic.claude-opus-5-5",
+    "display": "Claude Opus 5.5",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "opus",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The friends’ concern turns a boast about efficiency into a quiet confession about the speaker’s usual reply time."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-25T09:30:26Z"
+}
