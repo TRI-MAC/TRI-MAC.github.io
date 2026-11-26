@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="UTF-8">
+<title>2026-11-26</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ebe2d2;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+  }
+
+  #stage {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    transform-origin: top left;
+    overflow: hidden;
+    background: #f6efe2;
+  }
+
+  /* Static full-resolution handmade washi paper & textured ground (drawn once) */
+  #washi-ground-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 0;
+    display: block;
+  }
+
+  /* Animated woodblock tracks & soft contact shadows (540x960 scaled cleanly) */
+  #trails-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 1;
+    display: block;
+  }
+
+  /* Woodblock offset colour plate behind art-image */
+  #underprint-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 2;
+    overflow: visible;
+    animation: plateBreathe 22s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes plateBreathe {
+    0%, 100% { transform: translate3d(0px, 0px, 0); }
+    50%      { transform: translate3d(-5px, 6px, 0); }
+  }
+
+  /* Background procession lane (beetles weaving BEHIND art.png edges) */
+  #parade-back {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 3;
+    overflow: hidden;
+  }
+
+  /* Irregularly masked art-image container (deliberately off-centre upper-right) */
+  #art-wrap {
+    position: absolute;
+    left: 420px;
+    top: 195px;
+    width: 560px;
+    height: 675px;
+    z-index: 4;
+    filter: drop-shadow(-14px 18px 0px rgba(24, 18, 15, 0.12));
+  }
+
+  #art-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.96;
+    /* Irregular 9-point scalloped mineral facet polygon — zero rectangular edge visible */
+    clip-path: polygon(
+      17% 2%,
+      76% 0%,
+      99% 21%,
+      95% 63%,
+      79% 93%,
+      44% 99%,
+      11% 87%,
+      1% 54%,
+      5% 21%
+    );
+    filter: saturate(1.14) contrast(1.06) brightness(1.03);
+  }
+
+  /* Subtle graphic ink registration accent breaking top-right edge of art-image */
+  #front-accent-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 5;
+    overflow: visible;
+    animation: accentDrift 19s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes accentDrift {
+    0%, 100% { transform: translate3d(0px, 0px, 0); }
+    50%      { transform: translate3d(4px, -5px, 0); }
+  }
+
+  /* Foreground procession lane (hero & companions striding IN FRONT of art.png) */
+  #parade-front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1080px;
+    height: 1920px;
+    z-index: 6;
+    overflow: hidden;
+  }
+
+  /* Individual SVG beetle actors positioned purely via GPU transform */
+  .beetle-actor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: visible;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+  /* Secret Easter Egg: tiny subtle guinea pig tucked near bottom-right corner */
+  #guinea-pig {
+    position: absolute;
+    left: 1034px;
+    top: 1844px;
+    width: 18px;
+    height: auto;
+    opacity: 0.64;
+    z-index: 7;
+    filter: sepia(0.22) saturate(0.86) brightness(0.94);
+    transform: rotate(-4deg);
+  }
+
+  /* Unobtrusive date stamp — the ONLY text on the page */
+  #date-stamp {
+    position: absolute;
+    left: 36px;
+    bottom: 28px;
+    z-index: 8;
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    color: rgba(26, 20, 16, 0.34);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="washi-ground-canvas" width="1080" height="1920"></canvas>
+  <canvas id="trails-canvas" width="540" height="960"></canvas>
+
+  <!-- Woodblock offset underprint behind art.png (extends beyond irregular silhouette) -->
+  <svg id="underprint-svg" viewBox="0 0 1080 1920" aria-hidden="true">
+    <!-- Shifted vermilion mineral underprint polygon -->
+    <polygon
+      points="488,225 832,202 996,356 972,642 868,856 648,904 452,806 392,584 418,348"
+      fill="#e63d2e"
+      opacity="0.92"
+    />
+    <!-- Bold Kabuki saffron-gold geometric cloud tab (kasumi) extending left & right -->
+    <polygon
+      points="332,334 522,334 548,378 358,378"
+      fill="#f3bd23"
+    />
+    <polygon
+      points="872,732 1038,732 1018,782 848,782"
+      fill="#1b9e85"
+    />
+    <polygon
+      points="360,722 496,722 478,756 344,756"
+      fill="#1e5fa8"
+    />
+    <!-- Traditional woodblock kento registration L-marks in sumi ink -->
+    <polyline points="354,186 354,164 384,164" fill="none" stroke="#1b1613" stroke-width="3.5" stroke-linecap="square" opacity="0.58"/>
+    <polyline points="1012,894 1012,916 982,916" fill="none" stroke="#1b1613" stroke-width="3.5" stroke-linecap="square" opacity="0.58"/>
+  </svg>
+
+  <!-- Background beetle lane (partially hidden behind art.png irregular silhouette) -->
+  <div id="parade-back"></div>
+
+  <!-- Art-image masked into an irregular facet silhouette -->
+  <div id="art-wrap">
+    <img id="art-image" src="art.png" alt="">
+  </div>
+
+  <!-- Subtle graphic Kabuki woodblock accents overlapping the front edges of art.png -->
+  <svg id="front-accent-svg" viewBox="0 0 1080 1920" aria-hidden="true">
+    <!-- Crisp vermilion & gold Kabuki fan-bar crossing the lower-right facet -->
+    <polygon
+      points="798,790 956,790 936,818 778,818"
+      fill="#f4be22"
+      stroke="#181311"
+      stroke-width="3"
+    />
+    <!-- Small cobalt Kabuki bishi diamond crest overlapping the upper-left facet -->
+    <polygon
+      points="460,264 494,296 460,328 426,296"
+      fill="#1e5fa8"
+      stroke="#181311"
+      stroke-width="3.2"
+    />
+    <polygon
+      points="460,279 478,296 460,313 442,296"
+      fill="#f6efe2"
+    />
+  </svg>
+
+  <!-- Foreground beetle lane (hero & major beetles marching boldly across art.png) -->
+  <div id="parade-front"></div>
+
+  <!-- Hidden tiny guinea pig Easter egg -->
+  <img id="guinea-pig" src="guineapig.png" alt="">
+
+  <!-- Date stamp -->
+  <div id="date-stamp">2026-11-26</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------
+   * 1. Deterministic PRNG seeded by today's date: 2026-11-26
+   * ------------------------------------------------------------ */
+  const DATE_STR = "2026-11-26";
+  function hashDate(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function createRng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rng = createRng(hashDate(DATE_STR));
+
+  /* ------------------------------------------------------------
+   * 2. Responsive 1080x1920 Portrait Shell (top-left origin)
+   * ------------------------------------------------------------ */
+  const stage = document.getElementById("stage");
+  function fitStage() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scale = Math.min(vw / 1080, vh / 1920);
+    const ox = (vw - 1080 * scale) * 0.5;
+    const oy = (vh - 1920 * scale) * 0.5;
+    stage.style.transform = `translate3d(${ox}px, ${oy}px, 0) scale(${scale})`;
+  }
+  fitStage();
+  window.addEventListener("resize", fitStage);
+
+  /* ------------------------------------------------------------
+   * 3. Procession Path (Stately S-Diagonal Kabuki Hanamichi)
+   *    Flows seamlessly from offscreen bottom-left to offscreen top-right
+   * ------------------------------------------------------------ */
+  const PATH_PTS = [
+    { x: -130, y: 2110 },
+    { x:  175, y: 1580 },
+    { x:  435, y: 1020 },
+    { x:  475, y:  570 },
+    { x:  815, y:  215 },
+    { x: 1215, y: -155 }
+  ];
+
+  function evalCatmullRom(pts, u) {
+    const n = pts.length - 1;
+    const scaled = Math.max(0, Math.min(0.999999, u)) * n;
+    const idx = Math.floor(scaled);
+    const t = scaled - idx;
+
+    const p0 = pts[Math.max(0, idx - 1)];
+    const p1 = pts[idx];
+    const p2 = pts[Math.min(n, idx + 1)];
+    const p3 = pts[Math.min(n, idx + 2)];
+
+    const t2 = t * t;
+    const t3 = t2 * t;
+
+    const x = 0.5 * (
+      (2 * p1.x) +
+      (-p0.x + p2.x) * t +
+      (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+      (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3
+    );
+    const y = 0.5 * (
+      (2 * p1.y) +
+      (-p0.y + p2.y) * t +
+      (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+      (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3
+    );
+
+    const dx = 0.5 * (
+      (-p0.x + p2.x) +
+      2 * (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t +
+      3 * (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t2
+    );
+    const dy = 0.5 * (
+      (-p0.y + p2.y) +
+      2 * (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t +
+      3 * (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t2
+    );
+
+    const len = Math.hypot(dx, dy) || 1;
+    return {
+      x,
+      y,
+      tx: dx / len,
+      ty: dy / len,
+      nx: -dy / len,
+      ny: dx / len,
+      angle: Math.atan2(dy, dx) + Math.PI / 2
+    };
+  }
+
+  // Arc-length lookup table so beetles march at uniform steady speed
+  const LUT_N = 320;
+  const arcLut = [];
+  let totalLen = 0;
+  let prevP = evalCatmullRom(PATH_PTS, 0);
+  arcLut.push({ u: 0, s: 0 });
+  for (let i = 1; i <= LUT_N; i++) {
+    const u = i / LUT_N;
+    const p = evalCatmullRom(PATH_PTS, u);
+    totalLen += Math.hypot(p.x - prevP.x, p.y - prevP.y);
+    arcLut.push({ u, s: totalLen });
+    prevP = p;
+  }
+
+  function samplePathByFrac(frac) {
+    const f = ((frac % 1) + 1) % 1;
+    const target = f * totalLen;
+    let lo = 0, hi = LUT_N;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (arcLut[mid].s < target) lo = mid + 1;
+      else hi = mid;
+    }
+    const i1 = Math.max(1, lo);
+    const i0 = i1 - 1;
+    const seg = arcLut[i1].s - arcLut[i0].s || 1;
+    const local = (target - arcLut[i0].s) / seg;
+    const u = arcLut[i0].u + (arcLut[i1].u - arcLut[i0].u) * local;
+    return evalCatmullRom(PATH_PTS, u);
+  }
+
+  /* ------------------------------------------------------------
+   * 4. Static Full-Res 1080x1920 Washi Ground & Woodblock Path
+   *    (Drawn ONCE — zero per-frame cost, high-key sunlit paper)
+   * ------------------------------------------------------------ */
+  (function drawStaticGround() {
+    const canvas = document.getElementById("washi-ground-canvas");
+    const ctx = canvas.getContext("2d");
+    const W = 1080, H = 1920;
+
+    // Warm sunlit unbleached handmade washi paper field
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, "#faf4e8");
+    bgGrad.addColorStop(0.52, "#f5ede0");
+    bgGrad.addColorStop(1, "#eee2ce");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle bamboo sugeta horizontal laid-paper screen lines
+    ctx.strokeStyle = "rgba(138, 110, 76, 0.042)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let y = 3; y < H; y += 7) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+    }
+    ctx.stroke();
+
+    // Organic kozo mulberry paper fibers (deterministic from 2026-11-26)
+    for (let i = 0; i < 1250; i++) {
+      const x = rng() * W;
+      const y = rng() * H;
+      const len = 7 + rng() * 24;
+      const ang = (rng() - 0.5) * Math.PI;
+      const light = rng() > 0.45;
+      ctx.strokeStyle = light
+        ? `rgba(255, 252, 244, ${(0.18 + rng() * 0.22).toFixed(3)})`
+        : `rgba(154, 126, 92, ${(0.045 + rng() * 0.075).toFixed(3)})`;
+      ctx.lineWidth = 0.7 + rng() * 1.1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+      ctx.stroke();
+    }
+
+    // Subtle textured mineral-ochre Kabuki hanamichi ground band along the procession path
+    // Feathers cleanly inside the stage so there are NO abrupt hard cutoffs at viewport edges
+    const STEPS = 180;
+    const leftEdgeOuter = [];
+    const rightEdgeOuter = [];
+    const leftEdgeInner = [];
+    const rightEdgeInner = [];
+
+    for (let i = 0; i <= STEPS; i++) {
+      const f = i / STEPS;
+      const pt = samplePathByFrac(f);
+      // Taper band width gently near entry & exit for organic woodblock brush finish
+      const edgeFade = Math.sin(Math.min(1, Math.max(0, (f - 0.02) / 0.96)) * Math.PI);
+      const outerHalf = 115 + 62 * edgeFade + Math.sin(f * 13 + 0.6) * 14;
+      const innerHalf = 68 + 38 * edgeFade;
+
+      leftEdgeOuter.push({ x: pt.x + pt.nx * outerHalf, y: pt.y + pt.ny * outerHalf });
+      rightEdgeOuter.push({ x: pt.x - pt.nx * outerHalf, y: pt.y - pt.ny * outerHalf });
+      leftEdgeInner.push({ x: pt.x + pt.nx * innerHalf, y: pt.y + pt.ny * innerHalf });
+      rightEdgeInner.push({ x: pt.x - pt.nx * innerHalf, y: pt.y - pt.ny * innerHalf });
+    }
+
+    function fillRibbon(lPts, rPts, fillStyle) {
+      ctx.beginPath();
+      ctx.moveTo(lPts[0].x, lPts[0].y);
+      for (let i = 1; i < lPts.length; i++) ctx.lineTo(lPts[i].x, lPts[i].y);
+      for (let i = rPts.length - 1; i >= 0; i--) ctx.lineTo(rPts[i].x, rPts[i].y);
+      ctx.closePath();
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+
+    // Outer pale mineral sand wash
+    fillRibbon(leftEdgeOuter, rightEdgeOuter, "rgba(232, 211, 176, 0.44)");
+    // Inner warm ochre-straw textured ground
+    fillRibbon(leftEdgeInner, rightEdgeInner, "rgba(225, 198, 156, 0.46)");
+
+    // Crisp woodblock carved ground grain & rhythmic mineral earth flecks along the path
+    ctx.save();
+    for (let i = 8; i < STEPS - 8; i++) {
+      const f = i / STEPS;
+      const pt = samplePathByFrac(f);
+      const fade = Math.sin(f * Math.PI);
+      if (fade < 0.08) continue;
+
+      // Subtle woodblock plank / earthen ridge striations perpendicular to path
+      if (i % 3 === 0) {
+        const span = (48 + rng() * 68) * fade;
+        const off = (rng() - 0.5) * 70;
+        const cx = pt.x + pt.nx * off;
+        const cy = pt.y + pt.ny * off;
+        ctx.strokeStyle = `rgba(116, 86, 54, ${(0.07 + rng() * 0.08) * fade})`;
+        ctx.lineWidth = 1.2 + rng() * 1.4;
+        ctx.beginPath();
+        ctx.moveTo(cx - pt.nx * span * 0.5, cy - pt.ny * span * 0.5);
+        ctx.lineTo(cx + pt.nx * span * 0.5, cy + pt.ny * span * 0.5);
+        ctx.stroke();
+      }
+
+      // Mineral-ink stone grains along the textured earth
+      for (let k = 0; k < 4; k++) {
+        const lat = (rng() - 0.5) * 230 * fade;
+        const gx = pt.x + pt.nx * lat + (rng() - 0.5) * 16;
+        const gy = pt.y + pt.ny * lat + (rng() - 0.5) * 16;
+        const r = 1.2 + rng() * 2.4;
+        const pick = rng();
+        ctx.fillStyle = pick > 0.72
+          ? `rgba(186, 78, 52, ${(0.12 * fade).toFixed(3)})`
+          : pick > 0.35
+            ? `rgba(74, 58, 42, ${(0.12 * fade).toFixed(3)})`
+            : `rgba(42, 118, 102, ${(0.10 * fade).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(gx, gy, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+
+    // Subtle quiet pebble accent near the bottom-right corner where the tiny guinea pig hides
+    ctx.fillStyle = "rgba(128, 104, 78, 0.16)";
+    ctx.beginPath();
+    ctx.ellipse(1042, 1862, 16, 5.5, -0.1, 0, Math.PI * 2);
+    ctx.fill();
+  })();
+
+  /* ------------------------------------------------------------
+   * 5. SVG Factory for the 6 Wildly Varied Ukiyo-e Kabuki Beetles
+   *    Each beetle is a bold woodblock artwork with kimono patterns,
+   *    iridescent bokashi shell gradients, and articulated anatomy.
+   * ------------------------------------------------------------ */
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  function buildSvg(markup, viewBox, width, height) {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `<svg xmlns="${SVG_NS}" class="beetle-actor" viewBox="${viewBox}" width="${width}" height="${height}">${markup}</svg>`;
+    return wrap.firstElementChild;
+  }
+
+  // Helper to generate articulated armored Kabuki leg SVG group
+  function makeLegsMarkup(cfg) {
+    // cfg: { y1, y2, y3, spread, len1, len2, fillMain, fillJoint }
+    const { y1, y2, y3, spread, len1, len2, fillMain, fillJoint } = cfg;
+    const stroke = "#171311";
+    function legPair(side, yBase, angleDeg, lenScale, name) {
+      const s = side; // -1 left, +1 right
+      const x0 = s * spread;
+      const kx = s * (spread + len1 * lenScale);
+      const ky = yBase + Math.sin(angleDeg * Math.PI / 180) * len1 * lenScale;
+      const fx = s * (spread + (len1 + len2) * lenScale);
+      const fy = ky + Math.sin((angleDeg + 34) * Math.PI / 180) * len2 * lenScale;
+      return `
+        <g class="leg" data-leg="${name}" data-ox="${x0}" data-oy="${yBase}">
+          <polygon points="${x0},${yBase - 6} ${kx},${ky - 5} ${kx},${ky + 5} ${x0},${yBase + 6}"
+            fill="${fillMain}" stroke="${stroke}" stroke-width="4" stroke-linejoin="round"/>
+          <polygon points="${kx},${ky - 4.5} ${fx},${fy - 2.5} ${fx + s * 10},${fy + 6} ${kx},${ky + 4.5}"
+            fill="${stroke}" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="${kx}" cy="${ky}" r="6.5" fill="${fillJoint}" stroke="${stroke}" stroke-width="3.2"/>
+        </g>`;
+    }
+    return `
+      ${legPair(-1, y1, -46, 0.92, "L1")}
+      ${legPair( 1, y1, -46, 0.92, "R1")}
+      ${legPair(-1, y2,  10, 1.00, "L2")}
+      ${legPair( 1, y2,  10, 1.00, "R2")}
+      ${legPair(-1, y3,  48, 1.08, "L3")}
+      ${legPair( 1, y3,  48, 1.08, "R3")}
+    `;
+  }
+
+  /* BEETLE 1 (HERO): KABUTOMUSHI — Grand Kabuki Rhinoceros Beetle ("Shibaraku") */
+  function createHeroRhinoBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -52, y2: 24, y3: 102, spread: 86, len1: 58, len2: 64,
+      fillMain: "#f3bc24", fillJoint: "#e63a2c"
+    });
+    const markup = `
+      <defs>
+        <linearGradient id="hero-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#19b274"/>
+          <stop offset="46%" stop-color="#1596ad"/>
+          <stop offset="100%" stop-color="#1f5ca8"/>
+        </linearGradient>
+        <linearGradient id="hero-sheen" x1="0%" y1="0%" x2="100%" y2="25%">
+          <stop offset="0%" stop-color="#fff9d6" stop-opacity="0"/>
+          <stop offset="48%" stop-color="#d8ff8a" stop-opacity="0.62"/>
+          <stop offset="56%" stop-color="#ffffff" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="#7ef5ea" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="hero-elytra-clip">
+          <path d="M -112,-14 C -124,78 -98,186 0,214 C 98,186 124,78 112,-14 Z"/>
+        </clipPath>
+        <pattern id="hero-kikko" width="38" height="33" patternUnits="userSpaceOnUse">
+          <polygon points="19,2 36,11 36,24 19,32 2,24 2,11"
+            fill="none" stroke="#f5c636" stroke-width="2.6" opacity="0.78"/>
+          <polygon points="19,8 29,14 29,21 19,26 9,21 9,14"
+            fill="none" stroke="#171311" stroke-width="1.6" opacity="0.45"/>
+        </pattern>
+      </defs>
+
+      <!-- Articulated tripod legs -->
+      ${legs}
+
+      <!-- Main Elytra Carapace -->
+      <path d="M -112,-14 C -124,78 -98,186 0,214 C 98,186 124,78 112,-14 Z"
+        fill="url(#hero-shell)" stroke="#171311" stroke-width="6.5" stroke-linejoin="round"/>
+
+      <!-- Kimono Kikko Hexagonal Brocade + Kabuki Crimson Mon Crests + Iridescent Sheen -->
+      <g clip-path="url(#hero-elytra-clip)">
+        <rect x="-130" y="-25" width="260" height="250" fill="url(#hero-kikko)"/>
+        <!-- Bold Vermilion Kabuki Shoulder Bands -->
+        <polygon points="-122,-18 -18,-18 -46,42 -122,22" fill="#e63a2c" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="122,-18 18,-18 46,42 122,22" fill="#e63a2c" stroke="#171311" stroke-width="4.5"/>
+        <!-- Twin Kabuki Diamond Kamon Crests -->
+        <polygon points="-58,92 -34,118 -58,144 -82,118" fill="#f4be22" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="-58,104 -45,118 -58,132 -71,118" fill="#e63a2c"/>
+        <polygon points="58,92 82,118 58,144 34,118" fill="#f4be22" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="58,104 71,118 58,132 45,118" fill="#e63a2c"/>
+        <!-- Gliding Iridescent Mica Band -->
+        <g class="sheen-bar">
+          <polygon points="-180,-40 -75,-40 -15,240 -120,240" fill="url(#hero-sheen)"/>
+        </g>
+      </g>
+
+      <!-- Crisp Central Wing Seam & Scutellum Triangle -->
+      <line x1="0" y1="-10" x2="0" y2="213" stroke="#171311" stroke-width="6"/>
+      <polygon points="-24,-14 24,-14 0,24" fill="#f4be22" stroke="#171311" stroke-width="5" stroke-linejoin="round"/>
+
+      <!-- Pronotum (Kabuki Kumadori Painted Collar) -->
+      <path d="M -98,-14 C -114,-74 -72,-124 0,-128 C 72,-124 114,-74 98,-14 Z"
+        fill="#faf4e8" stroke="#171311" stroke-width="6.5" stroke-linejoin="round"/>
+      <!-- Bold Crimson Kumadori Theatrical Stripes -->
+      <path d="M -84,-24 C -82,-64 -54,-98 -18,-108 L -12,-84 C -40,-76 -58,-52 -62,-24 Z" fill="#e63a2c"/>
+      <path d="M 84,-24 C 82,-64 54,-98 18,-108 L 12,-84 C 40,-76 58,-52 62,-24 Z" fill="#e63a2c"/>
+      <path d="M -42,-20 C -40,-48 -24,-70 0,-76 C 24,-70 40,-48 42,-20 L 22,-20 C 20,-40 12,-52 0,-56 C -12,-52 -20,-40 -22,-20 Z" fill="#171311"/>
+      <circle cx="0" cy="-94" r="10" fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+
+      <!-- Articulated Head + Grand Forked Kabuki Helmet Horn (Mie flourish!) -->
+      <g class="head-group" data-ox="0" data-oy="-118">
+        <!-- Fan-tipped Kabuki Antennae -->
+        <polyline points="-32,-128 -68,-156 -88,-146" fill="none" stroke="#171311" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="-90" cy="-145" r="7" fill="#e63a2c" stroke="#171311" stroke-width="3"/>
+        <polyline points="32,-128 68,-156 88,-146" fill="none" stroke="#171311" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="90" cy="-145" r="7" fill="#e63a2c" stroke="#171311" stroke-width="3"/>
+
+        <!-- Head Shield -->
+        <path d="M -48,-116 C -50,-148 -26,-164 0,-166 C 26,-164 50,-148 48,-116 Z"
+          fill="#1f5ca8" stroke="#171311" stroke-width="6"/>
+        <!-- Fierce Kabuki Eyes -->
+        <circle cx="-38" cy="-136" r="10" fill="#faf4e8" stroke="#171311" stroke-width="4"/>
+        <circle cx="-38" cy="-137" r="4.5" fill="#e63a2c"/>
+        <circle cx="38" cy="-136" r="10" fill="#faf4e8" stroke="#171311" stroke-width="4"/>
+        <circle cx="38" cy="-137" r="4.5" fill="#e63a2c"/>
+
+        <!-- Grand Y-Forked Rhinoceros Samurai Horn -->
+        <path d="M -14,-152 L -11,-214 L -56,-256 L -34,-266 L -6,-234 L 0,-244 L 6,-234 L 34,-266 L 56,-256 L 11,-214 L 14,-152 Z"
+          fill="#171311" stroke="#171311" stroke-width="4" stroke-linejoin="round"/>
+        <polygon points="-5,-158 5,-158 3,-218 -3,-218" fill="#e63a2c"/>
+        <polygon points="-50,-254 -34,-262 -16,-242 -26,-234" fill="#f4be22"/>
+        <polygon points="50,-254 34,-262 16,-242 26,-234" fill="#f4be22"/>
+      </g>
+    `;
+    return buildSvg(markup, "-235 -285 470 535", 415, 472);
+  }
+
+  /* BEETLE 2: KUWAGATA — Sawtooth Stag Beetle ("Ichimatsu" Checkerboard Actor) */
+  function createStagBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -36, y2: 28, y3: 94, spread: 64, len1: 46, len2: 52,
+      fillMain: "#1e5fa8", fillJoint: "#f3bc24"
+    });
+    const markup = `
+      <defs>
+        <linearGradient id="stag-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3c379e"/>
+          <stop offset="50%" stop-color="#1e6ab8"/>
+          <stop offset="100%" stop-color="#19b0a6"/>
+        </linearGradient>
+        <linearGradient id="stag-sheen" x1="0%" y1="0%" x2="100%" y2="20%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#a8fff5" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="stag-elytra-clip">
+          <path d="M -78,-6 C -84,78 -62,164 0,188 C 62,164 84,78 78,-6 Z"/>
+        </clipPath>
+        <clipPath id="stag-pronotum-clip">
+          <path d="M -72,-6 L -82,-76 L 82,-76 L 72,-6 Z"/>
+        </clipPath>
+        <pattern id="ichimatsu-pat" width="32" height="32" patternUnits="userSpaceOnUse">
+          <rect width="32" height="32" fill="#faf4e8"/>
+          <rect x="0" y="0" width="16" height="16" fill="#1b5ba6"/>
+          <rect x="16" y="16" width="16" height="16" fill="#1b5ba6"/>
+        </pattern>
+      </defs>
+
+      ${legs}
+
+      <!-- Elytra -->
+      <path d="M -78,-6 C -84,78 -62,164 0,188 C 62,164 84,78 78,-6 Z"
+        fill="url(#stag-shell)" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+
+      <g clip-path="url(#stag-elytra-clip)">
+        <!-- Bold Persimmon-Orange Uroko Triangle Sash -->
+        <polygon points="-84,48 -42,16 0,48 42,16 84,48 84,78 42,46 0,78 -42,46 -84,78"
+          fill="#f2681d" stroke="#171311" stroke-width="3.8"/>
+        <polygon points="-80,118 -40,90 0,118 40,90 80,118 80,142 40,114 0,142 -40,114 -80,142"
+          fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+        <g class="sheen-bar">
+          <polygon points="-140,-20 -65,-20 -15,210 -90,210" fill="url(#stag-sheen)"/>
+        </g>
+      </g>
+
+      <line x1="0" y1="-4" x2="0" y2="186" stroke="#171311" stroke-width="5.5"/>
+
+      <!-- Ichimatsu Checkerboard Pronotum -->
+      <g clip-path="url(#stag-pronotum-clip)">
+        <rect x="-90" y="-84" width="180" height="86" fill="url(#ichimatsu-pat)"/>
+      </g>
+      <path d="M -72,-6 L -82,-76 L 82,-76 L 72,-6 Z"
+        fill="none" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+
+      <!-- Head & Towering Curved Pincers -->
+      <g class="head-group" data-ox="0" data-oy="-78">
+        <rect x="-56" y="-122" width="112" height="46" rx="14"
+          fill="#171311" stroke="#171311" stroke-width="5"/>
+        <rect x="-40" y="-110" width="80" height="20" rx="6" fill="#e63a2c"/>
+        <circle cx="-46" cy="-102" r="8" fill="#f4be22" stroke="#171311" stroke-width="3"/>
+        <circle cx="46" cy="-102" r="8" fill="#f4be22" stroke="#171311" stroke-width="3"/>
+
+        <!-- Left Curved Pincer -->
+        <g class="pincer-left" data-ox="-34" data-oy="-118">
+          <path d="M -42,-116 C -84,-154 -84,-216 -24,-242 L -14,-226 C -52,-206 -52,-162 -24,-138 L -40,-168 L -22,-166 L -34,-192 L -14,-186 L -20,-116 Z"
+            fill="#171311" stroke="#171311" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M -38,-126 C -68,-156 -68,-204 -26,-228" fill="none" stroke="#f2681d" stroke-width="5.5" stroke-linecap="round"/>
+        </g>
+        <!-- Right Curved Pincer -->
+        <g class="pincer-right" data-ox="34" data-oy="-118">
+          <path d="M 42,-116 C 84,-154 84,-216 24,-242 L 14,-226 C 52,-206 52,-162 24,-138 L 40,-168 22,-166 34,-192 14,-186 20,-116 Z"
+            fill="#171311" stroke="#171311" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M 38,-126 C 68,-156 68,-204 26,-228" fill="none" stroke="#f2681d" stroke-width="5.5" stroke-linecap="round"/>
+        </g>
+      </g>
+    `;
+    return buildSvg(markup, "-190 -260 380 480", 295, 372);
+  }
+
+  /* BEETLE 3: TAMAMUSHI — Iridescent Jewel Beetle ("Asanoha" Fan Actor) */
+  function createJewelBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -44, y2: 18, y3: 84, spread: 48, len1: 38, len2: 44,
+      fillMain: "#18ad72", fillJoint: "#f4be22"
+    });
+    const markup = `
+      <defs>
+        <linearGradient id="jewel-shell" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#149f68"/>
+          <stop offset="25%" stop-color="#cbe02c"/>
+          <stop offset="50%" stop-color="#d82b62"/>
+          <stop offset="75%" stop-color="#cbe02c"/>
+          <stop offset="100%" stop-color="#149f68"/>
+        </linearGradient>
+        <linearGradient id="jewel-sheen" x1="0%" y1="0%" x2="100%" y2="15%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#fff8b0" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="jewel-elytra-clip">
+          <path d="M -60,-36 C -64,52 -46,154 0,194 C 46,154 64,52 60,-36 Z"/>
+        </clipPath>
+      </defs>
+
+      ${legs}
+
+      <!-- Slender Torpedo Jewel Carapace -->
+      <path d="M -60,-36 C -64,52 -46,154 0,194 C 46,154 64,52 60,-36 Z"
+        fill="url(#jewel-shell)" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+
+      <g clip-path="url(#jewel-elytra-clip)">
+        <!-- Crisp Asanoha Star-Diamond Spine -->
+        <polygon points="0,-24 22,12 0,48 -22,12" fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,48 22,84 0,120 -22,84" fill="#18a39c" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,120 18,150 0,180 -18,150" fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+        <!-- Fine Gold Parallel Striations -->
+        <line x1="-36" y1="-34" x2="-24" y2="168" stroke="#faf4e8" stroke-width="3" opacity="0.8"/>
+        <line x1="36" y1="-34" x2="24" y2="168" stroke="#faf4e8" stroke-width="3" opacity="0.8"/>
+        <g class="sheen-bar">
+          <polygon points="-110,-40 -52,-40 -8,210 -66,210" fill="url(#jewel-sheen)"/>
+        </g>
+      </g>
+      <line x1="0" y1="-34" x2="0" y2="192" stroke="#171311" stroke-width="4.5"/>
+
+      <!-- Sculpted Jewel Pronotum -->
+      <polygon points="-58,-36 -42,-98 42,-98 58,-36"
+        fill="#d82b62" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+      <polygon points="-32,-44 -22,-88 22,-88 32,-44" fill="#18b272" stroke="#171311" stroke-width="3.5"/>
+
+      <!-- Head & Sweeping Segmented Antennae -->
+      <g class="head-group" data-ox="0" data-oy="-98">
+        <path d="M -30,-96 C -30,-128 30,-128 30,-96 Z" fill="#f4be22" stroke="#171311" stroke-width="5.5"/>
+        <circle cx="-22" cy="-112" r="7" fill="#171311"/>
+        <circle cx="22" cy="-112" r="7" fill="#171311"/>
+        <path d="M -18,-122 C -46,-162 -76,-150 -86,-116" fill="none" stroke="#171311" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M 18,-122 C 46,-162 76,-150 86,-116" fill="none" stroke="#171311" stroke-width="5.5" stroke-linecap="round"/>
+        <circle cx="-86" cy="-116" r="6" fill="#e63a2c" stroke="#171311" stroke-width="2.5"/>
+        <circle cx="86" cy="-116" r="6" fill="#e63a2c" stroke="#171311" stroke-width="2.5"/>
+      </g>
+    `;
+    return buildSvg(markup, "-160 -200 320 420", 242, 318);
+  }
+
+  /* BEETLE 4: KAMIKIRI — Longhorn Beetle ("Renjishi" Mane Ribbon Actor) */
+  function createLonghornBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -28, y2: 34, y3: 98, spread: 56, len1: 48, len2: 52,
+      fillMain: "#17a3a6", fillJoint: "#f26619"
+    });
+    const markup = `
+      <defs>
+        <linearGradient id="long-shell" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#f26619"/>
+          <stop offset="52%" stop-color="#e53b2c"/>
+          <stop offset="100%" stop-color="#f4be22"/>
+        </linearGradient>
+        <linearGradient id="long-sheen" x1="0%" y1="0%" x2="100%" y2="25%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#fff4c4" stop-opacity="0.62"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="long-elytra-clip">
+          <path d="M -64,-18 L -58,154 C -54,178 -24,188 0,188 C 24,188 54,178 58,154 L 64,-18 Z"/>
+        </clipPath>
+      </defs>
+
+      ${legs}
+
+      <!-- Broad Rectangular-Shouldered Elytra -->
+      <path d="M -64,-18 L -58,154 C -54,178 -24,188 0,188 C 24,188 54,178 58,154 L 64,-18 Z"
+        fill="url(#long-shell)" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+
+      <g clip-path="url(#long-elytra-clip)">
+        <!-- Bold Kabuki Horizontal Chevron Kimono Stripes -->
+        <polygon points="-70,16 0,-8 70,16 70,48 0,24 -70,48" fill="#17a3a6" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="-70,76 0,52 70,76 70,104 0,80 -70,104" fill="#faf4e8" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="-70,128 0,108 70,128 70,152 0,132 -70,152" fill="#1b5ca8" stroke="#171311" stroke-width="4.5"/>
+        <g class="sheen-bar">
+          <polygon points="-115,-25 -55,-25 -15,205 -75,205" fill="url(#long-sheen)"/>
+        </g>
+      </g>
+      <line x1="0" y1="-16" x2="0" y2="188" stroke="#171311" stroke-width="5.2"/>
+
+      <!-- Spined Pronotum Collar -->
+      <polygon points="-50,-18 -68,-48 -46,-82 46,-82 68,-48 50,-18"
+        fill="#171311" stroke="#171311" stroke-width="5" stroke-linejoin="round"/>
+      <polygon points="-32,-28 -44,-48 -28,-70 28,-70 44,-48 32,-28" fill="#f4be22"/>
+      <circle cx="0" cy="-49" r="12" fill="#e63a2c" stroke="#171311" stroke-width="3.5"/>
+
+      <!-- Head + Extravagant Sweeping Banded Kabuki-Mane Antennae (Thick Bold Arcs) -->
+      <g class="head-group" data-ox="0" data-oy="-84">
+        <rect x="-36" y="-120" width="72" height="40" rx="10"
+          fill="#faf4e8" stroke="#171311" stroke-width="5.5"/>
+        <circle cx="-26" cy="-102" r="8" fill="#e63a2c" stroke="#171311" stroke-width="3"/>
+        <circle cx="26" cy="-102" r="8" fill="#e63a2c" stroke="#171311" stroke-width="3"/>
+
+        <!-- Left Sweeping Banded Antenna -->
+        <g class="antenna-left" data-ox="-24" data-oy="-116">
+          <path d="M -22,-116 C -115,-215 -210,-150 -196,-10"
+            fill="none" stroke="#171311" stroke-width="14" stroke-linecap="round"/>
+          <path d="M -22,-116 C -115,-215 -210,-150 -196,-10"
+            fill="none" stroke="#e63a2c" stroke-width="7.5" stroke-dasharray="22 22" stroke-linecap="round"/>
+          <path d="M -22,-116 C -115,-215 -210,-150 -196,-10"
+            fill="none" stroke="#faf4e8" stroke-width="7.5" stroke-dashoffset="22" stroke-dasharray="10 34" stroke-linecap="round"/>
+        </g>
+
+        <!-- Right Sweeping Banded Antenna -->
+        <g class="antenna-right" data-ox="24" data-oy="-116">
+          <path d="M 22,-116 C 115,-215 210,-150 196,-10"
+            fill="none" stroke="#171311" stroke-width="14" stroke-linecap="round"/>
+          <path d="M 22,-116 C 115,-215 210,-150 196,-10"
+            fill="none" stroke="#e63a2c" stroke-width="7.5" stroke-dasharray="22 22" stroke-linecap="round"/>
+          <path d="M 22,-116 C 115,-215 210,-150 196,-10"
+            fill="none" stroke="#faf4e8" stroke-width="7.5" stroke-dashoffset="22" stroke-dasharray="10 34" stroke-linecap="round"/>
+        </g>
+      </g>
+    `;
+    return buildSvg(markup, "-230 -215 460 430", 335, 314);
+  }
+
+  /* BEETLE 5: KAMENOKO — Golden Tortoise Shield Beetle ("Kamon" Medallion Actor) */
+  function createTortoiseBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -44, y2: 6, y3: 56, spread: 78, len1: 30, len2: 34,
+      fillMain: "#e63a2c", fillJoint: "#f4be22"
+    });
+    const markup = `
+      <defs>
+        <radialGradient id="tort-dome" cx="42%" cy="38%" r="60%">
+          <stop offset="0%" stop-color="#7ef2c8"/>
+          <stop offset="50%" stop-color="#19a87c"/>
+          <stop offset="100%" stop-color="#1b5da8"/>
+        </radialGradient>
+        <linearGradient id="tort-sheen" x1="0%" y1="0%" x2="100%" y2="25%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#fff9cc" stop-opacity="0.68"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="tort-clip">
+          <circle cx="0" cy="6" r="102"/>
+        </clipPath>
+      </defs>
+
+      ${legs}
+
+      <!-- Circular Scalloped Wagasa-Shield Outer Carapace -->
+      <circle cx="0" cy="6" r="106" fill="#f4be22" stroke="#171311" stroke-width="6.5"/>
+
+      <g clip-path="url(#tort-clip)">
+        <!-- Radiating Kabuki Wagasa Fan Wedges -->
+        <polygon points="0,6 -36,-106 36,-106" fill="#e63a2c" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,6 108,-36 108,44" fill="#e63a2c" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,6 36,118 -36,118" fill="#1e5fa8" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,6 -108,44 -108,-36" fill="#e63a2c" stroke="#171311" stroke-width="3.5"/>
+        <g class="sheen-bar">
+          <polygon points="-130,-110 -60,-110 -10,120 -80,120" fill="url(#tort-sheen)"/>
+        </g>
+      </g>
+
+      <!-- Raised Iridescent Inner Medallion Dome -->
+      <circle cx="0" cy="6" r="64" fill="url(#tort-dome)" stroke="#171311" stroke-width="6"/>
+      <polygon points="0,-34 34,6 0,46 -34,6" fill="#faf4e8" stroke="#171311" stroke-width="4.5"/>
+      <circle cx="0" cy="6" r="16" fill="#e63a2c" stroke="#171311" stroke-width="4"/>
+
+      <!-- Tiny Sculpted Crest Head Peeking Above Shield -->
+      <g class="head-group" data-ox="0" data-oy="-96">
+        <path d="M -22,-98 C -22,-124 22,-124 22,-98 Z" fill="#171311"/>
+        <polyline points="-12,-114 -32,-136" fill="none" stroke="#171311" stroke-width="4.5" stroke-linecap="round"/>
+        <polyline points="12,-114 32,-136" fill="none" stroke="#171311" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="-33" cy="-137" r="5" fill="#f4be22" stroke="#171311" stroke-width="2.5"/>
+        <circle cx="33" cy="-137" r="5" fill="#f4be22" stroke="#171311" stroke-width="2.5"/>
+      </g>
+    `;
+    return buildSvg(markup, "-160 -160 320 320", 232, 232);
+  }
+
+  /* BEETLE 6: ZOMUSHI — Long-Snouted Kabuki Weevil ("Yari" Spear-Bearer) */
+  function createWeevilBeetle() {
+    const legs = makeLegsMarkup({
+      y1: -24, y2: 34, y3: 94, spread: 54, len1: 42, len2: 46,
+      fillMain: "#cf2c68", fillJoint: "#f4be22"
+    });
+    const markup = `
+      <defs>
+        <linearGradient id="weevil-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#d62c6c"/>
+          <stop offset="52%" stop-color="#f26b24"/>
+          <stop offset="100%" stop-color="#f4c228"/>
+        </linearGradient>
+        <linearGradient id="weevil-sheen" x1="0%" y1="0%" x2="100%" y2="20%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#ffe4f2" stop-opacity="0.68"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="weevil-elytra-clip">
+          <path d="M -52,-8 C -88,42 -78,136 0,168 C 78,136 88,42 52,-8 Z"/>
+        </clipPath>
+      </defs>
+
+      ${legs}
+
+      <!-- Plump Pear-Shaped Carapace -->
+      <path d="M -52,-8 C -88,42 -78,136 0,168 C 78,136 88,42 52,-8 Z"
+        fill="url(#weevil-shell)" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+
+      <g clip-path="url(#weevil-elytra-clip)">
+        <!-- Bold Celadon-Mint & Cobalt Stacked Bishi Diamonds -->
+        <polygon points="0,12 46,56 0,100 -46,56" fill="#3ec28f" stroke="#171311" stroke-width="4.5"/>
+        <polygon points="0,34 24,56 0,78 -24,56" fill="#faf4e8" stroke="#171311" stroke-width="3.5"/>
+        <polygon points="0,100 38,134 0,168 -38,134" fill="#1e5fa8" stroke="#171311" stroke-width="4.5"/>
+        <g class="sheen-bar">
+          <polygon points="-110,-16 -52,-16 -12,184 -70,184" fill="url(#weevil-sheen)"/>
+        </g>
+      </g>
+      <line x1="0" y1="-6" x2="0" y2="167" stroke="#171311" stroke-width="5"/>
+
+      <!-- Tapered Neck Thorax -->
+      <polygon points="-46,-8 -26,-86 26,-86 46,-8"
+        fill="#1e5fa8" stroke="#171311" stroke-width="6" stroke-linejoin="round"/>
+      <polygon points="-24,-18 -14,-74 14,-74 24,-18" fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+
+      <!-- Elongated Spear Rostrum Snout & Elbowed Club Antennae -->
+      <g class="head-group" data-ox="0" data-oy="-86">
+        <circle cx="0" cy="-94" r="24" fill="#171311"/>
+        <circle cx="-16" cy="-98" r="7" fill="#faf4e8"/>
+        <circle cx="16" cy="-98" r="7" fill="#faf4e8"/>
+        <circle cx="-16" cy="-99" r="3" fill="#e63a2c"/>
+        <circle cx="16" cy="-99" r="3" fill="#e63a2c"/>
+        <!-- Long Kabuki Spear Snout -->
+        <polygon points="-9,-106 9,-106 6,-222 -6,-222"
+          fill="#e63a2c" stroke="#171311" stroke-width="5" stroke-linejoin="round"/>
+        <circle cx="0" cy="-226" r="9" fill="#f4be22" stroke="#171311" stroke-width="3.5"/>
+        <!-- Elbowed Club Antennae -->
+        <polyline points="-7,-176 -46,-184 -62,-216" fill="none" stroke="#171311" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="-64" cy="-220" r="8" fill="#3ec28f" stroke="#171311" stroke-width="3"/>
+        <polyline points="7,-176 46,-184 62,-216" fill="none" stroke="#171311" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="64" cy="-220" r="8" fill="#3ec28f" stroke="#171311" stroke-width="3"/>
+      </g>
+    `;
+    return buildSvg(markup, "-160 -250 320 445", 224, 312);
+  }
+
+  /* ------------------------------------------------------------
+   * 6. Assemble the 6-Beetle Parade with Deliberate Front/Back Depth
+   *    Around art.png (4 in front, 2 weaving behind its edges)
+   * ------------------------------------------------------------ */
+  const paradeFront = document.getElementById("parade-front");
+  const paradeBack = document.getElementById("parade-back");
+
+  const beetleSpecs = [
+    {
+      name: "hero-rhino",
+      el: createHeroRhinoBeetle(),
+      parent: paradeFront,
+      phase0: 0.485,     // Anchored heroically overlapping bottom-left edge of art.png at t=0
+      speed: 1 / 52,     // Glacial stately gallery procession (52s loop)
+      latOffset: -18,
+      scale: 1.0,
+      gaitFreq: 1.65,
+      wobbleAmp: 2.2,
+      shadowRx: 112,
+      shadowRy: 165,
+      isHero: true
+    },
+    {
+      name: "stag",
+      el: createStagBeetle(),
+      parent: paradeFront,
+      phase0: 0.255,     // Striding boldly in lower-left open ground
+      speed: 1 / 52,
+      latOffset: 24,
+      scale: 0.96,
+      gaitFreq: 2.05,
+      wobbleAmp: 2.8,
+      shadowRx: 78,
+      shadowRy: 122,
+      hasPincers: true
+    },
+    {
+      name: "jewel",
+      el: createJewelBeetle(),
+      parent: paradeBack, // Weaves BEHIND the left irregular edge of art.png
+      phase0: 0.675,
+      speed: 1 / 52,
+      latOffset: 22,
+      scale: 0.95,
+      gaitFreq: 2.45,
+      wobbleAmp: 2.4,
+      shadowRx: 54,
+      shadowRy: 108,
+      isBack: true
+    },
+    {
+      name: "longhorn",
+      el: createLonghornBeetle(),
+      parent: paradeFront,
+      phase0: 0.91,      // Exiting upper-right / re-entering lower-left cleanly
+      speed: 1 / 52,
+      latOffset: -26,
+      scale: 0.94,
+      gaitFreq: 2.2,
+      wobbleAmp: 3.1,
+      shadowRx: 64,
+      shadowRy: 112,
+      hasLongAntennae: true
+    },
+    {
+      name: "tortoise",
+      el: createTortoiseBeetle(),
+      parent: paradeBack, // Peeks out BEHIND the upper-right irregular facet of art.png
+      phase0: 0.805,
+      speed: 1 / 52,
+      latOffset: 54,
+      scale: 0.92,
+      gaitFreq: 2.75,
+      wobbleAmp: 3.4,
+      shadowRx: 78,
+      shadowRy: 78,
+      isBack: true
+    },
+    {
+      name: "weevil",
+      el: createWeevilBeetle(),
+      parent: paradeFront,
+      phase0: 0.085,     // Entering gracefully bottom-left
+      speed: 1 / 52,
+      latOffset: -12,
+      scale: 0.92,
+      gaitFreq: 2.55,
+      wobbleAmp: 2.9,
+      shadowRx: 58,
+      shadowRy: 105
+    }
+  ];
+
+  // Deterministic gentle date-seeded phase & sheen jitter (keeps hero placement strong)
+  const actors = beetleSpecs.map((spec, idx) => {
+    spec.parent.appendChild(spec.el);
+    const w = parseFloat(spec.el.getAttribute("width"));
+    const h = parseFloat(spec.el.getAttribute("height"));
+    const legs = Array.from(spec.el.querySelectorAll(".leg")).map(node => ({
+      node,
+      id: node.getAttribute("data-leg"),
+      ox: parseFloat(node.getAttribute("data-ox")),
+      oy: parseFloat(node.getAttribute("data-oy")),
+      group: (node.getAttribute("data-leg") === "L1" || node.getAttribute("data-leg") === "R2" || node.getAttribute("data-leg") === "L3") ? 0 : 1
+    }));
+    const head = spec.el.querySelector(".head-group");
+    return {
+      ...spec,
+      w,
+      h,
+      legs,
+      head: head ? {
+        node: head,
+        ox: parseFloat(head.getAttribute("data-ox")),
+        oy: parseFloat(head.getAttribute("data-oy"))
+      } : null,
+      sheen: spec.el.querySelector(".sheen-bar"),
+      pincerL: spec.el.querySelector(".pincer-left"),
+      pincerR: spec.el.querySelector(".pincer-right"),
+      antL: spec.el.querySelector(".antenna-left"),
+      antR: spec.el.querySelector(".antenna-right"),
+      sheenOffset: rng() * Math.PI * 2,
+      stepAccum: idx * 0.45,
+      lastTrackSide: 1
+    };
+  });
+
+  /* ------------------------------------------------------------
+   * 7. Animated 540x960 Canvas: Woodblock Footprints & Soft Shadows
+   * ------------------------------------------------------------ */
+  const trailsCanvas = document.getElementById("trails-canvas");
+  const tCtx = trailsCanvas.getContext("2d");
+  const TW = 540, TH = 960;
+  const footprints = [];
+  const MAX_TRACKS = 110;
+
+  function addFootprint(x, y, angle, size, tint) {
+    footprints.push({ x: x * 0.5, y: y * 0.5, angle, size: size * 0.5, age: 0, life: 7.5, tint });
+    if (footprints.length > MAX_TRACKS) footprints.shift();
+  }
+
+  /* ------------------------------------------------------------
+   * 8. Main Animation Loop (Clamped dt, Smooth Seamless Forever)
+   * ------------------------------------------------------------ */
+  let simTime = 0;
+  let lastNow = performance.now();
+
+  function step(now) {
+    const dt = Math.min(Math.max((now - lastNow) / 1000, 0), 0.05);
+    lastNow = now;
+    simTime += dt;
+
+    // Clear 540x960 trails & shadow surface
+    tCtx.clearRect(0, 0, TW, TH);
+
+    // Update & render woodblock sumi/ochre footprints
+    for (let i = footprints.length - 1; i >= 0; i--) {
+      const fp = footprints[i];
+      fp.age += dt;
+      if (fp.age >= fp.life) {
+        footprints.splice(i, 1);
+        continue;
+      }
+      const alpha = (1 - fp.age / fp.life) * 0.24;
+      tCtx.save();
+      tCtx.translate(fp.x, fp.y);
+      tCtx.rotate(fp.angle);
+      tCtx.fillStyle = fp.tint === 0
+        ? `rgba(42, 30, 22, ${alpha.toFixed(3)})`
+        : `rgba(176, 62, 42, ${(alpha * 0.85).toFixed(3)})`;
+      tCtx.beginPath();
+      tCtx.moveTo(0, -fp.size);
+      tCtx.lineTo(fp.size * 0.72, fp.size * 0.7);
+      tCtx.lineTo(-fp.size * 0.72, fp.size * 0.7);
+      tCtx.closePath();
+      tCtx.fill();
+      tCtx.restore();
+    }
+
+    // Update every beetle in the Kabuki procession
+    for (let i = 0; i < actors.length; i++) {
+      const b = actors[i];
+
+      // Hero Kabuki theatrical "mie" cadence: subtle stately slow-and-stride modulation
+      const mieWave = b.isHero ? Math.sin(simTime * 0.55) * 0.0022 : 0;
+      const frac = (((b.phase0 + simTime * b.speed + mieWave) % 1) + 1) % 1;
+      const pose = samplePathByFrac(frac);
+
+      const x = pose.x + pose.nx * b.latOffset;
+      const y = pose.y + pose.ny * b.latOffset;
+
+      // Subtle proud body sway during marching stride
+      const gaitPhase = simTime * b.gaitFreq * Math.PI * 2 + i * 1.3;
+      const swayDeg = Math.sin(gaitPhase) * b.wobbleAmp;
+      const angleDeg = (pose.angle * 180) / Math.PI + swayDeg;
+
+      // Ground contact shadow on 540x960 canvas (underneath art-image & beetles)
+      if (!b.isBack || (x < 460 || y < 230 || x > 930)) {
+        tCtx.save();
+        tCtx.translate((x - 10) * 0.5, (y + 16) * 0.5);
+        tCtx.rotate(pose.angle);
+        tCtx.fillStyle = b.isHero
+          ? "rgba(46, 34, 22, 0.16)"
+          : "rgba(46, 34, 22, 0.12)";
+        tCtx.beginPath();
+        tCtx.ellipse(0, 0, b.shadowRx * 0.5, b.shadowRy * 0.5, 0, 0, Math.PI * 2);
+        tCtx.fill();
+        tCtx.restore();
+      }
+
+      // Stamp subtle rhythmic woodblock footprints as the beetle marches
+      b.stepAccum += dt * b.gaitFreq;
+      if (b.stepAccum >= 0.75) {
+        b.stepAccum -= 0.75;
+        b.lastTrackSide *= -1;
+        const footLat = b.lastTrackSide * (b.isHero ? 56 : 36);
+        const fx = x - pose.tx * 22 + pose.nx * footLat;
+        const fy = y - pose.ty * 22 + pose.ny * footLat;
+        if (fx > 10 && fx < 1070 && fy > 10 && fy < 1910) {
+          addFootprint(fx, fy, pose.angle, b.isHero ? 7.5 : 5.2, b.isHero ? 1 : 0);
+        }
+      }
+
+      // Position beetle SVG around its exact center using pure GPU transform
+      b.el.style.transform =
+        `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) ` +
+        `rotate(${angleDeg.toFixed(2)}deg) ` +
+        `scale(${b.scale}) ` +
+        `translate3d(${(-b.w * 0.5).toFixed(1)}px, ${(-b.h * 0.5).toFixed(1)}px, 0)`;
+
+      // Articulated tripod leg gait (alternating L1+R2+L3 and R1+L2+R3)
+      const swingA = Math.sin(gaitPhase) * 14;
+      const swingB = -swingA;
+      for (let l = 0; l < b.legs.length; l++) {
+        const leg = b.legs[l];
+        const ang = leg.group === 0 ? swingA : swingB;
+        leg.node.setAttribute("transform", `rotate(${ang.toFixed(1)} ${leg.ox} ${leg.oy})`);
+      }
+
+      // Proud Kabuki head tilt (more theatrical on Hero Rhinoceros Beetle)
+      if (b.head) {
+        const headAng = b.isHero
+          ? Math.sin(simTime * 0.55) * 9.5 + Math.cos(gaitPhase * 0.5) * 2.5
+          : Math.sin(gaitPhase * 0.5 + i) * 4.2;
+        b.head.node.setAttribute("transform", `rotate(${headAng.toFixed(1)} ${b.head.ox} ${b.head.oy})`);
+      }
+
+      // Stag beetle pincers slow breathing open/close
+      if (b.hasPincers && b.pincerL && b.pincerR) {
+        const pinch = Math.sin(simTime * 1.15 + 0.4) * 6.5;
+        b.pincerL.setAttribute("transform", `rotate(${(-pinch).toFixed(1)} -34 -118)`);
+        b.pincerR.setAttribute("transform", `rotate(${pinch.toFixed(1)} 34 -118)`);
+      }
+
+      // Longhorn sweeping Kabuki-mane antennae sway
+      if (b.hasLongAntennae && b.antL && b.antR) {
+        const antSway = Math.sin(simTime * 1.7 + 1.1) * 7.5;
+        b.antL.setAttribute("transform", `rotate(${antSway.toFixed(1)} -24 -116)`);
+        b.antR.setAttribute("transform", `rotate(${(-antSway).toFixed(1)} 24 -116)`);
+      }
+
+      // Iridescent woodblock mica sheen gliding smoothly across each shell
+      if (b.sheen) {
+        const glide = Math.sin(simTime * 0.82 + b.sheenOffset) * 145;
+        b.sheen.setAttribute("transform", `translate(${glide.toFixed(1)} 0)`);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // Render initial frame immediately so t=0 is perfectly composed
+  requestAnimationFrame(step);
+
+  /* ------------------------------------------------------------
+   * 9. Subtle Procedural Kabuki Percussion & Pentatonic Ambience
+   *    Strictly guarded by iframe check (window.self === window.top)
+   * ------------------------------------------------------------ */
+  if (window.self === window.top) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const actx = new AudioCtx();
+        const master = actx.createGain();
+        master.gain.value = 0.045;
+        master.connect(actx.destination);
+
+        // Miyako-bushi Japanese pentatonic frequencies (D, Eb, G, A, Bb, D5)
+        const scale = [293.66, 311.13, 392.0, 440.0, 466.16, 587.33];
+        const audioRng = createRng(hashDate(DATE_STR) ^ 0x9e3779b9);
+
+        function playHyoshigi(time) {
+          // Soft resonant wooden Kabuki clapper click
+          const osc = actx.createOscillator();
+          const osc2 = actx.createOscillator();
+          const gain = actx.createGain();
+          osc.type = "triangle";
+          osc2.type = "sine";
+          osc.frequency.setValueAtTime(1180, time);
+          osc2.frequency.setValueAtTime(2410, time);
+          gain.gain.setValueAtTime(0.0001, time);
+          gain.gain.exponentialRampToValueAtTime(0.28, time + 0.004);
+          gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.095);
+          osc.connect(gain);
+          osc2.connect(gain);
+          gain.connect(master);
+          osc.start(time);
+          osc2.start(time);
+          osc.stop(time + 0.11);
+          osc2.stop(time + 0.11);
+        }
+
+        function playPluck(time, freq) {
+          const osc = actx.createOscillator();
+          const filt = actx.createBiquadFilter();
+          const gain = actx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, time);
+          filt.type = "lowpass";
+          filt.frequency.setValueAtTime(1600, time);
+          filt.frequency.exponentialRampToValueAtTime(340, time + 1.4);
+          gain.gain.setValueAtTime(0.0001, time);
+          gain.gain.exponentialRampToValueAtTime(0.24, time + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, time + 1.55);
+          osc.connect(filt);
+          filt.connect(gain);
+          gain.connect(master);
+          osc.start(time);
+          osc.stop(time + 1.6);
+        }
+
+        let beat = 0;
+        function scheduleBar() {
+          if (actx.state !== "running") return;
+          const now = actx.currentTime + 0.08;
+          if (beat % 4 === 0) playHyoshigi(now);
+          if (beat % 2 === 0 || audioRng() > 0.55) {
+            const note = scale[Math.floor(audioRng() * scale.length)];
+            playPluck(now + 0.04, note);
+          }
+          beat++;
+        }
+
+        actx.resume().catch(() => {});
+        setInterval(scheduleBar, 1450);
+      }
+    } catch (_) {
+      // Fail silently if audio is restricted
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-26",
+  "generator_provider": "google",
+  "generator_model": "gemini-4-neon",
+  "critic_provider": "anthropic",
+  "critic_model": "global.anthropic.claude-opus-5-5",
+  "saw_assets": 2,
+  "critique": "The generated print delivers the brief on its own: five beetles step up a pale washi diagonal, from the blue-gold tortoise beetle through the slim green jewel beetle and the giant horned rhino with its harlequin vermilion-cobalt elytra to the small stag at top right, each shell a distinct flat-colour pattern with expressive black linework and wide empty cream ground around it. That high-key, spare procession is exactly what was asked for. The page then undercuts it by cropping this tall print into a nine-point facet polygon on a vermilion slab, which likely loses the tortoise beetle and the seal, and by marching a 415px kumadori rhino and checkerboard stag across it, producing two competing parades and crowding the empty ground the print depended on. Either let the print fill the stage as the textured ground and animate only its beetles, or drop it and let the SVG actors carry the procession alone."
+}
