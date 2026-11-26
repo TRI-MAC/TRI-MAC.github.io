@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-26",
+  "joke": "To keep the peace, we had the robot carve the turkey into eight exactly equal portions. We ate them with spoons.",
+  "model": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic"
+  },
+  "scheduled_family": "fable",
+  "critic": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai",
+    "approved": true,
+    "score": 4,
+    "reason": "The spoons are a clean surprise: you can picture exactly what the robot did to make those portions fair."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-26T09:30:37Z"
+}
