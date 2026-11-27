@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="14400; url=../">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta charset="utf-8">
+<title>2026-11-27</title>
+<style>
+html,body{margin:0;height:100%;background:#efe3cc;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;background:#efe3cc}
+#scene-image{position:absolute;left:0;top:0;width:1080px;height:1920px;object-fit:cover;
+  -webkit-mask-image:radial-gradient(ellipse 76% 71% at 50% 49%,#000 60%,transparent 100%);
+  mask-image:radial-gradient(ellipse 76% 71% at 50% 49%,#000 60%,transparent 100%);
+  animation:breathe 80s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+.veil{position:absolute;width:900px;height:900px;border-radius:50%;will-change:transform}
+#v1{left:-520px;top:-480px;background:radial-gradient(closest-side,rgba(244,226,190,.95),rgba(244,226,190,0));animation:d1 70s ease-in-out infinite}
+#v2{left:640px;top:1380px;background:radial-gradient(closest-side,rgba(226,190,150,.8),rgba(226,190,150,0));animation:d2 90s ease-in-out infinite}
+#v3{left:-500px;top:1420px;background:radial-gradient(closest-side,rgba(236,205,186,.85),rgba(236,205,186,0));animation:d1 100s ease-in-out infinite reverse}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(70px,50px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,-40px)}}
+#light{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#guinea-pig{position:absolute;left:9px;top:1893px;width:15px;height:auto;opacity:.5}
+#date{position:absolute;right:26px;bottom:20px;font:15px Georgia,serif;letter-spacing:2px;color:#6b4a2c;opacity:.45}
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="scene-image" src="scene.png" alt="">
+  <div class="veil" id="v1"></div>
+  <div class="veil" id="v2"></div>
+  <div class="veil" id="v3"></div>
+  <canvas id="light" width="270" height="480"></canvas>
+  <img id="guinea-pig" src="guineapig.png" alt="">
+  <div id="date">2026-11-27</div>
+</div>
+<script>
+(function(){
+var st=document.getElementById('stage');
+function fit(){var w=innerWidth,h=innerHeight,s=Math.min(w/1080,h/1920);
+ st.style.transform='scale('+s+')';st.style.left=(w-1080*s)/2+'px';st.style.top=(h-1920*s)/2+'px';}
+addEventListener('resize',fit);fit();
+
+// the light of an unseen window crossing the scene: one day, compressed
+var seed=20261127;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+var base=2.05+rnd()*0.12,      // mean direction (rad), down-left diagonal
+    amp=0.30+rnd()*0.06,
+    wid=0.085+rnd()*0.02,
+    period=110+Math.floor(rnd()*30);
+var c=document.getElementById('light'),g=c.getContext('2d'),W=270,H=480;
+var sx=W*1.22,sy=-H*0.18,R=900;
+function beam(a,w,col){
+ for(var i=0;i<6;i++){var ww=w*(1-i*0.14);
+  g.beginPath();g.moveTo(sx,sy);
+  g.lineTo(sx+Math.cos(a-ww)*R,sy+Math.sin(a-ww)*R);
+  g.lineTo(sx+Math.cos(a+ww)*R,sy+Math.sin(a+ww)*R);
+  g.closePath();g.fillStyle=col;g.fill();}
+}
+function frame(ms){
+ var p=Math.sin(ms/1000/period*Math.PI*2);
+ var a=base+amp*p,k=(p+1)/2; // noon gold -> evening rose
+ var r=255,gg=Math.round(238-34*k),b=Math.round(188-18*k);
+ var col='rgba('+r+','+gg+','+b+',0.045)';
+ g.clearRect(0,0,W,H);
+ beam(a-wid*1.12,wid,col);   // two panes,
+ beam(a+wid*1.12,wid,col);   // one mullion of shade between
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
