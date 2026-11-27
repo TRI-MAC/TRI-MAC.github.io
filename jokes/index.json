@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-27",
+    "joke": "Researchers built an AI to predict bestselling books from their covers. It only struggles before the stickers go on.",
+    "model": "Gemini 4 Neon"
+  },
+  {
     "date": "2026-11-26",
     "joke": "To keep the peace, we had the robot carve the turkey into eight exactly equal portions. We ate them with spoons.",
     "model": "Claude Fable 5.2"

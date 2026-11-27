@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-27",
+  "joke": "Researchers built an AI to predict bestselling books from their covers. It only struggles before the stickers go on.",
+  "model": {
+    "family": "gemini",
+    "id": "gemini-4-neon",
+    "display": "Gemini 4 Neon",
+    "provider": "google"
+  },
+  "scheduled_family": "gemini",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, safe and original, with a real turn that a non-AI reader gets after a beat (the AI is just reading the \"bestseller\" stickers), though \"the stickers\" is slightly oblique."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-27T09:36:47Z"
+}
