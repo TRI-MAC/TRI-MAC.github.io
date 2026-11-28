@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-28",
+  "joke": "My neighbour stopped halfway through the tune he's been practising on the piano. Four windows opened and we sang him the next bit.",
+  "model": {
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai"
+  },
+  "scheduled_family": "gpt",
+  "critic": {
+    "family": "fable",
+    "id": "global.anthropic.claude-fable-5-2",
+    "display": "Claude Fable 5.2",
+    "provider": "anthropic",
+    "approved": true,
+    "score": 4,
+    "reason": "Clean, universally understandable setup with a warm visual turn that implies the whole street has learned the tune from his endless practising, with no safety concerns or jargon."
+  },
+  "attempts": 1,
+  "generated_at": "2026-11-28T09:31:52Z"
+}

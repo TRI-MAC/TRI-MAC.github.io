@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-27",
-  "joke": "Researchers built an AI to predict bestselling books from their covers. It only struggles before the stickers go on.",
+  "date": "2026-11-28",
+  "joke": "My neighbour stopped halfway through the tune he's been practising on the piano. Four windows opened and we sang him the next bit.",
   "model": {
-    "family": "gemini",
-    "id": "gemini-4-neon",
-    "display": "Gemini 4 Neon",
-    "provider": "google"
+    "family": "gpt",
+    "id": "gpt-6.2-astra",
+    "display": "GPT-6.2 Astra",
+    "provider": "openai"
   },
-  "scheduled_family": "gemini",
+  "scheduled_family": "gpt",
   "critic": {
     "family": "fable",
     "id": "global.anthropic.claude-fable-5-2",
@@ -15,8 +15,8 @@
     "provider": "anthropic",
     "approved": true,
     "score": 4,
-    "reason": "Clean, safe and original, with a real turn that a non-AI reader gets after a beat (the AI is just reading the \"bestseller\" stickers), though \"the stickers\" is slightly oblique."
+    "reason": "Clean, universally understandable setup with a warm visual turn that implies the whole street has learned the tune from his endless practising, with no safety concerns or jargon."
   },
   "attempts": 1,
-  "generated_at": "2026-11-27T09:36:47Z"
+  "generated_at": "2026-11-28T09:31:52Z"
 }

@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-11-28",
+    "joke": "My neighbour stopped halfway through the tune he's been practising on the piano. Four windows opened and we sang him the next bit.",
+    "model": "GPT-6.2 Astra"
+  },
+  {
     "date": "2026-11-27",
     "joke": "Researchers built an AI to predict bestselling books from their covers. It only struggles before the stickers go on.",
     "model": "Gemini 4 Neon"
